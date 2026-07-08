@@ -1,0 +1,22 @@
+{
+  "generated_at": "2026-06-09T18:03:08Z",
+  "programme_count": 234,
+  "institution_count": 11,
+  "institutions": {
+    "Botho University Lesotho": 21,
+    "Centre for Accounting Studies": 8,
+    "Imperial Business College": 2,
+    "Lerotholi Polytechnic": 22,
+    "Lesotho Agricultural College": 5,
+    "Lesotho College of Education": 6,
+    "Limkokwing University Lesotho": 29,
+    "NUL Institute of Extra Mural Studies (IEMS)": 7,
+    "National University of Lesotho": 129,
+    "Paray School of Nursing": 3,
+    "Roma College of Nursing": 2
+  },
+  "review_status_counts": {
+    "needs_admin_review": 234
+  },
+  "update_note": "Manual repair: Paray upgraded to supplied PDF data, IEMS remains split from NUL, and IBC visual prospectus records added for admin scope review."
+}

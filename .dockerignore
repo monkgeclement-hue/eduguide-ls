@@ -1,0 +1,17 @@
+.env
+.venv
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.git/
+.gitignore
+uvicorn.err.log
+uvicorn.out.log
+data/eduguide.db
+data/uploads/
+data/admin-v2-smoke.png
+node_modules/

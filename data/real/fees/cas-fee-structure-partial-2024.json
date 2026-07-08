@@ -1,0 +1,45 @@
+{
+  "institution": "Centre for Accounting Studies",
+  "source_title": "CAS fees partial manual extract",
+  "source_url": "https://cas.ac.ls/",
+  "supporting_source_path": "C:/Users/lepha/Downloads/CAS Lesotho Student-Handbook-Volume-4.pdf",
+  "extraction_method": "manual_user_confirmation_plus_public_site_review",
+  "currency": "LSL",
+  "review_status": "needs_admin_review",
+  "confirmed_fee_items": [
+    {
+      "item": "Application fee",
+      "amount": 450,
+      "refund_status": null,
+      "source_note": "Confirmed manually by project owner."
+    },
+    {
+      "item": "Admission/acceptance fee",
+      "amount": 1200,
+      "refund_status": "non-refundable",
+      "source_note": "Confirmed manually by project owner; handbook states acceptance fee is non-refundable."
+    }
+  ],
+  "known_fee_policy": {
+    "tuition_basis": "charged per module",
+    "self_sponsored_payment_rule": "50% upfront, balance within 4 months",
+    "professional_body_fees": [
+      "annual subscription",
+      "registration",
+      "exams"
+    ]
+  },
+  "missing_fee_items": [
+    "tuition per module",
+    "ACCA annual subscription",
+    "ACCA registration and exam fees",
+    "CIMA annual subscription",
+    "CIMA registration and exam fees",
+    "CIPFA annual subscription",
+    "CIPFA registration and exam fees"
+  ],
+  "notes": [
+    "The public CAS homepage exposes course listings and a course-fee search filter, but exact fee amounts were not visible in the static page text reviewed.",
+    "Missing module and professional-body fee amounts should not block programme matching; they can be added when CAS Accounts Office or a fee schedule confirms them."
+  ]
+}

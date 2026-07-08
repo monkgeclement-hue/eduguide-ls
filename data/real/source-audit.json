@@ -1,0 +1,204 @@
+[
+  {
+    "institution": "National University of Lesotho",
+    "source_url": "https://nul.ls/",
+    "status": "used_for_discovery",
+    "records_extracted": 136,
+    "data_found": ["faculty links", "programme pages", "programme names", "some durations", "some requirements", "some career opportunities"],
+    "shortage": ["NUL records need duplicate/context review because faculty pages contain repeated short and detailed programme headings."]
+  },
+  {
+    "institution": "National University of Lesotho",
+    "source_path": "C:/Users/lepha/Downloads/NUL Fee-Structure-2024_25.pdf",
+    "status": "manual_extract",
+    "records_extracted": 0,
+    "data_found": ["2024/25 faculty fee bands", "Local & SADC fees", "International fees", "IEMS-ODL fees"],
+    "shortage": ["PDF is scanned/image-only, so OCR is still useful for page-level verification"]
+  },
+  {
+    "institution": "National University of Lesotho",
+    "source_path": "C:/Users/lepha/Downloads/data/PROSPECTUS-2026-2027-FINAL-VERSION.docx",
+    "status": "manual_extract",
+    "records_extracted": 0,
+    "data_found": ["2026/27 fee structure", "Local & SADC fees", "International fees", "IEMS-ODL fees", "LGCSE achievement scale"],
+    "shortage": ["programme-level requirements from the long prospectus still need deeper structured parsing if we want to replace the web-scraped NUL requirement snippets"]
+  },
+  {
+    "institution": "Limkokwing University Lesotho",
+    "source_url": "https://www.portal.co.ls/apply/courses",
+    "status": "scraped",
+    "records_extracted": 29,
+    "data_found": ["programme names", "levels", "general entry requirements", "faculty labels"],
+    "shortage": ["durations not visible on course cards", "fees require separate finance page or login", "programme descriptions are limited"]
+  },
+  {
+    "institution": "Limkokwing University Lesotho",
+    "source_url": "https://www.portal.co.ls/student-portal/finance/tuition",
+    "status": "blocked_or_locked",
+    "records_extracted": 0,
+    "data_found": ["finance page shell"],
+    "shortage": ["tuition/fee values are not exposed in static HTML and appear to require portal interaction or login"]
+  },
+  {
+    "institution": "Botho University Lesotho",
+    "source_url": "https://www.bothouniversity.com/lesotho/programmes",
+    "status": "scraped",
+    "records_extracted": 21,
+    "data_found": ["programme names", "codes", "duration", "credits", "module counts", "overviews", "entry criteria"],
+    "shortage": ["fees not extracted", "some programme records may be Botswana/SADC shared content and need Lesotho campus review"]
+  },
+  {
+    "institution": "Botho University Lesotho",
+    "source_url": "https://www.scribd.com/document/846880410/Botho-University-Lesotho-Prospectus-2025-1",
+    "status": "manual_review_needed",
+    "records_extracted": 0,
+    "data_found": ["document metadata", "page count"],
+    "shortage": ["Scribd viewer does not expose reliable document text in static HTML", "use official Botho page as primary source or manually download/review prospectus"]
+  },
+  {
+    "institution": "National Teachers Training College",
+    "source_url": "https://www.africanadvice.com/1374130/Colleges/Lesotho/National_Teachers_Training_College/",
+    "status": "profile_only",
+    "records_extracted": 0,
+    "data_found": ["institution name", "address", "phone/contact listing"],
+    "shortage": ["no programme names", "no requirements", "no duration", "no fees"]
+  },
+  {
+    "institution": "Lerotholi Polytechnic",
+    "source_url": "https://www.lp.ac.ls/wp-content/uploads/2024/02/lerotholi-prospectus-2024-2025-embed1.pdf",
+    "status": "scraped",
+    "records_extracted": 22,
+    "data_found": ["programme names", "school/faculty grouping", "levels", "some durations", "some entry requirement summaries"],
+    "shortage": ["requirements need deeper per-programme parsing and admin confirmation", "fees not extracted"]
+  },
+  {
+    "institution": "Lesotho College of Education",
+    "source_url": "https://mabumbe.com/official-lesotho-college-education-lce-courses/",
+    "status": "partially_added",
+    "records_extracted": 4,
+    "data_found": ["programme names from third-party course listing"],
+    "shortage": ["direct script scraping is blocked by Cloudflare", "legacy diploma/certificate requirements and durations still need official confirmation", "new B.Ed data is captured from the local official PDF entries below"]
+  },
+  {
+    "institution": "Lesotho College of Education",
+    "source_path": "C:/Users/lepha/Downloads/Lesotho College Of Education.pdf",
+    "status": "manual_extract",
+    "records_extracted": 2,
+    "data_found": ["new B.Ed programme names", "duration", "entry requirements", "delivery mode", "career options"],
+    "shortage": ["application fee differs from fee structure PDF and needs admin confirmation", "older diploma/certificate programme details still need current official confirmation"]
+  },
+  {
+    "institution": "Lesotho College of Education",
+    "source_path": "C:/Users/lepha/Downloads/Lesotho College Of Education fees.pdf",
+    "status": "manual_extract",
+    "records_extracted": 0,
+    "data_found": ["B.Ed tuition", "part-time tuition", "international levy", "boarding", "administrative fees", "repeat and supplementary fees"],
+    "shortage": ["application fee discrepancy with programme document needs confirmation"]
+  },
+  {
+    "institution": "Paray School of Nursing",
+    "source_url": "https://www.scribd.com/document/763854725/2024-2025-Final-Prospectus",
+    "source_path": "C:/Users/lepha/Downloads/data/Paray 2024-2025-final-prospectus.pdf",
+    "status": "manual_extract_added",
+    "records_extracted": 3,
+    "data_found": ["programme names", "durations", "entry requirements", "post-basic midwifery route", "fee table", "application fee", "modules", "NMDS note"],
+    "shortage": ["2026/27 Paray data not yet available; 2024/25 prospectus should be treated as historical/current-until-replaced"]
+  },
+  {
+    "institution": "Roma College of Nursing",
+    "source_url": "https://www.che.ac.ls/roma-college-of-nursing-rcn-accredited-programmes/",
+    "status": "scraped",
+    "records_extracted": 2,
+    "data_found": ["accredited programme names"],
+    "shortage": ["entry requirements missing", "duration missing", "fees missing", "official prospectus needed for detailed admissions data"]
+  },
+  {
+    "institution": "Machabeng College",
+    "source_url": "https://machcoll.co.ls/",
+    "status": "not_programme_catalogue",
+    "records_extracted": 0,
+    "data_found": ["school website", "admissions links", "contact details"],
+    "shortage": ["no higher-education programme catalogue found", "may be out of scope unless we include high-school/college admissions"]
+  },
+  {
+    "institution": "Machabeng College",
+    "source_url": "https://www.scribd.com/document/997795506/Fee-Structure-2024-2024",
+    "status": "manual_review_needed",
+    "records_extracted": 0,
+    "data_found": ["Scribd fee document metadata"],
+    "shortage": ["fee values not extractable from static Scribd HTML", "not enough programme data for higher-education matching"]
+  },
+  {
+    "institution": "Centre for Accounting Studies",
+    "source_url": "https://cas.ac.ls/",
+    "status": "scraped",
+    "records_extracted": 8,
+    "data_found": ["course/programme names", "course pages", "some entry requirements", "some overviews", "some durations", "public course-fee filter without exact visible amounts"],
+    "shortage": ["exact tuition/module amounts not listed on scraped pages", "some short-course requirements are blank", "course pages need admin review for exact qualification level"]
+  },
+  {
+    "institution": "Centre for Accounting Studies",
+    "source_path": "C:/Users/lepha/Downloads/CAS Lesotho Student-Handbook-Volume-4.pdf",
+    "status": "manual_extract",
+    "records_extracted": 3,
+    "data_found": ["ACCA levels", "CIMA levels", "CIPFA levels", "minimum durations", "entry routes", "attendance rule", "registration rule", "fee policy", "M450 application fee from manual project-owner confirmation", "M1200 acceptance fee from manual project-owner confirmation"],
+    "shortage": ["tuition-per-module, subscription, registration, and exam fee amounts are not listed in the handbook", "PDF is scanned/image-only, so OCR is still useful for page-level verification"]
+  },
+  {
+    "institution": "Imperial Business College",
+    "source_url": "https://www.imperialcollege.edu.np/",
+    "source_path": "C:/Users/lepha/Downloads/data/IBC prospectus-outlined-fonts.pdf",
+    "status": "visual_extract_added",
+    "records_extracted": 2,
+    "data_found": ["BBA programme", "BHCM programme", "duration", "admission eligibility", "career choices", "contact details"],
+    "shortage": ["PDF uses outlined fonts, so automated text extraction only gets page headers", "institution is in Kathmandu, Nepal and needs scope review before final EduGuide LS publication", "fees not found in the visible prospectus pages"]
+  },
+  {
+    "institution": "Scribd general",
+    "source_url": "https://www.scribd.com/home",
+    "status": "manual_discovery_only",
+    "records_extracted": 0,
+    "data_found": ["document search surface"],
+    "shortage": ["not a direct institution source", "individual documents need separate manual review"]
+  },
+  {
+    "institution": "Lesotho Agricultural College",
+    "source_url": "https://lac.org.ls/wp-content/uploads/2026/01/LAC-2026-2027-PROSPECTUS.pdf",
+    "status": "blocked_or_unstable",
+    "records_extracted": 0,
+    "data_found": ["source URL known"],
+    "shortage": ["PDF returned 403 or timed out in scraper attempts", "use manually downloaded PDF or alternate official source for requirements/fees"]
+  },
+  {
+    "institution": "Lesotho Agricultural College",
+    "source_url": "https://www.che.ac.ls/lesotho-agricultural-college-lac-accredited-programmes/",
+    "status": "scraped",
+    "records_extracted": 1,
+    "data_found": ["accredited programme name"],
+    "shortage": ["requirements missing", "duration missing", "fees missing"]
+  },
+  {
+    "institution": "Lesotho Agricultural College",
+    "source_url": "https://www.che.ac.ls/lesotho-agricultural-college-profile/",
+    "status": "scraped",
+    "records_extracted": 4,
+    "data_found": ["additional programme names/profile programme list"],
+    "shortage": ["requirements missing", "duration missing", "fees missing"]
+  },
+  {
+    "institution": "Lesotho Agricultural College",
+    "source_url": "https://www.schoolandcollegelistings.com/LS/Maseru/105145030832776/Lesotho-Agricultural-College",
+    "status": "secondary_reference",
+    "records_extracted": 0,
+    "data_found": ["institution profile", "announcements"],
+    "shortage": ["not reliable as canonical programme/requirements source"]
+  },
+  {
+    "institution": "School and College Listings Lesotho",
+    "source_url": "https://www.schoolandcollegelistings.com/LS",
+    "status": "discovery_source",
+    "records_extracted": 0,
+    "data_found": ["directory of schools/colleges by location"],
+    "shortage": ["not a programme catalogue", "use only to discover institution names"]
+  }
+]

@@ -1,0 +1,72 @@
+[
+  {
+    "id": "lesotho-agricultural-college-diploma-in-agriculture",
+    "institution": "Lesotho Agricultural College",
+    "name": "Diploma in Agriculture",
+    "category": "Agriculture",
+    "faculty": null,
+    "level": "Diploma",
+    "duration": null,
+    "requirements_summary": null,
+    "source_url": "https://www.che.ac.ls/lesotho-agricultural-college-lac-accredited-programmes/",
+    "source_type": "che_accredited_programmes_page",
+    "extraction_method": "che_accreditation_listing",
+    "review_status": "needs_admin_review"
+  },
+  {
+    "id": "lesotho-agricultural-college-diploma-in-forestry-and-resource-management",
+    "institution": "Lesotho Agricultural College",
+    "name": "Diploma in Forestry and Resource Management",
+    "category": "Business & Commerce",
+    "faculty": null,
+    "level": "Diploma",
+    "duration": null,
+    "requirements_summary": null,
+    "source_url": "https://www.che.ac.ls/lesotho-agricultural-college-profile/",
+    "source_type": "che_accredited_programmes_page",
+    "extraction_method": "che_accreditation_listing",
+    "review_status": "needs_admin_review"
+  },
+  {
+    "id": "lesotho-agricultural-college-diploma-in-home-economics",
+    "institution": "Lesotho Agricultural College",
+    "name": "Diploma in Home Economics",
+    "category": "Social Sciences",
+    "faculty": null,
+    "level": "Diploma",
+    "duration": null,
+    "requirements_summary": null,
+    "source_url": "https://www.che.ac.ls/lesotho-agricultural-college-profile/",
+    "source_type": "che_accredited_programmes_page",
+    "extraction_method": "che_accreditation_listing",
+    "review_status": "needs_admin_review"
+  },
+  {
+    "id": "lesotho-agricultural-college-diploma-in-home-economics-education",
+    "institution": "Lesotho Agricultural College",
+    "name": "Diploma in Home Economics Education",
+    "category": "Education",
+    "faculty": null,
+    "level": "Diploma",
+    "duration": null,
+    "requirements_summary": null,
+    "source_url": "https://www.che.ac.ls/lesotho-agricultural-college-profile/",
+    "source_type": "che_accredited_programmes_page",
+    "extraction_method": "che_accreditation_listing",
+    "review_status": "needs_admin_review"
+  },
+  {
+    "id": "lesotho-agricultural-college-diploma-in-agricultural-engineering-land-and-water-management",
+    "institution": "Lesotho Agricultural College",
+    "name": "Diploma in Agricultural Engineering, Land and Water Management",
+    "category": "Business & Commerce",
+    "faculty": null,
+    "level": "Diploma",
+    "duration": null,
+    "requirements_summary": null,
+    "source_url": "https://www.che.ac.ls/lesotho-agricultural-college-profile/",
+    "source_type": "che_accredited_programmes_page",
+    "extraction_method": "che_accreditation_listing",
+    "review_status": "needs_admin_review"
+  }
+]

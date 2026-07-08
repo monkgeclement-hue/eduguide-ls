@@ -1,0 +1,555 @@
+{
+  "institution": "National University of Lesotho",
+  "source_title": "NUL Fee Structure 2026/2027",
+  "source_path": "C:/Users/lepha/Downloads/data/PROSPECTUS-2026-2027-FINAL-VERSION.docx",
+  "extraction_method": "docx_table_extract",
+  "academic_year": "2026/2027",
+  "currency": "LSL",
+  "review_status": "needs_admin_review",
+  "fee_items": [
+    {
+      "faculty": "Agriculture",
+      "programme_group": "BSc Consumer Science",
+      "local_sadc_amount": 44901.0,
+      "international_amount": 59892.0
+    },
+    {
+      "faculty": "Agriculture",
+      "programme_group": "BSc Agricultural Economics",
+      "local_sadc_amount": 44901.0,
+      "international_amount": 59892.0
+    },
+    {
+      "faculty": "Agriculture",
+      "programme_group": "BSc Agricultural Extension",
+      "local_sadc_amount": 44901.0,
+      "international_amount": 59892.0
+    },
+    {
+      "faculty": "Agriculture",
+      "programme_group": "BSc Animal Science",
+      "local_sadc_amount": 44901.0,
+      "international_amount": 59892.0
+    },
+    {
+      "faculty": "Agriculture",
+      "programme_group": "BSc Crop Science",
+      "local_sadc_amount": 44901.0,
+      "international_amount": 59892.0
+    },
+    {
+      "faculty": "Agriculture",
+      "programme_group": "BSc Soil Science",
+      "local_sadc_amount": 44901.0,
+      "international_amount": 59892.0
+    },
+    {
+      "faculty": "Agriculture",
+      "programme_group": "MSc Agriculture",
+      "local_sadc_amount": 44901.0,
+      "international_amount": 59892.0
+    },
+    {
+      "faculty": "Agriculture",
+      "programme_group": "PhD Agriculture",
+      "local_sadc_amount": 44901.0,
+      "international_amount": 60040.0
+    },
+    {
+      "faculty": "Centre For Teaching and Learning",
+      "programme_group": "Postgraduate Diploma in Higher Education",
+      "local_sadc_amount": 36925.0,
+      "international_amount": 49230.0
+    },
+    {
+      "faculty": "Education",
+      "programme_group": "Diploma Agricultural Education",
+      "local_sadc_amount": 38975.0,
+      "international_amount": 48844.0
+    },
+    {
+      "faculty": "Education",
+      "programme_group": "Higher Diploma in Education (Primary)",
+      "local_sadc_amount": 21476.0,
+      "international_amount": 28639.0
+    },
+    {
+      "faculty": "Education",
+      "programme_group": "B.Ed. Primary (Part-time)",
+      "local_sadc_amount": 26438.0,
+      "international_amount": 35256.0
+    },
+    {
+      "faculty": "Education",
+      "programme_group": "Bachelor of Education",
+      "local_sadc_amount": 36541.0,
+      "international_amount": 48741.0
+    },
+    {
+      "faculty": "Education",
+      "programme_group": "BSc Education",
+      "local_sadc_amount": 44901.0,
+      "international_amount": 59892.0
+    },
+    {
+      "faculty": "Education",
+      "programme_group": "PGDE (part time)",
+      "local_sadc_amount": 44901.0,
+      "international_amount": 60040.0
+    },
+    {
+      "faculty": "Education",
+      "programme_group": "B Education (Honours) (Part-time)",
+      "local_sadc_amount": 44901.0,
+      "international_amount": 60040.0
+    },
+    {
+      "faculty": "Education",
+      "programme_group": "MA Ed / M Ed (part-time)",
+      "local_sadc_amount": 29570.0,
+      "international_amount": 39480.0
+    },
+    {
+      "faculty": "Education",
+      "programme_group": "MSc Education",
+      "local_sadc_amount": 44989.0,
+      "international_amount": 60040.0
+    },
+    {
+      "faculty": "Education",
+      "programme_group": "PhD Education",
+      "local_sadc_amount": 44989.0,
+      "international_amount": 60040.0
+    },
+    {
+      "faculty": "Health Sciences",
+      "programme_group": "BSc Environmental Health",
+      "local_sadc_amount": 44901.0,
+      "international_amount": 59892.0
+    },
+    {
+      "faculty": "Health Sciences",
+      "programme_group": "BSc Nursing and Midwifery",
+      "local_sadc_amount": 44901.0,
+      "international_amount": 59892.0
+    },
+    {
+      "faculty": "Health Sciences",
+      "programme_group": "Bachelor of Nursing Science (part-time)",
+      "local_sadc_amount": 33528.0,
+      "international_amount": 44709.0
+    },
+    {
+      "faculty": "Health Sciences",
+      "programme_group": "BSc Nutrition",
+      "local_sadc_amount": 44901.0,
+      "international_amount": 59892.0
+    },
+    {
+      "faculty": "Health Sciences",
+      "programme_group": "BSc Pharmacy (Honours)",
+      "local_sadc_amount": 44901.0,
+      "international_amount": 59892.0
+    },
+    {
+      "faculty": "Health Sciences",
+      "programme_group": "Masters Health Sciences (part-time)",
+      "local_sadc_amount": 44989.0,
+      "international_amount": 60040.0
+    },
+    {
+      "faculty": "Humanities",
+      "programme_group": "Diploma in Spiritual Care and Counselling",
+      "local_sadc_amount": 34325.0,
+      "international_amount": 45817.0
+    },
+    {
+      "faculty": "Humanities",
+      "programme_group": "Diploma in Applied Philosophy and Public Ethics",
+      "local_sadc_amount": 34325.0,
+      "international_amount": 45817.0
+    },
+    {
+      "faculty": "Humanities",
+      "programme_group": "BA in Library and Information Studies",
+      "local_sadc_amount": 36541.0,
+      "international_amount": 48741.0
+    },
+    {
+      "faculty": "Humanities",
+      "programme_group": "BA Spiritual Care and Counselling",
+      "local_sadc_amount": 36541.0,
+      "international_amount": 48741.0
+    },
+    {
+      "faculty": "Humanities",
+      "programme_group": "BA Practical Philosophy and Applied Ethics",
+      "local_sadc_amount": 36541.0,
+      "international_amount": 48741.0
+    },
+    {
+      "faculty": "Humanities",
+      "programme_group": "BA Humanities",
+      "local_sadc_amount": 36541.0,
+      "international_amount": 48741.0
+    },
+    {
+      "faculty": "Humanities",
+      "programme_group": "BA in Journalism and Media Studies",
+      "local_sadc_amount": 36541.0,
+      "international_amount": 48741.0
+    },
+    {
+      "faculty": "Humanities",
+      "programme_group": "Masters (Humanities)",
+      "local_sadc_amount": 44989.0,
+      "international_amount": 60040.0
+    },
+    {
+      "faculty": "Humanities",
+      "programme_group": "PhD (Humanities)",
+      "local_sadc_amount": 44989.0,
+      "international_amount": 60040.0
+    },
+    {
+      "faculty": "Law",
+      "programme_group": "LLB - 5 Year Programme",
+      "local_sadc_amount": 38550.0,
+      "international_amount": 51400.0
+    },
+    {
+      "faculty": "Law",
+      "programme_group": "LLB - 3 Year Programme",
+      "local_sadc_amount": 38550.0,
+      "international_amount": 51400.0
+    },
+    {
+      "faculty": "Law",
+      "programme_group": "Certificate in Proficiency in Insurance Law",
+      "local_sadc_amount": 13042.0,
+      "international_amount": 51400.0
+    },
+    {
+      "faculty": "Law",
+      "programme_group": "Dip. Labour Law, Conciliation and & Arbitration",
+      "local_sadc_amount": 40396.0,
+      "international_amount": 54162.0
+    },
+    {
+      "faculty": "Law",
+      "programme_group": "Postgraduate Diploma in Pension Law",
+      "local_sadc_amount": 40396.0,
+      "international_amount": 54162.0
+    },
+    {
+      "faculty": "Law",
+      "programme_group": "Master of Laws (LLM)",
+      "local_sadc_amount": 44989.0,
+      "international_amount": 60040.0
+    },
+    {
+      "faculty": "Law",
+      "programme_group": "PhD (Law)",
+      "local_sadc_amount": 44989.0,
+      "international_amount": 60040.0
+    },
+    {
+      "faculty": "Science and Technology",
+      "programme_group": "BSc General",
+      "local_sadc_amount": 44901.0,
+      "international_amount": 59892.0
+    },
+    {
+      "faculty": "Science and Technology",
+      "programme_group": "BSc Computer Science",
+      "local_sadc_amount": 44901.0,
+      "international_amount": 59892.0
+    },
+    {
+      "faculty": "Science and Technology",
+      "programme_group": "BSc Electronics",
+      "local_sadc_amount": 44901.0,
+      "international_amount": 59892.0
+    },
+    {
+      "faculty": "Science and Technology",
+      "programme_group": "BSc Engineering",
+      "local_sadc_amount": 44901.0,
+      "international_amount": 59892.0
+    },
+    {
+      "faculty": "Science and Technology",
+      "programme_group": "BSc Human Geography",
+      "local_sadc_amount": 44901.0,
+      "international_amount": 59892.0
+    },
+    {
+      "faculty": "Science and Technology",
+      "programme_group": "BSc Information Systems",
+      "local_sadc_amount": 44901.0,
+      "international_amount": 59892.0
+    },
+    {
+      "faculty": "Science and Technology",
+      "programme_group": "BSc Physical Geography",
+      "local_sadc_amount": 44901.0,
+      "international_amount": 59892.0
+    },
+    {
+      "faculty": "Science and Technology",
+      "programme_group": "BSc Statistics",
+      "local_sadc_amount": 44901.0,
+      "international_amount": 59892.0
+    },
+    {
+      "faculty": "Science and Technology",
+      "programme_group": "Bachelor of Urban and Regional Planning (BURP)",
+      "local_sadc_amount": 44901.0,
+      "international_amount": 59892.0
+    },
+    {
+      "faculty": "Science and Technology",
+      "programme_group": "B Science (Honours)",
+      "local_sadc_amount": 44989.0,
+      "international_amount": 60040.0
+    },
+    {
+      "faculty": "Science and Technology",
+      "programme_group": "MSc Chemistry",
+      "local_sadc_amount": 44989.0,
+      "international_amount": 60040.0
+    },
+    {
+      "faculty": "Science and Technology",
+      "programme_group": "MSc Mathematics",
+      "local_sadc_amount": 44989.0,
+      "international_amount": 60040.0
+    },
+    {
+      "faculty": "Science and Technology",
+      "programme_group": "MSc Sustainable Energy",
+      "local_sadc_amount": 53172.0,
+      "international_amount": 69124.0
+    },
+    {
+      "faculty": "Science and Technology",
+      "programme_group": "MSc Sustainable Energy (Part-Time)",
+      "local_sadc_amount": 26586.0,
+      "international_amount": 34562.0
+    },
+    {
+      "faculty": "Social Sciences",
+      "programme_group": "Certificate in Statistics",
+      "local_sadc_amount": 36172.0,
+      "international_amount": 48283.0
+    },
+    {
+      "faculty": "Social Sciences",
+      "programme_group": "Bachelor of Commerce",
+      "local_sadc_amount": 36718.0,
+      "international_amount": 49036.0
+    },
+    {
+      "faculty": "Social Sciences",
+      "programme_group": "BA Economics",
+      "local_sadc_amount": 36718.0,
+      "international_amount": 49036.0
+    },
+    {
+      "faculty": "Social Sciences",
+      "programme_group": "BA Political & Public Administration",
+      "local_sadc_amount": 36718.0,
+      "international_amount": 49036.0
+    },
+    {
+      "faculty": "Social Sciences",
+      "programme_group": "BA Urban & Regional Planning",
+      "local_sadc_amount": 36718.0,
+      "international_amount": 49036.0
+    },
+    {
+      "faculty": "Social Sciences",
+      "programme_group": "BA Statistics and Demography",
+      "local_sadc_amount": 36718.0,
+      "international_amount": 49036.0
+    },
+    {
+      "faculty": "Social Sciences",
+      "programme_group": "BA Geography",
+      "local_sadc_amount": 36718.0,
+      "international_amount": 49036.0
+    },
+    {
+      "faculty": "Social Sciences",
+      "programme_group": "BA Sociology",
+      "local_sadc_amount": 38550.0,
+      "international_amount": 51400.0
+    },
+    {
+      "faculty": "Social Sciences",
+      "programme_group": "BA Social Work",
+      "local_sadc_amount": 38550.0,
+      "international_amount": 51400.0
+    },
+    {
+      "faculty": "Social Sciences",
+      "programme_group": "PGD in Project Management",
+      "local_sadc_amount": 44989.0,
+      "international_amount": 60040.0
+    },
+    {
+      "faculty": "Social Sciences",
+      "programme_group": "MSc Economics",
+      "local_sadc_amount": 44989.0,
+      "international_amount": 60040.0
+    },
+    {
+      "faculty": "Social Sciences",
+      "programme_group": "Master of Commerce",
+      "local_sadc_amount": 44989.0,
+      "international_amount": 60040.0
+    },
+    {
+      "faculty": "Social Sciences",
+      "programme_group": "MSc Sociology",
+      "local_sadc_amount": 44989.0,
+      "international_amount": 60040.0
+    },
+    {
+      "faculty": "Social Sciences",
+      "programme_group": "MSc (Social Sciences)",
+      "local_sadc_amount": 44989.0,
+      "international_amount": 60040.0
+    },
+    {
+      "faculty": "Social Sciences",
+      "programme_group": "PhD (Social Sciences)",
+      "local_sadc_amount": 44989.0,
+      "international_amount": 60040.0
+    },
+    {
+      "faculty": "Water Institute",
+      "programme_group": "M. Sc. Integrated Catchment and Water Resources Management",
+      "local_sadc_amount": 53172.0,
+      "international_amount": 69124.0
+    }
+  ],
+  "fee_category_items": [
+    {
+      "fee_group": "Other Fees",
+      "item": "Undergraduate Application Fee",
+      "local_sadc_amount": 500.0,
+      "international_amount": 650.0,
+      "basis": null
+    },
+    {
+      "fee_group": "Other Fees",
+      "item": "Postgraduate Application Fee",
+      "local_sadc_amount": 550.0,
+      "international_amount": 700.0,
+      "basis": null
+    },
+    {
+      "fee_group": "Other Fees",
+      "item": "Acceptance Fee",
+      "local_sadc_amount": 750.0,
+      "international_amount": 750.0,
+      "basis": null
+    },
+    {
+      "fee_group": "Other Fees",
+      "item": "Late Registration Penalty (per day)",
+      "local_sadc_amount": 80.0,
+      "international_amount": 80.0,
+      "basis": "per day"
+    },
+    {
+      "fee_group": "Other Fees",
+      "item": "Duplicate [certificate]",
+      "local_sadc_amount": 1200.0,
+      "international_amount": 1200.0,
+      "basis": null
+    },
+    {
+      "fee_group": "Other Fees",
+      "item": "Duplicate [transcript]",
+      "local_sadc_amount": 600.0,
+      "international_amount": 600.0,
+      "basis": null
+    },
+    {
+      "fee_group": "Other Fees",
+      "item": "Lost results slip/admission letter",
+      "local_sadc_amount": 100.0,
+      "international_amount": 100.0,
+      "basis": null
+    },
+    {
+      "fee_group": "Other Fees",
+      "item": "ID Card",
+      "local_sadc_amount": 100.0,
+      "international_amount": 100.0,
+      "basis": null
+    },
+    {
+      "fee_group": "Other Fees",
+      "item": "Remarking Fee [per course]",
+      "local_sadc_amount": 1000.0,
+      "international_amount": 1000.0,
+      "basis": "per course"
+    },
+    {
+      "fee_group": "Other Fees",
+      "item": "Supplementary Fee [per course]",
+      "local_sadc_amount": 400.0,
+      "international_amount": 400.0,
+      "basis": "per course"
+    },
+    {
+      "fee_group": "Other Fees",
+      "item": "Caution Fee",
+      "local_sadc_amount": 600.0,
+      "international_amount": 600.0,
+      "basis": null
+    },
+    {
+      "fee_group": "Other Fees",
+      "item": "Graduation in absentia",
+      "local_sadc_amount": 650.0,
+      "international_amount": 650.0,
+      "basis": null
+    },
+    {
+      "fee_group": "Other Fees",
+      "item": "Verification of Academic Results",
+      "local_sadc_amount": 300.0,
+      "international_amount": 300.0,
+      "basis": null
+    },
+    {
+      "fee_group": "Full-time Residence Fee",
+      "item": "Undergraduate",
+      "local_sadc_amount": 8270.0,
+      "international_amount": 8270.0,
+      "basis": "annual residence fee"
+    },
+    {
+      "fee_group": "Full-time Residence Fee",
+      "item": "Graduate",
+      "local_sadc_amount": 10200.0,
+      "international_amount": 10200.0,
+      "basis": "annual residence fee"
+    },
+    {
+      "fee_group": "Full-time Residence Fee",
+      "item": "Accommodation during supp exams [per day]",
+      "local_sadc_amount": 200.0,
+      "international_amount": 200.0,
+      "basis": "per day"
+    }
+  ],
+  "notes": [
+    "Extracted from the fee structure table in the supplied NUL 2026/2027 prospectus DOCX.",
+    "IEMS-ODL rows are stored in a separate IEMS schedule so branch programmes can display their fees."
+  ]
+}

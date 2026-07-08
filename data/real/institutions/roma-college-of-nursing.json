@@ -1,0 +1,30 @@
+[
+  {
+    "id": "roma-college-of-nursing-diploma-in-nursing",
+    "institution": "Roma College of Nursing",
+    "name": "Diploma in Nursing",
+    "category": "Health Sciences",
+    "faculty": null,
+    "level": "Diploma",
+    "duration": null,
+    "requirements_summary": null,
+    "source_url": "https://www.che.ac.ls/roma-college-of-nursing-rcn-accredited-programmes/",
+    "source_type": "che_accredited_programmes_page",
+    "extraction_method": "che_accreditation_listing",
+    "review_status": "needs_admin_review"
+  },
+  {
+    "id": "roma-college-of-nursing-diploma-in-midwifery",
+    "institution": "Roma College of Nursing",
+    "name": "Diploma in Midwifery",
+    "category": "Health Sciences",
+    "faculty": null,
+    "level": "Diploma",
+    "duration": null,
+    "requirements_summary": null,
+    "source_url": "https://www.che.ac.ls/roma-college-of-nursing-rcn-accredited-programmes/",
+    "source_type": "che_accredited_programmes_page",
+    "extraction_method": "che_accreditation_listing",
+    "review_status": "needs_admin_review"
+  }
+]

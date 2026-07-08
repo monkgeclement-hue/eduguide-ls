@@ -1,0 +1,84 @@
+[
+  {
+    "name": "LUCT Tuition and Fees",
+    "url": "https://www.portal.co.ls/student-portal/finance/tuition",
+    "institution": "Limkokwing University Lesotho",
+    "coverage_type": "finance_source",
+    "status": "sign_in_or_app_data_required",
+    "note": "Page loads but finance data appears locked behind the campus portal UI."
+  },
+  {
+    "name": "National Teachers Training College",
+    "url": "https://www.africanadvice.com/1374130/Colleges/Lesotho/National_Teachers_Training_College/",
+    "institution": "National Teachers Training College",
+    "coverage_type": "institution_profile",
+    "status": "profile_only",
+    "note": "AfricanAdvice page contains contact/address details, not programme listings."
+  },
+  {
+    "name": "Paray School of Nursing prospectus",
+    "url": "https://www.scribd.com/document/763854725/2024-2025-Final-Prospectus",
+    "institution": "Paray School of Nursing",
+    "coverage_type": "prospectus_document",
+    "status": "manual_extract_added",
+    "note": "Supplied local PDF is text-readable and now supports programme durations, entry requirements, modules, fees, and contact details.",
+    "local_path": "C:/Users/lepha/Downloads/data/Paray 2024-2025-final-prospectus.pdf"
+  },
+  {
+    "name": "Botho University Lesotho prospectus on Scribd",
+    "url": "https://www.scribd.com/document/846880410/Botho-University-Lesotho-Prospectus-2025-1",
+    "institution": "Botho University Lesotho",
+    "coverage_type": "prospectus_document",
+    "status": "scribd_viewer_manual_review",
+    "note": "Official Botho programme page was used instead; Scribd prospectus remains a cross-check source."
+  },
+  {
+    "name": "Machabeng College",
+    "url": "https://machcoll.co.ls/",
+    "institution": "Machabeng College",
+    "coverage_type": "institution_website",
+    "status": "not_higher_education_programme_source",
+    "note": "Website appears to be school/admissions focused rather than a higher-education programme catalogue."
+  },
+  {
+    "name": "Machabeng fee structure on Scribd",
+    "url": "https://www.scribd.com/document/997795506/Fee-Structure-2024-2024",
+    "institution": "Machabeng College",
+    "coverage_type": "fee_document",
+    "status": "scribd_viewer_manual_review",
+    "note": "Fee document is useful for finance reference if Machabeng stays in scope."
+  },
+  {
+    "name": "Lesotho Agricultural College school listing",
+    "url": "https://www.schoolandcollegelistings.com/LS/Maseru/105145030832776/Lesotho-Agricultural-College",
+    "institution": "Lesotho Agricultural College",
+    "coverage_type": "institution_profile",
+    "status": "secondary_reference",
+    "note": "Useful for profile/news context; CHE pages were used for accredited programme records."
+  },
+  {
+    "name": "School and College Listings Lesotho",
+    "url": "https://www.schoolandcollegelistings.com/LS",
+    "institution": null,
+    "coverage_type": "directory",
+    "status": "discovery_source",
+    "note": "Directory can help discover institutions but should not be treated as canonical programme data."
+  },
+  {
+    "name": "Scribd home",
+    "url": "https://www.scribd.com/home",
+    "institution": null,
+    "coverage_type": "document_search",
+    "status": "manual_discovery_source",
+    "note": "General Scribd search page; individual documents should be reviewed separately."
+  },
+  {
+    "name": "Imperial Business College prospectus",
+    "url": "https://www.imperialcollege.edu.np/",
+    "local_path": "C:/Users/lepha/Downloads/data/IBC prospectus-outlined-fonts.pdf",
+    "institution": "Imperial Business College",
+    "coverage_type": "international_prospectus_document",
+    "status": "visual_extract_added",
+    "note": "PDF uses outlined fonts; BBA/BHCM facts were visually reviewed and need scope confirmation for EduGuide LS."
+  }
+]

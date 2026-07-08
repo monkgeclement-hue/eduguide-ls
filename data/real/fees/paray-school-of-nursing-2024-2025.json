@@ -1,0 +1,144 @@
+{
+  "institution": "Paray School of Nursing",
+  "source_title": "Paray School of Nursing prospectus fee table",
+  "source_url": "https://www.scribd.com/document/763854725/2024-2025-Final-Prospectus",
+  "source_path": "C:/Users/lepha/Downloads/data/Paray 2024-2025-final-prospectus.pdf",
+  "extraction_method": "pdf_text_extract",
+  "academic_year": "2024/2025",
+  "currency": "LSL",
+  "review_status": "needs_admin_review",
+  "programme_component_fee_items": [
+    {
+      "programme_group": "Certificate in Nursing Assistant",
+      "item": "Tuition fee",
+      "amount": 10895.50,
+      "basis": "programme fee table"
+    },
+    {
+      "programme_group": "Certificate in Nursing Assistant",
+      "item": "Boarding",
+      "amount": 5250.00,
+      "basis": "programme fee table"
+    },
+    {
+      "programme_group": "Certificate in Nursing Assistant",
+      "item": "Catering",
+      "amount": 22260.00,
+      "basis": "programme fee table"
+    },
+    {
+      "programme_group": "Certificate in Nursing Assistant",
+      "item": "Examination fee",
+      "amount": 735.00,
+      "basis": "programme fee table"
+    },
+    {
+      "programme_group": "Certificate in Nursing Assistant",
+      "item": "Book fee",
+      "amount": 2600.00,
+      "basis": "programme fee table"
+    },
+    {
+      "programme_group": "Certificate in Nursing Assistant",
+      "item": "Total fee table amount",
+      "amount": 41740.50,
+      "basis": "programme fee table"
+    },
+    {
+      "programme_group": "Diploma in Nursing",
+      "item": "Tuition fee",
+      "amount": 8716.40,
+      "basis": "programme fee table"
+    },
+    {
+      "programme_group": "Diploma in Nursing",
+      "item": "Boarding",
+      "amount": 4600.00,
+      "basis": "programme fee table"
+    },
+    {
+      "programme_group": "Diploma in Nursing",
+      "item": "Catering",
+      "amount": 17490.00,
+      "basis": "programme fee table"
+    },
+    {
+      "programme_group": "Diploma in Nursing",
+      "item": "Examination fee",
+      "amount": 735.00,
+      "basis": "programme fee table"
+    },
+    {
+      "programme_group": "Diploma in Nursing",
+      "item": "Book fee",
+      "amount": 5000.00,
+      "basis": "programme fee table"
+    },
+    {
+      "programme_group": "Diploma in Nursing",
+      "item": "Total fee table amount",
+      "amount": 36541.40,
+      "basis": "programme fee table"
+    },
+    {
+      "programme_group": "Diploma in Midwifery",
+      "item": "Tuition fee",
+      "amount": 8716.40,
+      "basis": "programme fee table"
+    },
+    {
+      "programme_group": "Diploma in Midwifery",
+      "item": "Boarding",
+      "amount": 4600.00,
+      "basis": "programme fee table"
+    },
+    {
+      "programme_group": "Diploma in Midwifery",
+      "item": "Catering",
+      "amount": 17490.00,
+      "basis": "programme fee table"
+    },
+    {
+      "programme_group": "Diploma in Midwifery",
+      "item": "Examination fee",
+      "amount": 735.00,
+      "basis": "programme fee table"
+    },
+    {
+      "programme_group": "Diploma in Midwifery",
+      "item": "Book fee",
+      "amount": 5000.00,
+      "basis": "programme fee table"
+    },
+    {
+      "programme_group": "Diploma in Midwifery",
+      "item": "Total fee table amount",
+      "amount": 36541.40,
+      "basis": "programme fee table"
+    }
+  ],
+  "confirmed_fee_items": [
+    {
+      "item": "Application fee - Basotho",
+      "amount": 350.00,
+      "refund_status": "non-refundable",
+      "source_note": "Manually extracted from supplied Paray prospectus screenshot."
+    },
+    {
+      "item": "Application fee - non-Basotho",
+      "amount": 450.00,
+      "refund_status": "non-refundable",
+      "source_note": "Manually extracted from supplied Paray prospectus screenshot."
+    },
+    {
+      "item": "Application fee - transferring students",
+      "amount": 600.00,
+      "refund_status": "non-refundable",
+      "source_note": "Manually extracted from supplied Paray prospectus screenshot."
+    }
+  ],
+  "notes": [
+    "Fee values were captured from page 14 of the supplied Paray 2024/2025 prospectus PDF.",
+    "The table did not show whether totals are annual or full-programme amounts; EduGuide stores the original table basis until admin confirmation."
+  ]
+}

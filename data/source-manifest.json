@@ -1,0 +1,221 @@
+[
+  {
+    "name": "National University of Lesotho homepage",
+    "kind": "official_website",
+    "url": "https://nul.ls/",
+    "priority": 1,
+    "extract": ["institution_profile", "faculty_links"]
+  },
+  {
+    "name": "National University of Lesotho - Science and Technology",
+    "kind": "official_academic_programmes_page",
+    "url": "https://nul.ls/faculty-of-science-and-technology/academic-programmes/",
+    "priority": 1,
+    "extract": ["programmes", "faculties", "requirements"]
+  },
+  {
+    "name": "National University of Lesotho - Humanities",
+    "kind": "official_academic_programmes_page",
+    "url": "https://nul.ls/humanities/academic-programmes/",
+    "priority": 1,
+    "extract": ["programmes", "duration", "requirements", "career_opportunities"]
+  },
+  {
+    "name": "National University of Lesotho - Law",
+    "kind": "official_academic_programmes_page",
+    "url": "https://nul.ls/faculty-of-law/academic-programmes/",
+    "priority": 1,
+    "extract": ["programmes", "duration", "requirements"]
+  },
+  {
+    "name": "National University of Lesotho - Social Sciences",
+    "kind": "official_academic_programmes_page",
+    "url": "https://nul.ls/faculty-of-social-sciences/academic-programmes/",
+    "priority": 1,
+    "extract": ["programmes", "duration", "requirements", "career_opportunities"]
+  },
+  {
+    "name": "National University of Lesotho - Education",
+    "kind": "official_academic_programmes_page",
+    "url": "https://nul.ls/faculty-of-education/academic-programmes/",
+    "priority": 1,
+    "extract": ["programmes", "duration", "requirements", "career_opportunities"]
+  },
+  {
+    "name": "National University of Lesotho - Agriculture",
+    "kind": "official_academic_programmes_page",
+    "url": "https://nul.ls/faculty-of-agriculture/academic-programmes/",
+    "priority": 1,
+    "extract": ["programmes", "duration", "requirements", "career_opportunities"]
+  },
+  {
+    "name": "National University of Lesotho - IEMS homepage",
+    "kind": "official_branch_page",
+    "url": "https://nul.ls/iems-2/",
+    "priority": 1,
+    "extract": ["branch_profile", "programme_links"]
+  },
+  {
+    "name": "National University of Lesotho - IEMS academic programmes",
+    "kind": "official_academic_programmes_page",
+    "url": "https://nul.ls/iems-2/academic-programmes/",
+    "priority": 1,
+    "extract": ["programmes", "duration", "requirements", "career_opportunities"]
+  },
+  {
+    "name": "National University of Lesotho prospectus 2026/2027",
+    "kind": "official_local_docx",
+    "local_path": "C:/Users/lepha/Downloads/data/PROSPECTUS-2026-2027-FINAL-VERSION.docx",
+    "priority": 1,
+    "extract": ["grading_scale", "fees", "admissions", "programme_reference"]
+  },
+  {
+    "name": "Limkokwing University Lesotho courses",
+    "kind": "official_course_portal",
+    "url": "https://www.portal.co.ls/apply/courses",
+    "priority": 1,
+    "extract": ["programmes", "requirements"]
+  },
+  {
+    "name": "Limkokwing University Lesotho tuition",
+    "kind": "official_finance_portal",
+    "url": "https://www.portal.co.ls/student-portal/finance/tuition",
+    "priority": 2,
+    "extract": ["fees", "tuition"]
+  },
+  {
+    "name": "Botho University Lesotho programmes",
+    "kind": "official_programmes_page",
+    "url": "https://www.bothouniversity.com/lesotho/programmes",
+    "priority": 1,
+    "extract": ["programmes", "duration", "requirements", "credits", "overview"]
+  },
+  {
+    "name": "Botho University Lesotho prospectus on Scribd",
+    "kind": "scribd_prospectus",
+    "url": "https://www.scribd.com/document/846880410/Botho-University-Lesotho-Prospectus-2025-1",
+    "priority": 3,
+    "extract": ["cross_check", "fees", "prospectus_details"]
+  },
+  {
+    "name": "National Teachers Training College profile",
+    "kind": "third_party_profile",
+    "url": "https://www.africanadvice.com/1374130/Colleges/Lesotho/National_Teachers_Training_College/",
+    "priority": 3,
+    "extract": ["institution_profile"]
+  },
+  {
+    "name": "Lerotholi Polytechnic prospectus",
+    "kind": "official_prospectus_pdf",
+    "url": "https://www.lp.ac.ls/wp-content/uploads/2024/02/lerotholi-prospectus-2024-2025-embed1.pdf",
+    "priority": 1,
+    "extract": ["programmes", "duration", "requirements"]
+  },
+  {
+    "name": "Lesotho College of Education courses",
+    "kind": "third_party_courses_page",
+    "url": "https://mabumbe.com/official-lesotho-college-education-lce-courses/",
+    "priority": 2,
+    "extract": ["programmes", "fees"]
+  },
+  {
+    "name": "Paray School of Nursing prospectus",
+    "kind": "official_local_pdf",
+    "url": "https://www.scribd.com/document/763854725/2024-2025-Final-Prospectus",
+    "local_path": "C:/Users/lepha/Downloads/data/Paray 2024-2025-final-prospectus.pdf",
+    "priority": 2,
+    "extract": ["programmes", "requirements", "fees", "modules", "contact"]
+  },
+  {
+    "name": "Roma College of Nursing accredited programmes",
+    "kind": "official_regulator_page",
+    "url": "https://www.che.ac.ls/roma-college-of-nursing-rcn-accredited-programmes/",
+    "priority": 1,
+    "extract": ["programmes", "accreditation"]
+  },
+  {
+    "name": "Machabeng College homepage",
+    "kind": "official_website",
+    "url": "https://machcoll.co.ls/",
+    "priority": 3,
+    "extract": ["institution_profile", "admissions"]
+  },
+  {
+    "name": "Machabeng College fee structure on Scribd",
+    "kind": "scribd_fee_document",
+    "url": "https://www.scribd.com/document/997795506/Fee-Structure-2024-2024",
+    "priority": 3,
+    "extract": ["fees"]
+  },
+  {
+    "name": "Centre for Accounting Studies",
+    "kind": "official_course_pages",
+    "url": "https://cas.ac.ls/",
+    "priority": 1,
+    "extract": ["programmes", "requirements", "overview"]
+  },
+  {
+    "name": "Imperial Business College prospectus",
+    "kind": "international_prospectus_local_pdf",
+    "url": "https://www.imperialcollege.edu.np/",
+    "local_path": "C:/Users/lepha/Downloads/data/IBC prospectus-outlined-fonts.pdf",
+    "priority": 3,
+    "extract": ["programmes", "requirements", "careers", "scope_review"]
+  },
+  {
+    "name": "Scribd home",
+    "kind": "document_search",
+    "url": "https://www.scribd.com/home",
+    "priority": 4,
+    "extract": ["manual_document_discovery"]
+  },
+  {
+    "name": "Lesotho Agricultural College prospectus",
+    "kind": "official_prospectus_pdf",
+    "url": "https://lac.org.ls/wp-content/uploads/2026/01/LAC-2026-2027-PROSPECTUS.pdf",
+    "priority": 1,
+    "extract": ["programmes", "requirements", "fees"]
+  },
+  {
+    "name": "Lesotho Agricultural College accredited programmes",
+    "kind": "official_regulator_page",
+    "url": "https://www.che.ac.ls/lesotho-agricultural-college-lac-accredited-programmes/",
+    "priority": 1,
+    "extract": ["programmes", "accreditation"]
+  },
+  {
+    "name": "Lesotho Agricultural College profile",
+    "kind": "official_regulator_page",
+    "url": "https://www.che.ac.ls/lesotho-agricultural-college-profile/",
+    "priority": 1,
+    "extract": ["programmes", "institution_profile"]
+  },
+  {
+    "name": "Lesotho Agricultural College school listing",
+    "kind": "third_party_profile",
+    "url": "https://www.schoolandcollegelistings.com/LS/Maseru/105145030832776/Lesotho-Agricultural-College",
+    "priority": 3,
+    "extract": ["institution_profile", "announcements"]
+  },
+  {
+    "name": "School and College Listings Lesotho",
+    "kind": "directory",
+    "url": "https://www.schoolandcollegelistings.com/LS",
+    "priority": 4,
+    "extract": ["institution_discovery"]
+  },
+  {
+    "name": "NMDS Government Bursary Service",
+    "kind": "government_service",
+    "url": "https://www.gov.ls/eservice/ministry-of-finance-and-development-planning-23/",
+    "priority": 1,
+    "extract": ["scholarship_rules", "application_steps"]
+  },
+  {
+    "name": "Lesotho Labour Force Survey 2024",
+    "kind": "government_report_pdf",
+    "url": "https://finance.gov.ls/PDFDocuments/2024%20LFS%20REPORT%2002_JULY%202025%20608-638874863136847407.pdf",
+    "priority": 2,
+    "extract": ["labour_market_notes", "employment_sectors"]
+  }
+]

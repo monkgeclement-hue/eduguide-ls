@@ -1,0 +1,32 @@
+[
+  {
+    "name": "BSc Computer Science",
+    "institution": "National University of Lesotho",
+    "duration": "4 years",
+    "status": "approved_seed",
+    "source_url": "https://nul.ls/",
+    "requirements": ["Mathematics A-C", "English A-C", "Physics or Computer Science A-C"],
+    "careers": ["Software Developer", "Data Analyst", "Systems Analyst", "Cybersecurity Analyst"],
+    "skills": ["Programming", "Problem solving", "Database management", "Networking"]
+  },
+  {
+    "name": "BSc Information Technology",
+    "institution": "Limkokwing University Lesotho",
+    "duration": "3 years",
+    "status": "approved_seed",
+    "source_url": "https://www.portal.co.ls/apply/courses",
+    "requirements": ["Mathematics A-D", "English A-C", "Computer Studies recommended"],
+    "careers": ["IT Support Specialist", "Web Developer", "Network Administrator"],
+    "skills": ["Web development", "IT support", "Project management"]
+  },
+  {
+    "name": "Diploma in Agriculture",
+    "institution": "Lesotho Agricultural College",
+    "duration": "3 years",
+    "status": "approved_seed",
+    "source_url": "https://lac.org.ls/wp-content/uploads/2026/01/LAC-2026-2027-PROSPECTUS.pdf",
+    "requirements": ["English A-D", "Biology or Agriculture A-D", "Chemistry recommended"],
+    "careers": ["Agricultural Extension Officer", "Farm Manager", "Agribusiness Officer"],
+    "skills": ["Crop production", "Soil management", "Agribusiness", "Field research"]
+  }
+]

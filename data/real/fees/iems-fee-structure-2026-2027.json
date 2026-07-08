@@ -1,0 +1,51 @@
+{
+  "institution": "NUL Institute of Extra Mural Studies (IEMS)",
+  "source_title": "IEMS-ODL Fee Structure 2026/2027",
+  "source_path": "C:/Users/lepha/Downloads/data/PROSPECTUS-2026-2027-FINAL-VERSION.docx",
+  "extraction_method": "docx_table_extract",
+  "academic_year": "2026/2027",
+  "currency": "LSL",
+  "review_status": "needs_admin_review",
+  "fee_items": [
+    {
+      "faculty": "IEMS-ODL",
+      "programme_group": "Diploma in Adult Education",
+      "local_sadc_amount": 13042.0,
+      "international_amount": 17384.0
+    },
+    {
+      "faculty": "IEMS-ODL",
+      "programme_group": "Diploma in Business Management",
+      "local_sadc_amount": 15390.0,
+      "international_amount": 20516.0
+    },
+    {
+      "faculty": "IEMS-ODL",
+      "programme_group": "Diploma in Mass Communications",
+      "local_sadc_amount": 21638.0,
+      "international_amount": 28861.0
+    },
+    {
+      "faculty": "IEMS-ODL",
+      "programme_group": "B. Education (Adult Education)",
+      "local_sadc_amount": 26438.0,
+      "international_amount": 35256.0
+    },
+    {
+      "faculty": "IEMS-ODL",
+      "programme_group": "BA in Business Entrepreneurship",
+      "local_sadc_amount": 28004.0,
+      "international_amount": 37457.0
+    },
+    {
+      "faculty": "IEMS-ODL",
+      "programme_group": "MA in Adult Education",
+      "local_sadc_amount": 28462.0,
+      "international_amount": 38003.0
+    }
+  ],
+  "notes": [
+    "Extracted from the IEMS-ODL rows in the supplied NUL 2026/2027 prospectus DOCX.",
+    "Stored separately because EduGuide LS groups IEMS as its own institution/branch."
+  ]
+}

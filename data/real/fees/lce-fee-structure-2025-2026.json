@@ -1,0 +1,113 @@
+{
+  "institution": "Lesotho College of Education",
+  "source_title": "Lesotho College of Education Fee Structure 2025/26",
+  "source_path": "C:/Users/lepha/Downloads/Lesotho College Of Education fees.pdf",
+  "extraction_method": "manual_pdf_extract",
+  "academic_year": "2025/26",
+  "currency": "LSL",
+  "review_status": "needs_admin_review",
+  "programme_fee_items": [
+    {
+      "programme_group": "Bachelor of Education",
+      "attendance_mode": "Full-time",
+      "tuition_amount": 20000
+    },
+    {
+      "programme_group": "Bachelor of Education",
+      "attendance_mode": "Part-time",
+      "tuition_amount": 17890
+    },
+    {
+      "programme_group": "Bachelor of Education",
+      "student_category": "International",
+      "levy_percent_of_tuition": 20
+    }
+  ],
+  "other_fees": [
+    {
+      "item": "Application fee",
+      "amount": 400
+    },
+    {
+      "item": "Registration",
+      "amount": 500
+    },
+    {
+      "item": "Caution fee",
+      "amount": 240
+    },
+    {
+      "item": "Library",
+      "amount": 130
+    },
+    {
+      "item": "Student union",
+      "amount": 90
+    },
+    {
+      "item": "Graduation",
+      "amount": 400
+    },
+    {
+      "item": "Administration",
+      "amount": 300
+    },
+    {
+      "item": "Sports",
+      "amount": 180
+    },
+    {
+      "item": "Boarding",
+      "amount": 600,
+      "basis": "per month",
+      "annual_estimate": 6000
+    },
+    {
+      "item": "Acceptance fee",
+      "amount": 500
+    },
+    {
+      "item": "Late registration",
+      "amount": 800
+    },
+    {
+      "item": "Special exam",
+      "amount": 1000
+    },
+    {
+      "item": "Supplementary exam",
+      "amount": 600,
+      "basis": "per course"
+    },
+    {
+      "item": "Repeat",
+      "amount": 2000,
+      "basis": "per course"
+    },
+    {
+      "item": "Remark",
+      "amount": 2000,
+      "basis": "per course"
+    },
+    {
+      "item": "Replacement ID",
+      "amount": 130
+    },
+    {
+      "item": "Transcript",
+      "amount": 2000
+    },
+    {
+      "item": "Result slip",
+      "amount": 800
+    },
+    {
+      "item": "Duplicate certificate",
+      "amount": 2000
+    }
+  ],
+  "notes": [
+    "Fees are subject to an annual 5% adjustment.",
+    "The LCE programme document lists application fee as M420 while the fee structure lists M400; this discrepancy needs admin confirmation."
+  ]
+}

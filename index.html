@@ -1,0 +1,667 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#0a5948" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-title" content="EduGuide LS" />
+    <title>EduGuide LS</title>
+    <link rel="manifest" href="/manifest.webmanifest" />
+    <link rel="icon" href="/icons/icon-192.svg" type="image/svg+xml" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body>
+    <section class="auth-screen" id="auth-screen">
+      <div class="auth-panel">
+        <div class="brand auth-brand">
+          <div class="brand-mark">EG</div>
+          <div>
+            <div class="brand-name">Edu<span>Guide</span> LS</div>
+            <div class="brand-meta">Higher education guidance</div>
+          </div>
+        </div>
+
+        <div class="auth-copy">
+          <p class="section-kicker">Account access</p>
+          <h1>One secure login, the right workspace.</h1>
+          <p>Students get a focused guidance dashboard. Admins get catalogue control, user oversight, role management, and activity monitoring.</p>
+        </div>
+
+        <div class="auth-tabs" role="tablist" aria-label="Authentication mode">
+          <button class="auth-tab active" type="button" data-auth-mode="login">Login</button>
+          <button class="auth-tab" type="button" data-auth-mode="register">Register</button>
+        </div>
+
+        <form class="auth-form active" id="login-form">
+          <label>
+            <span>Email</span>
+            <input id="login-email" type="email" autocomplete="email" required />
+          </label>
+          <label>
+            <span>Password</span>
+            <input id="login-password" type="password" autocomplete="current-password" required />
+          </label>
+          <button class="primary-button" type="submit">
+            <i data-lucide="log-in"></i>
+            Login
+          </button>
+        </form>
+
+        <form class="auth-form" id="register-form">
+          <div class="form-grid">
+            <label>
+              <span>Full name</span>
+              <input id="register-name" type="text" autocomplete="name" required />
+            </label>
+            <label>
+              <span>Email</span>
+              <input id="register-email" type="email" autocomplete="email" required />
+            </label>
+            <label>
+              <span>Password</span>
+              <input id="register-password" type="password" autocomplete="new-password" required />
+            </label>
+            <label>
+              <span>District</span>
+              <select id="register-district">
+                <option>Maseru</option>
+                <option>Berea</option>
+                <option>Leribe</option>
+                <option>Mafeteng</option>
+                <option>Mohale's Hoek</option>
+                <option>Mokhotlong</option>
+                <option>Qacha's Nek</option>
+                <option>Quthing</option>
+                <option>Thaba-Tseka</option>
+                <option>Butha-Buthe</option>
+              </select>
+            </label>
+          </div>
+          <button class="primary-button" type="submit">
+            <i data-lucide="user-plus"></i>
+            <span id="register-submit-label">Create Account</span>
+          </button>
+        </form>
+
+        <p class="auth-context" id="auth-context">The first real account becomes System Admin. Later signups start as students until an admin grants more access.</p>
+        <p class="auth-message" id="auth-message">Accounts are saved in the local server database for this prototype.</p>
+      </div>
+    </section>
+
+    <div class="app-shell is-auth-hidden" id="app-shell">
+      <aside class="sidebar" aria-label="Primary navigation">
+        <div class="brand">
+          <div class="brand-mark">EG</div>
+          <div>
+            <div class="brand-name">Edu<span>Guide</span> LS</div>
+            <div class="brand-meta">Higher education guidance</div>
+          </div>
+        </div>
+
+        <nav class="side-nav">
+          <button class="side-link active" type="button" data-view="student">
+            <i data-lucide="layout-dashboard"></i>
+            <span>Student</span>
+          </button>
+          <button class="side-link" type="button" data-view="results">
+            <i data-lucide="sparkles"></i>
+            <span>Results</span>
+          </button>
+          <button class="side-link" type="button" data-view="admin" data-admin-only>
+            <i data-lucide="database"></i>
+            <span>Admin</span>
+          </button>
+          <button class="side-link" type="button" data-view="sources">
+            <i data-lucide="globe"></i>
+            <span>Sources</span>
+          </button>
+        </nav>
+
+        <div class="sidebar-panel">
+          <div class="panel-label">Data status</div>
+          <div class="data-pulse">
+            <span></span>
+            <strong id="approved-count">0</strong> catalogue records
+          </div>
+          <div class="mini-copy">Review queue keeps scraped records private until an admin approves them.</div>
+        </div>
+      </aside>
+
+      <main class="workspace">
+        <header class="topbar">
+          <div>
+            <div class="eyebrow">Lesotho guidance platform</div>
+            <h1 id="page-title">Student Dashboard</h1>
+          </div>
+          <div class="top-actions">
+            <button class="icon-button" type="button" title="Refresh results" id="refresh-button">
+              <i data-lucide="rotate-cw"></i>
+            </button>
+            <div class="user-chip" id="user-chip">
+              <div class="avatar" id="user-avatar">ST</div>
+              <span id="user-chip-name">Student</span>
+            </div>
+            <button class="icon-button" type="button" title="Logout" id="logout-button">
+              <i data-lucide="log-out"></i>
+            </button>
+          </div>
+        </header>
+
+        <section class="view active" id="view-student">
+          <div class="summary-band">
+            <div class="summary-copy">
+              <div class="hero-badge">
+                <i data-lucide="map-pin"></i>
+                Lesotho higher education
+              </div>
+              <h2>Find programmes that fit your marks, interests, and funding context.</h2>
+              <p>EduGuide LS matches student profiles with approved institution data, career paths, skills, and NMDS readiness signals.</p>
+              <div class="summary-actions">
+                <button class="primary-button" type="button" id="analyse-button">
+                  <i data-lucide="sparkles"></i>
+                  Find My Best Programmes
+                </button>
+                <button class="secondary-button" type="button" data-view-target="admin" data-admin-only>
+                  <i data-lucide="shield-check"></i>
+                  Review Data
+                </button>
+              </div>
+            </div>
+            <div class="stats-grid compact">
+              <div class="metric-card">
+                <span>Institutions</span>
+                <strong id="institution-count">0</strong>
+              </div>
+              <div class="metric-card">
+                <span>Programmes</span>
+                <strong id="programme-count">0</strong>
+              </div>
+              <div class="metric-card">
+                <span>Pending</span>
+                <strong id="pending-count">0</strong>
+              </div>
+              <div class="metric-card">
+                <span>Sources</span>
+                <strong id="source-count">0</strong>
+              </div>
+            </div>
+          </div>
+
+          <div class="student-action-grid">
+            <article class="student-action-card">
+              <div class="action-icon"><i data-lucide="clipboard-check"></i></div>
+              <div>
+                <span>Profile completion</span>
+                <strong id="profile-completion">68%</strong>
+              </div>
+            </article>
+            <article class="student-action-card">
+              <div class="action-icon"><i data-lucide="bookmark-check"></i></div>
+              <div>
+                <span>Shortlisted programmes</span>
+                <strong id="shortlist-count">0</strong>
+              </div>
+            </article>
+            <article class="student-action-card">
+              <div class="action-icon"><i data-lucide="files"></i></div>
+              <div>
+                <span>Uploaded documents</span>
+                <strong id="document-count">0</strong>
+              </div>
+            </article>
+            <article class="student-action-card">
+              <div class="action-icon"><i data-lucide="calendar-check"></i></div>
+              <div>
+                <span>Next action</span>
+                <strong id="next-action-label">Add documents</strong>
+              </div>
+            </article>
+          </div>
+
+          <div class="dashboard-grid">
+            <section class="surface-panel profile-panel">
+              <div class="section-head">
+                <div>
+                  <p class="section-kicker">Profile</p>
+                  <h3>Academic background</h3>
+                </div>
+                  <button class="icon-button soft" type="button" title="Load STEM sample profile" id="sample-profile">
+                  <i data-lucide="wand-sparkles"></i>
+                </button>
+              </div>
+
+              <div class="form-grid">
+                <label>
+                  <span>Full name</span>
+                  <input id="full-name" type="text" />
+                </label>
+                <label>
+                  <span>District</span>
+                  <select id="district">
+                    <option>Maseru</option>
+                    <option>Berea</option>
+                    <option>Leribe</option>
+                    <option>Mafeteng</option>
+                    <option>Mohale's Hoek</option>
+                    <option>Mokhotlong</option>
+                    <option>Qacha's Nek</option>
+                    <option>Quthing</option>
+                    <option>Thaba-Tseka</option>
+                    <option>Butha-Buthe</option>
+                  </select>
+                </label>
+                <label>
+                  <span>School leaving year</span>
+                  <select id="leaving-year">
+                    <option>2026</option>
+                    <option>2025</option>
+                    <option>2024</option>
+                    <option>2023</option>
+                  </select>
+                </label>
+                <label>
+                  <span>Stream</span>
+                  <select id="stream">
+                    <option>Science</option>
+                    <option>Commercial</option>
+                    <option>General</option>
+                    <option>Agriculture</option>
+                  </select>
+                </label>
+              </div>
+
+              <div class="profile-preset-strip" aria-label="Calibration profile presets">
+                <span>Test profiles</span>
+                <button type="button" data-profile-preset="arts">Arts</button>
+                <button type="button" data-profile-preset="mathTech">Math + tech</button>
+                <button type="button" data-profile-preset="stem">STEM</button>
+                <button type="button" data-profile-preset="health">Nursing</button>
+                <button type="button" data-profile-preset="business">Business</button>
+                <button type="button" data-profile-preset="agriculture">Agriculture</button>
+              </div>
+
+              <div class="section-subhead">
+                <h4>COSC / LGCSE grades</h4>
+                <span>Use Blank for subjects not entered</span>
+              </div>
+              <div class="grade-grid" id="grade-grid"></div>
+
+              <div class="section-subhead">
+                <h4>Interests</h4>
+                <span id="interest-count">0 selected</span>
+              </div>
+              <div class="chip-grid" id="interest-grid"></div>
+
+              <label class="wide-label preference-field">
+                <span>Tell EduGuide what you enjoy or want</span>
+                <textarea id="preference-text" placeholder="Example: I love computers and design, but my marks are stronger in English and Mathematics. I want a career with good opportunities."></textarea>
+              </label>
+            </section>
+
+            <aside class="surface-panel guidance-panel">
+              <div class="section-head">
+                <div>
+                  <p class="section-kicker">Funding</p>
+                  <h3>Scholarship estimate</h3>
+                </div>
+                <div class="score-pill" id="nmds-score">74%</div>
+              </div>
+
+              <label class="wide-label">
+                <span>Household monthly income</span>
+                <select id="income-band">
+                  <option value="low">Below LSL 2,500</option>
+                  <option value="mid" selected>LSL 2,500 - 7,500</option>
+                  <option value="high">Above LSL 7,500</option>
+                </select>
+              </label>
+
+              <div class="funding-signal-group" aria-label="Funding background indicators">
+                <label>
+                  <input type="checkbox" value="low_support" data-need-signal />
+                  <span>Limited family support</span>
+                </label>
+                <label>
+                  <input type="checkbox" value="rural_remote" data-need-signal />
+                  <span>Rural or remote area</span>
+                </label>
+                <label>
+                  <input type="checkbox" value="orphan_vulnerable" data-need-signal />
+                  <span>Orphan or vulnerable background</span>
+                </label>
+                <label>
+                  <input type="checkbox" value="disability_health" data-need-signal />
+                  <span>Disability or health support need</span>
+                </label>
+              </div>
+
+              <div class="readiness-box">
+                <div class="readiness-status">
+                  <strong id="nmds-estimate-label">Estimate only</strong>
+                  <span id="nmds-income-label">LSL 2,500 - 7,500</span>
+                </div>
+                <div class="readiness-row">
+                  <span>Academic fit</span>
+                  <strong id="academic-fit">82%</strong>
+                </div>
+                <div class="readiness-row">
+                  <span>Financial need</span>
+                  <strong id="need-fit">76%</strong>
+                </div>
+                <div class="readiness-row">
+                  <span>Priority alignment</span>
+                  <strong id="priority-fit">68%</strong>
+                </div>
+                <div class="readiness-row">
+                  <span>Document readiness</span>
+                  <strong id="document-fit">18%</strong>
+                </div>
+                <div class="progress-track">
+                  <div id="nmds-bar" style="width: 74%"></div>
+                </div>
+                <ul class="readiness-notes" id="nmds-notes">
+                  <li>This score is an estimate only.</li>
+                </ul>
+                <div class="document-checklist" id="nmds-document-checklist"></div>
+              </div>
+
+              <div class="dropzone" id="dropzone">
+                <i data-lucide="file-up"></i>
+                <strong>Documents</strong>
+                <span id="dropzone-text">No files selected</span>
+                <input id="file-input" type="file" multiple />
+              </div>
+
+              <div class="document-list" id="document-list">
+                <article>
+                  <i data-lucide="file-text"></i>
+                  <div>
+                    <strong>Transcript or results slip</strong>
+                    <span>Waiting for upload</span>
+                  </div>
+                </article>
+                <article>
+                  <i data-lucide="badge-check"></i>
+                  <div>
+                    <strong>National ID or passport</strong>
+                    <span>Waiting for upload</span>
+                  </div>
+                </article>
+              </div>
+
+              <div class="source-note">
+                <i data-lucide="info"></i>
+                <span>NMDS score is an estimate for guidance, not an approval decision.</span>
+                <a href="https://www.scholarships.manp.gov.ls" target="_blank" rel="noreferrer">Open sponsorship portal</a>
+              </div>
+            </aside>
+          </div>
+
+          <section class="surface-panel student-plan-panel">
+            <div class="section-head">
+              <div>
+                <p class="section-kicker">Application plan</p>
+                <h3>What the student does next</h3>
+              </div>
+              <button class="primary-button large-action" type="button" data-view-target="results">
+                <i data-lucide="sparkles"></i>
+                View Matches
+              </button>
+            </div>
+            <div class="plan-grid">
+              <article>
+                <span>1</span>
+                <strong>Complete profile</strong>
+                <p>Confirm grades, stream, district, and interests so recommendations are not too generic.</p>
+              </article>
+              <article>
+                <span>2</span>
+                <strong>Upload documents</strong>
+                <p>Add results, ID, and supporting files. Text extraction can suggest grades when the backend server is running.</p>
+              </article>
+              <article>
+                <span>3</span>
+                <strong>Compare programmes</strong>
+                <p>Review entry requirements, careers, skills, fees, and NMDS readiness before applying.</p>
+              </article>
+              <article>
+                <span>4</span>
+                <strong>Prepare funding</strong>
+                <p>Use the scholarship score as a guide and keep evidence ready for NMDS or other sponsors.</p>
+              </article>
+            </div>
+          </section>
+        </section>
+
+        <section class="view" id="view-results">
+          <div class="results-layout">
+            <section class="surface-panel">
+              <div class="section-head">
+                <div>
+                  <p class="section-kicker">Recommendations</p>
+                  <h3 id="results-heading">Best programme matches</h3>
+                </div>
+                <div class="result-tabs" role="tablist">
+                  <button class="result-tab active" type="button" data-results-tab="programmes">Programmes</button>
+                  <button class="result-tab" type="button" data-results-tab="skills">Skills</button>
+                  <button class="result-tab" type="button" data-results-tab="labour">Labour</button>
+                  <button class="result-tab" type="button" data-results-tab="blocked">
+                    Not eligible yet
+                    <span class="result-tab-count" id="blocked-tab-count"></span>
+                  </button>
+                </div>
+              </div>
+              <div class="tab-panel active" id="tab-programmes"></div>
+              <div class="tab-panel" id="tab-skills"></div>
+              <div class="tab-panel" id="tab-labour"></div>
+              <div class="tab-panel" id="tab-blocked"></div>
+            </section>
+
+            <aside class="surface-panel profile-score">
+              <p class="section-kicker">Profile match</p>
+              <div class="ring-score">
+                <div>
+                  <strong id="profile-match">82%</strong>
+                  <span>overall</span>
+                </div>
+              </div>
+              <div class="score-list" id="score-list"></div>
+              <div class="ai-guide-box">
+                <div class="section-head compact">
+                  <div>
+                    <p class="section-kicker">AI advisor</p>
+                    <h3>Explain my results</h3>
+                  </div>
+                </div>
+                <textarea id="ai-question" class="ai-question-input" rows="4" placeholder="Ask about requirements, careers, funding, or what to improve next"></textarea>
+                <div class="ai-action-row">
+                  <button class="primary-button" type="button" id="ai-guidance-button">
+                    <i data-lucide="bot"></i>
+                    Generate Guidance
+                  </button>
+                  <button class="secondary-action" type="button" id="ai-compare-button">
+                    <i data-lucide="scale"></i>
+                    Compare Top
+                  </button>
+                </div>
+                <div class="ai-status" id="ai-guidance-status">Uses top matches and profile data only.</div>
+                <div class="ai-guidance-output" id="ai-guidance-output">
+                  <p>Run the AI advisor after calculating matches to get a student-friendly explanation and next steps.</p>
+                </div>
+              </div>
+            </aside>
+          </div>
+        </section>
+
+        <section class="view" id="view-admin">
+          <div class="admin-dashboard">
+            <div class="admin-summary-grid">
+              <article class="admin-stat">
+                <span>Programme records</span>
+                <strong id="admin-record-count">0</strong>
+                <small>From real source data</small>
+              </article>
+              <article class="admin-stat">
+                <span>Need review</span>
+                <strong id="admin-review-count">0</strong>
+                <small>Not public yet</small>
+              </article>
+              <article class="admin-stat">
+                <span>Open gaps</span>
+                <strong id="admin-gap-count">0</strong>
+                <small>Missing durations, fees, requirements</small>
+              </article>
+              <article class="admin-stat">
+                <span>Fee items</span>
+                <strong id="admin-fee-count">0</strong>
+                <small>Structured fee evidence</small>
+              </article>
+              <article class="admin-stat">
+                <span>Users</span>
+                <strong id="admin-user-count">0</strong>
+                <small>Registered accounts</small>
+              </article>
+              <article class="admin-stat">
+                <span>New users</span>
+                <strong id="admin-new-user-count">0</strong>
+                <small>Need admin review</small>
+              </article>
+            </div>
+
+            <section class="surface-panel admin-console">
+              <div class="section-head">
+                <div>
+                  <p class="section-kicker">Admin</p>
+                  <h3>Catalogue review workbench</h3>
+                </div>
+                <div class="admin-head-actions">
+                  <button class="primary-button small" type="button" id="add-programme">
+                    <i data-lucide="plus"></i>
+                    New Programme
+                  </button>
+                  <button class="secondary-action" type="button" id="reset-admin-state">
+                    <i data-lucide="rotate-ccw"></i>
+                    Reset Local
+                  </button>
+                  <div class="admin-health" id="admin-health">Ready</div>
+                </div>
+              </div>
+
+              <div class="admin-notice" id="admin-user-notice" hidden></div>
+
+              <div class="admin-toolbar">
+                <label class="search-field">
+                  <span>Search records or users</span>
+                  <input id="admin-search" type="search" placeholder="Programme, institution, user ID, email..." />
+                </label>
+                <label>
+                  <span>Institution</span>
+                  <select id="admin-institution-filter"></select>
+                </label>
+                <label>
+                  <span>Status</span>
+                  <select id="admin-status-filter">
+                    <option value="all">All statuses</option>
+                    <option value="needs_admin_review">Needs review</option>
+                    <option value="approved">Approved</option>
+                    <option value="rejected">Rejected</option>
+                    <option value="flagged">Flagged</option>
+                  </select>
+                </label>
+              </div>
+
+              <div class="admin-tabs" role="tablist" aria-label="Admin sections">
+                <button class="admin-tab active" type="button" data-admin-tab="catalogue">
+                  <i data-lucide="library-big"></i>
+                  Catalogue
+                </button>
+                <button class="admin-tab" type="button" data-admin-tab="gaps">
+                  <i data-lucide="list-checks"></i>
+                  Data Gaps
+                </button>
+                <button class="admin-tab" type="button" data-admin-tab="fees">
+                  <i data-lucide="badge-dollar-sign"></i>
+                  Fees
+                </button>
+                <button class="admin-tab" type="button" data-admin-tab="sources">
+                  <i data-lucide="file-search"></i>
+                  Sources
+                </button>
+                <button class="admin-tab" type="button" data-admin-tab="users">
+                  <i data-lucide="users-round"></i>
+                  Users
+                </button>
+              </div>
+
+              <div class="admin-workbench">
+                <section class="admin-main-pane">
+                  <div class="admin-tab-panel active" id="admin-tab-catalogue">
+                    <div class="admin-list-head">
+                      <span id="catalogue-result-count">0 records</span>
+                      <span>Click a row to inspect evidence</span>
+                    </div>
+                    <div class="admin-record-list" id="admin-programme-list"></div>
+                  </div>
+                  <div class="admin-tab-panel" id="admin-tab-gaps">
+                    <div class="admin-list-head">
+                      <span id="gap-result-count">0 gaps</span>
+                      <span>Resolve once data is confirmed</span>
+                    </div>
+                    <div class="admin-record-list" id="admin-gap-list"></div>
+                  </div>
+                  <div class="admin-tab-panel" id="admin-tab-fees">
+                    <div class="admin-list-head">
+                      <span id="fee-result-count">0 fee items</span>
+                      <span>Amounts remain under review until verified</span>
+                    </div>
+                    <div class="admin-record-list" id="admin-fee-list"></div>
+                  </div>
+                  <div class="admin-tab-panel" id="admin-tab-sources">
+                    <div class="admin-list-head">
+                      <span id="source-audit-count">0 sources</span>
+                      <span>Audit of links, PDFs, and manual extracts</span>
+                    </div>
+                    <div class="admin-record-list" id="admin-source-list"></div>
+                  </div>
+                  <div class="admin-tab-panel" id="admin-tab-users">
+                    <div class="admin-list-head">
+                      <span id="user-result-count">0 users</span>
+                      <span>Search by name, email, user ID, role, or activity</span>
+                    </div>
+                    <div class="admin-record-list" id="admin-user-list"></div>
+                  </div>
+                </section>
+
+                <aside class="admin-detail-pane" id="admin-detail-panel"></aside>
+              </div>
+            </section>
+          </div>
+        </section>
+
+        <section class="view" id="view-sources">
+          <section class="surface-panel">
+            <div class="section-head">
+              <div>
+                <p class="section-kicker">Verified core</p>
+                <h3>Starting data sources</h3>
+              </div>
+              <a class="secondary-link" href="/data/source-manifest.json">Manifest</a>
+            </div>
+            <div class="source-grid" id="source-grid"></div>
+          </section>
+        </section>
+      </main>
+    </div>
+
+    <script src="/data/supabase-config.js"></script>
+    <script src="/data/catalog.js"></script>
+    <script src="/data/admin-catalog.js"></script>
+    <script src="/app.js"></script>
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js" async onload="window.lucide && window.lucide.createIcons()"></script>
+    <script src="https://unpkg.com/@supabase/supabase-js@2" async></script>
+  </body>
+</html>

@@ -1,0 +1,114 @@
+{
+  "institution": "Centre for Accounting Studies",
+  "source_title": "CAS Student Handbook Volume 4",
+  "source_path": "C:/Users/lepha/Downloads/CAS Lesotho Student-Handbook-Volume-4.pdf",
+  "publication_date": "2024-04",
+  "extraction_method": "manual_user_extraction_from_scanned_pdf",
+  "review_status": "needs_admin_review",
+  "programmes_confirmed": [
+    {
+      "name": "Association of Chartered Certified Accountants (ACCA)",
+      "levels": [
+        "CAT (entry)",
+        "Applied Knowledge",
+        "Applied Skills 1",
+        "Applied Skills 2",
+        "Strategic Professional"
+      ],
+      "minimum_duration": "3 academic years",
+      "exam_schedule": "Session-based exams in June and December; on-demand CBEs run year-round."
+    },
+    {
+      "name": "Chartered Institute of Management Accountants (CIMA)",
+      "levels": [
+        "Certificate in Business Accounting",
+        "Diploma (Operational)",
+        "Advanced Diploma (Management)",
+        "Chartered Management Accounting"
+      ],
+      "minimum_duration": "3.5 years",
+      "exam_schedule": "On-demand CBEs; case studies in November; retakes in February, May, and August."
+    },
+    {
+      "name": "Chartered Institute of Public Finance and Accountancy (CIPFA)",
+      "levels": [
+        "Certificate in Municipal Finance and Accounting",
+        "Diploma Financial Management and Audit",
+        "Diploma Governance Risk and Taxation",
+        "Diploma Public Financial Management"
+      ],
+      "minimum_duration": "4 years",
+      "exam_schedule": null
+    }
+  ],
+  "entry_requirements": [
+    {
+      "programme": "ACCA CAT",
+      "requirements": [
+        "LGCSE/COSC with minimum 6 subjects.",
+        "4 credits including Mathematics or English or Accounting.",
+        "Aggregate not exceeding 36.",
+        "Or Diploma/IB/Certificate from MOET-registered TVET.",
+        "Or comparable qualifications assessed by ECOL/MOET."
+      ]
+    },
+    {
+      "programme": "ACCA Applied Knowledge",
+      "requirements": [
+        "Non-accounting degree.",
+        "Or Diploma from HEI/TVET.",
+        "Or A-Level with Mathematics and English pass plus 3 years accounting work experience."
+      ]
+    },
+    {
+      "programme": "CIMA Certificate in Business Accounting",
+      "requirements": [
+        "Same LGCSE/COSC requirements as CAT.",
+        "Or TVET Diploma.",
+        "Or comparable qualifications."
+      ]
+    },
+    {
+      "programme": "CIPFA",
+      "requirements": [
+        "Must be employed by the Government of Lesotho for at least 2 years in accounts/finance."
+      ]
+    }
+  ],
+  "progression_rules": [
+    "Minimum 75% attendance required for progression.",
+    "Missing 2 consecutive weeks without reason results in expulsion from class."
+  ],
+  "registration_rules": [
+    "Financial clearance required before registration.",
+    "Self-sponsored students pay 50% upfront and the balance within 4 months."
+  ],
+  "fees_policy": {
+    "application_fee_required": true,
+    "application_fee_amount": 450,
+    "acceptance_fee_required": true,
+    "acceptance_fee_amount": 1200,
+    "acceptance_fee_refundable": false,
+    "tuition_basis": "charged per module",
+    "professional_body_fees": [
+      "annual subscription",
+      "registration",
+      "exams"
+    ],
+    "exact_amounts_status": "partially_confirmed",
+    "exact_amounts_source": "Application and acceptance fees confirmed manually by project owner; module, subscription, registration, and exam fee amounts still require CAS Accounts Office or a fee schedule."
+  },
+  "campus_services": {
+    "campus_hours": "06:30-22:30",
+    "health_clinic": "Monday, Wednesday, Friday",
+    "library_hours": {
+      "monday_thursday": "09:00-22:00",
+      "friday": "09:00-19:30",
+      "saturday": "09:00-16:30",
+      "sunday": "09:00-13:00"
+    }
+  },
+  "graduation": {
+    "annual_schedule": "2nd week of October"
+  }
+}

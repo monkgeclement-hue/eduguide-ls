@@ -1,0 +1,68 @@
+[
+  {
+    "id": "paray-school-of-nursing-certificate-in-nursing-assistant",
+    "institution": "Paray School of Nursing",
+    "name": "Certificate in Nursing Assistant",
+    "category": "Health Sciences",
+    "faculty": "Nursing",
+    "level": "Certificate",
+    "duration": "15 months",
+    "requirements_summary": "Applicant must possess LGCSE/COSC or equivalent. Foreign acquired qualifications should be evaluated by the Examinations Council of Lesotho before submission. Candidate must have passed a minimum of six subjects, including D or better in English Language, D or better in Mathematics, D or better in Physics/Chemistry/Biology, and D or better in any other three subjects. Working experience as a ward attendant is an added advantage.",
+    "career_options": [
+      "Nursing Assistant",
+      "Clinic Assistant",
+      "Community Care Assistant",
+      "Care Home Assistant"
+    ],
+    "source_url": "https://www.scribd.com/document/763854725/2024-2025-Final-Prospectus",
+    "source_path": "C:/Users/lepha/Downloads/data/Paray 2024-2025-final-prospectus.pdf",
+    "source_type": "official_local_pdf",
+    "extraction_method": "pdf_text_extract",
+    "review_status": "needs_admin_review",
+    "source_note": "Extracted from pages 10-11 and 22 of the supplied Paray 2024/2025 prospectus PDF."
+  },
+  {
+    "id": "paray-school-of-nursing-diploma-in-nursing",
+    "institution": "Paray School of Nursing",
+    "name": "Diploma in Nursing",
+    "category": "Health Sciences",
+    "faculty": "Nursing",
+    "level": "Diploma",
+    "duration": "3 years",
+    "requirements_summary": "Applicant must possess LGCSE/COSC or equivalent. Foreign acquired qualifications should be evaluated by ECOL before submission. Candidate must have passed a minimum of six subjects, including D or better in Mathematics, D or better in English Language, C or better in Physics/Chemistry, C or better in Biology, and C or better in any other two subjects. OR Certificate in Nursing Assistant passed with merit/distinction and a minimum of five passed subjects at COSC/LGCSE. Working experience as a Nursing Assistant is an added advantage.",
+    "career_options": [
+      "Nurse",
+      "Clinic Nurse",
+      "Community Health Nurse",
+      "Nursing Specialist"
+    ],
+    "source_url": "https://www.scribd.com/document/763854725/2024-2025-Final-Prospectus",
+    "source_path": "C:/Users/lepha/Downloads/data/Paray 2024-2025-final-prospectus.pdf",
+    "source_type": "official_local_pdf",
+    "extraction_method": "pdf_text_extract",
+    "review_status": "needs_admin_review",
+    "source_note": "Extracted from pages 11-12 and 22-23 of the supplied Paray 2024/2025 prospectus PDF."
+  },
+  {
+    "id": "paray-school-of-nursing-diploma-in-midwifery",
+    "institution": "Paray School of Nursing",
+    "name": "Diploma in Midwifery",
+    "category": "Health Sciences",
+    "faculty": "Nursing",
+    "level": "Diploma",
+    "duration": "1 year",
+    "requirements_summary": "Entry route is Diploma in Nursing and registration certificate with Lesotho Nursing Council (LNC), OR Diploma in Nursing second-year transcript pending final results. This is a post-basic pathway and should not be treated as direct high-school entry.",
+    "career_options": [
+      "Midwife",
+      "Maternal Health Nurse",
+      "Maternity Unit Nurse",
+      "Neonatal Care Nurse"
+    ],
+    "source_url": "https://www.scribd.com/document/763854725/2024-2025-Final-Prospectus",
+    "source_path": "C:/Users/lepha/Downloads/data/Paray 2024-2025-final-prospectus.pdf",
+    "source_type": "official_local_pdf",
+    "extraction_method": "pdf_text_extract",
+    "review_status": "needs_admin_review",
+    "source_note": "Extracted from pages 12-13 and 23 of the supplied Paray 2024/2025 prospectus PDF."
+  }
+]

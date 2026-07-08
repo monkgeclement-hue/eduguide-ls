@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="EduGuide LS">
+  <rect width="512" height="512" rx="112" fill="#0a5948"/>
+  <path d="M102 155c0-23.5 19-42.5 42.5-42.5h223c23.5 0 42.5 19 42.5 42.5v202c0 23.5-19 42.5-42.5 42.5h-223c-23.5 0-42.5-19-42.5-42.5V155Z" fill="#f7faf8"/>
+  <path d="M154 199h125c28.1 0 50.8 22.7 50.8 50.8s-22.7 50.8-50.8 50.8h-71.2V335H154V199Zm53.8 48v6h71.2a3 3 0 1 0 0-6h-71.2Z" fill="#0a5948"/>
+  <path d="M334 205h35v130h-35V205Z" fill="#d99a22"/>
+  <path d="M153 369h220" stroke="#0a5948" stroke-width="27" stroke-linecap="round"/>
+</svg>

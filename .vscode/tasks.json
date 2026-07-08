@@ -1,0 +1,39 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "Run EduGuide LS",
+      "type": "shell",
+      "command": "py",
+      "args": [
+        "-m",
+        "uvicorn",
+        "server:app",
+        "--reload",
+        "--host",
+        "127.0.0.1",
+        "--port",
+        "8765"
+      ],
+      "isBackground": true,
+      "problemMatcher": {
+        "owner": "python-http-server",
+        "pattern": {
+          "regexp": "^$"
+        },
+        "background": {
+          "activeOnStart": true,
+          "beginsPattern": "^INFO:.*Uvicorn running",
+          "endsPattern": "^INFO:.*Uvicorn running"
+        }
+      },
+      "options": {
+        "cwd": "${workspaceFolder}"
+      },
+      "presentation": {
+        "panel": "dedicated",
+        "clear": true
+      }
+    }
+  ]
+}

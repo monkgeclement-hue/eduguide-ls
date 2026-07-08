@@ -1,0 +1,13 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "type": "chrome",
+            "request": "launch",
+            "name": "Run EduGuide LS",
+            "url": "http://127.0.0.1:8765/index.html",
+            "preLaunchTask": "Run EduGuide LS",
+            "webRoot": "${workspaceFolder}"
+        }
+    ]
+}

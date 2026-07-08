@@ -1,0 +1,167 @@
+{
+  "institution": "National University of Lesotho",
+  "source_title": "NUL Fee Structure 2024/25",
+  "source_path": "C:/Users/lepha/Downloads/NUL Fee-Structure-2024_25.pdf",
+  "extraction_method": "manual_user_extraction_from_scanned_pdf",
+  "academic_year": "2024/25",
+  "currency": "LSL",
+  "review_status": "needs_admin_review",
+  "fee_items": [
+    {
+      "faculty": "Agriculture",
+      "programme_group": "BSc programmes",
+      "local_sadc_amount": 30400,
+      "international_amount": 40550
+    },
+    {
+      "faculty": "Agriculture",
+      "programme_group": "MSc and PhD",
+      "local_sadc_amount": 30460,
+      "international_amount": 40650
+    },
+    {
+      "faculty": "Education",
+      "programme_group": "Bachelor of Education",
+      "local_sadc_amount": 24740,
+      "international_amount": 33000
+    },
+    {
+      "faculty": "Education",
+      "programme_group": "BSc Education",
+      "local_sadc_amount": 30400,
+      "international_amount": 40550
+    },
+    {
+      "faculty": "Education",
+      "programme_group": "Higher Diploma (Primary)",
+      "local_sadc_amount": 14540,
+      "international_amount": 19390
+    },
+    {
+      "faculty": "Education",
+      "programme_group": "BEd Primary (part-time)",
+      "local_sadc_amount": 17900,
+      "international_amount": 23870
+    },
+    {
+      "faculty": "Education",
+      "programme_group": "PGDE (part-time)",
+      "local_sadc_amount": 20020,
+      "international_amount": 26730
+    },
+    {
+      "faculty": "Education",
+      "programme_group": "MSc/PhD Education",
+      "local_sadc_amount": 30460,
+      "international_amount": 40650
+    },
+    {
+      "faculty": "Health Sciences",
+      "programme_group": "BSc programmes",
+      "local_sadc_amount": 30400,
+      "international_amount": 40550
+    },
+    {
+      "faculty": "Health Sciences",
+      "programme_group": "Bachelor of Nursing (part-time)",
+      "local_sadc_amount": 22700,
+      "international_amount": 30270
+    },
+    {
+      "faculty": "Health Sciences",
+      "programme_group": "Masters",
+      "local_sadc_amount": 30460,
+      "international_amount": 40650
+    },
+    {
+      "faculty": "Law",
+      "programme_group": "LLB (5 or 3 year)",
+      "local_sadc_amount": 26100,
+      "international_amount": 34800
+    },
+    {
+      "faculty": "Law",
+      "programme_group": "Diploma Labour Law",
+      "local_sadc_amount": 27350,
+      "international_amount": 36670
+    },
+    {
+      "faculty": "Law",
+      "programme_group": "LLM",
+      "local_sadc_amount": 30460,
+      "international_amount": 40650
+    },
+    {
+      "faculty": "Science & Technology",
+      "programme_group": "BSc programmes",
+      "local_sadc_amount": 30400,
+      "international_amount": 40550
+    },
+    {
+      "faculty": "Science & Technology",
+      "programme_group": "MSc programmes",
+      "local_sadc_amount": 30460,
+      "international_amount": 40650
+    },
+    {
+      "faculty": "Science & Technology",
+      "programme_group": "MSc Sustainable Energy",
+      "local_sadc_amount": 36000,
+      "international_amount": 46800
+    },
+    {
+      "faculty": "Social Sciences",
+      "programme_group": "Bachelor of Commerce",
+      "local_sadc_amount": 24860,
+      "international_amount": 33200
+    },
+    {
+      "faculty": "Social Sciences",
+      "programme_group": "BA programmes",
+      "local_sadc_amount": 24860,
+      "international_amount": 33200
+    },
+    {
+      "faculty": "Social Sciences",
+      "programme_group": "BA Social Work",
+      "local_sadc_amount": 26100,
+      "international_amount": 34800
+    },
+    {
+      "faculty": "Social Sciences",
+      "programme_group": "MSc/PhD",
+      "local_sadc_amount": 30460,
+      "international_amount": 40650
+    },
+    {
+      "faculty": "Humanities",
+      "programme_group": "BA programmes",
+      "local_sadc_amount": 24740,
+      "international_amount": 33000
+    },
+    {
+      "faculty": "Humanities",
+      "programme_group": "Masters/PhD",
+      "local_sadc_amount": 30460,
+      "international_amount": 40650
+    },
+    {
+      "faculty": "IEMS-ODL",
+      "programme_group": "Diploma Adult Education",
+      "local_sadc_amount": 8830,
+      "international_amount": 11770
+    },
+    {
+      "faculty": "IEMS-ODL",
+      "programme_group": "Diploma Business Management",
+      "local_sadc_amount": 10420,
+      "international_amount": 13890
+    },
+    {
+      "faculty": "IEMS-ODL",
+      "programme_group": "BA Business Entrepreneurship",
+      "local_sadc_amount": 18960,
+      "international_amount": 25360
+    }
+  ]
+}

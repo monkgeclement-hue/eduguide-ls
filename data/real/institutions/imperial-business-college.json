@@ -1,0 +1,48 @@
+[
+  {
+    "id": "imperial-business-college-bachelor-in-business-administration-bba",
+    "institution": "Imperial Business College",
+    "name": "Bachelor in Business Administration (BBA)",
+    "category": "Business & Commerce",
+    "faculty": "Management",
+    "level": "Degree",
+    "duration": "4 years / 8 semesters",
+    "requirements_summary": "Minimum entry level for BBA and BHCM is Higher Secondary School Level (10+2) or equivalent A-Levels, CBSE or other courses recognised by the National Education Board of Nepal, with a minimum of second division (45% aggregate) or 2.0 CGPA and minimum Grade C in each subject. Students must also pass the college entrance test, group discussion, and interview.",
+    "career_options": [
+      "Banking Officer",
+      "Marketing Officer",
+      "Human Resource Officer",
+      "Entrepreneur",
+      "Strategic Management Assistant"
+    ],
+    "source_url": "https://www.imperialcollege.edu.np/",
+    "source_path": "C:/Users/lepha/Downloads/data/IBC prospectus-outlined-fonts.pdf",
+    "source_type": "international_prospectus_local_pdf",
+    "extraction_method": "visual_pdf_review_outlined_fonts",
+    "review_status": "needs_admin_review",
+    "source_note": "Visually extracted from the 2018/19 prospectus because the PDF uses outlined fonts that do not expose reliable text. Institution is in Kathmandu, Nepal and must be reviewed for EduGuide LS scope before publishing to students."
+  },
+  {
+    "id": "imperial-business-college-bachelor-in-health-care-management-bhcm",
+    "institution": "Imperial Business College",
+    "name": "Bachelor in Health Care Management (BHCM)",
+    "category": "Health Sciences",
+    "faculty": "Health Care Management",
+    "level": "Degree",
+    "duration": "4 years / 8 semesters",
+    "requirements_summary": "Minimum entry level for BBA and BHCM is Higher Secondary School Level (10+2) or equivalent A-Levels, CBSE or other courses recognised by the National Education Board of Nepal, with a minimum of second division (45% aggregate) or 2.0 CGPA and minimum Grade C in each subject. Students must also pass the college entrance test, group discussion, and interview.",
+    "career_options": [
+      "Hospital Management Officer",
+      "Health Insurance Officer",
+      "Pharmaceutical Company Officer",
+      "Medical Representative",
+      "Health Care Facility Administrator"
+    ],
+    "source_url": "https://www.imperialcollege.edu.np/",
+    "source_path": "C:/Users/lepha/Downloads/data/IBC prospectus-outlined-fonts.pdf",
+    "source_type": "international_prospectus_local_pdf",
+    "extraction_method": "visual_pdf_review_outlined_fonts",
+    "review_status": "needs_admin_review",
+    "source_note": "Visually extracted from the 2018/19 prospectus because the PDF uses outlined fonts that do not expose reliable text. Institution is in Kathmandu, Nepal and must be reviewed for EduGuide LS scope before publishing to students."
+  }
+]
