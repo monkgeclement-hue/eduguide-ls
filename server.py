@@ -1,14 +1,16 @@
 import json
+import hashlib
 import mimetypes
 import os
 import re
 import sqlite3
+import secrets
 import uuid
 from pathlib import Path
 from typing import Any
 
 from dotenv import load_dotenv
-from fastapi import FastAPI, File, Form, HTTPException, Request, UploadFile
+from fastapi import FastAPI, File, Form, Header, HTTPException, Request, UploadFile
 from fastapi.responses import FileResponse
 from openai import OpenAI
 from pydantic import BaseModel, Field
@@ -53,6 +55,39 @@ class GuidanceRequest(BaseModel):
   documents: list[dict[str, Any]] = Field(default_factory=list)
   question: str | None = None
   mode: str = "guidance"
+
+
+class AuthLoginRequest(BaseModel):
+  email: str
+  password: str
+
+
+class AuthRegisterRequest(BaseModel):
+  name: str
+  email: str
+  password: str
+  district: str | None = None
+
+
+class AuthProfileRequest(BaseModel):
+  name: str | None = None
+  district: str | None = None
+  stream: str | None = None
+  leavingYear: str | None = None
+  incomeBand: str | None = None
+  needSignals: list[str] = Field(default_factory=list)
+  preferenceText: str | None = None
+  grades: dict[str, str] = Field(default_factory=dict)
+  documents: list[dict[str, Any]] = Field(default_factory=list)
+  shortlist: list[str] = Field(default_factory=list)
+
+
+class UserRoleUpdate(BaseModel):
+  role: str
+
+
+class UserStatusUpdate(BaseModel):
+  status: str
 
 
 def get_db_connection() -> sqlite3.Connection:
@@ -102,6 +137,16 @@ def init_database() -> None:
         extraction_error text,
         extracted_at text,
         uploaded_at text not null default current_timestamp
+      )
+      """
+    )
+    connection.execute(
+      """
+      create table if not exists auth_sessions (
+        token text primary key,
+        user_id text not null,
+        created_at text not null default current_timestamp,
+        last_seen_at text not null default current_timestamp
       )
       """
     )
@@ -546,18 +591,240 @@ def save_recommendation_run(payload: GuidanceRequest, request_payload: dict[str,
     pass
 
 
+def normalize_email(value: str | None) -> str:
+  return (value or "").strip().lower()
+
+
+def hash_password(password: str, salt: str | None = None) -> tuple[str, str]:
+  password_salt = salt or secrets.token_hex(16)
+  digest = hashlib.pbkdf2_hmac("sha256", password.encode("utf-8"), password_salt.encode("utf-8"), 180_000)
+  return password_salt, digest.hex()
+
+
+def verify_password(password: str, user: dict[str, Any]) -> bool:
+  password_hash = user.get("passwordHash")
+  password_salt = user.get("passwordSalt")
+  if password_hash and password_salt:
+    _, digest = hash_password(password, password_salt)
+    return secrets.compare_digest(digest, str(password_hash))
+  legacy_password = user.get("password")
+  return bool(legacy_password) and secrets.compare_digest(str(legacy_password), password)
+
+
+def load_state_payload(state_key: str, fallback: Any = None) -> Any:
+  with get_db_connection() as connection:
+    row = connection.execute("select payload from app_state where state_key = ?", (state_key,)).fetchone()
+  if not row:
+    return fallback
+  try:
+    return json.loads(row["payload"])
+  except json.JSONDecodeError:
+    return fallback
+
+
+def save_state_payload(state_key: str, payload: Any) -> None:
+  serialized = json.dumps(payload, ensure_ascii=False)
+  with get_db_connection() as connection:
+    connection.execute(
+      """
+      insert into app_state (state_key, payload, updated_at)
+      values (?, ?, current_timestamp)
+      on conflict(state_key) do update set
+        payload = excluded.payload,
+        updated_at = current_timestamp
+      """,
+      (state_key, serialized),
+    )
+    connection.commit()
+
+
+def now_iso() -> str:
+  return __import__("datetime").datetime.utcnow().replace(microsecond=0).isoformat() + "Z"
+
+
+def add_user_activity(user: dict[str, Any], activity_type: str, label: str, actor: dict[str, Any] | None = None, metadata: dict[str, Any] | None = None) -> None:
+  timestamp = now_iso()
+  activity = user.setdefault("activity", [])
+  activity.insert(
+    0,
+    {
+      "id": f"act-{uuid.uuid4().hex[:12]}",
+      "type": activity_type,
+      "label": label,
+      "at": timestamp,
+      "actorId": (actor or user).get("id"),
+      "actorName": (actor or user).get("name", "System"),
+      "metadata": metadata or {},
+    },
+  )
+  user["activity"] = activity[:45]
+  user["lastActiveAt"] = timestamp
+  user["lastActivity"] = label
+
+
+def normalize_auth_user(user: dict[str, Any]) -> dict[str, Any] | None:
+  email = normalize_email(user.get("email"))
+  if not email or user.get("id") in {"demo-student", "demo-admin"}:
+    return None
+  created_at = user.get("createdAt") or now_iso()
+  return {
+    "id": user.get("id") or f"user-{uuid.uuid4().hex[:12]}",
+    "name": (user.get("name") or email).strip(),
+    "email": email,
+    "passwordHash": user.get("passwordHash"),
+    "passwordSalt": user.get("passwordSalt"),
+    "password": user.get("password"),
+    "role": user.get("role") if user.get("role") in {"owner", "admin", "student"} else "student",
+    "status": user.get("status") or "active",
+    "district": user.get("district") or "",
+    "phone": user.get("phone") or "",
+    "stream": user.get("stream") or "",
+    "leavingYear": user.get("leavingYear") or "",
+    "incomeBand": user.get("incomeBand") or "mid",
+    "needSignals": user.get("needSignals") if isinstance(user.get("needSignals"), list) else [],
+    "preferenceText": user.get("preferenceText") or "",
+    "grades": user.get("grades") if isinstance(user.get("grades"), dict) else {},
+    "documents": user.get("documents") if isinstance(user.get("documents"), list) else [],
+    "shortlist": user.get("shortlist") if isinstance(user.get("shortlist"), list) else [],
+    "createdAt": created_at,
+    "reviewedAt": user.get("reviewedAt") or (created_at if user.get("role") in {"owner", "admin"} else None),
+    "lastActiveAt": user.get("lastActiveAt") or created_at,
+    "lastActivity": user.get("lastActivity") or "Account created",
+    "activity": user.get("activity") if isinstance(user.get("activity"), list) else [],
+  }
+
+
+def get_auth_users_internal() -> list[dict[str, Any]]:
+  payload = load_state_payload("auth_users", {"users": []})
+  users = payload.get("users", []) if isinstance(payload, dict) else []
+  normalized = []
+  seen = set()
+  for user in users:
+    if not isinstance(user, dict):
+      continue
+    item = normalize_auth_user(user)
+    if not item or item["email"] in seen:
+      continue
+    seen.add(item["email"])
+    normalized.append(item)
+  return normalized
+
+
+def save_auth_users_internal(users: list[dict[str, Any]]) -> None:
+  save_state_payload("auth_users", {"users": users})
+
+
+def public_user(user: dict[str, Any]) -> dict[str, Any]:
+  safe = {key: value for key, value in user.items() if key not in {"password", "passwordHash", "passwordSalt"}}
+  return safe
+
+
+def seed_bootstrap_admin() -> None:
+  admin_email = normalize_email(os.getenv("ADMIN_EMAIL"))
+  admin_password = (os.getenv("ADMIN_PASSWORD") or "").strip()
+  if not admin_email or not admin_password:
+    return
+  users = get_auth_users_internal()
+  existing = next((user for user in users if user["email"] == admin_email), None)
+  salt, password_hash = hash_password(admin_password)
+  timestamp = now_iso()
+  admin_payload = {
+    "name": (os.getenv("ADMIN_NAME") or "System Admin").strip(),
+    "email": admin_email,
+    "passwordSalt": salt,
+    "passwordHash": password_hash,
+    "role": "owner",
+    "status": "active",
+    "district": (os.getenv("ADMIN_DISTRICT") or "").strip(),
+    "phone": (os.getenv("ADMIN_PHONE") or "").strip(),
+    "reviewedAt": timestamp,
+  }
+  if existing:
+    existing.update(admin_payload)
+    existing.pop("password", None)
+    add_user_activity(existing, "admin_bootstrap", "System admin synced from server environment", existing)
+  else:
+    admin_user = {
+      "id": "admin-owner",
+      **admin_payload,
+      "stream": "",
+      "leavingYear": "",
+      "incomeBand": "mid",
+      "needSignals": [],
+      "preferenceText": "",
+      "grades": {},
+      "documents": [],
+      "shortlist": [],
+      "createdAt": timestamp,
+      "lastActiveAt": timestamp,
+      "lastActivity": "System admin created from server environment",
+      "activity": [],
+    }
+    add_user_activity(admin_user, "admin_bootstrap", "System admin created from server environment", admin_user)
+    users.insert(0, admin_user)
+  for user in users:
+    if user["email"] != admin_email and user.get("role") == "owner":
+      user["role"] = "student"
+      user["reviewedAt"] = None
+      add_user_activity(
+        user,
+        "owner_demoted",
+        "Owner access removed because system ownership is controlled by server environment",
+        existing or user,
+      )
+  save_auth_users_internal(users)
+
+
+def get_bearer_token(authorization: str | None) -> str:
+  if not authorization or not authorization.lower().startswith("bearer "):
+    raise HTTPException(status_code=401, detail="Authentication required.")
+  token = authorization.split(" ", 1)[1].strip()
+  if not token:
+    raise HTTPException(status_code=401, detail="Authentication required.")
+  return token
+
+
+def require_current_user(authorization: str | None) -> dict[str, Any]:
+  token = get_bearer_token(authorization)
+  with get_db_connection() as connection:
+    row = connection.execute("select user_id from auth_sessions where token = ?", (token,)).fetchone()
+    if row:
+      connection.execute("update auth_sessions set last_seen_at = current_timestamp where token = ?", (token,))
+      connection.commit()
+  if not row:
+    raise HTTPException(status_code=401, detail="Session expired. Please login again.")
+  user = next((item for item in get_auth_users_internal() if item["id"] == row["user_id"]), None)
+  if not user or user.get("status") == "suspended":
+    raise HTTPException(status_code=403, detail="Account is not active.")
+  return user
+
+
+def require_admin_user(authorization: str | None) -> dict[str, Any]:
+  user = require_current_user(authorization)
+  if user.get("role") not in {"owner", "admin"}:
+    raise HTTPException(status_code=403, detail="Admin access required.")
+  return user
+
+
+def create_auth_session(user_id: str) -> str:
+  token = secrets.token_urlsafe(32)
+  with get_db_connection() as connection:
+    connection.execute("insert into auth_sessions (token, user_id) values (?, ?)", (token, user_id))
+    connection.commit()
+  return token
+
+
 def sanitize_database_state_payload(state_key: str, payload: Any) -> Any:
   if state_key != "auth_users" or not isinstance(payload, dict):
     return payload
   users = payload.get("users")
   if not isinstance(users, list):
     return payload
-  cleaned_users = [
-    user
-    for user in users
-    if not (isinstance(user, dict) and user.get("id") in {"demo-student", "demo-admin"})
-  ]
+  cleaned_users = [public_user(user) for user in get_auth_users_internal()]
   return {**payload, "users": cleaned_users}
+
+
+seed_bootstrap_admin()
 
 
 @app.get("/api/db/state")
@@ -568,6 +835,8 @@ def get_database_state() -> dict[str, Any]:
   updated_at = {}
   for row in rows:
     try:
+      if row["state_key"] == "auth_users":
+        continue
       state[row["state_key"]] = json.loads(row["payload"])
       updated_at[row["state_key"]] = row["updated_at"]
     except json.JSONDecodeError:
@@ -585,6 +854,8 @@ async def put_database_state(state_key: str, request: Request) -> dict[str, Any]
   safe_key = re.sub(r"[^a-zA-Z0-9_-]", "", state_key).strip()
   if not safe_key:
     return {"ok": False, "error": "Invalid state key"}
+  if safe_key == "auth_users":
+    return {"ok": True, "state_key": safe_key, "ignored": True}
   body = await request.json()
   payload = body.get("payload", body) if isinstance(body, dict) else body
   payload = sanitize_database_state_payload(safe_key, payload)
@@ -613,6 +884,168 @@ def delete_database_state(state_key: str) -> dict[str, Any]:
     cursor = connection.execute("delete from app_state where state_key = ?", (safe_key,))
     connection.commit()
   return {"ok": True, "state_key": safe_key, "deleted": cursor.rowcount}
+
+
+@app.get("/api/auth/bootstrap")
+def auth_bootstrap() -> dict[str, Any]:
+  seed_bootstrap_admin()
+  admin_ready = any(user.get("role") in {"owner", "admin"} for user in get_auth_users_internal())
+  return {"ok": True, "adminReady": admin_ready}
+
+
+@app.post("/api/auth/login")
+def auth_login(payload: AuthLoginRequest) -> dict[str, Any]:
+  seed_bootstrap_admin()
+  email = normalize_email(payload.email)
+  user = next((item for item in get_auth_users_internal() if item["email"] == email), None)
+  if not user or not verify_password(payload.password, user):
+    raise HTTPException(status_code=401, detail="Email or password is not correct.")
+  if user.get("status") == "suspended":
+    raise HTTPException(status_code=403, detail="This account is suspended.")
+  users = get_auth_users_internal()
+  stored = next((item for item in users if item["id"] == user["id"]), user)
+  if stored.get("password"):
+    salt, password_hash = hash_password(payload.password)
+    stored["passwordSalt"] = salt
+    stored["passwordHash"] = password_hash
+    stored.pop("password", None)
+  add_user_activity(stored, "login", "Logged in", stored)
+  save_auth_users_internal(users)
+  return {"ok": True, "token": create_auth_session(stored["id"]), "user": public_user(stored)}
+
+
+@app.post("/api/auth/register")
+def auth_register(payload: AuthRegisterRequest) -> dict[str, Any]:
+  seed_bootstrap_admin()
+  name = (payload.name or "").strip()
+  email = normalize_email(payload.email)
+  password = payload.password or ""
+  if not name or not email or not password:
+    raise HTTPException(status_code=400, detail="Name, email, and password are required.")
+  users = get_auth_users_internal()
+  if any(user["email"] == email for user in users):
+    raise HTTPException(status_code=409, detail="That email already has an account.")
+  salt, password_hash = hash_password(password)
+  timestamp = now_iso()
+  user = {
+    "id": f"user-{uuid.uuid4().hex[:12]}",
+    "name": name,
+    "email": email,
+    "passwordSalt": salt,
+    "passwordHash": password_hash,
+    "role": "student",
+    "status": "active",
+    "district": (payload.district or "").strip(),
+    "stream": "",
+    "leavingYear": "",
+    "incomeBand": "mid",
+    "needSignals": [],
+    "preferenceText": "",
+    "grades": {},
+    "documents": [],
+    "shortlist": [],
+    "createdAt": timestamp,
+    "reviewedAt": None,
+    "lastActiveAt": timestamp,
+    "lastActivity": "Student account created",
+    "activity": [],
+  }
+  add_user_activity(user, "account_created", "Student account created", user)
+  users.append(user)
+  save_auth_users_internal(users)
+  return {"ok": True, "token": create_auth_session(user["id"]), "user": public_user(user)}
+
+
+@app.get("/api/auth/me")
+def auth_me(authorization: str | None = Header(default=None)) -> dict[str, Any]:
+  user = require_current_user(authorization)
+  return {"ok": True, "user": public_user(user)}
+
+
+@app.post("/api/auth/logout")
+def auth_logout(authorization: str | None = Header(default=None)) -> dict[str, Any]:
+  token = get_bearer_token(authorization)
+  with get_db_connection() as connection:
+    connection.execute("delete from auth_sessions where token = ?", (token,))
+    connection.commit()
+  return {"ok": True}
+
+
+@app.put("/api/auth/me")
+def auth_update_me(payload: AuthProfileRequest, authorization: str | None = Header(default=None)) -> dict[str, Any]:
+  current = require_current_user(authorization)
+  users = get_auth_users_internal()
+  user = next((item for item in users if item["id"] == current["id"]), None)
+  if not user:
+    raise HTTPException(status_code=404, detail="User not found.")
+  for field in ["name", "district", "stream", "leavingYear", "incomeBand", "preferenceText"]:
+    value = getattr(payload, field)
+    if value is not None:
+      user[field] = value
+  user["needSignals"] = payload.needSignals
+  user["grades"] = payload.grades
+  user["documents"] = payload.documents
+  user["shortlist"] = payload.shortlist
+  add_user_activity(user, "profile_updated", "Updated profile", user)
+  save_auth_users_internal(users)
+  return {"ok": True, "user": public_user(user)}
+
+
+@app.get("/api/admin/users")
+def admin_list_users(authorization: str | None = Header(default=None)) -> dict[str, Any]:
+  require_admin_user(authorization)
+  return {"ok": True, "users": [public_user(user) for user in get_auth_users_internal()]}
+
+
+@app.put("/api/admin/users/{user_id}/role")
+def admin_set_user_role(user_id: str, payload: UserRoleUpdate, authorization: str | None = Header(default=None)) -> dict[str, Any]:
+  actor = require_admin_user(authorization)
+  if payload.role not in {"admin", "student"}:
+    raise HTTPException(status_code=400, detail="Invalid role.")
+  users = get_auth_users_internal()
+  user = next((item for item in users if item["id"] == user_id), None)
+  if not user:
+    raise HTTPException(status_code=404, detail="User not found.")
+  if user["id"] == actor["id"] or user.get("role") == "owner":
+    raise HTTPException(status_code=400, detail="Protected account.")
+  user["role"] = payload.role
+  if payload.role == "admin":
+    user["reviewedAt"] = user.get("reviewedAt") or now_iso()
+  add_user_activity(user, "role_changed", f"Role changed to {payload.role}", actor, {"role": payload.role})
+  save_auth_users_internal(users)
+  return {"ok": True, "user": public_user(user), "users": [public_user(item) for item in users]}
+
+
+@app.put("/api/admin/users/{user_id}/status")
+def admin_set_user_status(user_id: str, payload: UserStatusUpdate, authorization: str | None = Header(default=None)) -> dict[str, Any]:
+  actor = require_admin_user(authorization)
+  if payload.status not in {"active", "suspended"}:
+    raise HTTPException(status_code=400, detail="Invalid status.")
+  users = get_auth_users_internal()
+  user = next((item for item in users if item["id"] == user_id), None)
+  if not user:
+    raise HTTPException(status_code=404, detail="User not found.")
+  if user["id"] == actor["id"] or user.get("role") == "owner":
+    raise HTTPException(status_code=400, detail="Protected account.")
+  user["status"] = payload.status
+  if payload.status == "active":
+    user["reviewedAt"] = user.get("reviewedAt") or now_iso()
+  add_user_activity(user, "status_changed", f"Account {payload.status}", actor, {"status": payload.status})
+  save_auth_users_internal(users)
+  return {"ok": True, "user": public_user(user), "users": [public_user(item) for item in users]}
+
+
+@app.put("/api/admin/users/{user_id}/review")
+def admin_review_user(user_id: str, authorization: str | None = Header(default=None)) -> dict[str, Any]:
+  actor = require_admin_user(authorization)
+  users = get_auth_users_internal()
+  user = next((item for item in users if item["id"] == user_id), None)
+  if not user:
+    raise HTTPException(status_code=404, detail="User not found.")
+  user["reviewedAt"] = now_iso()
+  add_user_activity(user, "reviewed", "Account reviewed by admin", actor)
+  save_auth_users_internal(users)
+  return {"ok": True, "user": public_user(user), "users": [public_user(item) for item in users]}
 
 
 @app.post("/api/documents/upload")

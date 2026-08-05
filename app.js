@@ -1,4 +1,4 @@
-﻿const catalog = window.EDUGUIDE_DATA;
+const catalog = window.EDUGUIDE_DATA;
 const { subjects, interests, sources, programmes, labourNotes } = catalog;
 const adminData = window.EDUGUIDE_ADMIN_DATA || {
   summary: {},
@@ -41,6 +41,7 @@ let adminState = {
 const persistenceKey = "eduguide-admin-review-state-v1";
 const authUsersKey = "eduguide-auth-users-v1";
 const authSessionKey = "eduguide-auth-session-v1";
+const authTokenKey = "eduguide-auth-token-v1";
 const legacyDemoEmails = new Set();
 const legacyDemoIds = new Set(["demo-student", "demo-admin"]);
 const defaultUsers = [];
@@ -105,6 +106,7 @@ const calibrationProfiles = {
 
 let authUsers = structuredClone(defaultUsers);
 let currentUser = null;
+let authToken = localStorage.getItem(authTokenKey) || null;
 let authMode = "login";
 const supabaseConfig = window.EDUGUIDE_SUPABASE_CONFIG || {};
 const supabaseClient =
@@ -346,6 +348,10 @@ function hasAdminUser(users = authUsers) {
   return users.some((user) => isAdmin(user) && user.status !== "suspended" && !isLegacyDemoUser(user));
 }
 
+function getAuthHeaders(extra = {}) {
+  return authToken ? { ...extra, Authorization: `Bearer ${authToken}` } : extra;
+}
+
 function normalizeUser(user = {}) {
   if (!user?.email || isLegacyDemoUser(user)) return null;
   const createdAt = user.createdAt || user.registeredAt || new Date().toISOString();
@@ -391,6 +397,18 @@ function mergeAuthUsers(users = []) {
   if (currentUser && isLegacyDemoUser(currentUser)) currentUser = null;
 }
 
+function mergeAuthUsersInMemory(existingUsers = [], incomingUsers = []) {
+  const merged = [...existingUsers].filter(Boolean);
+  incomingUsers.forEach((user) => {
+    const normalized = normalizeUser(user);
+    if (!normalized) return;
+    const index = merged.findIndex((item) => item.id === normalized.id || item.email === normalized.email);
+    if (index >= 0) merged[index] = { ...merged[index], ...normalized };
+    else merged.push(normalized);
+  });
+  return merged;
+}
+
 function loadAuthUsers() {
   if (databaseLoadedAuthUsers) return;
   try {
@@ -418,14 +436,59 @@ async function saveServerState(stateKey, payload) {
   }
 }
 
+function getCurrentUserPayload() {
+  if (!currentUser) return null;
+  return {
+    name: currentUser.name || "",
+    district: currentUser.district || "",
+    stream: currentUser.stream || "",
+    leavingYear: currentUser.leavingYear || "",
+    incomeBand: currentUser.incomeBand || "mid",
+    needSignals: currentUser.needSignals || [],
+    preferenceText: currentUser.preferenceText || "",
+    grades: currentUser.grades || {},
+    documents: currentUser.documents || [],
+    shortlist: currentUser.shortlist || []
+  };
+}
+
+function syncCurrentUserToServer() {
+  if (!authToken || !currentUser) return;
+  const payload = getCurrentUserPayload();
+  if (!payload) return;
+  fetch("/api/auth/me", {
+    method: "PUT",
+    headers: getAuthHeaders({ "Content-Type": "application/json" }),
+    body: JSON.stringify(payload)
+  })
+    .then((response) => response.ok ? response.json() : null)
+    .then((data) => {
+      if (!data?.user) return;
+      const updated = normalizeUser(data.user);
+      if (!updated) return;
+      currentUser = updated;
+      authUsers = mergeAuthUsersInMemory(authUsers, [updated]);
+      localStorage.setItem(authUsersKey, JSON.stringify(authUsers));
+    })
+    .catch(() => {});
+}
+
 function saveAuthUsers() {
-  localStorage.setItem(authUsersKey, JSON.stringify(authUsers));
-  saveServerState("auth_users", { users: authUsers });
+  localStorage.setItem(authUsersKey, JSON.stringify(authUsers.map((user) => {
+    const safe = { ...user };
+    delete safe.password;
+    delete safe.passwordHash;
+    delete safe.passwordSalt;
+    return safe;
+  })));
+  syncCurrentUserToServer();
 }
 
 function saveAuthSession() {
   if (currentUser) localStorage.setItem(authSessionKey, currentUser.id);
   else localStorage.removeItem(authSessionKey);
+  if (authToken) localStorage.setItem(authTokenKey, authToken);
+  else localStorage.removeItem(authTokenKey);
 }
 
 function formatDateTime(value) {
@@ -488,15 +551,12 @@ function setAuthMessage(message, tone = "neutral") {
 }
 
 function updateAuthContext() {
-  const firstAdminNeeded = !hasAdminUser();
   const context = qs("#auth-context");
   const registerLabel = qs("#register-submit-label");
   if (context) {
-    context.textContent = firstAdminNeeded
-      ? "No admin exists yet. The first account you create will become the System Admin for this EduGuide LS instance."
-      : "New registrations start as students. An admin can review the account, grant admin access, or suspend access from the Users dashboard.";
+    context.textContent = "Public registration creates student accounts only. Admin access is controlled privately by the system owner.";
   }
-  if (registerLabel) registerLabel.textContent = firstAdminNeeded ? "Create System Admin" : "Create Student Account";
+  if (registerLabel) registerLabel.textContent = "Create Student Account";
 }
 
 function setAuthMode(mode) {
@@ -507,9 +567,7 @@ function setAuthMode(mode) {
   setAuthMessage(
     mode === "login"
       ? "Use your registered account. Your dashboard opens according to your role."
-      : !hasAdminUser()
-        ? "Create the first admin account to initialise the system."
-        : "Create a student account. Admins can grant elevated access later."
+      : "Create a student account. Admins can grant elevated access later."
   );
 }
 
@@ -560,87 +618,88 @@ function setCurrentUser(user, preferredView = "student") {
 }
 
 function signOut() {
+  if (authToken) {
+    fetch("/api/auth/logout", { method: "POST", headers: getAuthHeaders() }).catch(() => {});
+  }
   currentUser = null;
+  authToken = null;
   saveAuthSession();
   updateUserShell();
   setAuthMode("login");
   setAuthMessage("Signed out. Login again to continue.", "success");
 }
 
-function loginWithCredentials(email, password, preferredView = "student") {
-  const normalized = normalizeEmail(email);
-  const user = authUsers.find((item) => item.email === normalized && item.password === password);
-  if (!user) {
-    setAuthMessage("Email or password is not correct.", "error");
+async function loginWithCredentials(email, password, preferredView = "student") {
+  try {
+    const response = await fetch("/api/auth/login", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email, password })
+    });
+    const data = await response.json().catch(() => ({}));
+    if (!response.ok || !data.ok) throw new Error(data.detail || "Email or password is not correct.");
+    authToken = data.token;
+    const user = normalizeUser(data.user);
+    authUsers = mergeAuthUsersInMemory(authUsers, [user]);
+    saveAuthUsers();
+    setCurrentUser(user, isAdmin(user) ? "admin" : preferredView);
+    return true;
+  } catch (error) {
+    setAuthMessage(error.message || "Email or password is not correct.", "error");
     return false;
   }
-  if (user.status === "suspended") {
-    setAuthMessage("This account is suspended. Please contact the system admin.", "error");
-    return false;
-  }
-  recordTargetUserActivity(user, "login", "Logged in");
-  setCurrentUser(user, preferredView);
-  return true;
 }
 
-function registerUser(name, email, password, district) {
+async function registerUser(name, email, password, district) {
   const normalized = normalizeEmail(email);
   const cleanName = name.trim();
   if (!cleanName || !normalized || !password) {
     setAuthMessage("Please fill in your name, email, and password.", "error");
     return false;
   }
-  if (authUsers.some((user) => user.email === normalized)) {
-    setAuthMessage("That email already has an account. Login instead.", "error");
+  try {
+    const response = await fetch("/api/auth/register", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ name: cleanName, email: normalized, password, district })
+    });
+    const data = await response.json().catch(() => ({}));
+    if (!response.ok || !data.ok) throw new Error(data.detail || "Registration failed.");
+    authToken = data.token;
+    const user = normalizeUser(data.user);
+    authUsers = mergeAuthUsersInMemory(authUsers, [user]);
+    saveAuthUsers();
+    setCurrentUser(user, "student");
+    setAuthMessage("Student account created. Admins can review and grant roles later.", "success");
+    return true;
+  } catch (error) {
+    setAuthMessage(error.message || "Registration failed.", "error");
     return false;
   }
-  const firstAdmin = !hasAdminUser();
-  const createdAt = new Date().toISOString();
-  const user = {
-    id: generateUserId(firstAdmin ? "admin" : "user"),
-    name: cleanName,
-    email: normalized,
-    password,
-    role: firstAdmin ? "owner" : "student",
-    status: "active",
-    district,
-    createdAt,
-    reviewedAt: firstAdmin ? createdAt : null,
-    lastActiveAt: createdAt,
-    lastActivity: firstAdmin ? "System admin account created" : "Student account created",
-    activity: [],
-    grades: {},
-    needSignals: [],
-    documents: [],
-    shortlist: []
-  };
-  addActivityToUser(user, "account_created", firstAdmin ? "System admin account created" : "Student account created");
-  authUsers.push(user);
-  saveAuthUsers();
-  setCurrentUser(user, firstAdmin ? "admin" : "student");
-  setAuthMessage(firstAdmin ? "System Admin account created." : "Student account created. An admin can review and grant roles later.", "success");
-  return true;
 }
 
-function restoreAuthSession() {
-  const sessionId = localStorage.getItem(authSessionKey);
-  const user = authUsers.find((item) => item.id === sessionId);
-  if (user) {
-    if (user.status === "suspended") {
-      localStorage.removeItem(authSessionKey);
-      updateUserShell();
-      setAuthMode("login");
-      setAuthMessage("Your saved session is suspended. Please contact the system admin.", "error");
-      return false;
+async function restoreAuthSession() {
+  if (authToken) {
+    try {
+      const response = await fetch("/api/auth/me", { headers: getAuthHeaders({ Accept: "application/json" }) });
+      const data = await response.json().catch(() => ({}));
+      if (!response.ok || !data.ok || !data.user) throw new Error(data.detail || "Session expired");
+      const user = normalizeUser(data.user);
+      authUsers = mergeAuthUsersInMemory(authUsers, [user]);
+      saveAuthUsers();
+      setCurrentUser(user, isAdmin(user) ? "admin" : "student");
+      return true;
+    } catch (error) {
+      authToken = null;
+      currentUser = null;
+      saveAuthSession();
+      setAuthMessage("Session expired. Login again to continue.", "error");
     }
-    setCurrentUser(user, isAdmin(user) ? "admin" : "student");
-    return true;
   }
   updateUserShell();
   setAuthMode("login");
   return false;
 }
-
 const programmePersistFields = [
   "institution",
   "name",
@@ -3279,6 +3338,28 @@ function renderAdminSources() {
     : `<article class="admin-empty"><h4>No sources match the filters.</h4><p>Try another institution.</p></article>`;
 }
 
+async function loadAdminUsers() {
+  if (!authToken || !isAdmin()) return;
+  try {
+    const response = await fetch("/api/admin/users", { headers: getAuthHeaders({ Accept: "application/json" }) });
+    const data = await response.json().catch(() => ({}));
+    if (!response.ok || !data.ok || !Array.isArray(data.users)) throw new Error(data.detail || "Unable to load users");
+    authUsers = data.users.map(normalizeUser).filter(Boolean);
+    localStorage.setItem(authUsersKey, JSON.stringify(authUsers));
+    renderAdminUsers();
+    renderAdminMetrics();
+    renderAdminDetail();
+    if (window.lucide) window.lucide.createIcons();
+  } catch (error) {
+    lastPersistenceMessage = error.message || "Could not load users";
+  }
+}
+
+function applyAdminUsersResponse(data) {
+  if (!Array.isArray(data?.users)) return;
+  authUsers = data.users.map(normalizeUser).filter(Boolean);
+  localStorage.setItem(authUsersKey, JSON.stringify(authUsers));
+}
 function renderAdminUsers() {
   const list = qs("#admin-user-list");
   if (!list) return;
@@ -3699,51 +3780,58 @@ function resolveGap(id) {
   return setGapStatus(id, "resolved");
 }
 
-function setUserRole(userId, role) {
-  if (!isAdmin()) return;
-  const user = authUsers.find((item) => item.id === userId);
-  if (!user || user.id === currentUser.id || isOwner(user)) return;
-  if (role === "student" && isAdmin(user) && !authUsers.some((item) => item.id !== user.id && isAdmin(item) && item.status !== "suspended")) {
-    lastPersistenceMessage = "At least one active admin is required";
+async function setUserRole(userId, role) {
+  if (!isAdmin() || !authToken) return;
+  try {
+    const response = await fetch(`/api/admin/users/${encodeURIComponent(userId)}/role`, {
+      method: "PUT",
+      headers: getAuthHeaders({ "Content-Type": "application/json" }),
+      body: JSON.stringify({ role })
+    });
+    const data = await response.json().catch(() => ({}));
+    if (!response.ok || !data.ok) throw new Error(data.detail || "Could not update role");
+    applyAdminUsersResponse(data);
     renderAdmin();
-    return;
-  }
-  user.role = role;
-  if (role === "admin") user.reviewedAt ||= new Date().toISOString();
-  addActivityToUser(user, "role_changed", `Role changed to ${getUserRoleLabel(user)}`, { role, changedBy: currentUser?.id });
-  recordCurrentUserActivity("admin_role_change", `Changed ${user.name}'s role`, { userId, role });
-  saveAuthUsers();
-  renderAdmin();
-}
-
-function setUserStatus(userId, status) {
-  if (!isAdmin()) return;
-  const user = authUsers.find((item) => item.id === userId);
-  if (!user || user.id === currentUser.id || isOwner(user)) return;
-  if (status === "suspended" && isAdmin(user) && !authUsers.some((item) => item.id !== user.id && isAdmin(item) && item.status !== "suspended")) {
-    lastPersistenceMessage = "At least one active admin is required";
+  } catch (error) {
+    lastPersistenceMessage = error.message || "Could not update role";
     renderAdmin();
-    return;
   }
-  user.status = status;
-  if (status === "active") user.reviewedAt ||= new Date().toISOString();
-  addActivityToUser(user, "status_changed", `Account ${status}`, { status, changedBy: currentUser?.id });
-  recordCurrentUserActivity("admin_status_change", `Changed ${user.name}'s account status`, { userId, status });
-  saveAuthUsers();
-  renderAdmin();
 }
 
-function markUserReviewed(userId) {
-  if (!isAdmin()) return;
-  const user = authUsers.find((item) => item.id === userId);
-  if (!user) return;
-  user.reviewedAt = new Date().toISOString();
-  addActivityToUser(user, "reviewed", "Account reviewed by admin", { reviewedBy: currentUser?.id });
-  recordCurrentUserActivity("admin_user_review", `Reviewed ${user.name}'s account`, { userId });
-  saveAuthUsers();
-  renderAdmin();
+async function setUserStatus(userId, status) {
+  if (!isAdmin() || !authToken) return;
+  try {
+    const response = await fetch(`/api/admin/users/${encodeURIComponent(userId)}/status`, {
+      method: "PUT",
+      headers: getAuthHeaders({ "Content-Type": "application/json" }),
+      body: JSON.stringify({ status })
+    });
+    const data = await response.json().catch(() => ({}));
+    if (!response.ok || !data.ok) throw new Error(data.detail || "Could not update account status");
+    applyAdminUsersResponse(data);
+    renderAdmin();
+  } catch (error) {
+    lastPersistenceMessage = error.message || "Could not update account status";
+    renderAdmin();
+  }
 }
 
+async function markUserReviewed(userId) {
+  if (!isAdmin() || !authToken) return;
+  try {
+    const response = await fetch(`/api/admin/users/${encodeURIComponent(userId)}/review`, {
+      method: "PUT",
+      headers: getAuthHeaders({ Accept: "application/json" })
+    });
+    const data = await response.json().catch(() => ({}));
+    if (!response.ok || !data.ok) throw new Error(data.detail || "Could not review user");
+    applyAdminUsersResponse(data);
+    renderAdmin();
+  } catch (error) {
+    lastPersistenceMessage = error.message || "Could not review user";
+    renderAdmin();
+  }
+}
 function renderAdmin() {
   renderAdminFilters();
   renderAdminMetrics();
@@ -3831,13 +3919,13 @@ function bindEvents() {
   qsa("[data-auth-mode]").forEach((button) => {
     button.addEventListener("click", () => setAuthMode(button.dataset.authMode));
   });
-  qs("#login-form").addEventListener("submit", (event) => {
+  qs("#login-form").addEventListener("submit", async (event) => {
     event.preventDefault();
-    loginWithCredentials(qs("#login-email").value, qs("#login-password").value);
+    await loginWithCredentials(qs("#login-email").value, qs("#login-password").value);
   });
-  qs("#register-form").addEventListener("submit", (event) => {
+  qs("#register-form").addEventListener("submit", async (event) => {
     event.preventDefault();
-    registerUser(qs("#register-name").value, qs("#register-email").value, qs("#register-password").value, qs("#register-district").value);
+    await registerUser(qs("#register-name").value, qs("#register-email").value, qs("#register-password").value, qs("#register-district").value);
   });
   qs("#logout-button")?.addEventListener("click", signOut);
   qsa("[data-view]").forEach((button) => {
@@ -4044,7 +4132,7 @@ async function init() {
   setupDropzone();
   bindEvents();
   const initialView = new URLSearchParams(window.location.search).get("view");
-  const restored = restoreAuthSession();
+  const restored = await restoreAuthSession();
   if (restored && initialView && titles[initialView]) setView(initialView);
   if (window.lucide) window.lucide.createIcons();
 }
@@ -4060,6 +4148,3 @@ document.addEventListener("DOMContentLoaded", () => {
   init();
   registerServiceWorker();
 });
-
-
-

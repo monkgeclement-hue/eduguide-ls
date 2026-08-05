@@ -45,6 +45,11 @@ Set these on the server or hosting platform:
 AI_PROVIDER=gemini
 GEMINI_API_KEY=your_secret_key
 GEMINI_MODEL=gemini-2.5-flash
+ADMIN_NAME=your_admin_name
+ADMIN_EMAIL=your_admin_email
+ADMIN_PASSWORD=your_admin_password
+ADMIN_DISTRICT=your_admin_district
+ADMIN_PHONE=your_admin_phone
 ```
 
 Optional OpenAI fallback:
@@ -63,7 +68,7 @@ The repository includes `render.yaml` for a Docker-based Render deployment.
 1. Push the project to a private GitHub repository.
 2. Confirm `.env`, `data/eduguide.db`, and `data/uploads/` are not committed.
 3. In Render, create a new Blueprint or Docker web service from the repository.
-4. Add `GEMINI_API_KEY` as a secret environment variable.
+4. Add `GEMINI_API_KEY` and the `ADMIN_*` variables as secret environment variables.
 5. Keep `AI_PROVIDER=gemini` and `GEMINI_MODEL=gemini-2.5-flash`.
 6. Deploy, then test `/health`, `/`, and `/api/db/diagnostics`.
 
@@ -77,7 +82,7 @@ Useful Render references:
 ## Public Testing Checklist
 
 - Student login and registration work.
-- First registered account becomes System Admin on a fresh database.
+- Public registration creates student accounts only; System Admin is created from private server environment variables.
 - Admin login works, can search users, review new accounts, grant admin roles, suspend/reactivate accounts, and inspect activity.
 - Student grades include Food & Nutrition, Religious Knowledge, and Computer Skills.
 - View Matches groups eligible programmes by institution.

@@ -75,7 +75,7 @@ For public testing and hosting steps, see `DEPLOYMENT.md`. The project now inclu
 
 In VS Code, use **Run and Debug** and choose **Run EduGuide LS** after installing `requirements.txt`. The `.vscode` task starts the FastAPI server before opening Chrome.
 
-There are no demo login accounts. On a fresh database, the first account created from the Register form becomes the System Admin. Every later registration starts as a student until an admin grants another role.
+There are no demo login accounts. Public registration always creates a student account. The System Admin is created privately from server environment variables: ADMIN_NAME, ADMIN_EMAIL, ADMIN_PASSWORD, ADMIN_DISTRICT, and ADMIN_PHONE.
 
 The browser UI can still load as static HTML, but local FastAPI mode is preferred. It includes:
 
