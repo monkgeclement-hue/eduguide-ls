@@ -1021,13 +1021,22 @@ textarea:focus {
   font-size: 12px;
 }
 
-.document-list a {
+.document-list a,
+.text-link-button {
   display: inline-block;
   margin-top: 4px;
   color: var(--brand-mid);
   font-size: 12px;
   font-weight: 700;
   text-decoration: none;
+}
+
+.text-link-button {
+  width: auto;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  cursor: pointer;
 }
 
 .extracted-grade-list {

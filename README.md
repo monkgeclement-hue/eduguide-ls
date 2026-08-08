@@ -69,7 +69,7 @@ This mode creates a local SQLite database at `data/eduguide.db` unless Supabase 
 - registered users, admin roles, account status, and activity history
 - admin review state for programmes and data gaps
 - uploaded document metadata
-- AI recommendation-run history
+- AI recommendation-run history and recent AI chat memory
 
 Useful checks:
 
@@ -89,7 +89,7 @@ The browser UI can still load as static HTML, but local FastAPI mode is preferre
 - Student dashboard with profile inputs, grades, interests, and document upload/dropzone support
 - Real document upload in FastAPI mode, with files stored locally under `data/uploads/`, text/OCR extraction, and machine-detected grade suggestions
 - Matching Engine v2 using the real 234-record catalogue, inferred domains, eligibility checks, funding readiness, institution-grouped results, and data-confidence warnings
-- AI advisor that explains top matches through a server-side Gemini API proxy, with OpenAI still available as an optional fallback
+- AI advisor that explains qualified/almost matches through a server-side Gemini API proxy, remembers recent chat turns, uses blocked-pathway evidence, and keeps OpenAI available as an optional fallback
 - Skills, careers, NMDS readiness, and labour-market notes
 - Admin dashboard for review-queue style data approval, user search, role management, account status, and activity monitoring
 - Data-source dashboard for verified Lesotho education sources
@@ -99,7 +99,7 @@ The browser UI can still load as static HTML, but local FastAPI mode is preferre
 - `data/eduguide.db` is created automatically by `server.py` for local real-database persistence. It is ignored by git.
 - `data/uploads/` is created automatically when users upload documents. Uploaded files are ignored by git and served only through the document download API.
 - Document extraction uses local parsers for text PDFs, DOCX, and text files. Image/scanned OCR uses Gemini through the server-side `GEMINI_API_KEY`.
-- `supabase/runtime.sql` creates the persistent runtime tables and private storage bucket used by the hosted FastAPI app.
+- `supabase/runtime.sql` creates the persistent runtime tables, AI chat memory table, and private storage bucket used by the hosted FastAPI app.
 - `supabase/schema.sql` contains the normalized Postgres schema.
 - `supabase/seed.sql` contains starter reference data and shared source records.
 - `supabase/seed.normalized.sql` loads the real scraped/manual catalogue into normalized tables.

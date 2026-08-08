@@ -92,7 +92,7 @@ Useful Render references:
 - Student grades include Food & Nutrition, Religious Knowledge, and Computer Skills.
 - View Matches groups eligible programmes by institution.
 - Document upload stores files and extracts readable text or OCR suggestions.
-- AI guidance responds without exposing the Gemini key in browser code.
+- AI guidance responds without exposing the Gemini key in browser code, remembers recent chat turns server-side, and uses blocked-match evidence for explanations.
 - Scholarship/NMDS readiness clearly says it is an estimate only.
 - Admin data management can add, edit, approve, reject, and track programme gaps.
 - Mobile layout loads with CSS and usable buttons.
@@ -100,7 +100,7 @@ Useful Render references:
 
 ## Prototype Limits Before Real Launch
 
-Local SQLite is still available for development, but hosted public testing should use Supabase runtime persistence. Without `SUPABASE_URL` and `SUPABASE_SERVICE_ROLE_KEY`, a hosted free container may reset users and uploads after redeploys or restarts.
+Local SQLite is still available for development, but hosted public testing should use Supabase runtime persistence. Without `SUPABASE_URL` and `SUPABASE_SERVICE_ROLE_KEY`, a hosted free container may reset users, uploads, and AI chat memory after redeploys or restarts.
 
 The project has Supabase files for both catalogue data and runtime persistence:
 

@@ -121,6 +121,7 @@ let lastPersistenceMessage = supabaseClient ? "Supabase sync ready" : "Local pro
 let serverDatabaseAvailable = false;
 let databaseLoadedAuthUsers = false;
 let databaseLoadedReviewState = false;
+let aiChatLoadedFromServer = false;
 
 const titles = {
   student: "Student Dashboard",
@@ -488,6 +489,13 @@ function saveAuthUsers() {
   syncCurrentUserToServer();
 }
 
+function renderViewOnDemand(viewName) {
+  if (viewName === "admin") renderAdmin();
+  if (viewName === "sources") renderSources();
+  if (viewName === "results") renderResults();
+  if (viewName === "ai") renderAiChatMessages();
+}
+
 function saveAuthSession() {
   if (currentUser) localStorage.setItem(authSessionKey, currentUser.id);
   else localStorage.removeItem(authSessionKey);
@@ -631,6 +639,7 @@ function updateUserShell() {
 
 function setCurrentUser(user, preferredView = "student") {
   currentUser = user;
+  aiChatLoadedFromServer = false;
   if (currentUser) {
     currentUser.documents ||= [];
     currentUser.shortlist ||= [];
@@ -649,6 +658,7 @@ function setCurrentUser(user, preferredView = "student") {
   loadAiChatMessages();
   updateUserShell();
   renderAiChatMessages();
+  loadServerAiChatMessages();
   renderStudentDashboard();
   renderAdminUsers();
   calculateMatches();
@@ -855,8 +865,9 @@ async function loadServerDatabaseState() {
 
 function seedServerDatabaseState() {
   if (!serverDatabaseAvailable) return;
-  saveServerState("auth_users", { users: authUsers });
-  saveServerState("review_state", getReviewStateSnapshot());
+  if (!databaseLoadedReviewState) {
+    window.setTimeout(() => saveServerState("review_state", getReviewStateSnapshot()), 0);
+  }
 }
 
 function loadLocalReviewState() {
@@ -1242,6 +1253,7 @@ function resetLocalReviewState() {
 }
 
 function setView(viewName) {
+  if (!titles[viewName]) viewName = "student";
   if (!currentUser) {
     updateUserShell();
     return;
@@ -1250,6 +1262,7 @@ function setView(viewName) {
     setView("student");
     return;
   }
+  renderViewOnDemand(viewName);
   qsa(".view").forEach((view) => view.classList.toggle("active", view.id === `view-${viewName}`));
   qsa(".side-link").forEach((link) => link.classList.toggle("active", link.dataset.view === viewName));
   qs("#page-title").textContent = titles[viewName];
@@ -2396,7 +2409,7 @@ function renderDocumentList() {
         <div class="document-meta">
           <strong>${escapeHtml(documentItem.name)}</strong>
           <span>${escapeHtml(documentItem.status)} - ${formatFileSize(documentItem.size)}</span>
-          ${documentItem.url ? `<a href="${escapeHtml(documentItem.url)}" target="_blank" rel="noreferrer">Open file</a>` : ""}
+          ${documentItem.url ? `<button class="text-link-button" type="button" data-open-document="${escapeHtml(documentItem.id)}">Open file</button>` : ""}
           ${renderExtractedGrades(documentItem)}
         </div>
         ${
@@ -2432,6 +2445,7 @@ async function uploadDocumentsToServer(files) {
   Array.from(files).forEach((file) => formData.append("files", file));
   const response = await fetch("/api/documents/upload", {
     method: "POST",
+    headers: getAuthHeaders(),
     body: formData
   });
   const data = await response.json().catch(() => ({}));
@@ -2442,7 +2456,7 @@ async function uploadDocumentsToServer(files) {
 async function loadCurrentUserDocuments() {
   if (!serverDatabaseAvailable || !currentUser?.id) return;
   try {
-    const response = await fetch(`/api/documents/user/${encodeURIComponent(currentUser.id)}`, { headers: { Accept: "application/json" } });
+    const response = await fetch(`/api/documents/user/${encodeURIComponent(currentUser.id)}`, { headers: getAuthHeaders({ Accept: "application/json" }) });
     if (!response.ok) throw new Error(`Document list returned ${response.status}`);
     const data = await response.json();
     if (!Array.isArray(data.documents)) return;
@@ -2484,7 +2498,7 @@ async function rerunDocumentOcr(documentId) {
   if (!serverDatabaseAvailable || !currentUser) return;
   qs("#dropzone-text").textContent = "Rerunning OCR...";
   try {
-    const response = await fetch(`/api/documents/${encodeURIComponent(documentId)}/extract`, { method: "POST" });
+    const response = await fetch(`/api/documents/${encodeURIComponent(documentId)}/extract`, { method: "POST", headers: getAuthHeaders() });
     const data = await response.json().catch(() => ({}));
     if (!response.ok || !data.ok) throw new Error(data.detail || data.error || `OCR returned ${response.status}`);
     currentUser.documents = mergeDocuments(
@@ -2497,6 +2511,21 @@ async function rerunDocumentOcr(documentId) {
     qs("#dropzone-text").textContent = `${data.document.extractedGrades?.length || 0} grade suggestion(s) detected`;
   } catch (error) {
     qs("#dropzone-text").textContent = "OCR rerun failed";
+  }
+}
+
+async function openDocument(documentId) {
+  const documentItem = (currentUser?.documents || []).find((item) => item.id === documentId);
+  if (!documentItem?.url || !authToken) return;
+  try {
+    const response = await fetch(documentItem.url, { headers: getAuthHeaders() });
+    if (!response.ok) throw new Error(`Document download returned ${response.status}`);
+    const blob = await response.blob();
+    const objectUrl = URL.createObjectURL(blob);
+    window.open(objectUrl, "_blank", "noopener,noreferrer");
+    window.setTimeout(() => URL.revokeObjectURL(objectUrl), 60000);
+  } catch (error) {
+    qs("#dropzone-text").textContent = "Could not open document from the server";
   }
 }
 
@@ -2539,7 +2568,7 @@ async function removeDocument(documentId) {
   const documentItem = (currentUser.documents || []).find((item) => item.id === documentId);
   try {
     if (serverDatabaseAvailable && documentItem?.url) {
-      const response = await fetch(`/api/documents/${encodeURIComponent(documentId)}`, { method: "DELETE" });
+      const response = await fetch(`/api/documents/${encodeURIComponent(documentId)}`, { method: "DELETE", headers: getAuthHeaders() });
       if (!response.ok) throw new Error(`Document delete returned ${response.status}`);
     }
     currentUser.documents = (currentUser.documents || []).filter((item) => item.id !== documentId);
@@ -2955,20 +2984,54 @@ function getAiProfilePayload() {
   };
 }
 
-function getAiMatchPayload() {
-  return latestMatches.filter((programme) => programme.match.tier !== "blocked").slice(0, 8).map((programme) => ({
+function getCompactAiProgramme(programme) {
+  return {
     id: programme.id,
     title: programme.title,
     institution: programme.institution,
+    source: programme.source,
+    sourceType: programme.sourceType,
     faculty: programme.faculty,
     level: programme.level,
     duration: programme.duration,
-    requirements: programme.requirements.slice(0, 5),
-    careers: programme.careers.slice(0, 4),
-    skills: programme.skills.slice(0, 4),
+    requirements: (programme.requirements || []).slice(0, 4),
+    careers: (programme.careers || []).slice(0, 3),
+    skills: (programme.skills || []).slice(0, 3),
     hard_gate_passed: programme.match.hardGatePassed,
-    match: programme.match
-  }));
+    match: {
+      overall: programme.match.overall,
+      academic: programme.match.academic,
+      interest: programme.match.interest,
+      eligibility: programme.match.eligibility,
+      funding: programme.match.funding,
+      confidence: programme.match.confidence,
+      priority: programme.match.priority,
+      tier: programme.match.tier,
+      tierLabel: programme.match.tierLabel,
+      hardGatePassed: programme.match.hardGatePassed,
+      hardGateFailures: (programme.match.hardGateFailures || []).slice(0, 3),
+      requirementGaps: (programme.match.requirementGaps || []).slice(0, 4),
+      reasons: (programme.match.reasons || []).slice(0, 3),
+      cautions: (programme.match.cautions || []).slice(0, 3),
+      fundingBreakdown: {
+        academic: programme.match.fundingBreakdown?.academic,
+        need: programme.match.fundingBreakdown?.need,
+        priority: programme.match.fundingBreakdown?.priority,
+        documents: programme.match.fundingBreakdown?.documents,
+        confidence: programme.match.fundingBreakdown?.confidence,
+        total: programme.match.fundingBreakdown?.total,
+        policy: programme.match.fundingBreakdown?.policy
+      }
+    }
+  };
+}
+
+function getAiMatchPayload() {
+  return latestMatches.filter((programme) => programme.match.tier !== "blocked").slice(0, 6).map(getCompactAiProgramme);
+}
+
+function getAiBlockedPayload() {
+  return latestBlockedMatches.slice(0, 6).map(getCompactAiProgramme);
 }
 
 function getAiChatStorageKey() {
@@ -2997,6 +3060,22 @@ function normalizeAiChatMessage(message = {}) {
   };
 }
 
+function mergeAiChatMessages(...histories) {
+  const merged = [];
+  const seen = new Set();
+  histories.flat().forEach((message) => {
+    const normalized = normalizeAiChatMessage(message);
+    if (!normalized) return;
+    const stableKey = normalized.id || `${normalized.role}:${normalized.content}`;
+    const contentKey = `${normalized.role}:${normalized.content}`;
+    if (seen.has(stableKey) || seen.has(contentKey)) return;
+    seen.add(stableKey);
+    seen.add(contentKey);
+    merged.push(normalized);
+  });
+  return merged.slice(-maxAiChatMessages);
+}
+
 function loadAiChatMessages() {
   try {
     const stored = JSON.parse(localStorage.getItem(getAiChatStorageKey()) || "[]");
@@ -3005,6 +3084,22 @@ function loadAiChatMessages() {
     aiChatMessages = [];
   }
   if (!aiChatMessages.length) aiChatMessages = [getInitialAiChatMessage()];
+}
+
+async function loadServerAiChatMessages() {
+  if (!authToken || !serverDatabaseAvailable || aiChatLoadedFromServer) return;
+  aiChatLoadedFromServer = true;
+  try {
+    const response = await fetch("/api/ai/chat", { headers: getAuthHeaders({ Accept: "application/json" }) });
+    const data = await response.json().catch(() => ({}));
+    if (!response.ok || !data.ok || !Array.isArray(data.messages)) throw new Error(data.detail || "AI chat history unavailable");
+    aiChatMessages = mergeAiChatMessages(aiChatMessages.filter((item) => item.id !== "ai-welcome"), data.messages);
+    if (!aiChatMessages.length) aiChatMessages = [getInitialAiChatMessage()];
+    saveAiChatMessages();
+    renderAiChatMessages();
+  } catch (error) {
+    aiChatLoadedFromServer = false;
+  }
 }
 
 function saveAiChatMessages() {
@@ -3055,6 +3150,9 @@ function resetAiChatMessages() {
   renderAiChatMessages();
   qs("#ai-question").value = "";
   qs("#ai-guidance-status").textContent = "New chat started. Your grades and latest matches are still used as context.";
+  if (authToken && serverDatabaseAvailable) {
+    fetch("/api/ai/chat", { method: "DELETE", headers: getAuthHeaders() }).catch(() => {});
+  }
 }
 
 function guidanceToConversationText(guidance = {}) {
@@ -3071,9 +3169,9 @@ function getAiConversationPayload() {
   return aiChatMessages
     .filter((message) => message.id !== "ai-welcome")
     .slice(-12)
-    .map((message) => ({ role: message.role, content: message.content }));
+    .map((message) => ({ id: message.id, role: message.role, content: message.content, at: message.at }));
 }
-function renderAiGuidance(guidance, mode, model) {
+function renderAiGuidance(guidance, mode, model, serverChat = null) {
   const recommendations = guidance.top_recommendations || [];
   const comparison = guidance.comparison || [];
   const answerMarkup = `
@@ -3162,6 +3260,11 @@ function renderAiGuidance(guidance, mode, model) {
     }
   `;
   appendAiChatMessage("assistant", guidanceToConversationText(guidance), answerMarkup);
+  if (Array.isArray(serverChat) && serverChat.length) {
+    aiChatMessages = mergeAiChatMessages(aiChatMessages, serverChat);
+    saveAiChatMessages();
+    renderAiChatMessages();
+  }
   const providerLabel = mode === "gemini" ? "Gemini" : mode === "openai" ? "OpenAI" : "AI";
   qs("#ai-guidance-status").textContent =
     mode === "gemini" || mode === "openai"
@@ -3193,18 +3296,19 @@ async function requestAiGuidance(mode = "guidance") {
     profile: getAiProfilePayload(),
     readiness: getNmdsReadiness(),
     documents: currentUser?.documents || [],
-    matches: getAiMatchPayload()
+    matches: getAiMatchPayload(),
+    blockedMatches: getAiBlockedPayload()
   };
 
   try {
     const response = await fetch("/api/ai/guidance", {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: getAuthHeaders({ "Content-Type": "application/json" }),
       body: JSON.stringify(payload)
     });
     if (!response.ok) throw new Error(`AI server returned ${response.status}`);
     const data = await response.json();
-    renderAiGuidance(data.guidance || {}, data.mode, data.model);
+    renderAiGuidance(data.guidance || {}, data.mode, data.model, data.chat);
     if (questionInput) questionInput.value = "";
     recordCurrentUserActivity(mode === "compare" ? "ai_compare" : "ai_guidance", mode === "compare" ? "Compared AI recommendations" : "Requested AI guidance", {
       question: payload.question.slice(0, 120)
@@ -4221,6 +4325,11 @@ function bindEvents() {
     }
   });
   qs("#document-list")?.addEventListener("click", (event) => {
+    const openButton = event.target.closest("[data-open-document]");
+    if (openButton) {
+      openDocument(openButton.dataset.openDocument);
+      return;
+    }
     const applyButton = event.target.closest("[data-apply-document-grades]");
     if (applyButton) {
       applyExtractedGrades(applyButton.dataset.applyDocumentGrades);
@@ -4359,8 +4468,6 @@ async function init() {
   seedServerDatabaseState();
   renderGrades();
   renderInterests();
-  renderAdmin();
-  renderSources();
   loadAiChatMessages();
   renderAiChatMessages();
   updateCounts();

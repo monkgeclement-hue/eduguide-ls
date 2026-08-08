@@ -44,10 +44,20 @@ create table if not exists public.runtime_recommendation_runs (
   created_at timestamptz not null default now()
 );
 
+create table if not exists public.runtime_ai_chat_messages (
+  id text primary key,
+  user_id text not null,
+  role text not null check (role in ('user', 'assistant')),
+  content text not null,
+  payload jsonb not null default '{}'::jsonb,
+  created_at timestamptz not null default now()
+);
+
 create index if not exists idx_runtime_auth_sessions_user on public.runtime_auth_sessions(user_id);
 create index if not exists idx_runtime_uploaded_documents_user on public.runtime_uploaded_documents(user_id, uploaded_at desc);
 create index if not exists idx_runtime_uploaded_documents_extraction on public.runtime_uploaded_documents(extraction_status);
 create index if not exists idx_runtime_recommendation_runs_created on public.runtime_recommendation_runs(created_at desc);
+create index if not exists idx_runtime_ai_chat_messages_user_created on public.runtime_ai_chat_messages(user_id, created_at desc);
 
 insert into storage.buckets (id, name, public, file_size_limit)
 values ('eduguide-documents', 'eduguide-documents', false, 10485760)
@@ -59,3 +69,4 @@ alter table public.runtime_app_state enable row level security;
 alter table public.runtime_auth_sessions enable row level security;
 alter table public.runtime_uploaded_documents enable row level security;
 alter table public.runtime_recommendation_runs enable row level security;
+alter table public.runtime_ai_chat_messages enable row level security;

@@ -15,6 +15,7 @@ from urllib.parse import quote
 
 from dotenv import load_dotenv
 from fastapi import FastAPI, File, Form, Header, HTTPException, Request, UploadFile
+from fastapi.middleware.gzip import GZipMiddleware
 from fastapi.responses import FileResponse, Response
 from openai import OpenAI
 from pydantic import BaseModel, Field
@@ -26,6 +27,8 @@ DB_PATH = ROOT / "data" / "eduguide.db"
 UPLOAD_ROOT = ROOT / "data" / "uploads"
 MAX_UPLOAD_BYTES = 10 * 1024 * 1024
 DEFAULT_SUPABASE_STORAGE_BUCKET = "eduguide-documents"
+AI_CHAT_HISTORY_LIMIT = 24
+AI_CHAT_CONTEXT_LIMIT = 12
 GRADE_VALUES = {"A*", "A", "B", "C", "D", "E", "F", "G", "X", "Z"}
 GEMINI_DEFAULT_MODEL = "gemini-3.6-flash"
 GEMINI_MODEL_FALLBACKS = ["gemini-3.6-flash", "gemini-3.5-flash", "gemini-flash-latest"]
@@ -53,16 +56,21 @@ SUBJECT_ALIASES = [
 ]
 
 app = FastAPI(title="EduGuide LS AI Server")
+app.add_middleware(GZipMiddleware, minimum_size=1024)
 PUBLIC_DATA_FILES = {"admin-catalog.js", "catalog.js", "source-manifest.json", "supabase-config.js"}
 PUBLIC_ICON_FILES = {"icon-192.svg", "icon-512.svg", "icon-192.png", "icon-512.png", "apple-touch-icon.png"}
 mimetypes.add_type("application/manifest+json", ".webmanifest")
 mimetypes.add_type("image/svg+xml", ".svg")
+NO_CACHE_HEADERS = {"Cache-Control": "no-cache, max-age=0, must-revalidate", "X-Content-Type-Options": "nosniff"}
+STATIC_CACHE_HEADERS = {"Cache-Control": "public, max-age=300, stale-while-revalidate=86400", "X-Content-Type-Options": "nosniff"}
+IMMUTABLE_CACHE_HEADERS = {"Cache-Control": "public, max-age=604800, immutable", "X-Content-Type-Options": "nosniff"}
 
 
 class GuidanceRequest(BaseModel):
   profile: dict[str, Any] = Field(default_factory=dict)
   readiness: dict[str, Any] = Field(default_factory=dict)
   matches: list[dict[str, Any]] = Field(default_factory=list)
+  blockedMatches: list[dict[str, Any]] = Field(default_factory=list)
   documents: list[dict[str, Any]] = Field(default_factory=list)
   conversation: list[dict[str, Any]] = Field(default_factory=list)
   question: str | None = None
@@ -139,6 +147,24 @@ def init_database() -> None:
         payload text not null,
         created_at text not null default current_timestamp
       )
+      """
+    )
+    connection.execute(
+      """
+      create table if not exists ai_chat_messages (
+        id text primary key,
+        user_id text not null,
+        role text not null,
+        content text not null,
+        payload text,
+        created_at text not null default current_timestamp
+      )
+      """
+    )
+    connection.execute(
+      """
+      create index if not exists idx_ai_chat_messages_user_created
+      on ai_chat_messages(user_id, created_at desc)
       """
     )
     connection.execute(
@@ -303,8 +329,10 @@ Use only the provided matcher payload. Do not invent institutions, fees, require
 sponsorship decisions, or official admissions outcomes.
 Respect the matcher tier: "qualified" means currently meets captured rules, "almost"
 means close or missing a small requirement, and "explore" means interest fit only.
-Never upgrade a programme beyond the tier supplied by the matcher. Do not recommend
-science, technology, engineering, health-science, or architecture pathways unless
+Never upgrade a programme beyond the tier supplied by the matcher. Only put
+qualified or almost programmes in top_recommendations and alternative routes;
+use explore programmes for context only. Do not recommend science, technology,
+engineering, health-science, or architecture pathways unless
 the matcher payload already includes them as realistic options. Missing Mathematics,
 Physical Science, Biology, or another hard subject gate must be treated as a blocker,
 not as something the AI can overlook because the student is interested.
@@ -317,7 +345,13 @@ Uploaded documents may include OCR/text extraction metadata. Treat extracted gra
 as machine-read suggestions until the student applies or confirms them in the grade
 form. Do not present extracted grades as an official transcript interpretation.
 
-Answer the student's question when one is provided. Use the recent conversation only for context and continuity; the current matcher payload remains the source of truth. If mode is "compare", compare the strongest realistic options instead of repeating generic advice.
+Answer the student's question when one is provided. Use the recent conversation
+only for context and continuity; the current matcher payload remains the source
+of truth. If mode is "compare", compare the strongest realistic qualified/almost
+options instead of repeating generic advice. If the student asks why they are
+blocked, explain the exact blocker from blocked_matches or requirement_gaps and
+give a realistic next step. Ask one or two follow-up questions whenever important
+profile details are missing.
 
 Return concise JSON with exactly these keys:
 - summary: string
@@ -453,6 +487,10 @@ def get_ai_provider() -> str:
 
 def guess_mime_type(path: Path, fallback: str | None = None) -> str:
   return fallback or mimetypes.guess_type(path.name)[0] or "application/octet-stream"
+
+
+def cached_file_response(path: Path, media_type: str | None = None, headers: dict[str, str] | None = None, filename: str | None = None) -> FileResponse:
+  return FileResponse(path, media_type=media_type or guess_mime_type(path), headers=headers or STATIC_CACHE_HEADERS, filename=filename)
 
 
 def normalize_ocr_text(text: str) -> str:
@@ -799,6 +837,9 @@ def compact_match(match: dict[str, Any]) -> dict[str, Any]:
     "institution": match.get("institution"),
     "duration": match.get("duration"),
     "faculty": match.get("faculty"),
+    "level": match.get("level"),
+    "source": match.get("source"),
+    "source_type": match.get("sourceType") or match.get("source_type"),
     "careers": (match.get("careers") or [])[:4],
     "skills": (match.get("skills") or [])[:4],
     "requirements": (match.get("requirements") or [])[:4],
@@ -810,6 +851,7 @@ def compact_match(match: dict[str, Any]) -> dict[str, Any]:
       "funding": scores.get("funding"),
       "funding_breakdown": scores.get("fundingBreakdown") or scores.get("funding_breakdown"),
       "confidence": scores.get("confidence"),
+      "priority": scores.get("priority"),
     },
     "tier": scores.get("tier") or match.get("tier"),
     "tier_label": scores.get("tierLabel") or match.get("tierLabel"),
@@ -819,14 +861,27 @@ def compact_match(match: dict[str, Any]) -> dict[str, Any]:
   }
 
 
+def is_recommendable_match(match: dict[str, Any]) -> bool:
+  tier = str(match.get("tier_label") or match.get("tier") or "").lower()
+  return "qualified" in tier or "almost" in tier
+
+
 def build_fallback(payload: GuidanceRequest, error: str | None = None) -> dict[str, Any]:
-  top_matches = [compact_match(item) for item in payload.matches[:3]]
-  best = top_matches[0] if top_matches else {}
+  compact_matches = [compact_match(item) for item in payload.matches[:8]]
+  top_matches = [item for item in compact_matches if is_recommendable_match(item)][:3]
+  explore_matches = [item for item in compact_matches if not is_recommendable_match(item)][:3]
+  blocked_matches = [compact_match(item) for item in payload.blockedMatches[:5]]
+  best = top_matches[0] if top_matches else (explore_matches[0] if explore_matches else {})
   programme = best.get("programme") or "your strongest current match"
   institution = best.get("institution") or "the matched institution"
   cautions = best.get("cautions") or []
   caution = cautions[0] if cautions else "Verify final requirements before applying."
   question = (payload.question or "").strip()
+  blocked_summary = ""
+  if blocked_matches:
+    blocked = blocked_matches[0]
+    gaps = blocked.get("requirement_gaps") or blocked.get("cautions") or []
+    blocked_summary = f" A blocked example is {blocked.get('programme')} at {blocked.get('institution')}: {'; '.join(gaps[:2])}."
   uploaded_documents = [item for item in payload.documents if item.get("name")]
   extracted_grade_count = sum(len(item.get("extractedGrades") or []) for item in uploaded_documents)
   document_checklist = [
@@ -848,11 +903,15 @@ def build_fallback(payload: GuidanceRequest, error: str | None = None) -> dict[s
     ]
 
   response = {
-    "summary": f"Your strongest current match is {programme} at {institution}. The matcher should still be treated as guidance, not an admission decision.",
+    "summary": (
+      f"Your strongest realistic match is {programme} at {institution}. The matcher should still be treated as guidance, not an admission decision."
+      if top_matches
+      else f"No qualified or almost-qualified recommendation is strong enough yet.{blocked_summary} Add/confirm grades and check requirement gaps before applying."
+    ),
     "direct_answer": (
-      f"For your question: {question} Based on the current matches, start with {programme} at {institution}, then check the tier, requirement gaps, and cautions before applying."
+      f"For your question: {question} Based on the current evidence, use qualified/almost options first. {programme} at {institution} is the best available path to inspect, and blocked paths should only be used as future goals."
       if question
-      else "Use the tier labels first: qualified options are strongest, almost options need small fixes or confirmation, and explore options are interest-fit pathways."
+      else "Use the tier labels first: qualified options are strongest, almost options need small fixes or confirmation, and explore options are interest-fit pathways, not application recommendations."
     ),
     "top_recommendations": [
       {
@@ -878,12 +937,12 @@ def build_fallback(payload: GuidanceRequest, error: str | None = None) -> dict[s
     "study_plan": [
       "Keep Mathematics and English strong because many programmes use them for ranking.",
       "Focus revision on subjects connected to your top three matched pathways.",
-      "Use the caution notes to identify missing or weak requirement areas.",
+      "Use blocked-pathway notes to identify missing or weak requirement areas.",
     ],
     "document_checklist": document_checklist,
     "scholarship_note": "The scholarship/NMDS-style score is only an estimate. Review academic fit, background/need, priority-programme alignment, and the sponsorship document checklist before treating a pathway as funding-ready. Final sponsorship decisions remain with the official portal and NMDS process.",
     "next_questions": [
-      "Which of the top matches feels most realistic for your marks?",
+      "Which of the qualified or almost-qualified matches feels most realistic for your marks?",
       "Do you want to compare careers, fees, or requirements first?",
       "Which missing document can you upload next?",
     ],
@@ -906,7 +965,9 @@ def parse_json_response(text: str) -> dict[str, Any] | None:
     return None
 
 
-def build_request_payload(payload: GuidanceRequest) -> dict[str, Any]:
+def build_request_payload(payload: GuidanceRequest, conversation: list[dict[str, Any]] | None = None) -> dict[str, Any]:
+  compact_matches = [compact_match(item) for item in payload.matches[:8]]
+  recommendable_matches = [item for item in compact_matches if is_recommendable_match(item)]
   return {
     "task": {
       "mode": payload.mode if payload.mode in {"guidance", "compare"} else "guidance",
@@ -915,15 +976,19 @@ def build_request_payload(payload: GuidanceRequest) -> dict[str, Any]:
     "profile": payload.profile,
     "readiness": payload.readiness,
     "documents": payload.documents,
+    "recommendable_matches": recommendable_matches[:6],
+    "explore_matches": [item for item in compact_matches if not is_recommendable_match(item)][:4],
+    "blocked_matches": [compact_match(item) for item in payload.blockedMatches[:6]],
     "conversation": [
       {
+        "id": str(item.get("id", ""))[:80],
         "role": str(item.get("role", "user"))[:20],
         "content": str(item.get("content", ""))[:900],
       }
-      for item in payload.conversation[-12:]
+      for item in (conversation if conversation is not None else payload.conversation)[-AI_CHAT_CONTEXT_LIMIT:]
       if isinstance(item, dict) and str(item.get("content", "")).strip()
     ],
-    "matches": [compact_match(item) for item in payload.matches[:8]],
+    "matches": compact_matches,
   }
 
 
@@ -1068,8 +1133,173 @@ def delete_state_payload(state_key: str) -> int:
   return cursor.rowcount
 
 
+def normalize_ai_chat_message(item: dict[str, Any] | sqlite3.Row | None) -> dict[str, Any] | None:
+  if not item:
+    return None
+  role = "assistant" if row_get(item, "role") == "assistant" else "user"
+  content = str(row_get(item, "content") or "").strip()
+  if not content:
+    return None
+  message_id = sanitize_storage_segment(str(row_get(item, "id") or f"ai-{uuid.uuid4().hex[:12]}"), "ai-message")
+  return {
+    "id": message_id,
+    "role": role,
+    "content": content[:2400],
+    "at": row_get(item, "at") or row_get(item, "created_at") or now_iso(),
+  }
+
+
+def merge_ai_chat_histories(*histories: list[dict[str, Any]]) -> list[dict[str, Any]]:
+  merged: list[dict[str, Any]] = []
+  seen: set[str] = set()
+  for history in histories:
+    for raw_message in history or []:
+      message = normalize_ai_chat_message(raw_message)
+      if not message:
+        continue
+      key = message["id"] if message.get("id") else f"{message['role']}:{message['content']}"
+      fallback_key = f"{message['role']}:{message['content']}"
+      if key in seen or fallback_key in seen:
+        continue
+      seen.add(key)
+      seen.add(fallback_key)
+      merged.append(message)
+  return merged[-AI_CHAT_HISTORY_LIMIT:]
+
+
+def list_ai_chat_history(user_id: str) -> list[dict[str, Any]]:
+  if using_supabase():
+    rows = supabase_request(
+      "GET",
+      supabase_table_path(
+        "runtime_ai_chat_messages",
+        f"user_id=eq.{supabase_filter_value(user_id)}&select=id,role,content,created_at&order=created_at.desc&limit={AI_CHAT_HISTORY_LIMIT}",
+      ),
+    ) or []
+    return [message for message in (normalize_ai_chat_message(row) for row in reversed(rows)) if message]
+
+  with get_db_connection() as connection:
+    rows = connection.execute(
+      """
+      select id, role, content, created_at
+      from ai_chat_messages
+      where user_id = ?
+      order by created_at desc
+      limit ?
+      """,
+      (user_id, AI_CHAT_HISTORY_LIMIT),
+    ).fetchall()
+  return [message for message in (normalize_ai_chat_message(row) for row in reversed(rows)) if message]
+
+
+def save_ai_chat_history(user_id: str, messages: list[dict[str, Any]]) -> list[dict[str, Any]]:
+  normalized = merge_ai_chat_histories(messages)
+  if using_supabase():
+    supabase_request(
+      "DELETE",
+      supabase_table_path("runtime_ai_chat_messages", f"user_id=eq.{supabase_filter_value(user_id)}"),
+      prefer="return=minimal",
+    )
+    if normalized:
+      supabase_request(
+        "POST",
+        supabase_table_path("runtime_ai_chat_messages"),
+        [
+          {
+            "id": message["id"],
+            "user_id": user_id,
+            "role": message["role"],
+            "content": message["content"],
+            "payload": {},
+            "created_at": message.get("at") or now_iso(),
+          }
+          for message in normalized
+        ],
+        prefer="return=minimal",
+      )
+    return normalized
+
+  with get_db_connection() as connection:
+    connection.execute("delete from ai_chat_messages where user_id = ?", (user_id,))
+    connection.executemany(
+      """
+      insert into ai_chat_messages (id, user_id, role, content, payload, created_at)
+      values (?, ?, ?, ?, ?, ?)
+      """,
+      [
+        (
+          message["id"],
+          user_id,
+          message["role"],
+          message["content"],
+          "{}",
+          message.get("at") or now_iso(),
+        )
+        for message in normalized
+      ],
+    )
+    connection.commit()
+  return normalized
+
+
+def clear_ai_chat_history(user_id: str) -> None:
+  if using_supabase():
+    supabase_request(
+      "DELETE",
+      supabase_table_path("runtime_ai_chat_messages", f"user_id=eq.{supabase_filter_value(user_id)}"),
+      prefer="return=minimal",
+    )
+    return
+
+  with get_db_connection() as connection:
+    connection.execute("delete from ai_chat_messages where user_id = ?", (user_id,))
+    connection.commit()
+
+
+def safe_list_ai_chat_history(user_id: str) -> list[dict[str, Any]]:
+  try:
+    return list_ai_chat_history(user_id)
+  except Exception:
+    return []
+
+
+def safe_save_ai_chat_history(user_id: str, messages: list[dict[str, Any]]) -> list[dict[str, Any]]:
+  try:
+    return save_ai_chat_history(user_id, messages)
+  except Exception:
+    return merge_ai_chat_histories(messages)
+
+
+def safe_clear_ai_chat_history(user_id: str) -> None:
+  try:
+    clear_ai_chat_history(user_id)
+  except Exception:
+    pass
+
+
+def guidance_to_chat_text(guidance: dict[str, Any]) -> str:
+  parts = [guidance.get("summary"), guidance.get("direct_answer"), guidance.get("scholarship_note")]
+  recommendations = guidance.get("top_recommendations")
+  if isinstance(recommendations, list) and recommendations:
+    parts.append(
+      "Top recommendations: "
+      + " | ".join(
+        f"{item.get('programme') or 'Programme'} at {item.get('institution') or 'Institution'}: {item.get('why') or item.get('action') or 'match'}"
+        for item in recommendations[:3]
+        if isinstance(item, dict)
+      )
+    )
+  study_plan = guidance.get("study_plan")
+  if isinstance(study_plan, list) and study_plan:
+    parts.append("Study plan: " + " | ".join(str(item) for item in study_plan[:5]))
+  next_questions = guidance.get("next_questions")
+  if isinstance(next_questions, list) and next_questions:
+    parts.append("Next questions: " + " | ".join(str(item) for item in next_questions[:3]))
+  return "\n".join(str(part) for part in parts if part).strip()[:2400] or "Guidance generated from your current EduGuide profile."
+
+
 def now_iso() -> str:
-  return __import__("datetime").datetime.utcnow().replace(microsecond=0).isoformat() + "Z"
+  return __import__("datetime").datetime.utcnow().isoformat(timespec="milliseconds") + "Z"
 
 
 def add_user_activity(user: dict[str, Any], activity_type: str, label: str, actor: dict[str, Any] | None = None, metadata: dict[str, Any] | None = None) -> None:
@@ -1257,6 +1487,13 @@ def require_admin_user(authorization: str | None) -> dict[str, Any]:
   if user.get("role") not in {"owner", "admin"}:
     raise HTTPException(status_code=403, detail="Admin access required.")
   return user
+
+
+def require_user_access(target_user_id: str, authorization: str | None) -> dict[str, Any]:
+  user = require_current_user(authorization)
+  if user.get("role") in {"owner", "admin"} or user.get("id") == target_user_id:
+    return user
+  raise HTTPException(status_code=403, detail="You can only access your own records.")
 
 
 def create_auth_session(user_id: str) -> str:
@@ -1509,7 +1746,8 @@ def admin_review_user(user_id: str, authorization: str | None = Header(default=N
 
 
 @app.post("/api/documents/upload")
-async def upload_documents(user_id: str = Form(...), files: list[UploadFile] = File(...)) -> dict[str, Any]:
+async def upload_documents(user_id: str = Form(...), files: list[UploadFile] = File(...), authorization: str | None = Header(default=None)) -> dict[str, Any]:
+  require_user_access(user_id, authorization)
   safe_user_id = sanitize_storage_segment(user_id, "anonymous")
   if not files:
     raise HTTPException(status_code=400, detail="No documents were uploaded.")
@@ -1570,24 +1808,30 @@ async def upload_documents(user_id: str = Form(...), files: list[UploadFile] = F
 
 
 @app.get("/api/documents/user/{user_id}")
-def list_user_documents(user_id: str) -> dict[str, Any]:
+def list_user_documents(user_id: str, authorization: str | None = Header(default=None)) -> dict[str, Any]:
+  require_user_access(user_id, authorization)
   rows = list_document_records(user_id)
   return {"ok": True, "documents": [document_response(row) for row in rows]}
 
 
 @app.post("/api/documents/{document_id}/extract")
-def rerun_document_extraction(document_id: str) -> dict[str, Any]:
+def rerun_document_extraction(document_id: str, authorization: str | None = Header(default=None)) -> dict[str, Any]:
   safe_document_id = sanitize_storage_segment(document_id)
+  row = get_document_record(safe_document_id)
+  if not row:
+    raise HTTPException(status_code=404, detail="Document not found.")
+  require_user_access(str(row_get(row, "user_id")), authorization)
   row = extract_document(safe_document_id)
   return {"ok": True, "document": document_response(row)}
 
 
 @app.get("/api/documents/{document_id}/download")
-def download_document(document_id: str) -> Response:
+def download_document(document_id: str, authorization: str | None = Header(default=None)) -> Response:
   safe_document_id = sanitize_storage_segment(document_id)
   row = get_document_record(safe_document_id)
   if not row:
     raise HTTPException(status_code=404, detail="Document not found.")
+  require_user_access(str(row_get(row, "user_id")), authorization)
   if using_supabase():
     content = download_supabase_storage_object(str(row_get(row, "storage_path")))
     filename = sanitize_upload_filename(str(row_get(row, "original_name") or "document"))
@@ -1604,8 +1848,11 @@ def download_document(document_id: str) -> Response:
 
 
 @app.delete("/api/documents/{document_id}")
-def delete_document(document_id: str) -> dict[str, Any]:
+def delete_document(document_id: str, authorization: str | None = Header(default=None)) -> dict[str, Any]:
   safe_document_id = sanitize_storage_segment(document_id)
+  existing = get_document_record(safe_document_id)
+  if existing:
+    require_user_access(str(row_get(existing, "user_id")), authorization)
   row = delete_document_record(safe_document_id)
   if not row:
     return {"ok": True, "deleted": 0}
@@ -1635,6 +1882,13 @@ def database_diagnostics() -> dict[str, Any]:
       "GET",
       supabase_table_path("runtime_recommendation_runs", "select=id&limit=10000"),
     ) or []
+    try:
+      chat_count_rows = supabase_request(
+        "GET",
+        supabase_table_path("runtime_ai_chat_messages", "select=id&limit=10000"),
+      ) or []
+    except Exception:
+      chat_count_rows = []
     user_counts: dict[str, int] = {}
     status_counts: dict[str, int] = {}
     for document in document_rows:
@@ -1644,6 +1898,7 @@ def database_diagnostics() -> dict[str, Any]:
     document_users = [{"user_id": key, "total": value} for key, value in sorted(user_counts.items(), key=lambda item: (-item[1], item[0]))[:10]]
     extraction_statuses = [{"extraction_status": key, "total": value} for key, value in sorted(status_counts.items(), key=lambda item: (-item[1], item[0]))]
     run_count = len(run_count_rows)
+    chat_message_count = len(chat_count_rows)
     document_count = len(document_rows)
     latest_runs = run_rows
   else:
@@ -1657,6 +1912,7 @@ def database_diagnostics() -> dict[str, Any]:
         for row in connection.execute("select state_key, payload, updated_at from app_state").fetchall()
       ]
       run_count = connection.execute("select count(*) as total from recommendation_runs").fetchone()["total"]
+      chat_message_count = connection.execute("select count(*) as total from ai_chat_messages").fetchone()["total"]
       document_count = connection.execute("select count(*) as total from uploaded_documents").fetchone()["total"]
       document_users = [
         dict(row)
@@ -1718,6 +1974,7 @@ def database_diagnostics() -> dict[str, Any]:
     "documents_by_user": document_users,
     "document_extraction_statuses": extraction_statuses,
     "recommendation_run_count": run_count,
+    "ai_chat_message_count": chat_message_count,
     "latest_runs": latest_runs,
   }
 
@@ -1830,50 +2087,90 @@ def health() -> dict[str, Any]:
   }
 
 
+@app.get("/api/ai/chat")
+def ai_chat_history(authorization: str | None = Header(default=None)) -> dict[str, Any]:
+  user = require_current_user(authorization)
+  return {"ok": True, "messages": safe_list_ai_chat_history(user["id"])}
+
+
+@app.delete("/api/ai/chat")
+def ai_chat_clear(authorization: str | None = Header(default=None)) -> dict[str, Any]:
+  user = require_current_user(authorization)
+  safe_clear_ai_chat_history(user["id"])
+  users = get_auth_users_internal()
+  stored = next((item for item in users if item["id"] == user["id"]), None)
+  if stored:
+    add_user_activity(stored, "ai_chat_cleared", "Cleared EduGuide AI chat", user)
+    save_auth_users_internal(users)
+  return {"ok": True, "messages": []}
+
+
 @app.post("/api/ai/guidance")
-def ai_guidance(payload: GuidanceRequest) -> dict[str, Any]:
-  if not payload.matches:
+def ai_guidance(payload: GuidanceRequest, authorization: str | None = Header(default=None)) -> dict[str, Any]:
+  if not payload.matches and not payload.blockedMatches:
     return {
       "mode": "local_fallback",
       "model": None,
       "guidance": build_fallback(payload, "No matches were sent to the AI endpoint."),
     }
 
-  request_payload = build_request_payload(payload)
+  current_user = require_current_user(authorization) if authorization else None
+  incoming_history = merge_ai_chat_histories(payload.conversation)
+  server_history = safe_list_ai_chat_history(current_user["id"]) if current_user else []
+  merged_history = merge_ai_chat_histories(server_history, incoming_history)
+  request_payload = build_request_payload(payload, merged_history)
   save_recommendation_run(payload, request_payload)
   if get_ai_provider() == "openai":
-    return call_openai(payload, request_payload)
-  return call_gemini(payload, request_payload)
+    result = call_openai(payload, request_payload)
+  else:
+    result = call_gemini(payload, request_payload)
+
+  if current_user:
+    guidance = result.get("guidance") if isinstance(result, dict) else {}
+    assistant_message = {
+      "id": f"ai-{uuid.uuid4().hex[:12]}",
+      "role": "assistant",
+      "content": guidance_to_chat_text(guidance if isinstance(guidance, dict) else {}),
+      "at": now_iso(),
+    }
+    chat = safe_save_ai_chat_history(current_user["id"], [*merged_history, assistant_message])
+    users = get_auth_users_internal()
+    stored = next((item for item in users if item["id"] == current_user["id"]), None)
+    if stored:
+      add_user_activity(stored, "ai_guidance", "Used EduGuide AI", current_user, {"mode": payload.mode})
+      save_auth_users_internal(users)
+    result["chat"] = chat
+  return result
 
 
 @app.get("/")
 def index() -> FileResponse:
-  return FileResponse(ROOT / "index.html")
+  return cached_file_response(ROOT / "index.html", media_type="text/html", headers=NO_CACHE_HEADERS)
 
 
 @app.get("/index.html")
 def index_html() -> FileResponse:
-  return FileResponse(ROOT / "index.html")
+  return cached_file_response(ROOT / "index.html", media_type="text/html", headers=NO_CACHE_HEADERS)
 
 
 @app.get("/styles.css")
 def styles() -> FileResponse:
-  return FileResponse(ROOT / "styles.css", media_type="text/css")
+  return cached_file_response(ROOT / "styles.css", media_type="text/css")
 
 
 @app.get("/app.js")
 def app_script() -> FileResponse:
-  return FileResponse(ROOT / "app.js", media_type="application/javascript")
+  return cached_file_response(ROOT / "app.js", media_type="application/javascript")
 
 
 @app.get("/manifest.webmanifest")
 def web_manifest() -> FileResponse:
-  return FileResponse(ROOT / "manifest.webmanifest", media_type="application/manifest+json")
+  return cached_file_response(ROOT / "manifest.webmanifest", media_type="application/manifest+json")
 
 
 @app.get("/sw.js")
 def service_worker() -> FileResponse:
-  return FileResponse(ROOT / "sw.js", media_type="application/javascript")
+  return cached_file_response(ROOT / "sw.js", media_type="application/javascript", headers=NO_CACHE_HEADERS)
 
 
 @app.get("/icons/{file_name}")
@@ -1883,7 +2180,7 @@ def public_icon(file_name: str) -> FileResponse:
   path = ROOT / "icons" / file_name
   if not path.exists():
     raise HTTPException(status_code=404, detail="Icon not found.")
-  return FileResponse(path, media_type=guess_mime_type(path))
+  return cached_file_response(path, media_type=guess_mime_type(path), headers=IMMUTABLE_CACHE_HEADERS)
 
 
 @app.get("/data/{file_name}")
@@ -1894,4 +2191,4 @@ def public_data_file(file_name: str) -> FileResponse:
   if not path.exists():
     raise HTTPException(status_code=404, detail="File not found.")
   media_type = "application/javascript" if file_name.endswith(".js") else "application/json"
-  return FileResponse(path, media_type=media_type)
+  return cached_file_response(path, media_type=media_type)

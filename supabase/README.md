@@ -14,7 +14,7 @@ Hosted runtime persistence:
 - Run `runtime.sql` in the Supabase SQL editor.
 - In Render, set `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY`, and `SUPABASE_STORAGE_BUCKET=eduguide-documents`.
 - Keep the service role key server-side only. Do not put it in `data/supabase-config.js`.
-- The FastAPI server stores live accounts, sessions, admin review state, uploaded document metadata, and AI run history in the `runtime_*` tables.
+- The FastAPI server stores live accounts, sessions, admin review state, uploaded document metadata, AI chat memory, and AI run history in the `runtime_*` tables.
 - Uploaded files are stored in the private `eduguide-documents` Storage bucket.
 
 Admin dashboard persistence:
