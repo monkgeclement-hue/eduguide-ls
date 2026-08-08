@@ -50,7 +50,8 @@ a {
   color: inherit;
 }
 
-.is-auth-hidden {
+.is-auth-hidden,
+[hidden] {
   display: none !important;
 }
 
@@ -1691,6 +1692,189 @@ textarea:focus {
   width: 100%;
 }
 
+
+.ai-result-cta {
+  display: grid;
+  gap: 12px;
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 1px solid var(--line);
+}
+
+.ai-result-cta strong,
+.ai-result-cta span {
+  display: block;
+}
+
+.ai-result-cta strong {
+  margin-top: 4px;
+  color: var(--brand-deep);
+}
+
+.ai-result-cta span {
+  margin-top: 4px;
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.45;
+}
+
+.ai-result-cta .primary-button {
+  width: 100%;
+}
+
+.ai-guide-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 0.82fr) minmax(0, 1.18fr);
+  gap: 16px;
+  align-items: start;
+}
+
+.ai-intro-panel {
+  position: sticky;
+  top: 20px;
+  display: grid;
+  gap: 16px;
+}
+
+.ai-guide-title {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.ai-orb {
+  display: grid;
+  place-items: center;
+  width: 48px;
+  height: 48px;
+  border-radius: 8px;
+  background: var(--brand-soft);
+  color: var(--brand-deep);
+}
+
+.ai-orb svg {
+  width: 22px;
+  height: 22px;
+}
+
+.ai-intro-panel > p {
+  margin: 0;
+  color: var(--muted);
+  line-height: 1.6;
+}
+
+.ai-prompt-strip {
+  display: grid;
+  gap: 8px;
+}
+
+.ai-prompt-strip button {
+  min-height: 42px;
+  padding: 0 12px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: #fff;
+  color: var(--brand-deep);
+  text-align: left;
+  font-weight: 800;
+}
+
+.ai-chat-panel {
+  display: grid;
+  gap: 14px;
+}
+
+.ai-chat-thread {
+  display: grid;
+  gap: 12px;
+  align-content: start;
+  min-height: 360px;
+  padding: 14px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--surface-soft);
+}
+
+.ai-message {
+  display: grid;
+  grid-template-columns: 36px minmax(0, 1fr);
+  gap: 10px;
+  align-items: start;
+}
+
+.ai-message.user {
+  grid-template-columns: minmax(0, 1fr) 36px;
+}
+
+.ai-message.user .ai-message-avatar {
+  grid-column: 2;
+}
+
+.ai-message.user .ai-message-body {
+  grid-column: 1;
+  grid-row: 1;
+  justify-self: end;
+  background: var(--brand);
+  color: #fff;
+}
+
+.ai-message-avatar {
+  display: grid;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+  background: var(--brand-deep);
+  color: #fff;
+  font-size: 11px;
+  font-weight: 900;
+}
+
+.ai-message-body {
+  display: grid;
+  gap: 9px;
+  max-width: 100%;
+  padding: 12px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: #fff;
+}
+
+.ai-message-body strong,
+.ai-message-body p {
+  margin: 0;
+}
+
+.ai-message-body p {
+  color: var(--muted);
+  line-height: 1.55;
+}
+
+.ai-message.user .ai-message-body p,
+.ai-message.user .ai-message-body strong {
+  color: #fff;
+}
+
+.ai-composer {
+  display: grid;
+  gap: 8px;
+}
+
+.ai-composer span {
+  color: var(--brand-deep);
+  font-size: 13px;
+  font-weight: 900;
+}
+
+.ai-chat-panel .ai-action-row {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.ai-chat-panel .primary-button,
+.ai-chat-panel .secondary-action {
+  width: 100%;
+}
+
 .ai-question-input {
   width: 100%;
   min-height: 92px;
@@ -2368,7 +2552,7 @@ textarea:focus {
   }
 
   .side-nav {
-    grid-template-columns: repeat(4, minmax(0, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(86px, 1fr));
   }
 
   .sidebar-panel {
@@ -2378,6 +2562,7 @@ textarea:focus {
   .summary-band,
   .dashboard-grid,
   .results-layout,
+  .ai-guide-layout,
   .admin-layout,
   .admin-workbench {
     grid-template-columns: 1fr;
@@ -2437,7 +2622,7 @@ textarea:focus {
 
   .side-nav {
     width: 100%;
-    grid-template-columns: repeat(4, minmax(0, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(54px, 1fr));
     gap: 5px;
   }
 
@@ -2500,7 +2685,7 @@ textarea:focus {
   }
 
   .side-nav {
-    grid-template-columns: repeat(4, minmax(0, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(86px, 1fr));
   }
 
   .summary-band {
@@ -2696,5 +2881,18 @@ textarea:focus {
 
   .blocked-programme-score strong {
     font-size: 24px;
+  }
+
+  .ai-intro-panel {
+    position: static;
+  }
+
+  .ai-chat-thread {
+    min-height: 300px;
+    padding: 10px;
+  }
+
+  .ai-chat-panel .ai-action-row {
+    grid-template-columns: 1fr;
   }
 }

@@ -122,6 +122,7 @@ let databaseLoadedReviewState = false;
 const titles = {
   student: "Student Dashboard",
   results: "Recommendation Results",
+  ai: "EduGuide AI",
   admin: "Admin Dashboard",
   sources: "Data Sources"
 };
@@ -2865,9 +2866,11 @@ function getAiMatchPayload() {
 
 function renderAiGuidance(guidance, mode, model) {
   const output = qs("#ai-guidance-output");
+  if (!output) return;
   const recommendations = guidance.top_recommendations || [];
   const comparison = guidance.comparison || [];
-  output.innerHTML = `
+  const questionText = qs("#ai-question")?.value.trim() || "";
+  const answerMarkup = `
     <article class="ai-answer-card">
       <h4>Summary</h4>
       <p>${escapeHtml(guidance.summary || "Guidance generated from your current matches.")}</p>
@@ -2952,6 +2955,18 @@ function renderAiGuidance(guidance, mode, model) {
         : ""
     }
   `;
+  output.innerHTML = `
+    ${questionText
+      ? `<div class="ai-message user">
+          <div class="ai-message-avatar">You</div>
+          <div class="ai-message-body"><p>${escapeHtml(questionText)}</p></div>
+        </div>`
+      : ""}
+    <div class="ai-message assistant">
+      <div class="ai-message-avatar">AI</div>
+      <div class="ai-message-body">${answerMarkup}</div>
+    </div>
+  `;
   const providerLabel = mode === "gemini" ? "Gemini" : mode === "openai" ? "OpenAI" : "AI";
   qs("#ai-guidance-status").textContent =
     mode === "gemini" || mode === "openai"
@@ -2959,19 +2974,30 @@ function renderAiGuidance(guidance, mode, model) {
       : "Local fallback guidance shown because AI is not configured or unavailable.";
   if (window.lucide) window.lucide.createIcons();
 }
-
 async function requestAiGuidance(mode = "guidance") {
   if (!latestMatches.length) calculateMatches();
   const guidanceButton = qs("#ai-guidance-button");
   const compareButton = qs("#ai-compare-button");
+  const questionText = qs("#ai-question")?.value.trim() || "";
   guidanceButton.disabled = true;
   compareButton.disabled = true;
   qs("#ai-guidance-status").textContent = mode === "compare" ? "Comparing top matches..." : "Generating guidance...";
-  qs("#ai-guidance-output").innerHTML = `<p>Reading your top matches and preparing advice...</p>`;
+  qs("#ai-guidance-output").innerHTML = `
+    ${questionText
+      ? `<div class="ai-message user">
+          <div class="ai-message-avatar">You</div>
+          <div class="ai-message-body"><p>${escapeHtml(questionText)}</p></div>
+        </div>`
+      : ""}
+    <div class="ai-message assistant">
+      <div class="ai-message-avatar">AI</div>
+      <div class="ai-message-body"><p>Reading your top matches and preparing advice...</p></div>
+    </div>
+  `;
 
   const payload = {
     mode,
-    question: qs("#ai-question")?.value.trim() || "",
+    question: questionText,
     profile: getAiProfilePayload(),
     readiness: getNmdsReadiness(),
     documents: currentUser?.documents || [],
@@ -2991,20 +3017,24 @@ async function requestAiGuidance(mode = "guidance") {
       question: payload.question.slice(0, 120)
     });
   } catch (error) {
-    qs("#ai-guidance-status").textContent = "AI server is not running yet.";
+    qs("#ai-guidance-status").textContent = "AI configuration needs attention.";
     qs("#ai-guidance-output").innerHTML = `
-      <article class="ai-answer-card">
-        <h4>Start the AI server</h4>
-        <p>Install the requirements, set GEMINI_API_KEY, then run the FastAPI server. The matching engine still works without AI.</p>
-        <small>${escapeHtml(error.message || "Unable to reach /api/ai/guidance")}</small>
-      </article>
+      <div class="ai-message assistant">
+        <div class="ai-message-avatar">AI</div>
+        <div class="ai-message-body">
+          <article class="ai-answer-card">
+            <h4>Check Gemini API key</h4>
+            <p>The matching engine still works, but AI guidance and OCR need a valid GEMINI_API_KEY on the server.</p>
+            <small>${escapeHtml(error.message || "Unable to reach /api/ai/guidance")}</small>
+          </article>
+        </div>
+      </div>
     `;
   } finally {
     guidanceButton.disabled = false;
     compareButton.disabled = false;
   }
 }
-
 function renderSources() {
   qs("#source-grid").innerHTML = sources
     .map((source) => `
@@ -3986,6 +4016,14 @@ function bindEvents() {
   );
   qs("#ai-guidance-button")?.addEventListener("click", () => requestAiGuidance("guidance"));
   qs("#ai-compare-button")?.addEventListener("click", () => requestAiGuidance("compare"));
+  qsa("[data-ai-prompt]").forEach((button) => {
+    button.addEventListener("click", () => {
+      const input = qs("#ai-question");
+      if (!input) return;
+      input.value = button.dataset.aiPrompt || "";
+      input.focus();
+    });
+  });
   qs("#document-list")?.addEventListener("click", (event) => {
     const applyButton = event.target.closest("[data-apply-document-grades]");
     if (applyButton) {
