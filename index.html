@@ -499,7 +499,7 @@
                   <h3>Ask in your own words</h3>
                 </div>
               </div>
-              <p>EduGuide AI uses your captured grades, interests, documents, funding readiness, and current programme matches. It is a Gemini API call through our backend, guided by our matching rules and Lesotho catalogue data.</p>
+              <p>EduGuide AI uses your captured grades, interests, documents, funding readiness, and current programme matches. It is a Gemini API call through our backend, guided by our matching rules and Lesotho catalogue data, with recent chat turns sent as context.</p>
               <div class="ai-prompt-strip" aria-label="Quick AI prompts">
                 <button type="button" data-ai-prompt="What programmes do I qualify for right now, and why?">What can I study?</button>
                 <button type="button" data-ai-prompt="Which subjects should I improve if I want technology, nursing, or science programmes?">What should I improve?</button>
@@ -529,6 +529,10 @@
                 <button class="secondary-action" type="button" id="ai-compare-button">
                   <i data-lucide="scale"></i>
                   Compare Top Matches
+                </button>
+                <button class="secondary-action" type="button" id="ai-clear-button">
+                  <i data-lucide="refresh-cw"></i>
+                  New Chat
                 </button>
               </div>
               <div class="ai-status" id="ai-guidance-status">Uses Gemini through the server when configured; otherwise shows local fallback guidance.</div>

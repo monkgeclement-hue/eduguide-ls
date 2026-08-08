@@ -1850,6 +1850,11 @@ textarea:focus {
   line-height: 1.55;
 }
 
+.ai-message.is-thinking .ai-message-body {
+  border-style: dashed;
+  color: var(--muted);
+}
+
 .ai-message.user .ai-message-body p,
 .ai-message.user .ai-message-body strong {
   color: #fff;
@@ -1867,7 +1872,7 @@ textarea:focus {
 }
 
 .ai-chat-panel .ai-action-row {
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-columns: repeat(3, minmax(0, 1fr));
 }
 
 .ai-chat-panel .primary-button,

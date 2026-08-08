@@ -59,6 +59,7 @@ class GuidanceRequest(BaseModel):
   readiness: dict[str, Any] = Field(default_factory=dict)
   matches: list[dict[str, Any]] = Field(default_factory=list)
   documents: list[dict[str, Any]] = Field(default_factory=list)
+  conversation: list[dict[str, Any]] = Field(default_factory=list)
   question: str | None = None
   mode: str = "guidance"
 
@@ -255,8 +256,7 @@ Uploaded documents may include OCR/text extraction metadata. Treat extracted gra
 as machine-read suggestions until the student applies or confirms them in the grade
 form. Do not present extracted grades as an official transcript interpretation.
 
-Answer the student's question when one is provided. If mode is "compare", compare
-the strongest realistic options instead of repeating generic advice.
+Answer the student's question when one is provided. Use the recent conversation only for context and continuity; the current matcher payload remains the source of truth. If mode is "compare", compare the strongest realistic options instead of repeating generic advice.
 
 Return concise JSON with exactly these keys:
 - summary: string
@@ -591,6 +591,14 @@ def build_request_payload(payload: GuidanceRequest) -> dict[str, Any]:
     "profile": payload.profile,
     "readiness": payload.readiness,
     "documents": payload.documents,
+    "conversation": [
+      {
+        "role": str(item.get("role", "user"))[:20],
+        "content": str(item.get("content", ""))[:900],
+      }
+      for item in payload.conversation[-12:]
+      if isinstance(item, dict) and str(item.get("content", "")).strip()
+    ],
     "matches": [compact_match(item) for item in payload.matches[:8]],
   }
 

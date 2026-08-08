@@ -42,11 +42,13 @@ const persistenceKey = "eduguide-admin-review-state-v1";
 const authUsersKey = "eduguide-auth-users-v1";
 const authSessionKey = "eduguide-auth-session-v1";
 const authTokenKey = "eduguide-auth-token-v1";
+const aiChatStoragePrefix = "eduguide-ai-chat-v1";
 const legacyDemoEmails = new Set();
 const legacyDemoIds = new Set(["demo-student", "demo-admin"]);
 const defaultUsers = [];
 const adminRoles = new Set(["owner", "admin"]);
 const maxActivityItems = 45;
+const maxAiChatMessages = 24;
 const calibrationProfiles = {
   arts: {
     label: "Arts / no science",
@@ -610,7 +612,9 @@ function setCurrentUser(user, preferredView = "student") {
     }
   }
   saveAuthSession();
+  loadAiChatMessages();
   updateUserShell();
+  renderAiChatMessages();
   renderStudentDashboard();
   renderAdminUsers();
   calculateMatches();
@@ -624,6 +628,7 @@ function signOut() {
   }
   currentUser = null;
   authToken = null;
+  aiChatMessages = [];
   saveAuthSession();
   updateUserShell();
   setAuthMode("login");
@@ -2864,12 +2869,111 @@ function getAiMatchPayload() {
   }));
 }
 
-function renderAiGuidance(guidance, mode, model) {
+function getAiChatStorageKey() {
+  return `${aiChatStoragePrefix}:${currentUser?.id || "guest"}`;
+}
+
+function getInitialAiChatMessage() {
+  return {
+    id: "ai-welcome",
+    role: "assistant",
+    content: "Hi, I am EduGuide AI. Enter your grades first, run matches, then ask me what you qualify for, what is blocked, and what subjects to improve.",
+    html: "<strong>Hi, I am EduGuide AI.</strong><p>Enter your grades first, run matches, then ask me what you qualify for, what is blocked, and what subjects to improve.</p>"
+  };
+}
+
+function normalizeAiChatMessage(message = {}) {
+  const role = message.role === "assistant" ? "assistant" : "user";
+  const content = String(message.content || "").trim();
+  if (!content) return null;
+  return {
+    id: message.id || `ai-msg-${Date.now()}-${Math.random().toString(16).slice(2)}`,
+    role,
+    content: content.slice(0, 2400),
+    html: typeof message.html === "string" ? message.html : "",
+    at: message.at || new Date().toISOString()
+  };
+}
+
+function loadAiChatMessages() {
+  try {
+    const stored = JSON.parse(localStorage.getItem(getAiChatStorageKey()) || "[]");
+    aiChatMessages = Array.isArray(stored) ? stored.map(normalizeAiChatMessage).filter(Boolean).slice(-maxAiChatMessages) : [];
+  } catch (error) {
+    aiChatMessages = [];
+  }
+  if (!aiChatMessages.length) aiChatMessages = [getInitialAiChatMessage()];
+}
+
+function saveAiChatMessages() {
+  if (!currentUser) return;
+  localStorage.setItem(getAiChatStorageKey(), JSON.stringify(aiChatMessages.slice(-maxAiChatMessages)));
+}
+
+function aiMessageMarkup(message) {
+  const isUser = message.role === "user";
+  const avatar = isUser ? "You" : "AI";
+  const body = message.html || `<p>${escapeHtml(message.content)}</p>`;
+  return `
+    <div class="ai-message ${isUser ? "user" : "assistant"}">
+      <div class="ai-message-avatar">${avatar}</div>
+      <div class="ai-message-body">${body}</div>
+    </div>
+  `;
+}
+
+function renderAiChatMessages(typingText = "") {
   const output = qs("#ai-guidance-output");
   if (!output) return;
+  const messages = aiChatMessages.length ? aiChatMessages : [getInitialAiChatMessage()];
+  output.innerHTML = `
+    ${messages.map(aiMessageMarkup).join("")}
+    ${typingText
+      ? `<div class="ai-message assistant is-thinking">
+          <div class="ai-message-avatar">AI</div>
+          <div class="ai-message-body"><p>${escapeHtml(typingText)}</p></div>
+        </div>`
+      : ""}
+  `;
+  output.scrollTop = output.scrollHeight;
+  if (window.lucide) window.lucide.createIcons();
+}
+
+function appendAiChatMessage(role, content, html = "") {
+  const message = normalizeAiChatMessage({ role, content, html });
+  if (!message) return;
+  aiChatMessages = [...aiChatMessages.filter((item) => item.id !== "ai-welcome"), message].slice(-maxAiChatMessages);
+  saveAiChatMessages();
+  renderAiChatMessages();
+}
+
+function resetAiChatMessages() {
+  aiChatMessages = [getInitialAiChatMessage()];
+  saveAiChatMessages();
+  renderAiChatMessages();
+  qs("#ai-question").value = "";
+  qs("#ai-guidance-status").textContent = "New chat started. Your grades and latest matches are still used as context.";
+}
+
+function guidanceToConversationText(guidance = {}) {
+  const parts = [guidance.summary, guidance.direct_answer, guidance.scholarship_note].filter(Boolean);
+  if (Array.isArray(guidance.top_recommendations) && guidance.top_recommendations.length) {
+    parts.push(`Top recommendations: ${guidance.top_recommendations.map((item) => `${item.programme || "Programme"} at ${item.institution || "Institution"}: ${item.why || item.action || "match"}`).join(" | ")}`);
+  }
+  if (Array.isArray(guidance.study_plan) && guidance.study_plan.length) parts.push(`Study plan: ${guidance.study_plan.join(" | ")}`);
+  if (Array.isArray(guidance.next_questions) && guidance.next_questions.length) parts.push(`Next questions: ${guidance.next_questions.join(" | ")}`);
+  return parts.join("\n").slice(0, 2400) || "Guidance generated from your current EduGuide profile.";
+}
+
+function getAiConversationPayload() {
+  return aiChatMessages
+    .filter((message) => message.id !== "ai-welcome")
+    .slice(-12)
+    .map((message) => ({ role: message.role, content: message.content }));
+}
+function renderAiGuidance(guidance, mode, model) {
   const recommendations = guidance.top_recommendations || [];
   const comparison = guidance.comparison || [];
-  const questionText = qs("#ai-question")?.value.trim() || "";
   const answerMarkup = `
     <article class="ai-answer-card">
       <h4>Summary</h4>
@@ -2955,49 +3059,35 @@ function renderAiGuidance(guidance, mode, model) {
         : ""
     }
   `;
-  output.innerHTML = `
-    ${questionText
-      ? `<div class="ai-message user">
-          <div class="ai-message-avatar">You</div>
-          <div class="ai-message-body"><p>${escapeHtml(questionText)}</p></div>
-        </div>`
-      : ""}
-    <div class="ai-message assistant">
-      <div class="ai-message-avatar">AI</div>
-      <div class="ai-message-body">${answerMarkup}</div>
-    </div>
-  `;
+  appendAiChatMessage("assistant", guidanceToConversationText(guidance), answerMarkup);
   const providerLabel = mode === "gemini" ? "Gemini" : mode === "openai" ? "OpenAI" : "AI";
   qs("#ai-guidance-status").textContent =
     mode === "gemini" || mode === "openai"
-      ? `Generated with ${providerLabel} (${model})`
+      ? `Generated with ${providerLabel} (${model}). Conversation context is active.`
       : "Local fallback guidance shown because AI is not configured or unavailable.";
-  if (window.lucide) window.lucide.createIcons();
 }
 async function requestAiGuidance(mode = "guidance") {
   if (!latestMatches.length) calculateMatches();
   const guidanceButton = qs("#ai-guidance-button");
   const compareButton = qs("#ai-compare-button");
-  const questionText = qs("#ai-question")?.value.trim() || "";
+  const questionInput = qs("#ai-question");
+  const questionText = questionInput?.value.trim() || "";
+  if (!questionText && mode !== "compare") {
+    qs("#ai-guidance-status").textContent = "Type a question or choose one of the quick prompts.";
+    questionInput?.focus();
+    return;
+  }
+
   guidanceButton.disabled = true;
   compareButton.disabled = true;
+  if (questionText) appendAiChatMessage("user", questionText);
+  renderAiChatMessages(mode === "compare" ? "Comparing your strongest current matches..." : "Reading your latest profile and preparing advice...");
   qs("#ai-guidance-status").textContent = mode === "compare" ? "Comparing top matches..." : "Generating guidance...";
-  qs("#ai-guidance-output").innerHTML = `
-    ${questionText
-      ? `<div class="ai-message user">
-          <div class="ai-message-avatar">You</div>
-          <div class="ai-message-body"><p>${escapeHtml(questionText)}</p></div>
-        </div>`
-      : ""}
-    <div class="ai-message assistant">
-      <div class="ai-message-avatar">AI</div>
-      <div class="ai-message-body"><p>Reading your top matches and preparing advice...</p></div>
-    </div>
-  `;
 
   const payload = {
     mode,
     question: questionText,
+    conversation: getAiConversationPayload(),
     profile: getAiProfilePayload(),
     readiness: getNmdsReadiness(),
     documents: currentUser?.documents || [],
@@ -3013,23 +3103,20 @@ async function requestAiGuidance(mode = "guidance") {
     if (!response.ok) throw new Error(`AI server returned ${response.status}`);
     const data = await response.json();
     renderAiGuidance(data.guidance || {}, data.mode, data.model);
+    if (questionInput) questionInput.value = "";
     recordCurrentUserActivity(mode === "compare" ? "ai_compare" : "ai_guidance", mode === "compare" ? "Compared AI recommendations" : "Requested AI guidance", {
       question: payload.question.slice(0, 120)
     });
   } catch (error) {
-    qs("#ai-guidance-status").textContent = "AI configuration needs attention.";
-    qs("#ai-guidance-output").innerHTML = `
-      <div class="ai-message assistant">
-        <div class="ai-message-avatar">AI</div>
-        <div class="ai-message-body">
-          <article class="ai-answer-card">
-            <h4>Check Gemini API key</h4>
-            <p>The matching engine still works, but AI guidance and OCR need a valid GEMINI_API_KEY on the server.</p>
-            <small>${escapeHtml(error.message || "Unable to reach /api/ai/guidance")}</small>
-          </article>
-        </div>
-      </div>
+    const errorMarkup = `
+      <article class="ai-answer-card">
+        <h4>Check Gemini API key</h4>
+        <p>The matching engine still works, but AI guidance and OCR need a valid Gemini key and model on the server.</p>
+        <small>${escapeHtml(error.message || "Unable to reach /api/ai/guidance")}</small>
+      </article>
     `;
+    appendAiChatMessage("assistant", error.message || "AI configuration needs attention.", errorMarkup);
+    qs("#ai-guidance-status").textContent = "AI configuration needs attention.";
   } finally {
     guidanceButton.disabled = false;
     compareButton.disabled = false;
@@ -4024,6 +4111,13 @@ function bindEvents() {
       input.focus();
     });
   });
+  qs("#ai-clear-button")?.addEventListener("click", resetAiChatMessages);
+  qs("#ai-question")?.addEventListener("keydown", (event) => {
+    if (event.key === "Enter" && !event.shiftKey) {
+      event.preventDefault();
+      requestAiGuidance("guidance");
+    }
+  });
   qs("#document-list")?.addEventListener("click", (event) => {
     const applyButton = event.target.closest("[data-apply-document-grades]");
     if (applyButton) {
@@ -4165,6 +4259,8 @@ async function init() {
   renderInterests();
   renderAdmin();
   renderSources();
+  loadAiChatMessages();
+  renderAiChatMessages();
   updateCounts();
   calculateMatches();
   setupDropzone();
