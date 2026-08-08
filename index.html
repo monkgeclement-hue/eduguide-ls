@@ -601,11 +601,21 @@
                     <i data-lucide="rotate-ccw"></i>
                     Reset Local
                   </button>
+                  <button class="secondary-action" type="button" id="refresh-deployment-status">
+                    <i data-lucide="activity"></i>
+                    Check Hosting
+                  </button>
                   <div class="admin-health" id="admin-health">Ready</div>
                 </div>
               </div>
 
               <div class="admin-notice" id="admin-user-notice" hidden></div>
+              <div class="deployment-readiness" id="deployment-readiness">
+                <div>
+                  <strong>Checking hosted readiness...</strong>
+                  <span>Database, storage, and AI status will appear here.</span>
+                </div>
+              </div>
 
               <div class="admin-toolbar">
                 <label class="search-field">

@@ -119,6 +119,14 @@ const supabaseClient =
 let persistenceMode = supabaseClient ? "supabase" : "local";
 let lastPersistenceMessage = supabaseClient ? "Supabase sync ready" : "Local prototype mode";
 let serverDatabaseAvailable = false;
+let deploymentStatus = {
+  checked: false,
+  loading: false,
+  ok: false,
+  health: null,
+  diagnostics: null,
+  error: ""
+};
 let databaseLoadedAuthUsers = false;
 let databaseLoadedReviewState = false;
 let aiChatLoadedFromServer = false;
@@ -861,6 +869,51 @@ async function loadServerDatabaseState() {
     persistenceMode = supabaseClient ? "supabase" : "local";
     lastPersistenceMessage = supabaseClient ? "Supabase sync ready" : "Local prototype mode";
   }
+}
+
+async function loadDeploymentStatus({ silent = false } = {}) {
+  if (deploymentStatus.loading) return;
+  deploymentStatus.loading = true;
+  deploymentStatus.error = "";
+  if (!silent) {
+    lastPersistenceMessage = "Checking hosting status";
+    renderDeploymentReadiness();
+    renderAdminMetrics();
+  }
+
+  try {
+    const [healthResponse, diagnosticsResponse] = await Promise.all([
+      fetch("/health", { headers: { Accept: "application/json" } }),
+      fetch("/api/db/diagnostics", { headers: { Accept: "application/json" } }).catch(() => null)
+    ]);
+    if (!healthResponse.ok) throw new Error(`Health check returned ${healthResponse.status}`);
+    const health = await healthResponse.json();
+    const diagnostics = diagnosticsResponse?.ok ? await diagnosticsResponse.json() : null;
+    deploymentStatus = {
+      checked: true,
+      loading: false,
+      ok: Boolean(health.ok),
+      health,
+      diagnostics,
+      error: ""
+    };
+    if (health.data_backend) {
+      persistenceMode = health.data_backend === "supabase" ? "server-supabase" : "server-db";
+      lastPersistenceMessage = health.data_backend === "supabase" ? "Supabase database ready" : "Render SQLite is temporary";
+    }
+  } catch (error) {
+    deploymentStatus = {
+      checked: true,
+      loading: false,
+      ok: false,
+      health: null,
+      diagnostics: null,
+      error: error.message || "Could not check deployment status"
+    };
+    lastPersistenceMessage = deploymentStatus.error;
+  }
+  renderDeploymentReadiness();
+  renderAdminMetrics();
 }
 
 function seedServerDatabaseState() {
@@ -3387,6 +3440,94 @@ function renderAdminFilters() {
   adminState.institution = filter.value;
 }
 
+function getDeploymentReadiness() {
+  if (deploymentStatus.loading) {
+    return {
+      tone: "checking",
+      title: "Checking hosted readiness...",
+      message: "Reading the live server health, database, storage, and AI settings.",
+      items: []
+    };
+  }
+  if (!deploymentStatus.checked) {
+    return {
+      tone: "checking",
+      title: "Hosted readiness not checked yet",
+      message: "Open the admin dashboard or press Check Hosting to verify deployment safety.",
+      items: []
+    };
+  }
+  if (deploymentStatus.error) {
+    return {
+      tone: "danger",
+      title: "Could not check deployment",
+      message: deploymentStatus.error,
+      items: []
+    };
+  }
+
+  const health = deploymentStatus.health || {};
+  const diagnostics = deploymentStatus.diagnostics || {};
+  const dataBackend = health.data_backend || diagnostics.database || "unknown";
+  const usesSupabase = Boolean(health.supabase_configured || dataBackend === "supabase");
+  const aiReady = Boolean(health.ai_configured);
+  const storageReady = Boolean(health.storage_ready);
+  const databaseReady = Boolean(health.database_ready);
+  const warningItems = [];
+  if (!usesSupabase) warningItems.push("Users, uploads, and AI chat are still on Render SQLite and can reset after redeploys or restarts.");
+  if (!aiReady) warningItems.push("AI guidance and OCR need a valid Gemini or OpenAI key.");
+  if (!storageReady) warningItems.push("Document upload storage is not ready.");
+  if (!databaseReady) warningItems.push("Database health check failed.");
+  if (health.startup_persistence_error) warningItems.push(`Startup persistence error: ${health.startup_persistence_error}`);
+
+  return {
+    tone: warningItems.length ? "warning" : "ready",
+    title: warningItems.length ? "Hosting works, but production persistence is not complete" : "Hosted deployment is production-ready",
+    message: warningItems.length ? warningItems[0] : "Supabase persistence, document storage, and AI configuration are ready.",
+    items: [
+      { label: "Database", value: usesSupabase ? "Supabase" : dataBackend === "sqlite" ? "Render SQLite" : dataBackend },
+      { label: "Storage", value: storageReady ? (health.storage_bucket || "Ready") : "Needs attention" },
+      { label: "AI", value: aiReady ? `${health.provider || "AI"} ${health.model || ""}`.trim() : "Not configured" },
+      { label: "Users", value: String(diagnostics.state_counts?.auth_users ?? getVisibleUsers().length ?? 0) },
+      { label: "Documents", value: String(diagnostics.document_count ?? 0) },
+      { label: "AI chats", value: String(diagnostics.ai_chat_message_count ?? 0) }
+    ],
+    warnings: warningItems.slice(1)
+  };
+}
+
+function renderDeploymentReadiness() {
+  const panel = qs("#deployment-readiness");
+  if (!panel) return;
+  const status = getDeploymentReadiness();
+  panel.dataset.tone = status.tone;
+  panel.innerHTML = `
+    <div>
+      <strong>${escapeHtml(status.title)}</strong>
+      <span>${escapeHtml(status.message)}</span>
+      ${
+        status.warnings?.length
+          ? `<ul>${status.warnings.map((item) => `<li>${escapeHtml(item)}</li>`).join("")}</ul>`
+          : ""
+      }
+    </div>
+    ${
+      status.items.length
+        ? `<div class="deployment-readiness-grid">
+            ${status.items
+              .map((item) => `
+                <span>
+                  <small>${escapeHtml(item.label)}</small>
+                  <b>${escapeHtml(item.value)}</b>
+                </span>
+              `)
+              .join("")}
+          </div>`
+        : ""
+    }
+  `;
+}
+
 function renderAdminMetrics() {
   const summary = getAdminSummary();
   qs("#admin-record-count").textContent = summary.programmeCount;
@@ -3397,6 +3538,7 @@ function renderAdminMetrics() {
   qs("#admin-new-user-count").textContent = summary.newUserCount;
   const persistenceLabel = persistenceMode === "server-supabase" || persistenceMode === "supabase" ? "Supabase" : persistenceMode === "server-db" ? "Database" : "Local";
   qs("#admin-health").textContent = `${persistenceLabel} - ${lastPersistenceMessage}`;
+  renderDeploymentReadiness();
   const notice = qs("#admin-user-notice");
   if (notice) {
     notice.hidden = !summary.newUserCount;
@@ -4384,6 +4526,7 @@ function bindEvents() {
   });
   qs("#add-programme")?.addEventListener("click", createAdminProgramme);
   qs("#reset-admin-state")?.addEventListener("click", resetLocalReviewState);
+  qs("#refresh-deployment-status")?.addEventListener("click", () => loadDeploymentStatus());
   qs("#view-admin")?.addEventListener("submit", (event) => {
     if (!event.target.matches("#admin-edit-form")) return;
     event.preventDefault();
@@ -4463,6 +4606,7 @@ function bindEvents() {
 
 async function init() {
   await loadServerDatabaseState();
+  loadDeploymentStatus({ silent: true });
   loadAuthUsers();
   loadLocalReviewState();
   seedServerDatabaseState();
