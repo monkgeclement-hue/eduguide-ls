@@ -44,7 +44,7 @@ Set these on the server or hosting platform:
 ```env
 AI_PROVIDER=gemini
 GEMINI_API_KEY=your_secret_key
-GEMINI_MODEL=gemini-2.5-flash
+GEMINI_MODEL=gemini-3.6-flash
 ADMIN_NAME=your_admin_name
 ADMIN_EMAIL=your_admin_email
 ADMIN_PASSWORD=your_admin_password
@@ -69,7 +69,7 @@ The repository includes `render.yaml` for a Docker-based Render deployment.
 2. Confirm `.env`, `data/eduguide.db`, and `data/uploads/` are not committed.
 3. In Render, create a new Blueprint or Docker web service from the repository.
 4. Add `GEMINI_API_KEY` and the `ADMIN_*` variables as secret environment variables.
-5. Keep `AI_PROVIDER=gemini` and `GEMINI_MODEL=gemini-2.5-flash`.
+5. Keep `AI_PROVIDER=gemini` and `GEMINI_MODEL=gemini-3.6-flash`.
 6. Deploy, then test `/health`, `/`, and `/api/db/diagnostics`.
 
 Useful Render references:

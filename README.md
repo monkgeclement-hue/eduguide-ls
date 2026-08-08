@@ -42,7 +42,7 @@ Use Gemini by default:
 ```env
 AI_PROVIDER=gemini
 GEMINI_API_KEY=your_gemini_key
-GEMINI_MODEL=gemini-2.5-flash
+GEMINI_MODEL=gemini-3.6-flash
 ```
 
 Run the FastAPI server:

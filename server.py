@@ -22,6 +22,12 @@ DB_PATH = ROOT / "data" / "eduguide.db"
 UPLOAD_ROOT = ROOT / "data" / "uploads"
 MAX_UPLOAD_BYTES = 10 * 1024 * 1024
 GRADE_VALUES = {"A*", "A", "B", "C", "D", "E", "F", "G", "X", "Z"}
+GEMINI_DEFAULT_MODEL = "gemini-3.6-flash"
+GEMINI_MODEL_FALLBACKS = ["gemini-3.6-flash", "gemini-3.5-flash", "gemini-flash-latest"]
+DEPRECATED_GEMINI_MODELS = {
+  "gemini-2.5-flash": GEMINI_DEFAULT_MODEL,
+  "gemini-2.5-pro": GEMINI_DEFAULT_MODEL,
+}
 SUBJECT_ALIASES = [
   {"code": "MATH", "subject": "Mathematics", "aliases": ["mathematics", "maths", "math"]},
   {"code": "ENG", "subject": "English", "aliases": ["english language", "english"]},
@@ -89,6 +95,15 @@ class UserRoleUpdate(BaseModel):
 class UserStatusUpdate(BaseModel):
   status: str
 
+
+
+
+def get_gemini_model_candidates() -> list[str]:
+  requested = (os.getenv("GEMINI_MODEL") or GEMINI_DEFAULT_MODEL).strip() or GEMINI_DEFAULT_MODEL
+  requested = DEPRECATED_GEMINI_MODELS.get(requested, requested)
+  candidates = [requested, *GEMINI_MODEL_FALLBACKS]
+  seen = set()
+  return [model for model in candidates if model and not (model in seen or seen.add(model))]
 
 def get_db_connection() -> sqlite3.Connection:
   DB_PATH.parent.mkdir(parents=True, exist_ok=True)
@@ -317,15 +332,24 @@ def extract_text_with_gemini_ocr(path: Path, content_type: str | None = None) ->
   from google.genai import types
 
   mime_type = guess_mime_type(path, content_type)
+  file_part = types.Part.from_bytes(data=path.read_bytes(), mime_type=mime_type)
   client = genai.Client(api_key=api_key)
-  response = client.models.generate_content(
-    model=os.getenv("GEMINI_MODEL", "gemini-2.5-flash").strip() or "gemini-2.5-flash",
-    contents=[
-      "Extract all visible text from this results slip, transcript, or academic document. Return plain text only. Preserve subject names and grade symbols such as A*, A, B, C, D, E, F, G, X, and Z.",
-      types.Part.from_bytes(data=path.read_bytes(), mime_type=mime_type),
-    ],
-  )
-  return normalize_ocr_text(response.text or "")
+  last_error: Exception | None = None
+  for model in get_gemini_model_candidates():
+    try:
+      response = client.models.generate_content(
+        model=model,
+        contents=[
+          "Extract all visible text from this results slip, transcript, or academic document. Return plain text only. Preserve subject names and grade symbols such as A*, A, B, C, D, E, F, G, X, and Z.",
+          file_part,
+        ],
+      )
+      return normalize_ocr_text(response.text or "")
+    except Exception as exc:
+      last_error = exc
+      if "NOT_FOUND" not in str(exc) and "not found" not in str(exc).lower() and "no longer available" not in str(exc).lower():
+        raise
+  raise RuntimeError(f"Gemini OCR failed for available model fallbacks: {last_error}")
 
 
 def should_use_vision_ocr(path: Path, content_type: str | None, local_text: str) -> bool:
@@ -1220,7 +1244,7 @@ def database_diagnostics() -> dict[str, Any]:
 
 def call_gemini(payload: GuidanceRequest, request_payload: dict[str, Any]) -> dict[str, Any]:
   api_key = get_gemini_api_key()
-  model = os.getenv("GEMINI_MODEL", "gemini-2.5-flash").strip() or "gemini-2.5-flash"
+  model = get_gemini_model_candidates()[0]
   if not api_key:
     return {
       "mode": "local_fallback",
@@ -1234,22 +1258,30 @@ def call_gemini(payload: GuidanceRequest, request_payload: dict[str, Any]) -> di
     from google.genai import types
 
     client = genai.Client(api_key=api_key)
-    response = client.models.generate_content(
-      model=model,
-      contents=json.dumps(request_payload, ensure_ascii=False),
-      config=types.GenerateContentConfig(
-        system_instruction=DEVELOPER_PROMPT,
-        response_mime_type="application/json",
-      ),
-    )
-    text = response.text or ""
-    guidance = parse_json_response(text) or build_fallback(payload, "The Gemini response was not valid JSON.")
-    return {
-      "mode": "gemini",
-      "provider": "gemini",
-      "model": model,
-      "guidance": guidance,
-    }
+    last_error: Exception | None = None
+    for candidate_model in get_gemini_model_candidates():
+      try:
+        response = client.models.generate_content(
+          model=candidate_model,
+          contents=json.dumps(request_payload, ensure_ascii=False),
+          config=types.GenerateContentConfig(
+            system_instruction=DEVELOPER_PROMPT,
+            response_mime_type="application/json",
+          ),
+        )
+        text = response.text or ""
+        guidance = parse_json_response(text) or build_fallback(payload, "The Gemini response was not valid JSON.")
+        return {
+          "mode": "gemini",
+          "provider": "gemini",
+          "model": candidate_model,
+          "guidance": guidance,
+        }
+      except Exception as exc:
+        last_error = exc
+        if "NOT_FOUND" not in str(exc) and "not found" not in str(exc).lower() and "no longer available" not in str(exc).lower():
+          raise
+    raise RuntimeError(f"Gemini failed for available model fallbacks: {last_error}")
   except Exception as exc:
     return {
       "mode": "local_fallback",
@@ -1310,7 +1342,7 @@ def health() -> dict[str, Any]:
     "openai_configured": bool(get_openai_api_key()),
     "database_ready": database_ready,
     "storage_ready": storage_ready,
-    "model": os.getenv("GEMINI_MODEL" if provider == "gemini" else "OPENAI_MODEL", "gemini-2.5-flash" if provider == "gemini" else "gpt-5.2"),
+    "model": get_gemini_model_candidates()[0] if provider == "gemini" else os.getenv("OPENAI_MODEL", "gpt-5.2"),
   }
 
 
