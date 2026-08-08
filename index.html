@@ -9,6 +9,7 @@
     <title>EduGuide LS</title>
     <link rel="manifest" href="/manifest.webmanifest" />
     <link rel="icon" href="/icons/icon-192.svg" type="image/svg+xml" />
+    <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet" />
@@ -30,6 +31,11 @@
           <h1>One secure login, the right workspace.</h1>
           <p>Students get a focused guidance dashboard. Admins get catalogue control, user oversight, role management, and activity monitoring.</p>
         </div>
+
+        <button class="install-button" type="button" data-install-app hidden>
+          <i data-lucide="smartphone"></i>
+          Install EduGuide LS
+        </button>
 
         <div class="auth-tabs" role="tablist" aria-label="Authentication mode">
           <button class="auth-tab active" type="button" data-auth-mode="login">Login</button>
@@ -144,6 +150,10 @@
           <div class="top-actions">
             <button class="icon-button" type="button" title="Refresh results" id="refresh-button">
               <i data-lucide="rotate-cw"></i>
+            </button>
+            <button class="install-button compact" type="button" data-install-app hidden>
+              <i data-lucide="smartphone"></i>
+              <span>Install</span>
             </button>
             <div class="user-chip" id="user-chip">
               <div class="avatar" id="user-avatar">ST</div>

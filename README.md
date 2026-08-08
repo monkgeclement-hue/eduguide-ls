@@ -57,6 +57,12 @@ Then open:
 http://127.0.0.1:8765/index.html
 ```
 
+## Installable Web App
+
+EduGuide LS is configured as an installable web app through `manifest.webmanifest` and `sw.js`. On Android/Chrome, open the hosted link and use the **Install EduGuide LS** button when it appears, or use the browser menu's install option. On iPhone/Safari, use **Share -> Add to Home Screen**.
+
+The installed app uses the same hosted backend for login, AI guidance, document upload, and database features.
+
 This mode also creates a local SQLite database at `data/eduguide.db`. The app uses it for:
 
 - registered users, admin roles, account status, and activity history

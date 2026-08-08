@@ -149,6 +149,33 @@ a {
   line-height: 1.45;
 }
 
+.install-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: fit-content;
+  min-height: 38px;
+  padding: 0 14px;
+  border: 1px solid #8ee6c8;
+  border-radius: 8px;
+  background: #e1f5ee;
+  color: var(--brand-deep);
+  font-size: 13px;
+  font-weight: 900;
+  box-shadow: 0 0 0 4px rgba(29, 158, 117, 0.1);
+}
+
+.install-button.compact {
+  min-height: 42px;
+  padding: 0 12px;
+}
+
+.install-button svg {
+  width: 16px;
+  height: 16px;
+}
+
 .auth-message[data-tone="error"] {
   color: var(--danger);
 }
@@ -2668,6 +2695,10 @@ textarea:focus {
   .top-actions {
     justify-content: space-between;
     width: 100%;
+  }
+
+  .install-button.compact span {
+    display: none;
   }
 
   .topbar h1 {

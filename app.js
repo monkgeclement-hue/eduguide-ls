@@ -110,6 +110,7 @@ let authUsers = structuredClone(defaultUsers);
 let currentUser = null;
 let authToken = localStorage.getItem(authTokenKey) || null;
 let authMode = "login";
+let deferredInstallPrompt = null;
 const supabaseConfig = window.EDUGUIDE_SUPABASE_CONFIG || {};
 const supabaseClient =
   supabaseConfig.url && supabaseConfig.anonKey && window.supabase
@@ -551,6 +552,39 @@ function setAuthMessage(message, tone = "neutral") {
   if (!messageEl) return;
   messageEl.textContent = message;
   messageEl.dataset.tone = tone;
+}
+
+function isStandaloneApp() {
+  return Boolean(window.matchMedia?.("(display-mode: standalone)").matches || window.navigator.standalone);
+}
+
+function updateInstallButtons() {
+  const canInstall = Boolean(deferredInstallPrompt) && !isStandaloneApp();
+  qsa("[data-install-app]").forEach((button) => {
+    button.hidden = !canInstall;
+  });
+}
+
+async function promptInstallApp() {
+  if (!deferredInstallPrompt) return;
+  deferredInstallPrompt.prompt();
+  const choice = await deferredInstallPrompt.userChoice.catch(() => null);
+  if (!choice || choice.outcome !== "dismissed") deferredInstallPrompt = null;
+  updateInstallButtons();
+}
+
+function bindInstallPrompt() {
+  window.addEventListener("beforeinstallprompt", (event) => {
+    event.preventDefault();
+    deferredInstallPrompt = event;
+    updateInstallButtons();
+  });
+  window.addEventListener("appinstalled", () => {
+    deferredInstallPrompt = null;
+    updateInstallButtons();
+  });
+  qsa("[data-install-app]").forEach((button) => button.addEventListener("click", promptInstallApp));
+  updateInstallButtons();
 }
 
 function updateAuthContext() {
@@ -4265,6 +4299,7 @@ async function init() {
   calculateMatches();
   setupDropzone();
   bindEvents();
+  bindInstallPrompt();
   const initialView = new URLSearchParams(window.location.search).get("view");
   const restored = await restoreAuthSession();
   if (restored && initialView && titles[initialView]) setView(initialView);

@@ -49,7 +49,7 @@ SUBJECT_ALIASES = [
 
 app = FastAPI(title="EduGuide LS AI Server")
 PUBLIC_DATA_FILES = {"admin-catalog.js", "catalog.js", "source-manifest.json", "supabase-config.js"}
-PUBLIC_ICON_FILES = {"icon-192.svg", "icon-512.svg"}
+PUBLIC_ICON_FILES = {"icon-192.svg", "icon-512.svg", "icon-192.png", "icon-512.png", "apple-touch-icon.png"}
 mimetypes.add_type("application/manifest+json", ".webmanifest")
 mimetypes.add_type("image/svg+xml", ".svg")
 
@@ -1407,7 +1407,7 @@ def public_icon(file_name: str) -> FileResponse:
   path = ROOT / "icons" / file_name
   if not path.exists():
     raise HTTPException(status_code=404, detail="Icon not found.")
-  return FileResponse(path, media_type=guess_mime_type(path, "image/svg+xml"))
+  return FileResponse(path, media_type=guess_mime_type(path))
 
 
 @app.get("/data/{file_name}")
