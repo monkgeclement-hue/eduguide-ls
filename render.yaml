@@ -12,6 +12,14 @@ services:
         value: gemini-3.6-flash
       - key: GEMINI_API_KEY
         sync: false
+      - key: DATA_BACKEND
+        value: auto
+      - key: SUPABASE_URL
+        sync: false
+      - key: SUPABASE_SERVICE_ROLE_KEY
+        sync: false
+      - key: SUPABASE_STORAGE_BUCKET
+        value: eduguide-documents
       - key: ADMIN_NAME
         sync: false
       - key: ADMIN_EMAIL

@@ -45,6 +45,10 @@ Set these on the server or hosting platform:
 AI_PROVIDER=gemini
 GEMINI_API_KEY=your_secret_key
 GEMINI_MODEL=gemini-3.6-flash
+DATA_BACKEND=auto
+SUPABASE_URL=your_supabase_project_url
+SUPABASE_SERVICE_ROLE_KEY=your_supabase_service_role_key
+SUPABASE_STORAGE_BUCKET=eduguide-documents
 ADMIN_NAME=your_admin_name
 ADMIN_EMAIL=your_admin_email
 ADMIN_PASSWORD=your_admin_password
@@ -68,9 +72,10 @@ The repository includes `render.yaml` for a Docker-based Render deployment.
 1. Push the project to a private GitHub repository.
 2. Confirm `.env`, `data/eduguide.db`, and `data/uploads/` are not committed.
 3. In Render, create a new Blueprint or Docker web service from the repository.
-4. Add `GEMINI_API_KEY` and the `ADMIN_*` variables as secret environment variables.
-5. Keep `AI_PROVIDER=gemini` and `GEMINI_MODEL=gemini-3.6-flash`.
-6. Deploy, then test `/health`, `/`, and `/api/db/diagnostics`.
+4. In Supabase, run `supabase/schema.sql`, `supabase/runtime.sql`, and the seed files you want.
+5. Add `GEMINI_API_KEY`, `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY`, and the `ADMIN_*` variables as secret environment variables.
+6. Keep `AI_PROVIDER=gemini`, `GEMINI_MODEL=gemini-3.6-flash`, `DATA_BACKEND=auto`, and `SUPABASE_STORAGE_BUCKET=eduguide-documents`.
+7. Deploy, then test `/health`, `/`, and `/api/db/diagnostics`.
 
 Useful Render references:
 
@@ -95,18 +100,12 @@ Useful Render references:
 
 ## Prototype Limits Before Real Launch
 
-The current local SQLite database and uploaded files are good for prototype testing. A hosted free container may reset local files after redeploys or restarts, depending on the host.
+Local SQLite is still available for development, but hosted public testing should use Supabase runtime persistence. Without `SUPABASE_URL` and `SUPABASE_SERVICE_ROLE_KEY`, a hosted free container may reset users and uploads after redeploys or restarts.
 
-For a real public beta, move these parts to Supabase:
-
-- Auth and role storage
-- Normalized programme tables
-- Uploaded document storage
-- Recommendation and AI run history
-
-The project already has starter Supabase files:
+The project has Supabase files for both catalogue data and runtime persistence:
 
 - `supabase/schema.sql`
+- `supabase/runtime.sql`
 - `supabase/seed.normalized.sql`
 
 Use those when we migrate from local prototype storage to hosted persistent storage.

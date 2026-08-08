@@ -432,7 +432,7 @@ async function saveServerState(stateKey, payload) {
       body: JSON.stringify({ payload })
     });
     if (!response.ok) throw new Error(`Database returned ${response.status}`);
-    lastPersistenceMessage = "Saved to database";
+    lastPersistenceMessage = persistenceMode === "server-supabase" ? "Saved to Supabase" : "Saved to database";
   } catch (error) {
     serverDatabaseAvailable = false;
     persistenceMode = supabaseClient ? "supabase" : "local";
@@ -832,8 +832,8 @@ async function loadServerDatabaseState() {
     const data = await response.json();
     serverDatabaseAvailable = Boolean(data.ok);
     if (!serverDatabaseAvailable) return;
-    persistenceMode = "server-db";
-    lastPersistenceMessage = "Server database ready";
+    persistenceMode = data.database === "supabase" ? "server-supabase" : "server-db";
+    lastPersistenceMessage = data.database === "supabase" ? "Supabase database ready" : "Server database ready";
 
     const users = data.state?.auth_users?.users;
     if (Array.isArray(users)) {
@@ -876,7 +876,7 @@ function saveLocalReviewState() {
     const snapshot = getReviewStateSnapshot();
     localStorage.setItem(persistenceKey, JSON.stringify(snapshot));
     saveServerState("review_state", snapshot);
-    if (serverDatabaseAvailable) lastPersistenceMessage = "Saving to database";
+    if (serverDatabaseAvailable) lastPersistenceMessage = persistenceMode === "server-supabase" ? "Saving to Supabase" : "Saving to database";
     else if (!supabaseClient) lastPersistenceMessage = "Saved locally";
   } catch (error) {
     lastPersistenceMessage = "Local save failed";
@@ -3223,7 +3223,7 @@ function renderAdminMetrics() {
   qs("#admin-fee-count").textContent = summary.feeItemCount;
   qs("#admin-user-count").textContent = summary.userCount;
   qs("#admin-new-user-count").textContent = summary.newUserCount;
-  const persistenceLabel = persistenceMode === "server-db" ? "Database" : persistenceMode === "supabase" ? "Supabase" : "Local";
+  const persistenceLabel = persistenceMode === "server-supabase" || persistenceMode === "supabase" ? "Supabase" : persistenceMode === "server-db" ? "Database" : "Local";
   qs("#admin-health").textContent = `${persistenceLabel} - ${lastPersistenceMessage}`;
   const notice = qs("#admin-user-notice");
   if (notice) {

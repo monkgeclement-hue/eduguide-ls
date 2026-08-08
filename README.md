@@ -43,6 +43,7 @@ Use Gemini by default:
 AI_PROVIDER=gemini
 GEMINI_API_KEY=your_gemini_key
 GEMINI_MODEL=gemini-3.6-flash
+DATA_BACKEND=auto
 ```
 
 Run the FastAPI server:
@@ -63,7 +64,7 @@ EduGuide LS is configured as an installable web app through `manifest.webmanifes
 
 The installed app uses the same hosted backend for login, AI guidance, document upload, and database features.
 
-This mode also creates a local SQLite database at `data/eduguide.db`. The app uses it for:
+This mode creates a local SQLite database at `data/eduguide.db` unless Supabase runtime persistence is configured. The app uses the active backend for:
 
 - registered users, admin roles, account status, and activity history
 - admin review state for programmes and data gaps
@@ -98,6 +99,7 @@ The browser UI can still load as static HTML, but local FastAPI mode is preferre
 - `data/eduguide.db` is created automatically by `server.py` for local real-database persistence. It is ignored by git.
 - `data/uploads/` is created automatically when users upload documents. Uploaded files are ignored by git and served only through the document download API.
 - Document extraction uses local parsers for text PDFs, DOCX, and text files. Image/scanned OCR uses Gemini through the server-side `GEMINI_API_KEY`.
+- `supabase/runtime.sql` creates the persistent runtime tables and private storage bucket used by the hosted FastAPI app.
 - `supabase/schema.sql` contains the normalized Postgres schema.
 - `supabase/seed.sql` contains starter reference data and shared source records.
 - `supabase/seed.normalized.sql` loads the real scraped/manual catalogue into normalized tables.

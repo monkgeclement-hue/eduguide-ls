@@ -5,13 +5,17 @@ import os
 import re
 import sqlite3
 import secrets
+import tempfile
 import uuid
 from pathlib import Path
 from typing import Any
+from urllib import error as urlerror
+from urllib import request as urlrequest
+from urllib.parse import quote
 
 from dotenv import load_dotenv
 from fastapi import FastAPI, File, Form, Header, HTTPException, Request, UploadFile
-from fastapi.responses import FileResponse
+from fastapi.responses import FileResponse, Response
 from openai import OpenAI
 from pydantic import BaseModel, Field
 
@@ -21,6 +25,7 @@ load_dotenv(ROOT / ".env")
 DB_PATH = ROOT / "data" / "eduguide.db"
 UPLOAD_ROOT = ROOT / "data" / "uploads"
 MAX_UPLOAD_BYTES = 10 * 1024 * 1024
+DEFAULT_SUPABASE_STORAGE_BUCKET = "eduguide-documents"
 GRADE_VALUES = {"A*", "A", "B", "C", "D", "E", "F", "G", "X", "Z"}
 GEMINI_DEFAULT_MODEL = "gemini-3.6-flash"
 GEMINI_MODEL_FALLBACKS = ["gemini-3.6-flash", "gemini-3.5-flash", "gemini-flash-latest"]
@@ -206,6 +211,33 @@ def check_upload_storage_ready() -> bool:
     return False
 
 
+def check_data_backend_ready() -> bool:
+  if using_supabase():
+    try:
+      supabase_request(
+        "GET",
+        supabase_table_path("runtime_app_state", "select=state_key&limit=1"),
+      )
+      return True
+    except Exception:
+      return False
+  return check_sqlite_ready()
+
+
+def check_document_storage_ready() -> bool:
+  if using_supabase():
+    try:
+      supabase_request(
+        "GET",
+        f"/storage/v1/bucket/{quote(get_supabase_storage_bucket(), safe='')}",
+        content_type=None,
+      )
+      return True
+    except Exception:
+      return False
+  return check_upload_storage_ready()
+
+
 def sanitize_storage_segment(value: str, fallback: str = "item") -> str:
   cleaned = re.sub(r"[^a-zA-Z0-9_.-]", "-", value or "").strip(".-")
   return cleaned[:80] or fallback
@@ -217,27 +249,51 @@ def sanitize_upload_filename(filename: str) -> str:
   return cleaned[:120] or "document"
 
 
-def document_response(row: sqlite3.Row) -> dict[str, Any]:
+def row_get(row: sqlite3.Row | dict[str, Any], key: str, default: Any = None) -> Any:
+  if isinstance(row, sqlite3.Row):
+    return row[key] if key in row.keys() else default
+  if isinstance(row, dict):
+    return row.get(key, default)
+  return default
+
+
+def parse_jsonish(value: Any, fallback: Any = None) -> Any:
+  if value is None:
+    return fallback
+  if isinstance(value, (dict, list)):
+    return value
+  if isinstance(value, str):
+    try:
+      return json.loads(value)
+    except json.JSONDecodeError:
+      return fallback
+  return fallback
+
+
+def document_response(row: sqlite3.Row | dict[str, Any]) -> dict[str, Any]:
+  extracted_grades = parse_jsonish(row_get(row, "extracted_grades"), [])
+  extraction_text = row_get(row, "extraction_text")
+  document_id = row_get(row, "id")
   try:
-    extracted_grades = json.loads(row["extracted_grades"] or "[]")
-  except (json.JSONDecodeError, KeyError):
+    if not isinstance(extracted_grades, list):
+      extracted_grades = []
+  except TypeError:
     extracted_grades = []
-  extraction_text = row["extraction_text"] if "extraction_text" in row.keys() else None
   return {
-    "id": row["id"],
-    "userId": row["user_id"],
-    "name": row["original_name"],
-    "storedName": row["stored_name"],
-    "contentType": row["content_type"],
-    "size": row["size_bytes"],
-    "status": row["status"],
-    "uploadedAt": row["uploaded_at"],
-    "url": f"/api/documents/{row['id']}/download",
-    "extractionStatus": row["extraction_status"] if "extraction_status" in row.keys() else "pending",
+    "id": document_id,
+    "userId": row_get(row, "user_id"),
+    "name": row_get(row, "original_name"),
+    "storedName": row_get(row, "stored_name"),
+    "contentType": row_get(row, "content_type"),
+    "size": row_get(row, "size_bytes"),
+    "status": row_get(row, "status"),
+    "uploadedAt": row_get(row, "uploaded_at"),
+    "url": f"/api/documents/{document_id}/download",
+    "extractionStatus": row_get(row, "extraction_status", "pending"),
     "extractedGrades": extracted_grades,
     "extractedTextPreview": (extraction_text or "")[:500],
-    "extractionError": row["extraction_error"] if "extraction_error" in row.keys() else None,
-    "extractedAt": row["extracted_at"] if "extracted_at" in row.keys() else None,
+    "extractionError": row_get(row, "extraction_error"),
+    "extractedAt": row_get(row, "extracted_at"),
   }
 
 
@@ -286,6 +342,103 @@ def get_gemini_api_key() -> str | None:
 
 def get_openai_api_key() -> str | None:
   return get_secret("OPENAI_API_KEY", "replace_with_your_openai_api_key")
+
+
+def get_supabase_url() -> str | None:
+  value = get_secret("SUPABASE_URL", "replace_with_your_supabase_url")
+  return value.rstrip("/") if value else None
+
+
+def get_supabase_service_key() -> str | None:
+  return get_secret(
+    "SUPABASE_SERVICE_ROLE_KEY",
+    "replace_with_your_supabase_service_role_key",
+  ) or get_secret("SUPABASE_SERVICE_KEY", "replace_with_your_supabase_service_role_key")
+
+
+def supabase_configured() -> bool:
+  return bool(get_supabase_url() and get_supabase_service_key())
+
+
+def get_data_backend() -> str:
+  requested = os.getenv("DATA_BACKEND", "auto").strip().lower()
+  if requested == "sqlite":
+    return "sqlite"
+  if requested == "supabase" and not supabase_configured():
+    return "sqlite"
+  return "supabase" if supabase_configured() else "sqlite"
+
+
+def using_supabase() -> bool:
+  return get_data_backend() == "supabase"
+
+
+def get_supabase_storage_bucket() -> str:
+  return (os.getenv("SUPABASE_STORAGE_BUCKET") or DEFAULT_SUPABASE_STORAGE_BUCKET).strip() or DEFAULT_SUPABASE_STORAGE_BUCKET
+
+
+def supabase_headers(content_type: str | None = "application/json", prefer: str | None = None) -> dict[str, str]:
+  key = get_supabase_service_key()
+  if not key:
+    raise RuntimeError("SUPABASE_SERVICE_ROLE_KEY is not configured.")
+  headers = {
+    "apikey": key,
+    "Authorization": f"Bearer {key}",
+    "Accept": "application/json",
+  }
+  if content_type:
+    headers["Content-Type"] = content_type
+  if prefer:
+    headers["Prefer"] = prefer
+  return headers
+
+
+def supabase_request(
+  method: str,
+  path: str,
+  body: Any = None,
+  *,
+  content_type: str | None = "application/json",
+  prefer: str | None = None,
+  extra_headers: dict[str, str] | None = None,
+  raw: bool = False,
+  timeout: int = 30,
+) -> Any:
+  base_url = get_supabase_url()
+  if not base_url:
+    raise RuntimeError("SUPABASE_URL is not configured.")
+  data = None
+  if body is not None:
+    data = body if isinstance(body, bytes) else json.dumps(body, ensure_ascii=False).encode("utf-8")
+  headers = supabase_headers(content_type, prefer)
+  if extra_headers:
+    headers.update(extra_headers)
+  request = urlrequest.Request(
+    f"{base_url}{path}",
+    data=data,
+    method=method,
+    headers=headers,
+  )
+  try:
+    with urlrequest.urlopen(request, timeout=timeout) as response:
+      payload = response.read()
+      if raw:
+        return payload, dict(response.headers)
+      if not payload:
+        return None
+      return json.loads(payload.decode("utf-8"))
+  except urlerror.HTTPError as exc:
+    details = exc.read().decode("utf-8", errors="ignore")
+    raise RuntimeError(f"Supabase {method} {path} failed with {exc.code}: {details}") from exc
+
+
+def supabase_table_path(table: str, query: str = "") -> str:
+  suffix = f"?{query}" if query else ""
+  return f"/rest/v1/{table}{suffix}"
+
+
+def supabase_filter_value(value: str) -> str:
+  return quote(value, safe="")
 
 
 def get_ai_provider() -> str:
@@ -410,7 +563,138 @@ def parse_extracted_grades(text: str) -> list[dict[str, Any]]:
   return sorted(extracted.values(), key=lambda item: item["subject"])
 
 
-def update_document_extraction(document_id: str, status: str, text: str = "", grades: list[dict[str, Any]] | None = None, error: str | None = None) -> sqlite3.Row:
+def encoded_storage_path(storage_path: str) -> str:
+  return "/".join(quote(part, safe="") for part in storage_path.split("/") if part)
+
+
+def upload_supabase_storage_object(storage_path: str, content: bytes, content_type: str | None) -> None:
+  supabase_request(
+    "POST",
+    f"/storage/v1/object/{get_supabase_storage_bucket()}/{encoded_storage_path(storage_path)}",
+    content,
+    content_type=content_type or "application/octet-stream",
+    extra_headers={"x-upsert": "true"},
+    raw=True,
+    timeout=60,
+  )
+
+
+def download_supabase_storage_object(storage_path: str) -> bytes:
+  content, _headers = supabase_request(
+    "GET",
+    f"/storage/v1/object/{get_supabase_storage_bucket()}/{encoded_storage_path(storage_path)}",
+    content_type=None,
+    raw=True,
+    timeout=60,
+  )
+  return content
+
+
+def delete_supabase_storage_object(storage_path: str) -> None:
+  try:
+    supabase_request(
+      "DELETE",
+      f"/storage/v1/object/{get_supabase_storage_bucket()}/{encoded_storage_path(storage_path)}",
+      content_type=None,
+      raw=True,
+      timeout=30,
+    )
+  except Exception:
+    pass
+
+
+def insert_document_record(record: dict[str, Any]) -> sqlite3.Row | dict[str, Any]:
+  if using_supabase():
+    rows = supabase_request(
+      "POST",
+      supabase_table_path("runtime_uploaded_documents"),
+      record,
+      prefer="return=representation",
+    )
+    return rows[0] if rows else record
+
+  with get_db_connection() as connection:
+    connection.execute(
+      """
+      insert into uploaded_documents (
+        id, user_id, original_name, stored_name, content_type, size_bytes, storage_path, status
+      )
+      values (?, ?, ?, ?, ?, ?, ?, ?)
+      """,
+      (
+        record["id"],
+        record["user_id"],
+        record["original_name"],
+        record["stored_name"],
+        record.get("content_type"),
+        record["size_bytes"],
+        record["storage_path"],
+        record.get("status") or "Uploaded - OCR pending",
+      ),
+    )
+    connection.commit()
+    return connection.execute("select * from uploaded_documents where id = ?", (record["id"],)).fetchone()
+
+
+def get_document_record(document_id: str) -> sqlite3.Row | dict[str, Any] | None:
+  if using_supabase():
+    rows = supabase_request(
+      "GET",
+      supabase_table_path(
+        "runtime_uploaded_documents",
+        f"id=eq.{supabase_filter_value(document_id)}&select=*&limit=1",
+      ),
+    )
+    return rows[0] if rows else None
+
+  with get_db_connection() as connection:
+    return connection.execute("select * from uploaded_documents where id = ?", (document_id,)).fetchone()
+
+
+def list_document_records(user_id: str) -> list[sqlite3.Row | dict[str, Any]]:
+  if using_supabase():
+    rows = supabase_request(
+      "GET",
+      supabase_table_path(
+        "runtime_uploaded_documents",
+        f"user_id=eq.{supabase_filter_value(user_id)}&select=*&order=uploaded_at.desc",
+      ),
+    )
+    return rows or []
+
+  with get_db_connection() as connection:
+    return connection.execute(
+      """
+      select *
+      from uploaded_documents
+      where user_id = ?
+      order by uploaded_at desc
+      """,
+      (user_id,),
+    ).fetchall()
+
+
+def delete_document_record(document_id: str) -> sqlite3.Row | dict[str, Any] | None:
+  if using_supabase():
+    rows = supabase_request(
+      "DELETE",
+      supabase_table_path(
+        "runtime_uploaded_documents",
+        f"id=eq.{supabase_filter_value(document_id)}&select=*",
+      ),
+      prefer="return=representation",
+    )
+    return rows[0] if rows else None
+
+  with get_db_connection() as connection:
+    row = connection.execute("select * from uploaded_documents where id = ?", (document_id,)).fetchone()
+    if row:
+      connection.execute("delete from uploaded_documents where id = ?", (document_id,))
+      connection.commit()
+    return row
+
+
+def update_document_extraction(document_id: str, status: str, text: str = "", grades: list[dict[str, Any]] | None = None, error: str | None = None) -> sqlite3.Row | dict[str, Any]:
   final_status = "Uploaded - OCR extracted" if grades else "Uploaded - OCR checked"
   if status == "failed":
     final_status = "Uploaded - OCR failed"
@@ -418,6 +702,27 @@ def update_document_extraction(document_id: str, status: str, text: str = "", gr
     final_status = "Uploaded - no readable text detected"
   elif status == "no_grades":
     final_status = "Uploaded - no grades detected"
+
+  if using_supabase():
+    rows = supabase_request(
+      "PATCH",
+      supabase_table_path(
+        "runtime_uploaded_documents",
+        f"id=eq.{supabase_filter_value(document_id)}&select=*",
+      ),
+      {
+        "status": final_status,
+        "extraction_status": status,
+        "extraction_text": text[:20000],
+        "extracted_grades": grades or [],
+        "extraction_error": error,
+        "extracted_at": now_iso(),
+      },
+      prefer="return=representation",
+    )
+    if not rows:
+      raise HTTPException(status_code=404, detail="Document not found.")
+    return rows[0]
 
   with get_db_connection() as connection:
     connection.execute(
@@ -437,25 +742,36 @@ def update_document_extraction(document_id: str, status: str, text: str = "", gr
     return connection.execute("select * from uploaded_documents where id = ?", (document_id,)).fetchone()
 
 
-def extract_document(document_id: str) -> sqlite3.Row:
-  with get_db_connection() as connection:
-    row = connection.execute("select * from uploaded_documents where id = ?", (document_id,)).fetchone()
+def extract_document(document_id: str) -> sqlite3.Row | dict[str, Any]:
+  row = get_document_record(document_id)
   if not row:
     raise HTTPException(status_code=404, detail="Document not found.")
 
-  path = ROOT / row["storage_path"]
+  temporary_path: Path | None = None
+  if using_supabase():
+    try:
+      suffix = Path(str(row_get(row, "original_name") or row_get(row, "stored_name") or "document")).suffix
+      with tempfile.NamedTemporaryFile(delete=False, suffix=suffix) as temp_file:
+        temp_file.write(download_supabase_storage_object(str(row_get(row, "storage_path"))))
+        temporary_path = Path(temp_file.name)
+      path = temporary_path
+    except Exception as exc:
+      return update_document_extraction(document_id, "failed", error=str(exc))
+  else:
+    path = ROOT / str(row_get(row, "storage_path"))
+
   if not path.exists():
     return update_document_extraction(document_id, "failed", error="Stored document file is missing.")
 
   try:
     local_error = None
     try:
-      local_text = extract_text_locally(path, row["content_type"])
+      local_text = extract_text_locally(path, row_get(row, "content_type"))
     except Exception as exc:
       local_text = ""
       local_error = str(exc)
-    if should_use_vision_ocr(path, row["content_type"], local_text):
-      text = extract_text_with_gemini_ocr(path, row["content_type"])
+    if should_use_vision_ocr(path, row_get(row, "content_type"), local_text):
+      text = extract_text_with_gemini_ocr(path, row_get(row, "content_type"))
     else:
       if local_error:
         raise RuntimeError(local_error)
@@ -466,6 +782,9 @@ def extract_document(document_id: str) -> sqlite3.Row:
     return update_document_extraction(document_id, "extracted" if grades else "no_grades", text=text, grades=grades)
   except Exception as exc:
     return update_document_extraction(document_id, "failed", error=str(exc))
+  finally:
+    if temporary_path:
+      temporary_path.unlink(missing_ok=True)
 
 
 def compact_match(match: dict[str, Any]) -> dict[str, Any]:
@@ -605,6 +924,20 @@ def build_request_payload(payload: GuidanceRequest) -> dict[str, Any]:
 
 def save_recommendation_run(payload: GuidanceRequest, request_payload: dict[str, Any]) -> None:
   try:
+    if using_supabase():
+      supabase_request(
+        "POST",
+        supabase_table_path("runtime_recommendation_runs"),
+        {
+          "mode": request_payload.get("task", {}).get("mode", "guidance"),
+          "question": request_payload.get("task", {}).get("question") or None,
+          "profile_name": (request_payload.get("profile") or {}).get("name"),
+          "payload": request_payload,
+        },
+        prefer="return=minimal",
+      )
+      return
+
     with get_db_connection() as connection:
       connection.execute(
         """
@@ -644,6 +977,18 @@ def verify_password(password: str, user: dict[str, Any]) -> bool:
 
 
 def load_state_payload(state_key: str, fallback: Any = None) -> Any:
+  if using_supabase():
+    rows = supabase_request(
+      "GET",
+      supabase_table_path(
+        "runtime_app_state",
+        f"state_key=eq.{supabase_filter_value(state_key)}&select=payload&limit=1",
+      ),
+    )
+    if not rows:
+      return fallback
+    return parse_jsonish(rows[0].get("payload"), fallback)
+
   with get_db_connection() as connection:
     row = connection.execute("select payload from app_state where state_key = ?", (state_key,)).fetchone()
   if not row:
@@ -655,6 +1000,19 @@ def load_state_payload(state_key: str, fallback: Any = None) -> Any:
 
 
 def save_state_payload(state_key: str, payload: Any) -> None:
+  if using_supabase():
+    supabase_request(
+      "POST",
+      supabase_table_path("runtime_app_state", "on_conflict=state_key"),
+      {
+        "state_key": state_key,
+        "payload": payload,
+        "updated_at": now_iso(),
+      },
+      prefer="resolution=merge-duplicates,return=minimal",
+    )
+    return
+
   serialized = json.dumps(payload, ensure_ascii=False)
   with get_db_connection() as connection:
     connection.execute(
@@ -668,6 +1026,41 @@ def save_state_payload(state_key: str, payload: Any) -> None:
       (state_key, serialized),
     )
     connection.commit()
+
+
+def list_state_payloads() -> list[dict[str, Any]]:
+  if using_supabase():
+    rows = supabase_request(
+      "GET",
+      supabase_table_path("runtime_app_state", "select=state_key,payload,updated_at&order=state_key.asc"),
+    )
+    return rows or []
+
+  with get_db_connection() as connection:
+    rows = connection.execute("select state_key, payload, updated_at from app_state").fetchall()
+  return [
+    {
+      "state_key": row["state_key"],
+      "payload": parse_jsonish(row["payload"], {}),
+      "updated_at": row["updated_at"],
+    }
+    for row in rows
+  ]
+
+
+def delete_state_payload(state_key: str) -> int:
+  if using_supabase():
+    rows = supabase_request(
+      "DELETE",
+      supabase_table_path("runtime_app_state", f"state_key=eq.{supabase_filter_value(state_key)}&select=state_key"),
+      prefer="return=representation",
+    )
+    return len(rows or [])
+
+  with get_db_connection() as connection:
+    cursor = connection.execute("delete from app_state where state_key = ?", (state_key,))
+    connection.commit()
+  return cursor.rowcount
 
 
 def now_iso() -> str:
@@ -816,16 +1209,39 @@ def get_bearer_token(authorization: str | None) -> str:
   return token
 
 
-def require_current_user(authorization: str | None) -> dict[str, Any]:
-  token = get_bearer_token(authorization)
+def get_session_user_id(token: str) -> str | None:
+  if using_supabase():
+    rows = supabase_request(
+      "GET",
+      supabase_table_path(
+        "runtime_auth_sessions",
+        f"token=eq.{supabase_filter_value(token)}&select=user_id&limit=1",
+      ),
+    )
+    if not rows:
+      return None
+    supabase_request(
+      "PATCH",
+      supabase_table_path("runtime_auth_sessions", f"token=eq.{supabase_filter_value(token)}"),
+      {"last_seen_at": now_iso()},
+      prefer="return=minimal",
+    )
+    return rows[0].get("user_id")
+
   with get_db_connection() as connection:
     row = connection.execute("select user_id from auth_sessions where token = ?", (token,)).fetchone()
     if row:
       connection.execute("update auth_sessions set last_seen_at = current_timestamp where token = ?", (token,))
       connection.commit()
-  if not row:
+  return row["user_id"] if row else None
+
+
+def require_current_user(authorization: str | None) -> dict[str, Any]:
+  token = get_bearer_token(authorization)
+  user_id = get_session_user_id(token)
+  if not user_id:
     raise HTTPException(status_code=401, detail="Session expired. Please login again.")
-  user = next((item for item in get_auth_users_internal() if item["id"] == row["user_id"]), None)
+  user = next((item for item in get_auth_users_internal() if item["id"] == user_id), None)
   if not user or user.get("status") == "suspended":
     raise HTTPException(status_code=403, detail="Account is not active.")
   return user
@@ -840,10 +1256,33 @@ def require_admin_user(authorization: str | None) -> dict[str, Any]:
 
 def create_auth_session(user_id: str) -> str:
   token = secrets.token_urlsafe(32)
+  if using_supabase():
+    supabase_request(
+      "POST",
+      supabase_table_path("runtime_auth_sessions"),
+      {"token": token, "user_id": user_id},
+      prefer="return=minimal",
+    )
+    return token
+
   with get_db_connection() as connection:
     connection.execute("insert into auth_sessions (token, user_id) values (?, ?)", (token, user_id))
     connection.commit()
   return token
+
+
+def delete_auth_session(token: str) -> None:
+  if using_supabase():
+    supabase_request(
+      "DELETE",
+      supabase_table_path("runtime_auth_sessions", f"token=eq.{supabase_filter_value(token)}"),
+      prefer="return=minimal",
+    )
+    return
+
+  with get_db_connection() as connection:
+    connection.execute("delete from auth_sessions where token = ?", (token,))
+    connection.commit()
 
 
 def sanitize_database_state_payload(state_key: str, payload: Any) -> Any:
@@ -856,26 +1295,26 @@ def sanitize_database_state_payload(state_key: str, payload: Any) -> Any:
   return {**payload, "users": cleaned_users}
 
 
-seed_bootstrap_admin()
+STARTUP_PERSISTENCE_ERROR = None
+try:
+  seed_bootstrap_admin()
+except Exception as exc:
+  STARTUP_PERSISTENCE_ERROR = str(exc)
 
 
 @app.get("/api/db/state")
 def get_database_state() -> dict[str, Any]:
-  with get_db_connection() as connection:
-    rows = connection.execute("select state_key, payload, updated_at from app_state").fetchall()
   state = {}
   updated_at = {}
-  for row in rows:
-    try:
-      if row["state_key"] == "auth_users":
-        continue
-      state[row["state_key"]] = json.loads(row["payload"])
-      updated_at[row["state_key"]] = row["updated_at"]
-    except json.JSONDecodeError:
-      state[row["state_key"]] = None
+  for row in list_state_payloads():
+    state_key = row.get("state_key")
+    if state_key == "auth_users":
+      continue
+    state[state_key] = parse_jsonish(row.get("payload"), row.get("payload"))
+    updated_at[state_key] = row.get("updated_at")
   return {
     "ok": True,
-    "database": str(DB_PATH),
+    "database": get_data_backend(),
     "state": state,
     "updated_at": updated_at,
   }
@@ -891,19 +1330,7 @@ async def put_database_state(state_key: str, request: Request) -> dict[str, Any]
   body = await request.json()
   payload = body.get("payload", body) if isinstance(body, dict) else body
   payload = sanitize_database_state_payload(safe_key, payload)
-  serialized = json.dumps(payload, ensure_ascii=False)
-  with get_db_connection() as connection:
-    connection.execute(
-      """
-      insert into app_state (state_key, payload, updated_at)
-      values (?, ?, current_timestamp)
-      on conflict(state_key) do update set
-        payload = excluded.payload,
-        updated_at = current_timestamp
-      """,
-      (safe_key, serialized),
-    )
-    connection.commit()
+  save_state_payload(safe_key, payload)
   return {"ok": True, "state_key": safe_key}
 
 
@@ -912,10 +1339,8 @@ def delete_database_state(state_key: str) -> dict[str, Any]:
   safe_key = re.sub(r"[^a-zA-Z0-9_-]", "", state_key).strip()
   if not safe_key:
     return {"ok": False, "error": "Invalid state key"}
-  with get_db_connection() as connection:
-    cursor = connection.execute("delete from app_state where state_key = ?", (safe_key,))
-    connection.commit()
-  return {"ok": True, "state_key": safe_key, "deleted": cursor.rowcount}
+  deleted = delete_state_payload(safe_key)
+  return {"ok": True, "state_key": safe_key, "deleted": deleted}
 
 
 @app.get("/api/auth/bootstrap")
@@ -997,9 +1422,7 @@ def auth_me(authorization: str | None = Header(default=None)) -> dict[str, Any]:
 @app.post("/api/auth/logout")
 def auth_logout(authorization: str | None = Header(default=None)) -> dict[str, Any]:
   token = get_bearer_token(authorization)
-  with get_db_connection() as connection:
-    connection.execute("delete from auth_sessions where token = ?", (token,))
-    connection.commit()
+  delete_auth_session(token)
   return {"ok": True}
 
 
@@ -1086,54 +1509,55 @@ async def upload_documents(user_id: str = Form(...), files: list[UploadFile] = F
   if not files:
     raise HTTPException(status_code=400, detail="No documents were uploaded.")
 
-  user_folder = UPLOAD_ROOT / safe_user_id
-  user_folder.mkdir(parents=True, exist_ok=True)
   saved_documents = []
 
   for upload in files:
     original_name = sanitize_upload_filename(upload.filename or "document")
     extension = Path(original_name).suffix.lower()
     stored_name = f"{uuid.uuid4().hex}{extension}"
-    destination = user_folder / stored_name
+    content_type = upload.content_type
+    chunks: list[bytes] = []
     size = 0
 
     try:
-      with destination.open("wb") as output:
-        while True:
-          chunk = await upload.read(1024 * 1024)
-          if not chunk:
-            break
-          size += len(chunk)
-          if size > MAX_UPLOAD_BYTES:
-            output.close()
-            destination.unlink(missing_ok=True)
-            raise HTTPException(status_code=413, detail=f"{original_name} is larger than 10 MB.")
-          output.write(chunk)
+      while True:
+        chunk = await upload.read(1024 * 1024)
+        if not chunk:
+          break
+        size += len(chunk)
+        if size > MAX_UPLOAD_BYTES:
+          raise HTTPException(status_code=413, detail=f"{original_name} is larger than 10 MB.")
+        chunks.append(chunk)
     finally:
       await upload.close()
 
     document_id = uuid.uuid4().hex
-    relative_path = destination.relative_to(ROOT).as_posix()
-    with get_db_connection() as connection:
-      connection.execute(
-        """
-        insert into uploaded_documents (
-          id, user_id, original_name, stored_name, content_type, size_bytes, storage_path, status
-        )
-        values (?, ?, ?, ?, ?, ?, ?, ?)
-        """,
-        (
-          document_id,
-          user_id,
-          original_name,
-          stored_name,
-          upload.content_type,
-          size,
-          relative_path,
-          "Uploaded - OCR pending",
-        ),
-      )
-      connection.commit()
+    content = b"".join(chunks)
+    if using_supabase():
+      storage_path = f"{safe_user_id}/{stored_name}"
+      upload_supabase_storage_object(storage_path, content, content_type)
+    else:
+      user_folder = UPLOAD_ROOT / safe_user_id
+      user_folder.mkdir(parents=True, exist_ok=True)
+      destination = user_folder / stored_name
+      with destination.open("wb") as output:
+        output.write(content)
+      storage_path = destination.relative_to(ROOT).as_posix()
+
+    insert_document_record(
+      {
+        "id": document_id,
+        "user_id": user_id,
+        "original_name": original_name,
+        "stored_name": stored_name,
+        "content_type": content_type,
+        "size_bytes": size,
+        "storage_path": storage_path,
+        "status": "Uploaded - OCR pending",
+        "extraction_status": "pending",
+        "extracted_grades": [],
+      }
+    )
     row = extract_document(document_id)
     saved_documents.append(document_response(row))
 
@@ -1142,16 +1566,7 @@ async def upload_documents(user_id: str = Form(...), files: list[UploadFile] = F
 
 @app.get("/api/documents/user/{user_id}")
 def list_user_documents(user_id: str) -> dict[str, Any]:
-  with get_db_connection() as connection:
-    rows = connection.execute(
-      """
-      select *
-      from uploaded_documents
-      where user_id = ?
-      order by uploaded_at desc
-      """,
-      (user_id,),
-    ).fetchall()
+  rows = list_document_records(user_id)
   return {"ok": True, "documents": [document_response(row) for row in rows]}
 
 
@@ -1163,28 +1578,37 @@ def rerun_document_extraction(document_id: str) -> dict[str, Any]:
 
 
 @app.get("/api/documents/{document_id}/download")
-def download_document(document_id: str) -> FileResponse:
+def download_document(document_id: str) -> Response:
   safe_document_id = sanitize_storage_segment(document_id)
-  with get_db_connection() as connection:
-    row = connection.execute("select * from uploaded_documents where id = ?", (safe_document_id,)).fetchone()
+  row = get_document_record(safe_document_id)
   if not row:
     raise HTTPException(status_code=404, detail="Document not found.")
-  path = ROOT / row["storage_path"]
+  if using_supabase():
+    content = download_supabase_storage_object(str(row_get(row, "storage_path")))
+    filename = sanitize_upload_filename(str(row_get(row, "original_name") or "document"))
+    return Response(
+      content=content,
+      media_type=row_get(row, "content_type") or "application/octet-stream",
+      headers={"Content-Disposition": f'attachment; filename="{filename}"'},
+    )
+
+  path = ROOT / str(row_get(row, "storage_path"))
   if not path.exists():
     raise HTTPException(status_code=404, detail="Stored document file is missing.")
-  return FileResponse(path, media_type=row["content_type"] or "application/octet-stream", filename=row["original_name"])
+  return FileResponse(path, media_type=row_get(row, "content_type") or "application/octet-stream", filename=row_get(row, "original_name"))
 
 
 @app.delete("/api/documents/{document_id}")
 def delete_document(document_id: str) -> dict[str, Any]:
   safe_document_id = sanitize_storage_segment(document_id)
-  with get_db_connection() as connection:
-    row = connection.execute("select * from uploaded_documents where id = ?", (safe_document_id,)).fetchone()
-    if not row:
-      return {"ok": True, "deleted": 0}
-    connection.execute("delete from uploaded_documents where id = ?", (safe_document_id,))
-    connection.commit()
-  path = ROOT / row["storage_path"]
+  row = delete_document_record(safe_document_id)
+  if not row:
+    return {"ok": True, "deleted": 0}
+  if using_supabase():
+    delete_supabase_storage_object(str(row_get(row, "storage_path")))
+    return {"ok": True, "deleted": 1}
+
+  path = ROOT / str(row_get(row, "storage_path"))
   if path.exists() and UPLOAD_ROOT in path.resolve().parents:
     path.unlink(missing_ok=True)
   return {"ok": True, "deleted": 1}
@@ -1192,61 +1616,104 @@ def delete_document(document_id: str) -> dict[str, Any]:
 
 @app.get("/api/db/diagnostics")
 def database_diagnostics() -> dict[str, Any]:
-  with get_db_connection() as connection:
-    state_rows = connection.execute("select state_key, payload, updated_at from app_state").fetchall()
-    run_count = connection.execute("select count(*) as total from recommendation_runs").fetchone()["total"]
-    document_count = connection.execute("select count(*) as total from uploaded_documents").fetchone()["total"]
-    document_users = connection.execute(
-      """
-      select user_id, count(*) as total
-      from uploaded_documents
-      group by user_id
-      order by total desc, user_id
-      limit 10
-      """
-    ).fetchall()
-    extraction_statuses = connection.execute(
-      """
-      select extraction_status, count(*) as total
-      from uploaded_documents
-      group by extraction_status
-      order by total desc, extraction_status
-      """
-    ).fetchall()
-    latest_runs = connection.execute(
-      """
-      select mode, question, profile_name, created_at
-      from recommendation_runs
-      order by id desc
-      limit 5
-      """
-    ).fetchall()
+  if using_supabase():
+    state_rows = list_state_payloads()
+    document_rows = supabase_request(
+      "GET",
+      supabase_table_path("runtime_uploaded_documents", "select=id,user_id,extraction_status&limit=10000"),
+    ) or []
+    run_rows = supabase_request(
+      "GET",
+      supabase_table_path("runtime_recommendation_runs", "select=mode,question,profile_name,created_at&order=created_at.desc&limit=5"),
+    ) or []
+    run_count_rows = supabase_request(
+      "GET",
+      supabase_table_path("runtime_recommendation_runs", "select=id&limit=10000"),
+    ) or []
+    user_counts: dict[str, int] = {}
+    status_counts: dict[str, int] = {}
+    for document in document_rows:
+      user_counts[str(document.get("user_id") or "unknown")] = user_counts.get(str(document.get("user_id") or "unknown"), 0) + 1
+      status = str(document.get("extraction_status") or "pending")
+      status_counts[status] = status_counts.get(status, 0) + 1
+    document_users = [{"user_id": key, "total": value} for key, value in sorted(user_counts.items(), key=lambda item: (-item[1], item[0]))[:10]]
+    extraction_statuses = [{"extraction_status": key, "total": value} for key, value in sorted(status_counts.items(), key=lambda item: (-item[1], item[0]))]
+    run_count = len(run_count_rows)
+    document_count = len(document_rows)
+    latest_runs = run_rows
+  else:
+    with get_db_connection() as connection:
+      state_rows = [
+        {
+          "state_key": row["state_key"],
+          "payload": parse_jsonish(row["payload"], {}),
+          "updated_at": row["updated_at"],
+        }
+        for row in connection.execute("select state_key, payload, updated_at from app_state").fetchall()
+      ]
+      run_count = connection.execute("select count(*) as total from recommendation_runs").fetchone()["total"]
+      document_count = connection.execute("select count(*) as total from uploaded_documents").fetchone()["total"]
+      document_users = [
+        dict(row)
+        for row in connection.execute(
+          """
+          select user_id, count(*) as total
+          from uploaded_documents
+          group by user_id
+          order by total desc, user_id
+          limit 10
+          """
+        ).fetchall()
+      ]
+      extraction_statuses = [
+        dict(row)
+        for row in connection.execute(
+          """
+          select extraction_status, count(*) as total
+          from uploaded_documents
+          group by extraction_status
+          order by total desc, extraction_status
+          """
+        ).fetchall()
+      ]
+      latest_runs = [
+        dict(row)
+        for row in connection.execute(
+          """
+          select mode, question, profile_name, created_at
+          from recommendation_runs
+          order by id desc
+          limit 5
+          """
+        ).fetchall()
+      ]
   state_counts = {}
   for row in state_rows:
-    try:
-      payload = json.loads(row["payload"])
-    except json.JSONDecodeError:
-      payload = {}
-    if row["state_key"] == "auth_users":
-      state_counts[row["state_key"]] = len(payload.get("users", []))
-    elif row["state_key"] == "review_state":
-      state_counts[row["state_key"]] = {
+    payload = parse_jsonish(row.get("payload"), {})
+    state_key = row.get("state_key")
+    if state_key == "auth_users":
+      state_counts[state_key] = len(payload.get("users", [])) if isinstance(payload, dict) else 0
+    elif state_key == "review_state" and isinstance(payload, dict):
+      state_counts[state_key] = {
         "programmes": len(payload.get("programmeStatuses", {})),
         "edits": len(payload.get("programmeEdits", {})),
         "gaps": len(payload.get("gapStatuses", {})),
       }
     else:
-      state_counts[row["state_key"]] = 1
+      state_counts[state_key] = 1
   return {
     "ok": True,
-    "database": str(DB_PATH),
-    "state_keys": [row["state_key"] for row in state_rows],
+    "database": get_data_backend(),
+    "supabase_configured": supabase_configured(),
+    "storage_bucket": get_supabase_storage_bucket() if using_supabase() else None,
+    "startup_persistence_error": STARTUP_PERSISTENCE_ERROR,
+    "state_keys": [row.get("state_key") for row in state_rows],
     "state_counts": state_counts,
     "document_count": document_count,
-    "documents_by_user": [dict(row) for row in document_users],
-    "document_extraction_statuses": [dict(row) for row in extraction_statuses],
+    "documents_by_user": document_users,
+    "document_extraction_statuses": extraction_statuses,
     "recommendation_run_count": run_count,
-    "latest_runs": [dict(row) for row in latest_runs],
+    "latest_runs": latest_runs,
   }
 
 
@@ -1340,16 +1807,20 @@ def call_openai(payload: GuidanceRequest, request_payload: dict[str, Any]) -> di
 @app.get("/health")
 def health() -> dict[str, Any]:
   provider = get_ai_provider()
-  database_ready = check_sqlite_ready()
-  storage_ready = check_upload_storage_ready()
+  database_ready = check_data_backend_ready()
+  storage_ready = check_document_storage_ready()
   return {
-    "ok": database_ready and storage_ready,
+    "ok": database_ready and storage_ready and not STARTUP_PERSISTENCE_ERROR,
+    "data_backend": get_data_backend(),
     "provider": provider,
     "ai_configured": bool(get_gemini_api_key() if provider == "gemini" else get_openai_api_key()),
     "gemini_configured": bool(get_gemini_api_key()),
     "openai_configured": bool(get_openai_api_key()),
     "database_ready": database_ready,
     "storage_ready": storage_ready,
+    "supabase_configured": supabase_configured(),
+    "storage_bucket": get_supabase_storage_bucket() if using_supabase() else None,
+    "startup_persistence_error": STARTUP_PERSISTENCE_ERROR,
     "model": get_gemini_model_candidates()[0] if provider == "gemini" else os.getenv("OPENAI_MODEL", "gpt-5.2"),
   }
 

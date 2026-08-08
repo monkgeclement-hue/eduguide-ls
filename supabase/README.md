@@ -5,8 +5,17 @@ EduGuide LS now uses a normalized catalogue schema.
 Run order:
 
 1. `schema.sql`
-2. `seed.sql`
-3. `seed.normalized.sql`
+2. `runtime.sql`
+3. `seed.sql`
+4. `seed.normalized.sql`
+
+Hosted runtime persistence:
+
+- Run `runtime.sql` in the Supabase SQL editor.
+- In Render, set `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY`, and `SUPABASE_STORAGE_BUCKET=eduguide-documents`.
+- Keep the service role key server-side only. Do not put it in `data/supabase-config.js`.
+- The FastAPI server stores live accounts, sessions, admin review state, uploaded document metadata, and AI run history in the `runtime_*` tables.
+- Uploaded files are stored in the private `eduguide-documents` Storage bucket.
 
 Admin dashboard persistence:
 
