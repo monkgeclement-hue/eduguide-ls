@@ -128,6 +128,9 @@ let deploymentStatus = {
   diagnostics: null,
   error: ""
 };
+let serverAdminIntelligence = null;
+let adminIntelligenceLoading = false;
+let adminIntelligenceError = "";
 let databaseLoadedAuthUsers = false;
 let databaseLoadedReviewState = false;
 let aiChatLoadedFromServer = false;
@@ -527,7 +530,11 @@ function saveAuthUsers() {
 }
 
 function renderViewOnDemand(viewName) {
-  if (viewName === "admin") renderAdmin();
+  if (viewName === "admin") {
+    renderAdmin();
+    loadAdminUsers();
+    loadAdminIntelligence();
+  }
   if (viewName === "sources") renderSources();
   if (viewName === "results") renderResults();
   if (viewName === "ai") renderAiChatMessages();
@@ -4003,19 +4010,42 @@ function getAdminIntelligence() {
   };
 }
 
+function mergeAdminIntelligence(localData) {
+  if (!serverAdminIntelligence?.ok) return localData;
+  return {
+    ...localData,
+    studentsCount: Number(serverAdminIntelligence.studentsCount ?? localData.studentsCount),
+    activeAiUsers: Number(serverAdminIntelligence.activeAiUsers ?? localData.activeAiUsers),
+    topProgrammes: serverAdminIntelligence.topProgrammes?.length ? serverAdminIntelligence.topProgrammes : localData.topProgrammes,
+    missingWarnings: unique([...(serverAdminIntelligence.missingWarnings || []), ...localData.missingWarnings]),
+    blockedByMathScience: serverAdminIntelligence.blockedByMathScience?.length ? serverAdminIntelligence.blockedByMathScience : localData.blockedByMathScience,
+    ocrFailures: serverAdminIntelligence.ocrFailures?.length ? serverAdminIntelligence.ocrFailures : localData.ocrFailures,
+    newUsers: serverAdminIntelligence.newUsers?.length ? serverAdminIntelligence.newUsers : localData.newUsers,
+    recentQuestions: serverAdminIntelligence.recentQuestions || [],
+    generatedAt: serverAdminIntelligence.generatedAt,
+    database: serverAdminIntelligence.database
+  };
+}
+
 function renderAdminIntelligence() {
   const grid = qs("#admin-intelligence-grid");
   if (!grid) return;
-  const data = getAdminIntelligence();
+  const data = mergeAdminIntelligence(getAdminIntelligence());
   const summary = qs("#admin-intelligence-summary");
   if (summary) {
-    summary.textContent = `${data.studentsCount} student account${data.studentsCount === 1 ? "" : "s"} - ${data.activeAiUsers} used AI guidance`;
+    const source = serverAdminIntelligence?.ok ? `${data.database || "server"} live` : "browser snapshot";
+    const status = adminIntelligenceLoading ? "refreshing..." : adminIntelligenceError || source;
+    summary.textContent = `${data.studentsCount} student account${data.studentsCount === 1 ? "" : "s"} - ${data.activeAiUsers} used AI guidance - ${status}`;
   }
   const topProgrammes = data.topProgrammes.length
     ? data.topProgrammes
         .map((item) => {
+          const knownProgramme = findProgrammeById(item.programmeId);
+          const programmeName = knownProgramme?.name || item.programme?.name || item.programmeName || item.programme || item.name || "Programme";
+          const institution = knownProgramme?.institution || item.programme?.institution || item.institution || "Institution not captured";
           const totalSignals = (item.saved || 0) + (item.viewed || 0);
-          return `<li><strong>${escapeHtml(item.programme.name)}</strong><span>${escapeHtml(item.programme.institution)} - ${totalSignals} save/view signal${totalSignals === 1 ? "" : "s"}</span></li>`;
+          const aiMentions = item.aiMentions ? `, ${item.aiMentions} AI mention${item.aiMentions === 1 ? "" : "s"}` : "";
+          return `<li><strong>${escapeHtml(programmeName)}</strong><span>${escapeHtml(institution)} - ${totalSignals} save/view signal${totalSignals === 1 ? "" : "s"}${aiMentions}</span></li>`;
         })
         .join("")
     : `<li><strong>No programme demand yet</strong><span>Saved/viewed programmes will appear after students use results.</span></li>`;
@@ -4024,26 +4054,34 @@ function renderAdminIntelligence() {
     : `<li><strong>No urgent catalogue warnings</strong><span>Open gaps are currently quiet.</span></li>`;
   const blockedUsers = data.blockedByMathScience.length
     ? data.blockedByMathScience
-        .map((user) => {
+        .map((item) => {
+          const user = item.user || item;
           const status = getUserScienceStatus(user);
-          const reason = [
+          const reason = item.reason || [
             status.hasStrongMath ? null : "Math weak/missing",
             status.hasStrongScience ? null : "Science weak/missing"
           ].filter(Boolean).join(", ");
-          return `<li><strong>${escapeHtml(user.name)}</strong><span>${escapeHtml(reason || "Science gate needs review")} - ${escapeHtml(user.email)}</span></li>`;
+          return `<li><strong>${escapeHtml(user.name || "Student")}</strong><span>${escapeHtml(reason || "Science gate needs review")} - ${escapeHtml(user.email || user.id || "")}</span></li>`;
         })
         .join("")
     : `<li><strong>No Math/Science blockers detected</strong><span>Students with missing gates will appear here.</span></li>`;
   const uploadFailures = data.ocrFailures.length
-    ? data.ocrFailures.slice(0, 5).map(({ user, document }) => `<li><strong>${escapeHtml(document.name || "Document")}</strong><span>${escapeHtml(user.name)} - ${escapeHtml(document.extractionError || document.status || "OCR failed")}</span></li>`).join("")
+    ? data.ocrFailures.slice(0, 5).map((item) => {
+        const user = item.user || {};
+        const document = item.document || {};
+        return `<li><strong>${escapeHtml(item.documentName || document.name || "Document")}</strong><span>${escapeHtml(user.name || "Student")} - ${escapeHtml(item.error || document.extractionError || item.status || document.status || "OCR failed")}</span></li>`;
+      }).join("")
     : `<li><strong>No OCR failures</strong><span>Document extraction looks clear.</span></li>`;
   const newUsers = data.newUsers.length
-    ? data.newUsers.map((user) => `<li><strong>${escapeHtml(user.name)}</strong><span>${escapeHtml(user.email)} - ${escapeHtml(user.district || "district missing")}</span></li>`).join("")
+    ? data.newUsers.map((user) => `<li><strong>${escapeHtml(user.name || "Student")}</strong><span>${escapeHtml(user.email || user.id || "")} - ${escapeHtml(user.district || "district missing")}</span></li>`).join("")
     : `<li><strong>No new user alerts</strong><span>All visible student accounts are reviewed.</span></li>`;
+  const recentQuestions = data.recentQuestions?.length
+    ? data.recentQuestions.slice(0, 5).map((item) => `<li><strong>${escapeHtml(item.question || "AI guidance")}</strong><span>${escapeHtml(item.profileName || "Student")} - ${escapeHtml(formatStatus(item.mode || "guidance"))}</span></li>`).join("")
+    : `<li><strong>No AI questions yet</strong><span>Recent guidance requests will appear here.</span></li>`;
 
   grid.innerHTML = `
     <article class="admin-insight-card">
-      <div><i data-lucide="trending-up"></i><strong>Most saved/viewed programmes</strong></div>
+      <div><i data-lucide="trending-up"></i><strong>Most searched/saved programmes</strong></div>
       <ul>${topProgrammes}</ul>
     </article>
     <article class="admin-insight-card">
@@ -4061,6 +4099,10 @@ function renderAdminIntelligence() {
     <article class="admin-insight-card">
       <div><i data-lucide="user-round-plus"></i><strong>New user alerts</strong></div>
       <ul>${newUsers}</ul>
+    </article>
+    <article class="admin-insight-card">
+      <div><i data-lucide="message-circle-question"></i><strong>Recent AI questions</strong></div>
+      <ul>${recentQuestions}</ul>
     </article>
   `;
 }
@@ -4450,6 +4492,25 @@ function renderAdminSources() {
     : `<article class="admin-empty"><h4>No sources match the filters.</h4><p>Try another institution.</p></article>`;
 }
 
+async function loadAdminIntelligence() {
+  if (!authToken || !isAdmin() || adminIntelligenceLoading) return;
+  adminIntelligenceLoading = true;
+  adminIntelligenceError = "";
+  renderAdminIntelligence();
+  try {
+    const response = await fetch("/api/admin/intelligence", { headers: getAuthHeaders({ Accept: "application/json" }) });
+    const data = await response.json().catch(() => ({}));
+    if (!response.ok || !data.ok) throw new Error(data.detail || "Unable to load admin intelligence");
+    serverAdminIntelligence = data;
+  } catch (error) {
+    adminIntelligenceError = error.message || "Admin intelligence is using browser snapshot";
+  } finally {
+    adminIntelligenceLoading = false;
+    renderAdminIntelligence();
+    if (window.lucide) window.lucide.createIcons();
+  }
+}
+
 async function loadAdminUsers() {
   if (!authToken || !isAdmin()) return;
   try {
@@ -4461,6 +4522,7 @@ async function loadAdminUsers() {
     renderAdminUsers();
     renderAdminMetrics();
     renderAdminDetail();
+    loadAdminIntelligence();
     if (window.lucide) window.lucide.createIcons();
   } catch (error) {
     lastPersistenceMessage = error.message || "Could not load users";

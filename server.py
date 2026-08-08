@@ -2039,10 +2039,232 @@ def auth_update_me(payload: AuthProfileRequest, authorization: str | None = Head
   return {"ok": True, "user": public_user(user)}
 
 
+def admin_public_user_summary(user: dict[str, Any]) -> dict[str, Any]:
+  return {
+    "id": user.get("id"),
+    "name": user.get("name"),
+    "email": user.get("email"),
+    "role": user.get("role"),
+    "status": user.get("status"),
+    "district": user.get("district"),
+    "createdAt": user.get("createdAt"),
+    "reviewedAt": user.get("reviewedAt"),
+    "lastActiveAt": user.get("lastActiveAt"),
+    "lastActivity": user.get("lastActivity"),
+  }
+
+
+def admin_grade_points(grade: Any) -> int:
+  return {"A*": 8, "A": 7, "B": 6, "C": 5, "D": 4, "E": 3, "F": 2, "G": 1, "X": 0, "Z": 0}.get(str(grade or "").upper(), 0)
+
+
+def admin_grade_meets(grade: Any, minimum: str = "D") -> bool:
+  return admin_grade_points(grade) >= admin_grade_points(minimum)
+
+
+def admin_student_science_status(user: dict[str, Any]) -> dict[str, Any]:
+  grades = user.get("grades") if isinstance(user.get("grades"), dict) else {}
+  science_codes = ["PSCI", "BIO", "PHY", "CHEM", "AGR"]
+  entered_science = [code for code in science_codes if grades.get(code)]
+  return {
+    "hasMath": bool(grades.get("MATH")),
+    "hasStrongMath": admin_grade_meets(grades.get("MATH")),
+    "hasScience": bool(entered_science),
+    "hasStrongScience": any(admin_grade_meets(grades.get(code)) for code in entered_science),
+    "scienceSubjects": entered_science,
+  }
+
+
+def list_admin_document_rows() -> list[dict[str, Any]]:
+  if using_supabase():
+    return supabase_request(
+      "GET",
+      supabase_table_path(
+        "runtime_uploaded_documents",
+        "select=id,user_id,original_name,status,extraction_status,extraction_error,uploaded_at&order=uploaded_at.desc&limit=10000",
+      ),
+    ) or []
+
+  with get_db_connection() as connection:
+    rows = connection.execute(
+      """
+      select id, user_id, original_name, status, extraction_status, extraction_error, uploaded_at
+      from uploaded_documents
+      order by uploaded_at desc
+      limit 10000
+      """
+    ).fetchall()
+  return [dict(row) for row in rows]
+
+
+def list_admin_recommendation_rows(limit: int = 250) -> list[dict[str, Any]]:
+  capped_limit = max(1, min(limit, 1000))
+  if using_supabase():
+    return supabase_request(
+      "GET",
+      supabase_table_path(
+        "runtime_recommendation_runs",
+        f"select=mode,question,profile_name,payload,created_at&order=created_at.desc&limit={capped_limit}",
+      ),
+    ) or []
+
+  with get_db_connection() as connection:
+    rows = connection.execute(
+      """
+      select mode, question, profile_name, payload, created_at
+      from recommendation_runs
+      order by id desc
+      limit ?
+      """,
+      (capped_limit,),
+    ).fetchall()
+  return [dict(row) for row in rows]
+
+
+def add_admin_programme_signal(signals: dict[str, dict[str, Any]], programme: dict[str, Any]) -> None:
+  programme_id = str(programme.get("programmeId") or programme.get("id") or "").strip()
+  programme_name = str(programme.get("programmeName") or programme.get("programme") or programme.get("name") or "").strip()
+  institution = str(programme.get("institution") or "").strip()
+  if not programme_id and not programme_name:
+    return
+  key = programme_id or f"{institution}:{programme_name}".lower()
+  current = signals.setdefault(
+    key,
+    {
+      "programmeId": programme_id or None,
+      "programmeName": programme_name or programme_id or "Programme",
+      "institution": institution,
+      "score": 0,
+      "saved": 0,
+      "viewed": 0,
+      "aiMentions": 0,
+    },
+  )
+  source = str(programme.get("source") or "aiMentions")
+  weight = int(programme.get("weight") or 1)
+  current["score"] += weight
+  if source not in {"saved", "viewed", "aiMentions"}:
+    source = "aiMentions"
+  current[source] = int(current.get(source) or 0) + 1
+  if institution and not current.get("institution"):
+    current["institution"] = institution
+  if programme_name and current.get("programmeName") == current.get("programmeId"):
+    current["programmeName"] = programme_name
+
+
+def build_admin_intelligence() -> dict[str, Any]:
+  users = get_auth_users_internal()
+  students = [user for user in users if user.get("role") not in {"owner", "admin"}]
+  users_by_id = {user["id"]: user for user in users}
+  signals: dict[str, dict[str, Any]] = {}
+  active_ai_user_ids: set[str] = set()
+
+  for user in students:
+    for programme_id in user.get("shortlist") or []:
+      add_admin_programme_signal(signals, {"programmeId": programme_id, "source": "saved", "weight": 3})
+    for activity in user.get("activity") or []:
+      metadata = activity.get("metadata") if isinstance(activity.get("metadata"), dict) else {}
+      activity_type = activity.get("type")
+      if activity_type in {"ai_guidance", "ai_compare"}:
+        active_ai_user_ids.add(user["id"])
+      if activity_type == "shortlist_updated":
+        add_admin_programme_signal(signals, {**metadata, "source": "saved", "weight": 2})
+      if activity_type == "programme_viewed":
+        add_admin_programme_signal(signals, {**metadata, "source": "viewed", "weight": 1})
+
+  recent_questions = []
+  for row in list_admin_recommendation_rows():
+    payload = parse_jsonish(row.get("payload"), {})
+    for match in (payload.get("recommendable_matches") or [])[:3]:
+      add_admin_programme_signal(
+        signals,
+        {
+          "programmeName": match.get("programme"),
+          "institution": match.get("institution"),
+          "source": "aiMentions",
+          "weight": 1,
+        },
+      )
+    question = str(row.get("question") or "").strip()
+    if question:
+      recent_questions.append(
+        {
+          "question": question[:180],
+          "profileName": row.get("profile_name"),
+          "mode": row.get("mode"),
+          "createdAt": row.get("created_at"),
+        }
+      )
+
+  blocked_by_math_science = []
+  for user in students:
+    status = admin_student_science_status(user)
+    reasons = []
+    if not status["hasStrongMath"]:
+      reasons.append("Mathematics missing or below D")
+    if not status["hasStrongScience"]:
+      reasons.append("Science/Agriculture gate missing or below D")
+    if reasons:
+      blocked_by_math_science.append(
+        {
+          **admin_public_user_summary(user),
+          "reason": ", ".join(reasons),
+          "scienceSubjects": status["scienceSubjects"],
+        }
+      )
+
+  ocr_failures = []
+  for document in list_admin_document_rows():
+    status = str(document.get("extraction_status") or "")
+    error = str(document.get("extraction_error") or "")
+    label = str(document.get("status") or "")
+    if status != "failed" and not error and "ocr failed" not in label.lower():
+      continue
+    user = users_by_id.get(str(document.get("user_id") or ""))
+    ocr_failures.append(
+      {
+        "documentId": document.get("id"),
+        "documentName": document.get("original_name"),
+        "status": label or status,
+        "error": error,
+        "uploadedAt": document.get("uploaded_at"),
+        "user": admin_public_user_summary(user) if user else {"id": document.get("user_id"), "name": "Unknown user"},
+      }
+    )
+
+  runtime_warnings = []
+  if not supabase_configured():
+    runtime_warnings.append("Hosted runtime is not connected to Supabase; free container data can reset.")
+  if not smtp_configured():
+    runtime_warnings.append("SMTP is not configured; public email verification cannot send codes.")
+  if STARTUP_PERSISTENCE_ERROR:
+    runtime_warnings.append(f"Startup persistence warning: {STARTUP_PERSISTENCE_ERROR}")
+
+  return {
+    "ok": True,
+    "generatedAt": now_iso(),
+    "database": get_data_backend(),
+    "studentsCount": len(students),
+    "activeAiUsers": len(active_ai_user_ids) or len({item.get("profileName") for item in recent_questions if item.get("profileName")}),
+    "topProgrammes": sorted(signals.values(), key=lambda item: (-int(item.get("score") or 0), item.get("programmeName") or ""))[:8],
+    "missingWarnings": runtime_warnings,
+    "blockedByMathScience": blocked_by_math_science[:12],
+    "ocrFailures": ocr_failures[:12],
+    "newUsers": [admin_public_user_summary(user) for user in students if not user.get("reviewedAt")][:12],
+    "recentQuestions": recent_questions[:8],
+  }
+
+
 @app.get("/api/admin/users")
 def admin_list_users(authorization: str | None = Header(default=None)) -> dict[str, Any]:
   require_admin_user(authorization)
   return {"ok": True, "users": [public_user(user) for user in get_auth_users_internal()]}
+
+
+@app.get("/api/admin/intelligence")
+def admin_intelligence(authorization: str | None = Header(default=None)) -> dict[str, Any]:
+  require_admin_user(authorization)
+  return build_admin_intelligence()
 
 
 @app.put("/api/admin/users/{user_id}/role")
