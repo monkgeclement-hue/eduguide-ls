@@ -1933,20 +1933,73 @@ function getDocumentReadinessScore() {
   return clamp(score);
 }
 
+function isNulFamilyProgramme(programme) {
+  const institution = String(programme.institution || "").toLowerCase();
+  return institution.includes("national university of lesotho") || institution.includes("nul institute") || institution.includes("iems");
+}
+
+function isDegreeOrHigherProgramme(programme) {
+  const text = `${programme.level || ""} ${programme.title || programme.name || ""}`.toLowerCase();
+  const hasDegreeSignal = /\bdegree\b|\bbachelor\b|\bbsc\b|\bb\.sc\b|\bba\b|\bb\.a\b|\bbcom\b|\bllb\b|\bmaster\b|\bmsc\b|\bm\.sc\b|\bphd\b|\bdoctor|\bpostgraduate\b|\bpost-graduate\b|\bhonours\b/.test(text);
+  const hasLowerSignal = /\bcertificate\b|\bdiploma\b/.test(text);
+  if (hasDegreeSignal) return true;
+  if (hasLowerSignal) return false;
+  return false;
+}
+
+function getFundingPolicy(programme) {
+  if (!isNulFamilyProgramme(programme)) {
+    return {
+      eligible: true,
+      status: "Standard NMDS estimate",
+      caution: "",
+      priorityCap: null,
+      fundingCap: null,
+      rankPenalty: 0
+    };
+  }
+
+  if (!isDegreeOrHigherProgramme(programme)) {
+    return {
+      eligible: false,
+      status: "NUL funding: degree+ only",
+      caution: "NUL sponsorship is treated as degree-and-higher only here; verify non-degree funding before applying.",
+      priorityCap: 25,
+      fundingCap: 42,
+      rankPenalty: 7
+    };
+  }
+
+  return {
+    eligible: true,
+    status: "NUL degree+ funding route",
+    caution: "NUL sponsorship routes are treated as competitive; strong marks and complete documents still matter.",
+    priorityCap: null,
+    fundingCap: null,
+    rankPenalty: 2
+  };
+}
+
 function getFundingBreakdown(programme) {
   const academic = getAcademicScore(programme);
   const need = getNeedScore();
-  const priority = programme.nmdsPriority || 60;
+  const policy = getFundingPolicy(programme);
+  const rawPriority = programme.nmdsPriority || 60;
+  const priority = policy.priorityCap !== null ? Math.min(rawPriority, policy.priorityCap) : rawPriority;
   const documents = getDocumentReadinessScore();
   const confidence = programme.dataConfidence || 60;
-  const total = Math.round(academic * 0.32 + need * 0.27 + priority * 0.23 + documents * 0.13 + confidence * 0.05);
+  const rawTotal = Math.round(academic * 0.32 + need * 0.27 + priority * 0.23 + documents * 0.13 + confidence * 0.05);
+  const total = policy.fundingCap !== null ? Math.min(rawTotal, policy.fundingCap) : rawTotal;
   return {
     academic,
     need,
     priority,
+    rawPriority,
     documents,
     confidence,
     total,
+    rawTotal,
+    policy,
     selectedNeedSignals: getSelectedNeedSignals(),
     documentChecklist: getFundingDocumentChecklist(),
     estimateOnly: true
@@ -2083,17 +2136,19 @@ function getMatchExplanations(programme, scores, evaluation, tier, strictGateEva
   reasons.push(`${tierLabel} pathway based on current marks and captured requirements.`);
   if (matchingInterests.length) reasons.push(`Interest fit: ${matchingInterests.slice(0, 2).join(", ")}`);
   if (scores.academic >= 70) reasons.push("Your selected grades are strong for the inferred subject profile.");
-  if (scores.funding >= 78) reasons.push("Funding readiness is promising for this pathway.");
-  if (programme.nmdsPriority >= 82) reasons.push("This sits in a high-priority development area.");
+  if (scores.funding >= 78 && scores.fundingBreakdown?.policy?.eligible !== false) reasons.push("Funding readiness is promising for this pathway.");
+  if (scores.priority >= 82 && scores.fundingBreakdown?.policy?.eligible !== false) reasons.push("This sits in a high-priority development area.");
   if (!reasons.length) reasons.push("This is a possible exploratory match, but it needs closer checking.");
 
   const strictGateGaps = (strictGateEvaluation?.failures || []).map(formatStrictGateFailure);
   const requirementGaps = evaluation.missing.map(formatRequirementGap).slice(0, 3);
+  const fundingPolicy = scores.fundingBreakdown?.policy || getFundingPolicy(programme);
   if (strictGateGaps.length) cautions.push(...strictGateGaps.slice(0, 2));
   if (tier !== "qualified" && requirementGaps.length) cautions.push(...requirementGaps.slice(0, 2));
   if (tier === "almost" && !requirementGaps.length) cautions.push("This is close, but final entry rules should be confirmed before applying.");
   if (tier === "explore") cautions.push("Treat this as an exploration path unless more grades or confirmed requirements improve the match.");
   if (tier === "blocked") cautions.push("This pathway is not shown as a recommendation because a hard subject requirement is missing.");
+  if (fundingPolicy.caution) cautions.push(fundingPolicy.caution);
   if (programme.dataConfidence < 70) cautions.push("Some catalogue fields are still incomplete or awaiting admin review.");
   if (/under review/i.test(programme.duration)) cautions.push("Duration is not confirmed yet.");
   return { reasons: reasons.slice(0, 3), cautions: unique(cautions).slice(0, 3), requirementGaps: unique([...strictGateGaps, ...requirementGaps]) };
@@ -2108,7 +2163,7 @@ function getProgrammeMatch(programme) {
   const fundingBreakdown = getFundingBreakdown(programme);
   const funding = fundingBreakdown.total;
   const confidence = programme.dataConfidence || 60;
-  const priority = programme.nmdsPriority || 60;
+  const priority = fundingBreakdown.priority;
   const preTierOverall = Math.round(academic * 0.36 + interest * 0.24 + eligibility * 0.18 + funding * 0.14 + confidence * 0.08);
   const scores = {
     academic,
@@ -2123,7 +2178,8 @@ function getProgrammeMatch(programme) {
   };
   const tier = getMatchTier(scores, evaluation, programme, strictGateEvaluation);
   const tierPenalty = tier === "qualified" ? 0 : tier === "almost" ? 4 : tier === "blocked" ? 44 : 12;
-  const overall = tier === "blocked" ? clamp(preTierOverall - tierPenalty, 0, 38) : clamp(preTierOverall - tierPenalty);
+  const policyPenalty = fundingBreakdown.policy?.rankPenalty || 0;
+  const overall = tier === "blocked" ? clamp(preTierOverall - tierPenalty - policyPenalty, 0, 38) : clamp(preTierOverall - tierPenalty - policyPenalty);
   const strictGateFailures = strictGateEvaluation.failures.map(formatStrictGateFailure);
   return {
     ...scores,
@@ -2170,8 +2226,10 @@ function getNmdsReadiness() {
   const readiness = Math.round(academic * 0.34 + need * 0.25 + priority * 0.22 + documents * 0.14 + confidence * 0.05);
   const notes = [];
   const missingDocuments = documentChecklist.filter((item) => !item.complete).map((item) => item.label);
+  const fundingPolicyNotes = unique(rankedMatches.map((item) => item.match.fundingBreakdown?.policy?.caution).filter(Boolean));
   if (missingDocuments.length) notes.push(`Missing/unclear documents: ${missingDocuments.slice(0, 3).join(", ")}.`);
   if (!selectedNeedSignals.length && need < 70) notes.push("Add background indicators only when they truly apply; they affect the need estimate.");
+  if (fundingPolicyNotes.length) notes.push(fundingPolicyNotes[0]);
   if (confidence < 70) notes.push("Some programme data is still under review, so verify requirements before applying.");
   if (rankedMatches.some((item) => item.match.tier === "qualified")) notes.push("At least one matched programme appears academically reachable from the current profile.");
   notes.push("Estimate only: NMDS or any sponsor can request different evidence and make the final decision.");
@@ -2533,6 +2591,9 @@ function renderProgrammeCard(programme) {
   const confidenceBadge = programme.match.confidence >= 75 ? "green" : programme.match.confidence >= 55 ? "amber" : "red";
   const tier = tierMeta[programme.match.tier] || tierMeta.explore;
   const fundingBreakdown = programme.match.fundingBreakdown || {};
+  const fundingPolicy = fundingBreakdown.policy || getFundingPolicy(programme);
+  const fundingPolicyBadge = fundingPolicy.eligible === false ? "red" : isNulFamilyProgramme(programme) ? "amber" : "blue";
+  const showFundingPolicy = fundingPolicy.status !== "Standard NMDS estimate";
   return `
     <article class="programme-card">
       <div class="programme-top">
@@ -2542,7 +2603,8 @@ function renderProgrammeCard(programme) {
           <div class="badge-row">
             <span class="badge green">${escapeHtml(programme.level)}</span>
             <span class="badge blue">${escapeHtml(programme.shortInstitution)}</span>
-            <span class="badge amber">NMDS ${programme.nmdsPriority}%</span>
+            <span class="badge amber">NMDS ${programme.match.priority}%</span>
+            ${showFundingPolicy ? `<span class="badge ${fundingPolicyBadge}">${escapeHtml(fundingPolicy.status)}</span>` : ""}
             <span class="badge ${tier.badge}">${tier.label}</span>
             <span class="badge ${eligibilityBadge}">Eligibility ${programme.match.eligibility}%</span>
             <span class="badge ${confidenceBadge}">Data ${programme.match.confidence}%</span>
@@ -2576,6 +2638,7 @@ function renderProgrammeCard(programme) {
             <li>Need ${fundingBreakdown.need ?? getNeedScore()}%</li>
             <li>Priority ${fundingBreakdown.priority ?? programme.match.priority}%</li>
             <li>Documents ${fundingBreakdown.documents ?? getDocumentReadinessScore()}%</li>
+            ${showFundingPolicy ? `<li>Policy ${escapeHtml(fundingPolicy.status)}</li>` : ""}
           </ul>
         </div>
       </div>
@@ -2609,6 +2672,10 @@ function getInstitutionMatchGroups() {
     }
     const group = grouped.get(key);
     group.programmes.push(programme);
+    group.fundingPolicyWarnings = group.fundingPolicyWarnings || [];
+    if (programme.match.fundingBreakdown?.policy?.eligible === false) {
+      group.fundingPolicyWarnings.push(programme.match.fundingBreakdown.policy.status);
+    }
     const tier = programme.match.tier || "explore";
     const tierRank = getTierRank(tier);
     const previousBestTierRank = group.bestTierRank;
@@ -2646,6 +2713,7 @@ function renderInstitutionGroup(group) {
             ${group.tierCounts.explore ? `<span class="badge blue">${group.tierCounts.explore} explore</span>` : ""}
             <span class="badge ${eligibilityBadge}">Eligibility ${group.bestEligibility}%</span>
             <span class="badge amber">Funding ${group.bestFunding}%</span>
+            ${group.fundingPolicyWarnings?.length ? `<span class="badge red">${escapeHtml(unique(group.fundingPolicyWarnings)[0])}</span>` : ""}
             ${group.reviewCount ? `<span class="badge">Review ${group.reviewCount}</span>` : ""}
           </div>
         </div>

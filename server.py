@@ -308,6 +308,11 @@ science, technology, engineering, health-science, or architecture pathways unles
 the matcher payload already includes them as realistic options. Missing Mathematics,
 Physical Science, Biology, or another hard subject gate must be treated as a blocker,
 not as something the AI can overlook because the student is interested.
+Respect supplied fundingBreakdown.policy values. For National University of Lesotho
+and IEMS records, treat diploma/certificate or other non-degree programmes as not
+NMDS sponsorship-ready when the payload says "degree+ only"; do not describe those
+non-degree NUL pathways as funded options. Degree-and-higher NUL pathways may be
+discussed as possible funding routes, but keep the estimate cautious and competitive.
 Uploaded documents may include OCR/text extraction metadata. Treat extracted grades
 as machine-read suggestions until the student applies or confirms them in the grade
 form. Do not present extracted grades as an official transcript interpretation.
