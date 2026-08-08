@@ -131,6 +131,30 @@ a {
   display: grid;
 }
 
+.email-code-panel {
+  display: grid;
+  gap: 12px;
+  padding: 14px;
+  border: 1px solid #c7eadf;
+  border-radius: 8px;
+  background: var(--brand-soft);
+}
+
+.email-code-panel > div {
+  display: grid;
+  gap: 3px;
+}
+
+.email-code-panel strong {
+  color: var(--brand-deep);
+}
+
+.email-code-panel span {
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.45;
+}
+
 .auth-message {
   margin: 0;
   color: var(--muted);
@@ -2300,6 +2324,79 @@ textarea:focus {
   color: #8a6121;
   font-size: 12px;
   font-weight: 700;
+}
+
+.admin-intelligence-panel {
+  display: grid;
+  gap: 14px;
+  margin-bottom: 14px;
+  padding: 16px;
+  border: 1px solid #c7eadf;
+  border-radius: 8px;
+  background: linear-gradient(180deg, rgba(236, 250, 245, 0.94), rgba(255, 255, 255, 0.94));
+}
+
+#admin-intelligence-summary {
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.admin-intelligence-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+  gap: 10px;
+}
+
+.admin-insight-card {
+  display: grid;
+  gap: 10px;
+  min-height: 170px;
+  padding: 13px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: #fff;
+}
+
+.admin-insight-card > div {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--brand-deep);
+  font-weight: 900;
+}
+
+.admin-insight-card svg {
+  width: 17px;
+  height: 17px;
+  color: var(--brand-mid);
+}
+
+.admin-insight-card ul {
+  display: grid;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.admin-insight-card li {
+  display: grid;
+  gap: 2px;
+  min-width: 0;
+}
+
+.admin-insight-card li strong {
+  color: var(--brand-deep);
+  font-size: 13px;
+  overflow-wrap: anywhere;
+}
+
+.admin-insight-card li span {
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.4;
+  overflow-wrap: anywhere;
 }
 
 .deployment-readiness {

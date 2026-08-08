@@ -110,6 +110,7 @@ let authUsers = structuredClone(defaultUsers);
 let currentUser = null;
 let authToken = localStorage.getItem(authTokenKey) || null;
 let authMode = "login";
+let pendingRegistration = null;
 let deferredInstallPrompt = null;
 const supabaseConfig = window.EDUGUIDE_SUPABASE_CONFIG || {};
 const supabaseClient =
@@ -413,6 +414,7 @@ function normalizeUser(user = {}) {
     documents: Array.isArray(user.documents) ? user.documents : [],
     shortlist: Array.isArray(user.shortlist) ? user.shortlist : [],
     createdAt,
+    emailVerifiedAt: user.emailVerifiedAt || createdAt,
     reviewedAt: user.reviewedAt || (isAdminRole(user.role) ? createdAt : null),
     lastActiveAt: user.lastActiveAt || user.lastLoginAt || createdAt,
     lastActivity: user.lastActivity || (activity[0]?.label ?? "Account created"),
@@ -632,15 +634,139 @@ function bindInstallPrompt() {
 
 function updateAuthContext() {
   const context = qs("#auth-context");
-  const registerLabel = qs("#register-submit-label");
   if (context) {
-    context.textContent = "Public registration creates student accounts only. Admin access is controlled privately by the system owner.";
+    context.textContent = authMode === "register"
+      ? "Public registration creates student accounts only. We verify your email before the account is created."
+      : "Public registration creates student accounts only. Admin access is controlled privately by the system owner.";
   }
-  if (registerLabel) registerLabel.textContent = "Create Student Account";
+  updateRegisterVerificationUi();
+}
+
+function getRegistrationPayload(name, email, password, district) {
+  return {
+    name: String(name || "").trim(),
+    email: normalizeEmail(email),
+    password: String(password || ""),
+    district: String(district || "").trim()
+  };
+}
+
+function getCurrentRegistrationPayload() {
+  return getRegistrationPayload(
+    qs("#register-name")?.value,
+    qs("#register-email")?.value,
+    qs("#register-password")?.value,
+    qs("#register-district")?.value
+  );
+}
+
+function registrationMatchesPending(payload) {
+  return Boolean(
+    pendingRegistration &&
+      pendingRegistration.email === payload.email &&
+      pendingRegistration.name === payload.name &&
+      pendingRegistration.district === payload.district
+  );
+}
+
+function updateRegisterVerificationUi() {
+  const panel = qs("#register-verification-panel");
+  const help = qs("#register-verification-help");
+  const label = qs("#register-submit-label");
+  const codeInput = qs("#register-code");
+  const hasPending = Boolean(pendingRegistration);
+  if (panel) panel.hidden = !hasPending;
+  if (label) label.textContent = hasPending ? "Verify & Create Account" : "Send Verification Code";
+  if (help) {
+    help.textContent = hasPending
+      ? `Enter the 6-digit code sent to ${pendingRegistration.email}. It expires in ${pendingRegistration.expiresInMinutes || 10} minutes.`
+      : "Enter the 6-digit code sent to your email.";
+  }
+  if (!hasPending && codeInput) codeInput.value = "";
+  if (window.lucide) window.lucide.createIcons();
+}
+
+function clearRegisterVerification() {
+  pendingRegistration = null;
+  updateRegisterVerificationUi();
+}
+
+function validateRegistrationPayload(payload) {
+  if (!payload.name || !payload.email || !payload.password) {
+    setAuthMessage("Please fill in your name, email, and password.", "error");
+    return false;
+  }
+  if (payload.password.length < 6) {
+    setAuthMessage("Use a password with at least 6 characters.", "error");
+    return false;
+  }
+  return true;
+}
+
+async function requestRegistrationCode(payload) {
+  if (!validateRegistrationPayload(payload)) return false;
+  try {
+    const response = await fetch("/api/auth/register/request-code", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload)
+    });
+    const data = await response.json().catch(() => ({}));
+    if (!response.ok || !data.ok) throw new Error(data.detail || "Could not send verification code.");
+    pendingRegistration = {
+      name: payload.name,
+      email: payload.email,
+      district: payload.district,
+      requestedAt: new Date().toISOString(),
+      expiresInMinutes: data.expiresInMinutes || 10
+    };
+    updateRegisterVerificationUi();
+    qs("#register-code")?.focus();
+    const debugNote = data.debugCode ? ` Development code: ${data.debugCode}` : "";
+    const deliveryNote = data.emailSent
+      ? `We sent a verification code to ${payload.email}.`
+      : data.message || `Email service is in development mode for ${payload.email}.`;
+    setAuthMessage(`${deliveryNote}${debugNote}`, data.debugCode ? "success" : "neutral");
+    return true;
+  } catch (error) {
+    setAuthMessage(error.message || "Could not send verification code.", "error");
+    return false;
+  }
+}
+
+async function verifyRegistrationCode(payload, code) {
+  const cleanCode = String(code || "").replace(/\s+/g, "");
+  if (!/^\d{6}$/.test(cleanCode)) {
+    setAuthMessage("Enter the 6-digit verification code from your email.", "error");
+    qs("#register-code")?.focus();
+    return false;
+  }
+  try {
+    const response = await fetch("/api/auth/register/verify", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ ...payload, code: cleanCode })
+    });
+    const data = await response.json().catch(() => ({}));
+    if (!response.ok || !data.ok) throw new Error(data.detail || "Verification failed.");
+    authToken = data.token;
+    const user = normalizeUser(data.user);
+    authUsers = mergeAuthUsersInMemory(authUsers, [user]);
+    saveAuthUsers();
+    pendingRegistration = null;
+    updateRegisterVerificationUi();
+    setCurrentUser(user, "student");
+    setAuthMessage("Email verified. Student account created.", "success");
+    return true;
+  } catch (error) {
+    setAuthMessage(error.message || "Verification failed.", "error");
+    return false;
+  }
 }
 
 function setAuthMode(mode) {
   authMode = mode;
+  if (mode !== "register") clearRegisterVerification();
   qsa("[data-auth-mode]").forEach((button) => button.classList.toggle("active", button.dataset.authMode === mode));
   qsa(".auth-form").forEach((form) => form.classList.toggle("active", form.id === `${mode}-form`));
   updateAuthContext();
@@ -740,31 +866,18 @@ async function loginWithCredentials(email, password, preferredView = "student") 
 }
 
 async function registerUser(name, email, password, district) {
-  const normalized = normalizeEmail(email);
-  const cleanName = name.trim();
-  if (!cleanName || !normalized || !password) {
-    setAuthMessage("Please fill in your name, email, and password.", "error");
+  const payload = getRegistrationPayload(name, email, password, district);
+  if (!validateRegistrationPayload(payload)) return false;
+  if (!registrationMatchesPending(payload)) {
+    return requestRegistrationCode(payload);
+  }
+  const code = qs("#register-code")?.value || "";
+  if (!code.trim()) {
+    setAuthMessage("Enter the 6-digit code we sent to your email.", "error");
+    qs("#register-code")?.focus();
     return false;
   }
-  try {
-    const response = await fetch("/api/auth/register", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ name: cleanName, email: normalized, password, district })
-    });
-    const data = await response.json().catch(() => ({}));
-    if (!response.ok || !data.ok) throw new Error(data.detail || "Registration failed.");
-    authToken = data.token;
-    const user = normalizeUser(data.user);
-    authUsers = mergeAuthUsersInMemory(authUsers, [user]);
-    saveAuthUsers();
-    setCurrentUser(user, "student");
-    setAuthMessage("Student account created. Admins can review and grant roles later.", "success");
-    return true;
-  } catch (error) {
-    setAuthMessage(error.message || "Registration failed.", "error");
-    return false;
-  }
+  return verifyRegistrationCode(payload, code);
 }
 
 async function restoreAuthSession() {
@@ -2747,12 +2860,13 @@ async function removeDocument(documentId) {
 function toggleShortlist(programmeId) {
   if (!currentUser) return;
   currentUser.shortlist ||= [];
+  const programme = findProgrammeById(programmeId);
   if (currentUser.shortlist.includes(programmeId)) {
     currentUser.shortlist = currentUser.shortlist.filter((id) => id !== programmeId);
-    addActivityToUser(currentUser, "shortlist_updated", "Removed a saved programme", { programmeId });
+    addActivityToUser(currentUser, "shortlist_updated", "Removed a saved programme", { programmeId, programmeName: programme?.name });
   } else {
     currentUser.shortlist.push(programmeId);
-    addActivityToUser(currentUser, "shortlist_updated", "Saved a programme", { programmeId });
+    addActivityToUser(currentUser, "shortlist_updated", "Saved a programme", { programmeId, programmeName: programme?.name, institution: programme?.institution });
   }
   saveAuthUsers();
   renderResults();
@@ -3813,6 +3927,144 @@ function getAdminSummary() {
   };
 }
 
+function findProgrammeById(programmeId) {
+  return adminProgrammes.find((programme) => programme.id === programmeId) || programmes.find((programme) => programme.id === programmeId) || null;
+}
+
+function getUserScienceStatus(user) {
+  const grades = user.grades || {};
+  const hasMath = Boolean(grades.MATH);
+  const hasStrongMath = gradeMeets(grades.MATH, "D");
+  const scienceCodes = ["PSCI", "BIO", "PHY", "CHEM", "AGR"];
+  const enteredScience = scienceCodes.filter((code) => grades[code]);
+  const hasScience = enteredScience.length > 0;
+  const hasStrongScience = enteredScience.some((code) => gradeMeets(grades[code], "D"));
+  return { hasMath, hasStrongMath, hasScience, hasStrongScience };
+}
+
+function getActivityCount(user, type) {
+  return (user.activity || []).filter((activity) => activity.type === type).length;
+}
+
+function getAdminIntelligence() {
+  const students = getVisibleUsers().filter((user) => !isAdmin(user));
+  const programmeScores = new Map();
+  const addProgrammeSignal = (programmeId, weight, source) => {
+    const programme = findProgrammeById(programmeId);
+    if (!programme) return;
+    const current = programmeScores.get(programme.id) || { programme, score: 0, saved: 0, viewed: 0 };
+    current.score += weight;
+    current[source] = (current[source] || 0) + 1;
+    programmeScores.set(programme.id, current);
+  };
+
+  students.forEach((user) => {
+    (user.shortlist || []).forEach((programmeId) => addProgrammeSignal(programmeId, 3, "saved"));
+    (user.activity || []).forEach((activity) => {
+      const programmeId = activity.metadata?.programmeId;
+      if (programmeId && ["shortlist_updated", "programme_viewed"].includes(activity.type)) {
+        addProgrammeSignal(programmeId, activity.type === "shortlist_updated" ? 2 : 1, activity.type === "shortlist_updated" ? "saved" : "viewed");
+      }
+    });
+  });
+
+  const topProgrammes = Array.from(programmeScores.values())
+    .sort((a, b) => b.score - a.score || a.programme.name.localeCompare(b.programme.name))
+    .slice(0, 3);
+  const missingWarnings = [
+    ...adminGaps.filter((gap) => gap.status === "open").slice(0, 4).map((gap) => `${gap.institution}: ${gap.title}`),
+    ...adminProgrammes
+      .filter((programme) => !programme.feeNote && !programme.supportingFeeSourcePath)
+      .slice(0, 3)
+      .map((programme) => `${programme.institution}: fee evidence missing for ${programme.name}`)
+  ].slice(0, 5);
+  const blockedByMathScience = students
+    .filter((user) => {
+      const status = getUserScienceStatus(user);
+      return !status.hasStrongMath || !status.hasStrongScience;
+    })
+    .slice(0, 6);
+  const ocrFailures = students.flatMap((user) =>
+    (user.documents || [])
+      .filter((document) => document.extractionStatus === "failed" || /ocr failed/i.test(document.status || "") || document.extractionError)
+      .map((document) => ({ user, document }))
+  );
+  const newUsers = getUnreviewedUsers().slice(0, 6);
+  const activeAiUsers = students.filter((user) => getActivityCount(user, "ai_guidance") || getActivityCount(user, "ai_compare")).length;
+
+  return {
+    topProgrammes,
+    missingWarnings,
+    blockedByMathScience,
+    ocrFailures,
+    newUsers,
+    activeAiUsers,
+    studentsCount: students.length
+  };
+}
+
+function renderAdminIntelligence() {
+  const grid = qs("#admin-intelligence-grid");
+  if (!grid) return;
+  const data = getAdminIntelligence();
+  const summary = qs("#admin-intelligence-summary");
+  if (summary) {
+    summary.textContent = `${data.studentsCount} student account${data.studentsCount === 1 ? "" : "s"} - ${data.activeAiUsers} used AI guidance`;
+  }
+  const topProgrammes = data.topProgrammes.length
+    ? data.topProgrammes
+        .map((item) => {
+          const totalSignals = (item.saved || 0) + (item.viewed || 0);
+          return `<li><strong>${escapeHtml(item.programme.name)}</strong><span>${escapeHtml(item.programme.institution)} - ${totalSignals} save/view signal${totalSignals === 1 ? "" : "s"}</span></li>`;
+        })
+        .join("")
+    : `<li><strong>No programme demand yet</strong><span>Saved/viewed programmes will appear after students use results.</span></li>`;
+  const missingWarnings = data.missingWarnings.length
+    ? data.missingWarnings.map((item) => `<li><strong>${escapeHtml(item)}</strong><span>Needs catalogue review</span></li>`).join("")
+    : `<li><strong>No urgent catalogue warnings</strong><span>Open gaps are currently quiet.</span></li>`;
+  const blockedUsers = data.blockedByMathScience.length
+    ? data.blockedByMathScience
+        .map((user) => {
+          const status = getUserScienceStatus(user);
+          const reason = [
+            status.hasStrongMath ? null : "Math weak/missing",
+            status.hasStrongScience ? null : "Science weak/missing"
+          ].filter(Boolean).join(", ");
+          return `<li><strong>${escapeHtml(user.name)}</strong><span>${escapeHtml(reason || "Science gate needs review")} - ${escapeHtml(user.email)}</span></li>`;
+        })
+        .join("")
+    : `<li><strong>No Math/Science blockers detected</strong><span>Students with missing gates will appear here.</span></li>`;
+  const uploadFailures = data.ocrFailures.length
+    ? data.ocrFailures.slice(0, 5).map(({ user, document }) => `<li><strong>${escapeHtml(document.name || "Document")}</strong><span>${escapeHtml(user.name)} - ${escapeHtml(document.extractionError || document.status || "OCR failed")}</span></li>`).join("")
+    : `<li><strong>No OCR failures</strong><span>Document extraction looks clear.</span></li>`;
+  const newUsers = data.newUsers.length
+    ? data.newUsers.map((user) => `<li><strong>${escapeHtml(user.name)}</strong><span>${escapeHtml(user.email)} - ${escapeHtml(user.district || "district missing")}</span></li>`).join("")
+    : `<li><strong>No new user alerts</strong><span>All visible student accounts are reviewed.</span></li>`;
+
+  grid.innerHTML = `
+    <article class="admin-insight-card">
+      <div><i data-lucide="trending-up"></i><strong>Most saved/viewed programmes</strong></div>
+      <ul>${topProgrammes}</ul>
+    </article>
+    <article class="admin-insight-card">
+      <div><i data-lucide="triangle-alert"></i><strong>Missing data warnings</strong></div>
+      <ul>${missingWarnings}</ul>
+    </article>
+    <article class="admin-insight-card">
+      <div><i data-lucide="calculator"></i><strong>Blocked by Math/Science</strong></div>
+      <ul>${blockedUsers}</ul>
+    </article>
+    <article class="admin-insight-card">
+      <div><i data-lucide="file-warning"></i><strong>Upload/OCR failures</strong></div>
+      <ul>${uploadFailures}</ul>
+    </article>
+    <article class="admin-insight-card">
+      <div><i data-lucide="user-round-plus"></i><strong>New user alerts</strong></div>
+      <ul>${newUsers}</ul>
+    </article>
+  `;
+}
+
 function renderAdminFilters() {
   const filter = qs("#admin-institution-filter");
   if (!filter) return;
@@ -3862,11 +4114,13 @@ function getDeploymentReadiness() {
   const dataBackend = health.data_backend || diagnostics.database || "unknown";
   const usesSupabase = Boolean(health.supabase_configured || dataBackend === "supabase");
   const aiReady = Boolean(health.ai_configured);
+  const emailReady = Boolean(health.email_configured);
   const storageReady = Boolean(health.storage_ready);
   const databaseReady = Boolean(health.database_ready);
   const warningItems = [];
   if (!usesSupabase) warningItems.push("Users, uploads, and AI chat are still on Render SQLite and can reset after redeploys or restarts.");
   if (!aiReady) warningItems.push("AI guidance and OCR need a valid Gemini or OpenAI key.");
+  if (!emailReady) warningItems.push("Email verification needs SMTP settings before public signups can receive codes.");
   if (!storageReady) warningItems.push("Document upload storage is not ready.");
   if (!databaseReady) warningItems.push("Database health check failed.");
   if (health.startup_persistence_error) warningItems.push(`Startup persistence error: ${health.startup_persistence_error}`);
@@ -3879,6 +4133,7 @@ function getDeploymentReadiness() {
       { label: "Database", value: usesSupabase ? "Supabase" : dataBackend === "sqlite" ? "Render SQLite" : dataBackend },
       { label: "Storage", value: storageReady ? (health.storage_bucket || "Ready") : "Needs attention" },
       { label: "AI", value: aiReady ? `${health.provider || "AI"} ${health.model || ""}`.trim() : "Not configured" },
+      { label: "Email OTP", value: emailReady ? "SMTP ready" : health.email_debug_codes ? "Debug only" : "Needs SMTP" },
       { label: "Users", value: String(diagnostics.state_counts?.auth_users ?? getVisibleUsers().length ?? 0) },
       { label: "Documents", value: String(diagnostics.document_count ?? 0) },
       { label: "AI chats", value: String(diagnostics.ai_chat_message_count ?? 0) }
@@ -3946,6 +4201,7 @@ function renderAdminMetrics() {
       `
       : "";
   }
+  renderAdminIntelligence();
 }
 
 function adminSearchMatches(values) {
@@ -4783,6 +5039,18 @@ function bindEvents() {
     event.preventDefault();
     await registerUser(qs("#register-name").value, qs("#register-email").value, qs("#register-password").value, qs("#register-district").value);
   });
+  qs("#resend-register-code")?.addEventListener("click", async () => {
+    await requestRegistrationCode(getCurrentRegistrationPayload());
+  });
+  ["#register-name", "#register-email", "#register-password", "#register-district"].forEach((selector) => {
+    const input = qs(selector);
+    input?.addEventListener(selector === "#register-district" ? "change" : "input", () => {
+      if (pendingRegistration) {
+        clearRegisterVerification();
+        setAuthMessage("Registration details changed. Send a new verification code.", "neutral");
+      }
+    });
+  });
   qs("#logout-button")?.addEventListener("click", signOut);
   qsa("[data-view]").forEach((button) => {
     button.addEventListener("click", () => setView(button.dataset.view));
@@ -4888,7 +5156,18 @@ function bindEvents() {
   qs("#view-results")?.addEventListener("click", (event) => {
     const institutionButton = event.target.closest("[data-institution-result]");
     if (institutionButton) {
-      selectedResultInstitution = selectedResultInstitution === institutionButton.dataset.institutionResult ? null : institutionButton.dataset.institutionResult;
+      const institution = institutionButton.dataset.institutionResult;
+      selectedResultInstitution = selectedResultInstitution === institution ? null : institution;
+      if (selectedResultInstitution) {
+        const group = getInstitutionMatchGroups().find((item) => item.institution === institution);
+        const bestProgramme = group?.programmes?.[0];
+        recordCurrentUserActivity("programme_viewed", `Viewed ${institution} matches`, {
+          institution,
+          programmeId: bestProgramme?.id,
+          programmeName: bestProgramme?.name,
+          programmesVisible: group?.programmes?.length || 0
+        }, { throttleMs: 45000 });
+      }
       renderResults();
       return;
     }

@@ -1,5 +1,6 @@
 import json
 import hashlib
+import smtplib
 import mimetypes
 import os
 import re
@@ -7,6 +8,8 @@ import sqlite3
 import secrets
 import tempfile
 import uuid
+from datetime import datetime, timedelta, timezone
+from email.message import EmailMessage
 from pathlib import Path
 from typing import Any
 from urllib import error as urlerror
@@ -29,6 +32,9 @@ MAX_UPLOAD_BYTES = 10 * 1024 * 1024
 DEFAULT_SUPABASE_STORAGE_BUCKET = "eduguide-documents"
 AI_CHAT_HISTORY_LIMIT = 24
 AI_CHAT_CONTEXT_LIMIT = 12
+EMAIL_VERIFICATION_TTL_MINUTES = 10
+EMAIL_VERIFICATION_RESEND_SECONDS = 45
+EMAIL_VERIFICATION_MAX_ATTEMPTS = 6
 GRADE_VALUES = {"A*", "A", "B", "C", "D", "E", "F", "G", "X", "Z"}
 GEMINI_DEFAULT_MODEL = "gemini-3.6-flash"
 GEMINI_MODEL_FALLBACKS = ["gemini-3.6-flash", "gemini-3.5-flash", "gemini-flash-latest"]
@@ -87,6 +93,11 @@ class AuthRegisterRequest(BaseModel):
   email: str
   password: str
   district: str | None = None
+  code: str | None = None
+
+
+class AuthVerifyRegistrationRequest(AuthRegisterRequest):
+  code: str
 
 
 class AuthProfileRequest(BaseModel):
@@ -195,6 +206,28 @@ def init_database() -> None:
         created_at text not null default current_timestamp,
         last_seen_at text not null default current_timestamp
       )
+      """
+    )
+    connection.execute(
+      """
+      create table if not exists email_verifications (
+        id text primary key,
+        email text not null,
+        purpose text not null default 'registration',
+        code_hash text not null,
+        code_salt text not null,
+        payload text not null default '{}',
+        attempts integer not null default 0,
+        created_at text not null,
+        expires_at text not null,
+        consumed_at text
+      )
+      """
+    )
+    connection.execute(
+      """
+      create index if not exists idx_email_verifications_email_purpose_created
+      on email_verifications(email, purpose, created_at desc)
       """
     )
     existing_columns = {
@@ -387,6 +420,68 @@ def get_gemini_api_key() -> str | None:
 
 def get_openai_api_key() -> str | None:
   return get_secret("OPENAI_API_KEY", "replace_with_your_openai_api_key")
+
+
+def get_bool_env(name: str, default: bool = False) -> bool:
+  value = os.getenv(name)
+  if value is None:
+    return default
+  return value.strip().lower() in {"1", "true", "yes", "on"}
+
+
+def smtp_configured() -> bool:
+  return bool(get_secret("SMTP_HOST") and get_secret("SMTP_FROM_EMAIL"))
+
+
+def email_debug_codes_enabled() -> bool:
+  return get_bool_env("EMAIL_DEBUG_CODES", False)
+
+
+def send_verification_email(email: str, name: str, code: str) -> None:
+  smtp_host = get_secret("SMTP_HOST")
+  from_email = get_secret("SMTP_FROM_EMAIL")
+  if not smtp_host or not from_email:
+    raise RuntimeError("SMTP_HOST and SMTP_FROM_EMAIL are required for email verification.")
+
+  smtp_port = int(os.getenv("SMTP_PORT", "465" if get_bool_env("SMTP_USE_SSL", False) else "587"))
+  from_name = os.getenv("SMTP_FROM_NAME", "EduGuide LS").strip() or "EduGuide LS"
+  use_ssl = get_bool_env("SMTP_USE_SSL", False)
+  use_tls = get_bool_env("SMTP_USE_TLS", not use_ssl)
+  username = get_secret("SMTP_USERNAME")
+  password = get_secret("SMTP_PASSWORD")
+
+  message = EmailMessage()
+  message["Subject"] = "Your EduGuide LS verification code"
+  message["From"] = f"{from_name} <{from_email}>"
+  message["To"] = email
+  message.set_content(
+    "\n".join(
+      [
+        f"Hello {name or 'student'},",
+        "",
+        f"Your EduGuide LS verification code is: {code}",
+        f"It expires in {EMAIL_VERIFICATION_TTL_MINUTES} minutes.",
+        "",
+        "If you did not request this account, you can ignore this email.",
+        "",
+        "EduGuide LS",
+      ]
+    )
+  )
+
+  if use_ssl:
+    with smtplib.SMTP_SSL(smtp_host, smtp_port, timeout=20) as server:
+      if username and password:
+        server.login(username, password)
+      server.send_message(message)
+    return
+
+  with smtplib.SMTP(smtp_host, smtp_port, timeout=20) as server:
+    if use_tls:
+      server.starttls()
+    if username and password:
+      server.login(username, password)
+    server.send_message(message)
 
 
 def get_supabase_url() -> str | None:
@@ -1306,7 +1401,20 @@ def guidance_to_chat_text(guidance: dict[str, Any]) -> str:
 
 
 def now_iso() -> str:
-  return __import__("datetime").datetime.utcnow().isoformat(timespec="milliseconds") + "Z"
+  return datetime.now(timezone.utc).isoformat(timespec="milliseconds").replace("+00:00", "Z")
+
+
+def parse_iso_datetime(value: str | None) -> datetime | None:
+  if not value:
+    return None
+  try:
+    return datetime.fromisoformat(value.replace("Z", "+00:00"))
+  except ValueError:
+    return None
+
+
+def minutes_from_now(minutes: int) -> str:
+  return (datetime.now(timezone.utc) + timedelta(minutes=minutes)).isoformat(timespec="milliseconds").replace("+00:00", "Z")
 
 
 def add_user_activity(user: dict[str, Any], activity_type: str, label: str, actor: dict[str, Any] | None = None, metadata: dict[str, Any] | None = None) -> None:
@@ -1334,6 +1442,7 @@ def normalize_auth_user(user: dict[str, Any]) -> dict[str, Any] | None:
   if not email or user.get("id") in {"demo-student", "demo-admin"}:
     return None
   created_at = user.get("createdAt") or now_iso()
+  email_verified_at = user.get("emailVerifiedAt") or created_at
   return {
     "id": user.get("id") or f"user-{uuid.uuid4().hex[:12]}",
     "name": (user.get("name") or email).strip(),
@@ -1354,6 +1463,7 @@ def normalize_auth_user(user: dict[str, Any]) -> dict[str, Any] | None:
     "documents": user.get("documents") if isinstance(user.get("documents"), list) else [],
     "shortlist": user.get("shortlist") if isinstance(user.get("shortlist"), list) else [],
     "createdAt": created_at,
+    "emailVerifiedAt": email_verified_at,
     "reviewedAt": user.get("reviewedAt") or (created_at if user.get("role") in {"owner", "admin"} else None),
     "lastActiveAt": user.get("lastActiveAt") or created_at,
     "lastActivity": user.get("lastActivity") or "Account created",
@@ -1386,6 +1496,219 @@ def public_user(user: dict[str, Any]) -> dict[str, Any]:
   return safe
 
 
+def verification_payload_from_request(payload: AuthRegisterRequest) -> dict[str, Any]:
+  password_salt, password_hash = hash_password(payload.password or "")
+  return {
+    "name": (payload.name or "").strip(),
+    "email": normalize_email(payload.email),
+    "district": (payload.district or "").strip(),
+    "passwordSalt": password_salt,
+    "passwordHash": password_hash,
+  }
+
+
+def get_latest_email_verification(email: str, purpose: str = "registration") -> dict[str, Any] | None:
+  if using_supabase():
+    rows = supabase_request(
+      "GET",
+      supabase_table_path(
+        "runtime_email_verifications",
+        f"email=eq.{supabase_filter_value(email)}&purpose=eq.{supabase_filter_value(purpose)}&consumed_at=is.null&order=created_at.desc&limit=1",
+      ),
+    )
+    return rows[0] if rows else None
+
+  with get_db_connection() as connection:
+    row = connection.execute(
+      """
+      select * from email_verifications
+      where email = ? and purpose = ? and consumed_at is null
+      order by created_at desc
+      limit 1
+      """,
+      (email, purpose),
+    ).fetchone()
+  return dict(row) if row else None
+
+
+def consume_existing_email_verifications(email: str, purpose: str = "registration") -> None:
+  timestamp = now_iso()
+  if using_supabase():
+    supabase_request(
+      "PATCH",
+      supabase_table_path(
+        "runtime_email_verifications",
+        f"email=eq.{supabase_filter_value(email)}&purpose=eq.{supabase_filter_value(purpose)}&consumed_at=is.null",
+      ),
+      {"consumed_at": timestamp},
+      prefer="return=minimal",
+    )
+    return
+
+  with get_db_connection() as connection:
+    connection.execute(
+      "update email_verifications set consumed_at = ? where email = ? and purpose = ? and consumed_at is null",
+      (timestamp, email, purpose),
+    )
+    connection.commit()
+
+
+def create_email_verification(email: str, payload: dict[str, Any], code: str, purpose: str = "registration") -> dict[str, Any]:
+  latest = get_latest_email_verification(email, purpose)
+  latest_created = parse_iso_datetime(str(latest.get("created_at") or "")) if latest else None
+  if latest_created and datetime.now(timezone.utc) - latest_created < timedelta(seconds=EMAIL_VERIFICATION_RESEND_SECONDS):
+    wait = EMAIL_VERIFICATION_RESEND_SECONDS - int((datetime.now(timezone.utc) - latest_created).total_seconds())
+    raise HTTPException(status_code=429, detail=f"Please wait {max(wait, 1)} seconds before requesting another code.")
+
+  consume_existing_email_verifications(email, purpose)
+  code_salt, code_hash = hash_password(code)
+  record = {
+    "id": f"verify-{uuid.uuid4().hex[:16]}",
+    "email": email,
+    "purpose": purpose,
+    "code_hash": code_hash,
+    "code_salt": code_salt,
+    "payload": payload,
+    "attempts": 0,
+    "created_at": now_iso(),
+    "expires_at": minutes_from_now(EMAIL_VERIFICATION_TTL_MINUTES),
+    "consumed_at": None,
+  }
+  if using_supabase():
+    supabase_request(
+      "POST",
+      supabase_table_path("runtime_email_verifications"),
+      record,
+      prefer="return=minimal",
+    )
+    return record
+
+  with get_db_connection() as connection:
+    connection.execute(
+      """
+      insert into email_verifications
+      (id, email, purpose, code_hash, code_salt, payload, attempts, created_at, expires_at, consumed_at)
+      values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+      """,
+      (
+        record["id"],
+        record["email"],
+        record["purpose"],
+        record["code_hash"],
+        record["code_salt"],
+        json.dumps(record["payload"], ensure_ascii=False),
+        record["attempts"],
+        record["created_at"],
+        record["expires_at"],
+        record["consumed_at"],
+      ),
+    )
+    connection.commit()
+  return record
+
+
+def update_email_verification(record_id: str, changes: dict[str, Any]) -> None:
+  if using_supabase():
+    supabase_request(
+      "PATCH",
+      supabase_table_path("runtime_email_verifications", f"id=eq.{supabase_filter_value(record_id)}"),
+      changes,
+      prefer="return=minimal",
+    )
+    return
+
+  allowed = {key: value for key, value in changes.items() if key in {"attempts", "consumed_at"}}
+  if not allowed:
+    return
+  assignments = ", ".join(f"{key} = ?" for key in allowed)
+  values = list(allowed.values()) + [record_id]
+  with get_db_connection() as connection:
+    connection.execute(f"update email_verifications set {assignments} where id = ?", values)
+    connection.commit()
+
+
+def get_verification_payload(record: dict[str, Any]) -> dict[str, Any]:
+  payload = record.get("payload")
+  if isinstance(payload, dict):
+    return payload
+  if isinstance(payload, str):
+    return parse_jsonish(payload, {})
+  return {}
+
+
+def verify_registration_code(email: str, code: str) -> dict[str, Any]:
+  record = get_latest_email_verification(email, "registration")
+  if not record:
+    raise HTTPException(status_code=400, detail="No active verification code was found. Request a new code.")
+  expires_at = parse_iso_datetime(str(record.get("expires_at") or ""))
+  if not expires_at or expires_at < datetime.now(timezone.utc):
+    update_email_verification(record["id"], {"consumed_at": now_iso()})
+    raise HTTPException(status_code=400, detail="Verification code expired. Request a new code.")
+  attempts = int(record.get("attempts") or 0)
+  if attempts >= EMAIL_VERIFICATION_MAX_ATTEMPTS:
+    update_email_verification(record["id"], {"consumed_at": now_iso()})
+    raise HTTPException(status_code=400, detail="Too many incorrect attempts. Request a new code.")
+  attempts += 1
+  update_email_verification(record["id"], {"attempts": attempts})
+  if not verify_password(code.strip(), {"passwordHash": record.get("code_hash"), "passwordSalt": record.get("code_salt")}):
+    raise HTTPException(status_code=400, detail="Verification code is not correct.")
+  update_email_verification(record["id"], {"consumed_at": now_iso()})
+  return get_verification_payload(record)
+
+
+def validate_registration_input(payload: AuthRegisterRequest) -> tuple[str, str, str, str]:
+  name = (payload.name or "").strip()
+  email = normalize_email(payload.email)
+  password = payload.password or ""
+  district = (payload.district or "").strip()
+  if not name or not email or not password:
+    raise HTTPException(status_code=400, detail="Name, email, and password are required.")
+  if len(password) < 6:
+    raise HTTPException(status_code=400, detail="Password must be at least 6 characters.")
+  return name, email, password, district
+
+
+def create_student_account(registration: dict[str, Any], email_verified_at: str | None = None) -> dict[str, Any]:
+  name = (registration.get("name") or "").strip()
+  email = normalize_email(registration.get("email"))
+  password_salt = registration.get("passwordSalt")
+  password_hash = registration.get("passwordHash")
+  if not name or not email or not password_salt or not password_hash:
+    raise HTTPException(status_code=400, detail="Verification record is incomplete. Request a new code.")
+  users = get_auth_users_internal()
+  if any(user["email"] == email for user in users):
+    raise HTTPException(status_code=409, detail="That email already has an account.")
+  timestamp = now_iso()
+  user = {
+    "id": f"user-{uuid.uuid4().hex[:12]}",
+    "name": name,
+    "email": email,
+    "passwordSalt": password_salt,
+    "passwordHash": password_hash,
+    "role": "student",
+    "status": "active",
+    "district": (registration.get("district") or "").strip(),
+    "stream": "",
+    "leavingYear": "",
+    "incomeBand": "mid",
+    "needSignals": [],
+    "preferenceText": "",
+    "grades": {},
+    "documents": [],
+    "shortlist": [],
+    "createdAt": timestamp,
+    "emailVerifiedAt": email_verified_at or timestamp,
+    "reviewedAt": None,
+    "lastActiveAt": timestamp,
+    "lastActivity": "Student account created",
+    "activity": [],
+  }
+  add_user_activity(user, "account_created", "Student account created after email verification", user)
+  users.append(user)
+  save_auth_users_internal(users)
+  return user
+
+
 def seed_bootstrap_admin() -> None:
   admin_email = normalize_email(os.getenv("ADMIN_EMAIL"))
   admin_password = (os.getenv("ADMIN_PASSWORD") or "").strip()
@@ -1404,6 +1727,7 @@ def seed_bootstrap_admin() -> None:
     "status": "active",
     "district": (os.getenv("ADMIN_DISTRICT") or "").strip(),
     "phone": (os.getenv("ADMIN_PHONE") or "").strip(),
+    "emailVerifiedAt": timestamp,
     "reviewedAt": timestamp,
   }
   if existing:
@@ -1423,6 +1747,7 @@ def seed_bootstrap_admin() -> None:
       "documents": [],
       "shortlist": [],
       "createdAt": timestamp,
+      "emailVerifiedAt": timestamp,
       "lastActiveAt": timestamp,
       "lastActivity": "System admin created from server environment",
       "activity": [],
@@ -1620,46 +1945,65 @@ def auth_login(payload: AuthLoginRequest) -> dict[str, Any]:
   return {"ok": True, "token": create_auth_session(stored["id"]), "user": public_user(stored)}
 
 
+@app.post("/api/auth/register/request-code")
+def auth_register_request_code(payload: AuthRegisterRequest) -> dict[str, Any]:
+  seed_bootstrap_admin()
+  name, email, _password, _district = validate_registration_input(payload)
+  if any(user["email"] == email for user in get_auth_users_internal()):
+    raise HTTPException(status_code=409, detail="That email already has an account.")
+
+  code = f"{secrets.randbelow(1_000_000):06d}"
+  record = create_email_verification(email, verification_payload_from_request(payload), code)
+  try:
+    send_verification_email(email, name, code)
+    return {
+      "ok": True,
+      "email": email,
+      "emailSent": True,
+      "expiresInMinutes": EMAIL_VERIFICATION_TTL_MINUTES,
+      "resendSeconds": EMAIL_VERIFICATION_RESEND_SECONDS,
+    }
+  except Exception as exc:
+    if email_debug_codes_enabled():
+      return {
+        "ok": True,
+        "email": email,
+        "emailSent": False,
+        "debugCode": code,
+        "expiresInMinutes": EMAIL_VERIFICATION_TTL_MINUTES,
+        "resendSeconds": EMAIL_VERIFICATION_RESEND_SECONDS,
+        "message": f"Email delivery is not configured. Development code: {code}",
+      }
+    update_email_verification(record["id"], {"consumed_at": now_iso()})
+    raise HTTPException(
+      status_code=503,
+      detail=f"Email delivery is not configured yet. Set SMTP_HOST and SMTP_FROM_EMAIL on the server. ({exc})",
+    )
+
+
+@app.post("/api/auth/register/verify")
+def auth_register_verify(payload: AuthVerifyRegistrationRequest) -> dict[str, Any]:
+  seed_bootstrap_admin()
+  name, email, password, district = validate_registration_input(payload)
+  if any(user["email"] == email for user in get_auth_users_internal()):
+    raise HTTPException(status_code=409, detail="That email already has an account.")
+  registration = verify_registration_code(email, payload.code)
+  if normalize_email(registration.get("email")) != email:
+    raise HTTPException(status_code=400, detail="Verification email does not match this registration.")
+  if (registration.get("name") or "").strip() != name or (registration.get("district") or "").strip() != district:
+    raise HTTPException(status_code=400, detail="Registration details changed. Request a new code.")
+  if not verify_password(password, registration):
+    raise HTTPException(status_code=400, detail="Password changed. Request a new code.")
+  user = create_student_account(registration, email_verified_at=now_iso())
+  return {"ok": True, "token": create_auth_session(user["id"]), "user": public_user(user)}
+
+
 @app.post("/api/auth/register")
 def auth_register(payload: AuthRegisterRequest) -> dict[str, Any]:
-  seed_bootstrap_admin()
-  name = (payload.name or "").strip()
-  email = normalize_email(payload.email)
-  password = payload.password or ""
-  if not name or not email or not password:
-    raise HTTPException(status_code=400, detail="Name, email, and password are required.")
-  users = get_auth_users_internal()
-  if any(user["email"] == email for user in users):
-    raise HTTPException(status_code=409, detail="That email already has an account.")
-  salt, password_hash = hash_password(password)
-  timestamp = now_iso()
-  user = {
-    "id": f"user-{uuid.uuid4().hex[:12]}",
-    "name": name,
-    "email": email,
-    "passwordSalt": salt,
-    "passwordHash": password_hash,
-    "role": "student",
-    "status": "active",
-    "district": (payload.district or "").strip(),
-    "stream": "",
-    "leavingYear": "",
-    "incomeBand": "mid",
-    "needSignals": [],
-    "preferenceText": "",
-    "grades": {},
-    "documents": [],
-    "shortlist": [],
-    "createdAt": timestamp,
-    "reviewedAt": None,
-    "lastActiveAt": timestamp,
-    "lastActivity": "Student account created",
-    "activity": [],
-  }
-  add_user_activity(user, "account_created", "Student account created", user)
-  users.append(user)
-  save_auth_users_internal(users)
-  return {"ok": True, "token": create_auth_session(user["id"]), "user": public_user(user)}
+  if not payload.code:
+    raise HTTPException(status_code=400, detail="Request and verify an email code before creating an account.")
+  verify_payload = AuthVerifyRegistrationRequest(**payload.model_dump())
+  return auth_register_verify(verify_payload)
 
 
 @app.get("/api/auth/me")
@@ -2085,6 +2429,8 @@ def health() -> dict[str, Any]:
     "ai_configured": bool(get_gemini_api_key() if provider == "gemini" else get_openai_api_key()),
     "gemini_configured": bool(get_gemini_api_key()),
     "openai_configured": bool(get_openai_api_key()),
+    "email_configured": smtp_configured(),
+    "email_debug_codes": email_debug_codes_enabled(),
     "database_ready": database_ready,
     "storage_ready": storage_ready,
     "supabase_configured": supabase_configured(),

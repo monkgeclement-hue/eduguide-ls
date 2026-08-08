@@ -44,6 +44,7 @@ AI_PROVIDER=gemini
 GEMINI_API_KEY=your_gemini_key
 GEMINI_MODEL=gemini-3.6-flash
 DATA_BACKEND=auto
+EMAIL_DEBUG_CODES=true
 ```
 
 Run the FastAPI server:
@@ -64,9 +65,12 @@ EduGuide LS is configured as an installable web app through `manifest.webmanifes
 
 The installed app uses the same hosted backend for login, AI guidance, document upload, and database features.
 
+Public signup verifies email with a one-time code before the account is created. For local testing, `EMAIL_DEBUG_CODES=true` shows the code in the signup message if SMTP is not configured. On the hosted app, keep debug codes off and set the `SMTP_*` variables in Render.
+
 This mode creates a local SQLite database at `data/eduguide.db` unless Supabase runtime persistence is configured. The app uses the active backend for:
 
 - registered users, admin roles, account status, and activity history
+- email verification codes for public registration
 - admin review state for programmes and data gaps
 - uploaded document metadata
 - AI recommendation-run history and recent AI chat memory

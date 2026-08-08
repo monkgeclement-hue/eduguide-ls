@@ -54,6 +54,15 @@ ADMIN_EMAIL=your_admin_email
 ADMIN_PASSWORD=your_admin_password
 ADMIN_DISTRICT=your_admin_district
 ADMIN_PHONE=your_admin_phone
+EMAIL_DEBUG_CODES=false
+SMTP_HOST=your_smtp_host
+SMTP_PORT=587
+SMTP_USERNAME=your_smtp_username
+SMTP_PASSWORD=your_smtp_password
+SMTP_FROM_EMAIL=your_verified_sender_email
+SMTP_FROM_NAME=EduGuide LS
+SMTP_USE_TLS=true
+SMTP_USE_SSL=false
 ```
 
 Optional OpenAI fallback:
@@ -65,6 +74,8 @@ OPENAI_MODEL=gpt-5.2
 
 Never commit `.env`. The key must stay server-side because the browser calls `/api/ai/guidance`, not Gemini directly.
 
+Public signup uses email one-time-code verification. In production, set the `SMTP_*` values on Render so codes are sent by email. For local development only, `EMAIL_DEBUG_CODES=true` lets the server return the verification code in the signup response when SMTP is not configured.
+
 ## Render Public Test
 
 The repository includes `render.yaml` for a Docker-based Render deployment.
@@ -72,9 +83,9 @@ The repository includes `render.yaml` for a Docker-based Render deployment.
 1. Push the project to a private GitHub repository.
 2. Confirm `.env`, `data/eduguide.db`, and `data/uploads/` are not committed.
 3. In Render, create a new Blueprint or Docker web service from the repository.
-4. In Supabase, run `supabase/schema.sql`, `supabase/runtime.sql`, and the seed files you want.
-5. Add `GEMINI_API_KEY`, `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY`, and the `ADMIN_*` variables as secret environment variables.
-6. Keep `AI_PROVIDER=gemini`, `GEMINI_MODEL=gemini-3.6-flash`, `DATA_BACKEND=auto`, and `SUPABASE_STORAGE_BUCKET=eduguide-documents`.
+4. In Supabase, run `supabase/schema.sql`, `supabase/runtime.sql`, and the seed files you want. Re-run `supabase/runtime.sql` after this update so `runtime_email_verifications` exists.
+5. Add `GEMINI_API_KEY`, `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY`, the `ADMIN_*` variables, and the `SMTP_*` email variables as secret environment variables.
+6. Keep `AI_PROVIDER=gemini`, `GEMINI_MODEL=gemini-3.6-flash`, `DATA_BACKEND=auto`, `EMAIL_DEBUG_CODES=false`, and `SUPABASE_STORAGE_BUCKET=eduguide-documents`.
 7. Deploy, then test `/health`, `/`, and `/api/db/diagnostics`.
 
 Useful Render references:
@@ -87,6 +98,7 @@ Useful Render references:
 ## Public Testing Checklist
 
 - Student login and registration work.
+- Public registration sends and verifies an email one-time code before creating a student account.
 - Public registration creates student accounts only; System Admin is created from private server environment variables.
 - Admin login works, can search users, review new accounts, grant admin roles, suspend/reactivate accounts, and inspect activity.
 - Student grades include Food & Nutrition, Religious Knowledge, and Computer Skills.

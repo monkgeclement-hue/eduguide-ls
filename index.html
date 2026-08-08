@@ -88,6 +88,20 @@
               </select>
             </label>
           </div>
+          <div class="email-code-panel" id="register-verification-panel" hidden>
+            <div>
+              <strong>Verify your email</strong>
+              <span id="register-verification-help">Enter the 6-digit code sent to your email.</span>
+            </div>
+            <label>
+              <span>Verification code</span>
+              <input id="register-code" type="text" inputmode="numeric" maxlength="6" autocomplete="one-time-code" placeholder="123456" />
+            </label>
+            <button class="secondary-action" type="button" id="resend-register-code">
+              <i data-lucide="mail-check"></i>
+              Resend code
+            </button>
+          </div>
           <button class="primary-button" type="submit">
             <i data-lucide="user-plus"></i>
             <span id="register-submit-label">Create Account</span>
@@ -635,6 +649,16 @@
                   <span>Database, storage, and AI status will appear here.</span>
                 </div>
               </div>
+              <section class="admin-intelligence-panel" aria-label="Admin intelligence">
+                <div class="section-subhead">
+                  <div>
+                    <p class="section-kicker">Intelligence</p>
+                    <h4>Live admin signals</h4>
+                  </div>
+                  <span id="admin-intelligence-summary">Monitoring users, gaps, and uploads</span>
+                </div>
+                <div class="admin-intelligence-grid" id="admin-intelligence-grid"></div>
+              </section>
 
               <div class="admin-toolbar">
                 <label class="search-field">
