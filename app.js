@@ -130,6 +130,11 @@ let deploymentStatus = {
 let databaseLoadedAuthUsers = false;
 let databaseLoadedReviewState = false;
 let aiChatLoadedFromServer = false;
+let aiInterviewState = {
+  active: false,
+  step: 0,
+  answers: []
+};
 
 const titles = {
   student: "Student Dashboard",
@@ -265,6 +270,28 @@ const fundingDocumentChecks = [
   { key: "bankDetails", label: "Bank account confirmation" },
   { key: "residenceGuarantor", label: "Residence/chief letter or guarantor evidence" },
   { key: "conditionalEvidence", label: "Prior NMDS, CHE evaluation, CV, or study leave if applicable" }
+];
+
+const nmdsPortalUrl = "https://www.scholarships.manp.gov.ls";
+const institutionApplicationLinks = [
+  { pattern: /limkokwing|luct/i, label: "Limkokwing application/course portal", url: "https://www.portal.co.ls/apply/courses" },
+  { pattern: /botho/i, label: "Botho Lesotho programmes page", url: "https://www.bothouniversity.com/lesotho/programmes" },
+  { pattern: /national university of lesotho|nul/i, label: "NUL official website", url: "https://nul.ls/" },
+  { pattern: /iems|extra mural/i, label: "NUL IEMS official page", url: "https://nul.ls/iems-2/" },
+  { pattern: /lerotholi/i, label: "Lerotholi Polytechnic prospectus", url: "https://www.lp.ac.ls/wp-content/uploads/2024/02/lerotholi-prospectus-2024-2025-embed1.pdf" },
+  { pattern: /lesotho agricultural college|lac/i, label: "Lesotho Agricultural College website", url: "https://lac.org.ls/" },
+  { pattern: /centre for accounting studies|cas/i, label: "Centre for Accounting Studies website", url: "https://cas.ac.ls/" },
+  { pattern: /roma college of nursing/i, label: "Roma College of Nursing CHE listing", url: "https://www.che.ac.ls/roma-college-of-nursing-rcn-accredited-programmes/" },
+  { pattern: /paray/i, label: "Paray School of Nursing website", url: "https://www.parayson.ac.ls" },
+  { pattern: /lesotho college of education|lce/i, label: "Lesotho College of Education source", url: "https://mabumbe.com/official-lesotho-college-education-lce-courses/" }
+];
+
+const aiInterviewQuestions = [
+  "Let us start simple. What do you enjoy, even outside school? You can say things like computers, helping people, business, farming, design, law, fixing things, or teaching.",
+  "Which subjects are your strongest, and do you remember any grades? Example: Mathematics B, English C, Physical Science D.",
+  "What kind of future work sounds good to you: office, hospital, school, business, farm, design studio, engineering site, computer lab, or community work?",
+  "Do you prefer a degree, diploma, certificate, or are you open to any route that fits your marks?",
+  "For funding preparation, what documents or background details are ready? Example: results slip, ID, admission letter, low income, rural area, guardian support."
 ];
 
 function qs(selector) {
@@ -648,6 +675,7 @@ function updateUserShell() {
 function setCurrentUser(user, preferredView = "student") {
   currentUser = user;
   aiChatLoadedFromServer = false;
+  aiInterviewState = { active: false, step: 0, answers: [] };
   if (currentUser) {
     currentUser.documents ||= [];
     currentUser.shortlist ||= [];
@@ -665,6 +693,7 @@ function setCurrentUser(user, preferredView = "student") {
   saveAuthSession();
   loadAiChatMessages();
   updateUserShell();
+  renderInterviewControls();
   renderAiChatMessages();
   loadServerAiChatMessages();
   renderStudentDashboard();
@@ -681,8 +710,10 @@ function signOut() {
   currentUser = null;
   authToken = null;
   aiChatMessages = [];
+  aiInterviewState = { active: false, step: 0, answers: [] };
   saveAuthSession();
   updateUserShell();
+  renderInterviewControls();
   setAuthMode("login");
   setAuthMessage("Signed out. Login again to continue.", "success");
 }
@@ -1369,6 +1400,10 @@ function findSubjectCodes(text) {
     .map((subject) => subject.code);
 }
 
+function escapeRegExp(value) {
+  return String(value || "").replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
+
 function getProgrammeText(programme) {
   return [
     programme.name,
@@ -2044,6 +2079,81 @@ function getFundingPolicy(programme) {
     fundingCap: null,
     rankPenalty: 2
   };
+}
+
+function getSafeExternalUrl(value) {
+  const url = String(value || "").trim();
+  return /^https?:\/\//i.test(url) ? url : "";
+}
+
+function getInstitutionApplicationLink(institution) {
+  const match = institutionApplicationLinks.find((item) => item.pattern.test(institution || ""));
+  return match ? { label: match.label, url: match.url } : null;
+}
+
+function getProgrammeApplicationSummary(programme) {
+  const sourceUrl = getSafeExternalUrl(programme.source || programme.sourceUrl || programme.supportingSourcePath);
+  const knownLink = getInstitutionApplicationLink(programme.institution);
+  const link = sourceUrl ? { label: "Open programme source", url: sourceUrl } : knownLink;
+  return {
+    link,
+    nmdsPortal: nmdsPortalUrl,
+    deadlineStatus: "Deadline tracking is not active yet; verify current dates on the institution source.",
+    fundingPolicy: programme.match?.fundingBreakdown?.policy || getFundingPolicy(programme)
+  };
+}
+
+function getApplicationDocumentChecklist(programmes = []) {
+  const signals = getUploadedDocumentSignals();
+  const allProgrammeText = programmes.map((programme) => `${programme.title} ${programme.institution} ${programme.faculty} ${programme.level}`).join(" ").toLowerCase();
+  const checklist = [
+    {
+      label: "COSC/LGCSE statement of results or certificate",
+      ready: signals.hasResults || signals.extractedGradeCount > 0,
+      note: "Needed before serious programme matching and application decisions."
+    },
+    {
+      label: "National ID, passport, or birth certificate",
+      ready: signals.hasIdentity,
+      note: "Usually needed by institutions and sponsorship applications."
+    },
+    {
+      label: "Institution application/admission evidence",
+      ready: signals.hasApplicationEvidence,
+      note: "Keep proof of application, admission, or registration for funding follow-up."
+    },
+    {
+      label: "Bank account confirmation",
+      ready: signals.hasBankDetails,
+      note: "Prepare this for sponsorship/payment readiness when requested."
+    },
+    {
+      label: "Residence, chief letter, guardian, or need evidence",
+      ready: signals.hasResidenceGuarantor || signals.hasNeedEvidence,
+      note: "Useful for need/background verification. Requirement may vary."
+    }
+  ];
+  if (/nursing|midwifery|health|medical|clinical/.test(allProgrammeText)) {
+    checklist.push({
+      label: "Health programme supporting forms",
+      ready: null,
+      note: "Nursing/health schools may request medical, interview, or school-specific forms; confirm from the institution."
+    });
+  }
+  if (programmes.some(isNulFamilyProgramme)) {
+    checklist.push({
+      label: "NUL degree-level funding check",
+      ready: programmes.some((programme) => isNulFamilyProgramme(programme) && isDegreeOrHigherProgramme(programme)),
+      note: "EduGuide treats NUL/IEMS sponsorship readiness as degree-and-higher only unless verified otherwise."
+    });
+  }
+  return checklist;
+}
+
+function getApplicationReadiness(checklist = []) {
+  const scored = checklist.filter((item) => item.ready !== null);
+  if (!scored.length) return 0;
+  return Math.round((scored.filter((item) => item.ready).length / scored.length) * 100);
 }
 
 function getFundingBreakdown(programme) {
@@ -2939,6 +3049,111 @@ function renderInstitutionMatches() {
   `;
 }
 
+function renderApplicationGroup(group) {
+  const topProgrammes = group.programmes.slice(0, 4);
+  const checklist = getApplicationDocumentChecklist(topProgrammes);
+  const readiness = getApplicationReadiness(checklist);
+  const primaryProgramme = topProgrammes[0];
+  const application = getProgrammeApplicationSummary(primaryProgramme || {});
+  const link = application.link || getInstitutionApplicationLink(group.institution);
+  const fundingPolicyWarnings = unique(topProgrammes.map((programme) => programme.match?.fundingBreakdown?.policy?.caution).filter(Boolean));
+  const readinessBadge = readiness >= 75 ? "green" : readiness >= 45 ? "amber" : "red";
+  return `
+    <article class="application-card">
+      <div class="application-card-head">
+        <div>
+          <p class="section-kicker">${escapeHtml(group.shortInstitution)}</p>
+          <h4>${escapeHtml(group.institution)}</h4>
+          <span>${topProgrammes.length} top matched programme${topProgrammes.length === 1 ? "" : "s"} prepared for application planning.</span>
+        </div>
+        <div class="application-score">
+          <strong>${readiness}%</strong>
+          <span>document readiness</span>
+        </div>
+      </div>
+
+      <div class="application-programme-list">
+        ${topProgrammes
+          .map(
+            (programme) => `
+              <div>
+                <strong>${escapeHtml(programme.title)}</strong>
+                <span>${escapeHtml(programme.level)} - ${escapeHtml(programme.duration)} - ${escapeHtml(programme.match.tierLabel)}</span>
+              </div>
+            `
+          )
+          .join("")}
+      </div>
+
+      <div class="application-document-grid">
+        ${checklist
+          .map(
+            (item) => `
+              <div class="${item.ready ? "complete" : item.ready === null ? "verify" : ""}">
+                <i data-lucide="${item.ready ? "check-circle-2" : item.ready === null ? "help-circle" : "circle"}"></i>
+                <span>
+                  <strong>${escapeHtml(item.label)}</strong>
+                  <small>${escapeHtml(item.note)}</small>
+                </span>
+              </div>
+            `
+          )
+          .join("")}
+      </div>
+
+      <div class="application-actions">
+        <span class="badge ${readinessBadge}">Docs ${readiness}%</span>
+        <span class="badge blue">Deadline/status later</span>
+        ${
+          fundingPolicyWarnings.length
+            ? `<span class="badge amber">${escapeHtml(fundingPolicyWarnings[0])}</span>`
+            : `<span class="badge amber">NMDS estimate only</span>`
+        }
+      </div>
+
+      <div class="application-links">
+        ${
+          link?.url
+            ? `<a class="secondary-link" href="${escapeHtml(link.url)}" target="_blank" rel="noreferrer">${escapeHtml(link.label || "Open application/source")}</a>`
+            : `<span>No direct application link captured yet</span>`
+        }
+        <a class="secondary-link" href="${nmdsPortalUrl}" target="_blank" rel="noreferrer">Open NMDS sponsorship portal</a>
+      </div>
+
+      <p class="application-deadline-note">${escapeHtml(application.deadlineStatus)}</p>
+    </article>
+  `;
+}
+
+function renderApplicationAssistant() {
+  const groups = getInstitutionMatchGroups().filter((group) => group.programmes.some((programme) => programme.match.tier !== "explore"));
+  const fallbackGroups = groups.length ? groups : getInstitutionMatchGroups().slice(0, 6);
+  if (!fallbackGroups.length) {
+    return `
+      <article class="admin-empty">
+        <h4>No application packs yet.</h4>
+        <p>Run matches first. Application packs appear after EduGuide finds qualified or almost-qualified institution options.</p>
+      </article>
+    `;
+  }
+  return `
+    <div class="application-assistant-intro">
+      <div>
+        <p class="section-kicker">Application assistant</p>
+        <h4>Prepare before you apply</h4>
+        <span>These packs use current matched institutions, uploaded documents, source links, and NMDS readiness. Deadlines are not tracked yet.</span>
+      </div>
+      <a class="primary-button" href="${nmdsPortalUrl}" target="_blank" rel="noreferrer">
+        <i data-lucide="external-link"></i>
+        NMDS Portal
+      </a>
+    </div>
+    <div class="application-card-list">
+      ${fallbackGroups.slice(0, 8).map(renderApplicationGroup).join("")}
+    </div>
+  `;
+}
+
 function renderResults() {
   updateBlockedTabCount();
   const blockedPanel = qs("#tab-blocked");
@@ -2951,6 +3166,7 @@ function renderResults() {
         <p>Enter the subjects required for your target pathway. Technology usually needs Mathematics; engineering, architecture, and many science programmes need Mathematics plus Physical Science or a recognised science subject.</p>
       </article>
     `;
+    qs("#tab-applications").innerHTML = renderApplicationAssistant();
     qs("#tab-skills").innerHTML = "";
     qs("#tab-labour").innerHTML = "";
     return;
@@ -2958,6 +3174,7 @@ function renderResults() {
   const groups = getInstitutionMatchGroups();
   qs("#results-heading").textContent = `${qs("#full-name").value || "Student"} - ${groups.length} matched institutions`;
   qs("#tab-programmes").innerHTML = renderInstitutionMatches();
+  qs("#tab-applications").innerHTML = renderApplicationAssistant();
 
   const skillScores = new Map();
   latestMatches.slice(0, 4).forEach((programme) => {
@@ -3048,6 +3265,8 @@ function getCompactAiProgramme(programme) {
     level: programme.level,
     duration: programme.duration,
     requirements: (programme.requirements || []).slice(0, 4),
+    application: getProgrammeApplicationSummary(programme),
+    applicationDocuments: getApplicationDocumentChecklist([programme]).slice(0, 6),
     careers: (programme.careers || []).slice(0, 3),
     skills: (programme.skills || []).slice(0, 3),
     hard_gate_passed: programme.match.hardGatePassed,
@@ -3095,8 +3314,8 @@ function getInitialAiChatMessage() {
   return {
     id: "ai-welcome",
     role: "assistant",
-    content: "Hi, I am EduGuide AI. Enter your grades first, run matches, then ask me what you qualify for, what is blocked, and what subjects to improve.",
-    html: "<strong>Hi, I am EduGuide AI.</strong><p>Enter your grades first, run matches, then ask me what you qualify for, what is blocked, and what subjects to improve.</p>"
+    content: "Hi, I am EduGuide AI. Enter grades, ask a question, or start interview mode if you do not know what to enter yet.",
+    html: "<strong>Hi, I am EduGuide AI.</strong><p>Enter grades, ask a question, or start interview mode if you do not know what to enter yet.</p>"
   };
 }
 
@@ -3198,6 +3417,8 @@ function appendAiChatMessage(role, content, html = "") {
 }
 
 function resetAiChatMessages() {
+  aiInterviewState = { active: false, step: 0, answers: [] };
+  renderInterviewControls();
   aiChatMessages = [getInitialAiChatMessage()];
   saveAiChatMessages();
   renderAiChatMessages();
@@ -3206,6 +3427,161 @@ function resetAiChatMessages() {
   if (authToken && serverDatabaseAvailable) {
     fetch("/api/ai/chat", { method: "DELETE", headers: getAuthHeaders() }).catch(() => {});
   }
+}
+
+function renderInterviewControls() {
+  const card = qs("#ai-interview-card");
+  const progress = qs("#ai-interview-progress");
+  const startButton = qs("#ai-interview-start");
+  const finishButton = qs("#ai-interview-finish");
+  if (!card || !progress || !startButton || !finishButton) return;
+  card.classList.toggle("active", aiInterviewState.active);
+  startButton.innerHTML = aiInterviewState.active
+    ? `<i data-lucide="rotate-cw"></i> Restart Interview`
+    : `<i data-lucide="messages-square"></i> Start Interview`;
+  finishButton.hidden = !aiInterviewState.active || !aiInterviewState.answers.length;
+  progress.textContent = aiInterviewState.active
+    ? `Question ${Math.min(aiInterviewState.step + 1, aiInterviewQuestions.length)} of ${aiInterviewQuestions.length}. Type your answer below and press Send.`
+    : "Answer a few short questions. EduGuide will build a starter profile and run matches.";
+  if (window.lucide) window.lucide.createIcons();
+}
+
+function beginAiInterview() {
+  aiInterviewState = { active: true, step: 0, answers: [] };
+  renderInterviewControls();
+  appendAiChatMessage(
+    "assistant",
+    aiInterviewQuestions[0],
+    `<strong>Interview mode started.</strong><p>${escapeHtml(aiInterviewQuestions[0])}</p>`
+  );
+  qs("#ai-question")?.focus();
+  qs("#ai-guidance-status").textContent = "Interview mode is active. Answer each question in short sentences.";
+}
+
+function extractGradesFromInterviewText(text) {
+  const lower = String(text || "").toLowerCase();
+  const detected = {};
+  subjectAliasRules.forEach((subject) => {
+    const aliases = [subject.label, ...(subject.patterns || [])]
+      .map((item) => String(item).toLowerCase().trim())
+      .filter(Boolean)
+      .sort((a, b) => b.length - a.length);
+    for (const alias of aliases) {
+      const escaped = escapeRegExp(alias);
+      const afterMatch = lower.match(new RegExp(`\\b${escaped}\\b\\s*(?:is|was|=|:|-|grade|got|scored|mark)?\\s*(a\\*|[a-gxz])\\b`, "i"));
+      const beforeMatch = lower.match(new RegExp(`\\b(a\\*|[b-gxz])\\b\\s*(?:in|for|on)\\s+\\b${escaped}\\b`, "i"));
+      const grade = afterMatch?.[1] || beforeMatch?.[1];
+      if (grade) {
+        detected[subject.code] = normaliseGrade(grade, "");
+        break;
+      }
+    }
+  });
+  return detected;
+}
+
+function getInterviewProfileUpdates(answers = aiInterviewState.answers) {
+  const text = answers.join(" ").toLowerCase();
+  const detectedInterests = unique(
+    domainProfiles.flatMap((profile) =>
+      profile.keywords.some((keyword) => text.includes(keyword)) ? profile.interests : []
+    )
+  );
+  const detectedGrades = answers.reduce((grades, answer) => ({ ...grades, ...extractGradesFromInterviewText(answer) }), {});
+  const detectedNeedSignals = [];
+  if (/rural|remote|village|far from|mountain/.test(text)) detectedNeedSignals.push("rural_remote");
+  if (/low income|poor|limited support|no support|financial problem|struggle|guardian/.test(text)) detectedNeedSignals.push("low_support");
+  if (/orphan|vulnerable|single parent/.test(text)) detectedNeedSignals.push("orphan_vulnerable");
+  if (/disability|disabled|health support|chronic/.test(text)) detectedNeedSignals.push("disability_health");
+  const incomeBand = /low income|poor|no support|limited support|struggle/.test(text) ? "low" : /high income|well supported/.test(text) ? "high" : "";
+  const stream =
+    detectedInterests.some((interest) => ["Technology & IT", "Health & Medicine", "Engineering", "Natural Sciences"].includes(interest))
+      ? "Science"
+      : detectedInterests.includes("Business & Finance")
+        ? "Commercial"
+        : detectedInterests.includes("Agriculture")
+          ? "Agriculture"
+          : detectedInterests.length
+            ? "General"
+            : "";
+  return {
+    interests: detectedInterests,
+    grades: detectedGrades,
+    needSignals: unique(detectedNeedSignals),
+    incomeBand,
+    stream,
+    preferenceText: answers.join(" ").trim()
+  };
+}
+
+function applyInterviewProfileUpdates() {
+  const updates = getInterviewProfileUpdates();
+  Object.entries(updates.grades).forEach(([code, grade]) => {
+    if (gradePoints[grade] !== undefined) gradeState[code] = grade;
+  });
+  updates.interests.forEach((interest) => interestState.add(interest));
+  if (updates.stream && qs("#stream")) qs("#stream").value = updates.stream;
+  if (updates.incomeBand && qs("#income-band")) qs("#income-band").value = updates.incomeBand;
+  if (updates.needSignals.length) setNeedSignalInputs(unique([...getSelectedNeedSignals(), ...updates.needSignals]));
+  if (updates.preferenceText && qs("#preference-text")) {
+    const current = qs("#preference-text").value.trim();
+    const interviewNote = `AI interview: ${updates.preferenceText}`.slice(0, 900);
+    const basePreference = current.split(/\nAI interview:/)[0].replace(/^AI interview:.*/s, "").trim();
+    qs("#preference-text").value = basePreference ? `${basePreference}\n${interviewNote}` : interviewNote;
+  }
+  renderGrades();
+  renderInterests();
+  syncCurrentUserProfile();
+  calculateMatches();
+}
+
+function getInterviewSummaryHtml() {
+  const updates = getInterviewProfileUpdates();
+  const gradeCount = Object.keys(updates.grades).length;
+  const topGroups = getInstitutionMatchGroups().slice(0, 3);
+  const matchText = topGroups.length
+    ? topGroups.map((group) => `${group.institution} (${group.programmes.length})`).join(", ")
+    : "no eligible institution matches yet";
+  return `
+    <strong>Starter profile built.</strong>
+    <p>I detected ${updates.interests.length || 0} interest area${updates.interests.length === 1 ? "" : "s"} and ${gradeCount} grade${gradeCount === 1 ? "" : "s"} from the interview, then ran the matcher.</p>
+    <p>Current institution matches: ${escapeHtml(matchText)}.</p>
+  `;
+}
+
+async function finishAiInterview() {
+  if (!aiInterviewState.answers.length) {
+    qs("#ai-guidance-status").textContent = "Answer at least one interview question first.";
+    return;
+  }
+  applyInterviewProfileUpdates();
+  aiInterviewState.active = false;
+  renderInterviewControls();
+  appendAiChatMessage("assistant", "Starter profile built and matches recalculated.", getInterviewSummaryHtml());
+  qs("#ai-guidance-status").textContent = "Profile built from interview answers. Asking EduGuide AI for the advisor explanation...";
+  await requestAiGuidance("interview");
+}
+
+async function handleAiInterviewAnswer(answer) {
+  const clean = String(answer || "").trim();
+  if (!clean) {
+    qs("#ai-guidance-status").textContent = "Type a short answer to continue the interview.";
+    qs("#ai-question")?.focus();
+    return;
+  }
+  appendAiChatMessage("user", clean);
+  aiInterviewState.answers.push(clean);
+  applyInterviewProfileUpdates();
+  qs("#ai-question").value = "";
+  aiInterviewState.step += 1;
+  if (aiInterviewState.step < aiInterviewQuestions.length) {
+    const nextQuestion = aiInterviewQuestions[aiInterviewState.step];
+    appendAiChatMessage("assistant", nextQuestion, `<p>${escapeHtml(nextQuestion)}</p>`);
+    qs("#ai-guidance-status").textContent = "Interview answer saved. Continue with the next question.";
+    renderInterviewControls();
+    return;
+  }
+  await finishAiInterview();
 }
 
 function guidanceToConversationText(guidance = {}) {
@@ -3330,7 +3706,11 @@ async function requestAiGuidance(mode = "guidance") {
   const compareButton = qs("#ai-compare-button");
   const questionInput = qs("#ai-question");
   const questionText = questionInput?.value.trim() || "";
-  if (!questionText && mode !== "compare") {
+  if (aiInterviewState.active && mode === "guidance") {
+    await handleAiInterviewAnswer(questionText);
+    return;
+  }
+  if (!questionText && !["compare", "interview"].includes(mode)) {
     qs("#ai-guidance-status").textContent = "Type a question or choose one of the quick prompts.";
     questionInput?.focus();
     return;
@@ -3339,12 +3719,23 @@ async function requestAiGuidance(mode = "guidance") {
   guidanceButton.disabled = true;
   compareButton.disabled = true;
   if (questionText) appendAiChatMessage("user", questionText);
-  renderAiChatMessages(mode === "compare" ? "Comparing your strongest current matches..." : "Reading your latest profile and preparing advice...");
-  qs("#ai-guidance-status").textContent = mode === "compare" ? "Comparing top matches..." : "Generating guidance...";
+  renderAiChatMessages(
+    mode === "compare"
+      ? "Comparing your strongest current matches..."
+      : mode === "interview"
+        ? "Reviewing your interview-built profile and current matches..."
+        : "Reading your latest profile and preparing advice..."
+  );
+  qs("#ai-guidance-status").textContent = mode === "compare" ? "Comparing top matches..." : mode === "interview" ? "Explaining interview matches..." : "Generating guidance...";
+  const effectiveQuestion =
+    questionText ||
+    (mode === "interview"
+      ? "Use the interview answers and current matcher results to explain what the student qualifies for, what is missing, and the next application steps."
+      : "");
 
   const payload = {
     mode,
-    question: questionText,
+    question: effectiveQuestion,
     conversation: getAiConversationPayload(),
     profile: getAiProfilePayload(),
     readiness: getNmdsReadiness(),
@@ -4451,6 +4842,8 @@ function bindEvents() {
   );
   qs("#ai-guidance-button")?.addEventListener("click", () => requestAiGuidance("guidance"));
   qs("#ai-compare-button")?.addEventListener("click", () => requestAiGuidance("compare"));
+  qs("#ai-interview-start")?.addEventListener("click", beginAiInterview);
+  qs("#ai-interview-finish")?.addEventListener("click", finishAiInterview);
   qsa("[data-ai-prompt]").forEach((button) => {
     button.addEventListener("click", () => {
       const input = qs("#ai-question");
@@ -4614,6 +5007,7 @@ async function init() {
   renderInterests();
   loadAiChatMessages();
   renderAiChatMessages();
+  renderInterviewControls();
   updateCounts();
   calculateMatches();
   setupDropzone();

@@ -344,11 +344,17 @@ discussed as possible funding routes, but keep the estimate cautious and competi
 Uploaded documents may include OCR/text extraction metadata. Treat extracted grades
 as machine-read suggestions until the student applies or confirms them in the grade
 form. Do not present extracted grades as an official transcript interpretation.
+When application/source links and application document checklists are supplied in
+the payload, use them for practical next steps. Do not invent deadlines; say
+deadline tracking is not active yet unless the payload provides a verified date.
 
 Answer the student's question when one is provided. Use the recent conversation
 only for context and continuity; the current matcher payload remains the source
 of truth. If mode is "compare", compare the strongest realistic qualified/almost
-options instead of repeating generic advice. If the student asks why they are
+options instead of repeating generic advice. If mode is "interview", explain the
+profile built from the interview answers, state what is still missing, and guide
+the student toward the strongest qualified/almost matches produced by the matcher.
+If the student asks why they are
 blocked, explain the exact blocker from blocked_matches or requirement_gaps and
 give a realistic next step. Ask one or two follow-up questions whenever important
 profile details are missing.
@@ -968,9 +974,10 @@ def parse_json_response(text: str) -> dict[str, Any] | None:
 def build_request_payload(payload: GuidanceRequest, conversation: list[dict[str, Any]] | None = None) -> dict[str, Any]:
   compact_matches = [compact_match(item) for item in payload.matches[:8]]
   recommendable_matches = [item for item in compact_matches if is_recommendable_match(item)]
+  mode = payload.mode if payload.mode in {"guidance", "compare", "interview"} else "guidance"
   return {
     "task": {
-      "mode": payload.mode if payload.mode in {"guidance", "compare"} else "guidance",
+      "mode": mode,
       "question": (payload.question or "").strip(),
     },
     "profile": payload.profile,

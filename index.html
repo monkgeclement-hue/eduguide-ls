@@ -462,6 +462,7 @@
                 </div>
                 <div class="result-tabs" role="tablist">
                   <button class="result-tab active" type="button" data-results-tab="programmes">Programmes</button>
+                  <button class="result-tab" type="button" data-results-tab="applications">Applications</button>
                   <button class="result-tab" type="button" data-results-tab="skills">Skills</button>
                   <button class="result-tab" type="button" data-results-tab="labour">Labour</button>
                   <button class="result-tab" type="button" data-results-tab="blocked">
@@ -471,6 +472,7 @@
                 </div>
               </div>
               <div class="tab-panel active" id="tab-programmes"></div>
+              <div class="tab-panel" id="tab-applications"></div>
               <div class="tab-panel" id="tab-skills"></div>
               <div class="tab-panel" id="tab-labour"></div>
               <div class="tab-panel" id="tab-blocked"></div>
@@ -515,6 +517,23 @@
                 <button type="button" data-ai-prompt="What programmes do I qualify for right now, and why?">What can I study?</button>
                 <button type="button" data-ai-prompt="Which subjects should I improve if I want technology, nursing, or science programmes?">What should I improve?</button>
                 <button type="button" data-ai-prompt="Explain my NMDS or scholarship readiness and what documents I should prepare.">Funding readiness</button>
+              </div>
+              <div class="ai-interview-card" id="ai-interview-card">
+                <div>
+                  <p class="section-kicker">Interview mode</p>
+                  <h4>Not sure what to enter?</h4>
+                  <span id="ai-interview-progress">Answer a few short questions. EduGuide will build a starter profile and run matches.</span>
+                </div>
+                <div class="ai-interview-actions">
+                  <button class="primary-button" type="button" id="ai-interview-start">
+                    <i data-lucide="messages-square"></i>
+                    Start Interview
+                  </button>
+                  <button class="secondary-action" type="button" id="ai-interview-finish" hidden>
+                    <i data-lucide="sparkles"></i>
+                    Build Profile
+                  </button>
+                </div>
               </div>
             </section>
 
