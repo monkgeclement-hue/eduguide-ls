@@ -46,9 +46,18 @@ ADMIN_PHONE=your_admin_phone
 
 Rotate any API key that has appeared in screenshots or chat before public launch.
 
-## 3. SMTP Email
+## 3. Email OTP
 
-Use any email provider that gives SMTP credentials. The sender email should be verified with that provider.
+Recommended for Render: use Brevo's HTTPS transactional API because it avoids SMTP connection timeouts.
+
+```env
+EMAIL_DEBUG_CODES=false
+BREVO_API_KEY=your_brevo_api_key
+SMTP_FROM_EMAIL=your_verified_sender_email
+SMTP_FROM_NAME=EduGuide LS
+```
+
+Fallback: use any email provider that gives SMTP credentials. The sender email should be verified with that provider.
 
 For the common TLS setup:
 

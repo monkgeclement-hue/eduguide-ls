@@ -460,6 +460,10 @@ def get_openai_api_key() -> str | None:
   return get_secret("OPENAI_API_KEY", "replace_with_your_openai_api_key")
 
 
+def get_brevo_api_key() -> str | None:
+  return get_secret("BREVO_API_KEY", "replace_with_your_brevo_api_key")
+
+
 def get_bool_env(name: str, default: bool = False) -> bool:
   value = os.getenv(name)
   if value is None:
@@ -467,7 +471,18 @@ def get_bool_env(name: str, default: bool = False) -> bool:
   return value.strip().lower() in {"1", "true", "yes", "on"}
 
 
+def email_transport() -> str:
+  if get_brevo_api_key():
+    return "brevo_api"
+  if get_secret("SMTP_HOST"):
+    return "smtp"
+  return "none"
+
+
 def smtp_missing_keys() -> list[str]:
+  if get_brevo_api_key():
+    return [] if get_secret("SMTP_FROM_EMAIL") else ["SMTP_FROM_EMAIL"]
+
   missing = []
   smtp_host = get_secret("SMTP_HOST")
   username = get_secret("SMTP_USERNAME")
@@ -490,7 +505,42 @@ def email_debug_codes_enabled() -> bool:
   return get_bool_env("EMAIL_DEBUG_CODES", False)
 
 
+def send_brevo_api_email(email: str, subject: str, body_lines: list[str]) -> None:
+  api_key = get_brevo_api_key()
+  from_email = get_secret("SMTP_FROM_EMAIL")
+  if not api_key or not from_email:
+    raise RuntimeError("BREVO_API_KEY and SMTP_FROM_EMAIL are required for Brevo API email delivery.")
+
+  from_name = os.getenv("SMTP_FROM_NAME", "EduGuide LS").strip() or "EduGuide LS"
+  payload = {
+    "sender": {"name": from_name, "email": from_email},
+    "to": [{"email": email}],
+    "subject": subject,
+    "textContent": "\n".join(body_lines),
+  }
+  request = urlrequest.Request(
+    "https://api.brevo.com/v3/smtp/email",
+    data=json.dumps(payload).encode("utf-8"),
+    headers={
+      "accept": "application/json",
+      "api-key": api_key,
+      "content-type": "application/json",
+    },
+    method="POST",
+  )
+  try:
+    with urlrequest.urlopen(request, timeout=20) as response:
+      response.read()
+  except urlerror.HTTPError as exc:
+    details = exc.read().decode("utf-8", errors="replace")[:600]
+    raise RuntimeError(f"Brevo API returned {exc.code}: {details}") from exc
+
+
 def send_plain_email(email: str, subject: str, body_lines: list[str]) -> None:
+  if get_brevo_api_key():
+    send_brevo_api_email(email, subject, body_lines)
+    return
+
   smtp_host = get_secret("SMTP_HOST")
   from_email = get_secret("SMTP_FROM_EMAIL")
   missing = smtp_missing_keys()
@@ -2874,6 +2924,7 @@ def database_diagnostics() -> dict[str, Any]:
     "database": get_data_backend(),
     "supabase_configured": supabase_configured(),
     "email_configured": smtp_configured(),
+    "email_transport": email_transport(),
     "email_missing_keys": smtp_missing_keys(),
     "email_debug_codes": email_debug_codes_enabled(),
     "ai_configured": bool(get_gemini_api_key() if get_ai_provider() == "gemini" else get_openai_api_key()),
@@ -3004,6 +3055,7 @@ def health() -> dict[str, Any]:
     "gemini_configured": bool(get_gemini_api_key()),
     "openai_configured": bool(get_openai_api_key()),
     "email_configured": smtp_configured(),
+    "email_transport": email_transport(),
     "email_missing_keys": smtp_missing_keys(),
     "email_debug_codes": email_debug_codes_enabled(),
     "database_ready": database_ready,

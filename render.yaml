@@ -32,6 +32,8 @@ services:
         sync: false
       - key: EMAIL_DEBUG_CODES
         value: "false"
+      - key: BREVO_API_KEY
+        sync: false
       - key: SMTP_HOST
         sync: false
       - key: SMTP_PORT

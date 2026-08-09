@@ -65,7 +65,7 @@ EduGuide LS is configured as an installable web app through `manifest.webmanifes
 
 The installed app uses the same hosted backend for login, AI guidance, document upload, and database features.
 
-Public signup verifies email with a one-time code before the account is created. For local testing, `EMAIL_DEBUG_CODES=true` shows the code in the signup message if SMTP is not configured. On the hosted app, keep debug codes off and set the `SMTP_*` variables in Render.
+Public signup verifies email with a one-time code before the account is created. For local testing, `EMAIL_DEBUG_CODES=true` shows the code in the signup message if email delivery is not configured. On the hosted app, keep debug codes off and set `BREVO_API_KEY` plus `SMTP_FROM_EMAIL` in Render. SMTP variables are still supported as a fallback.
 
 This mode creates a local SQLite database at `data/eduguide.db` unless Supabase runtime persistence is configured. The app uses the active backend for:
 

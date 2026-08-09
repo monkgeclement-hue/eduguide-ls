@@ -4685,6 +4685,7 @@ function getDeploymentReadiness() {
   const usesSupabase = Boolean(health.supabase_configured || dataBackend === "supabase");
   const aiReady = Boolean(health.ai_configured);
   const emailReady = Boolean(health.email_configured);
+  const emailTransport = health.email_transport === "brevo_api" ? "Brevo API" : "SMTP";
   const storageReady = Boolean(health.storage_ready);
   const databaseReady = Boolean(health.database_ready);
   const warningItems = [];
@@ -4708,7 +4709,7 @@ function getDeploymentReadiness() {
       { label: "Database", value: usesSupabase ? "Supabase" : dataBackend === "sqlite" ? "Render SQLite" : dataBackend },
       { label: "Storage", value: storageReady ? (health.storage_bucket || "Ready") : "Needs attention" },
       { label: "AI", value: aiReady ? `${health.provider || "AI"} ${health.model || ""}`.trim() : "Not configured" },
-      { label: "Email OTP", value: emailReady ? "SMTP ready" : health.email_debug_codes ? "Debug only" : health.email_missing_keys?.length ? `Missing ${health.email_missing_keys.length}` : "Needs SMTP" },
+      { label: "Email OTP", value: emailReady ? `${emailTransport} ready` : health.email_debug_codes ? "Debug only" : health.email_missing_keys?.length ? `Missing ${health.email_missing_keys.length}` : "Needs email" },
       { label: "Users", value: String(diagnostics.state_counts?.auth_users ?? getVisibleUsers().length ?? 0) },
       { label: "Documents", value: String(diagnostics.document_count ?? 0) },
       { label: "Events", value: String(diagnostics.runtime_event_count ?? 0) },
