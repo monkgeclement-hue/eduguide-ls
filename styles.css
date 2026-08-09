@@ -2981,6 +2981,232 @@ textarea:focus {
   height: 15px;
 }
 
+.school-explorer-panel {
+  display: grid;
+  gap: 14px;
+}
+
+.school-explorer-head {
+  align-items: center;
+}
+
+.school-search {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 44px;
+  min-width: min(100%, 390px);
+  padding: 0 12px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: #fff;
+}
+
+.school-search svg {
+  width: 18px;
+  height: 18px;
+  color: var(--brand-mid);
+}
+
+.school-search input {
+  width: 100%;
+  min-width: 0;
+  border: 0;
+  outline: 0;
+  color: var(--text);
+  font: inherit;
+  font-weight: 800;
+}
+
+.school-explorer-layout {
+  display: grid;
+  grid-template-columns: minmax(210px, 270px) minmax(260px, 360px) minmax(0, 1fr);
+  gap: 14px;
+  align-items: start;
+}
+
+.school-list-panel,
+.course-search-panel,
+.school-detail-panel {
+  min-width: 0;
+}
+
+.school-list-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+.school-list-head strong {
+  color: var(--brand-deep);
+  font-size: 14px;
+}
+
+.school-list-head span {
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 800;
+  line-height: 1.35;
+}
+
+.school-card-list,
+.explorer-programme-list,
+.school-detail-panel {
+  display: grid;
+  gap: 10px;
+}
+
+.school-card,
+.explorer-programme-row {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  min-height: 62px;
+  padding: 10px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: #fff;
+  color: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.school-card.active,
+.explorer-programme-row.active {
+  border-color: #9bd8c6;
+  background: var(--brand-soft);
+}
+
+.school-card strong,
+.explorer-programme-row strong {
+  display: block;
+  color: var(--brand-deep);
+  font-size: 13px;
+  overflow-wrap: anywhere;
+}
+
+.school-card small,
+.explorer-programme-row small {
+  display: block;
+  margin-top: 3px;
+  color: var(--muted);
+  font-size: 11px;
+  font-weight: 800;
+  line-height: 1.35;
+}
+
+.explorer-programme-row {
+  grid-template-columns: minmax(0, 1fr) auto auto;
+}
+
+.explorer-programme-row em {
+  max-width: 112px;
+  color: var(--muted);
+  font-size: 10px;
+  font-style: normal;
+  font-weight: 900;
+  text-transform: uppercase;
+}
+
+.explorer-programme-row svg {
+  width: 18px;
+  height: 18px;
+  color: var(--brand-mid);
+}
+
+.school-profile-card,
+.course-profile-card {
+  display: grid;
+  gap: 13px;
+  padding: 14px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: #fff;
+  box-shadow: var(--shadow);
+}
+
+.school-profile-head,
+.course-profile-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 13px;
+}
+
+.school-profile-head h4,
+.course-profile-head h4 {
+  margin: 0;
+  color: var(--brand-deep);
+  font-size: 18px;
+}
+
+.school-profile-head span,
+.course-profile-head span,
+.course-overview {
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.school-profile-actions,
+.explorer-link-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  justify-content: flex-end;
+}
+
+.school-profile-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.school-profile-grid .detail-block,
+.course-detail-grid .detail-block {
+  min-width: 0;
+}
+
+.explorer-fee-list {
+  display: grid;
+  gap: 7px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.explorer-fee-list li {
+  display: grid;
+  gap: 2px;
+}
+
+.explorer-fee-list strong {
+  color: var(--brand-deep);
+  font-size: 12px;
+}
+
+.explorer-fee-list span {
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 800;
+  line-height: 1.35;
+}
+
+.course-detail-grid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.course-overview {
+  margin: 0;
+  padding: 10px;
+  border-radius: 8px;
+  background: var(--surface-soft);
+}
+
 .source-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -3016,6 +3242,14 @@ textarea:focus {
     grid-template-columns: 1fr;
   }
 
+  .school-explorer-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .school-card-list {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
   .sidebar {
     position: static;
     height: auto;
@@ -3023,7 +3257,7 @@ textarea:focus {
   }
 
   .side-nav {
-    grid-template-columns: repeat(auto-fit, minmax(86px, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(52px, 1fr));
   }
 
   .sidebar-panel {
@@ -3185,6 +3419,10 @@ textarea:focus {
   .form-grid,
   .grade-grid,
   .programme-detail,
+  .school-card-list,
+  .school-explorer-layout,
+  .school-profile-grid,
+  .course-detail-grid,
   .source-grid,
   .admin-summary-grid,
   .admin-row,
@@ -3260,8 +3498,26 @@ textarea:focus {
     text-align: left;
   }
 
+  .school-profile-head,
+  .course-profile-head,
+  .school-explorer-head {
+    display: grid;
+  }
+
+  .school-profile-actions,
+  .explorer-link-row {
+    justify-content: flex-start;
+  }
+
+  .school-search {
+    min-width: 0;
+    width: 100%;
+  }
+
   .application-programme-list,
-  .application-document-grid {
+  .application-document-grid,
+  .school-profile-grid,
+  .course-detail-grid {
     grid-template-columns: 1fr;
   }
 

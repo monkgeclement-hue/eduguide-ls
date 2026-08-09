@@ -37,6 +37,11 @@ let adminState = {
   selectedUserId: null,
   editingProgrammeId: null
 };
+let schoolExplorerState = {
+  query: "",
+  selectedInstitution: adminData.institutions?.[0]?.name || adminProgrammes[0]?.institution || "",
+  selectedProgrammeId: null
+};
 
 const persistenceKey = "eduguide-admin-review-state-v1";
 const authUsersKey = "eduguide-auth-users-v1";
@@ -153,6 +158,7 @@ let aiInterviewState = {
 const titles = {
   student: "Student Dashboard",
   results: "Recommendation Results",
+  schools: "Schools & Courses",
   ai: "EduGuide AI",
   admin: "Admin Dashboard",
   sources: "Data Sources"
@@ -546,6 +552,7 @@ function renderViewOnDemand(viewName) {
     loadAdminIntelligence();
   }
   if (viewName === "sources") renderSources();
+  if (viewName === "schools") renderSchoolExplorer();
   if (viewName === "results") renderResults();
   if (viewName === "ai") renderAiChatMessages();
 }
@@ -2954,6 +2961,7 @@ function toggleShortlist(programmeId) {
   saveAuthUsers();
   renderResults();
   renderStudentDashboard();
+  renderSchoolExplorer();
 }
 
 function calculateMatches() {
@@ -3984,6 +3992,367 @@ function renderSources() {
       </article>
     `)
     .join("");
+}
+
+function getExplorerProgrammes() {
+  const realProgrammes = adminProgrammes.filter((programme) => programme.reviewStatus !== "rejected");
+  return realProgrammes.length ? realProgrammes : programmes.map((programme) => ({
+    id: programme.id,
+    institution: programme.institution,
+    name: programme.title,
+    faculty: programme.faculty,
+    category: programme.labourSector,
+    level: programme.level,
+    duration: programme.duration,
+    overview: null,
+    requirementsSummary: (programme.requirements || []).join("; "),
+    careers: programme.careers || [],
+    sourceUrl: programme.source,
+    reviewStatus: programme.status,
+    feeNote: null
+  }));
+}
+
+function getProgrammeDisplayName(programme = {}) {
+  return programme.name || programme.title || "Programme under review";
+}
+
+function getProgrammeExplorerText(programme = {}) {
+  return [
+    getProgrammeDisplayName(programme),
+    programme.institution,
+    programme.faculty,
+    programme.category,
+    programme.level,
+    programme.duration,
+    programme.overview,
+    programme.requirementsSummary,
+    programme.sourceNote,
+    programme.feeNote,
+    ...(programme.careers || []),
+    ...(getDomainProfile(programme).careers || []),
+    ...(getDomainProfile(programme).skills || [])
+  ]
+    .filter(Boolean)
+    .join(" ")
+    .toLowerCase();
+}
+
+function getExplorerInstitutionNames() {
+  return Array.from(
+    new Set([
+      ...(adminData.institutions || []).map((item) => item.name),
+      ...getExplorerProgrammes().map((programme) => programme.institution)
+    ].filter(Boolean))
+  ).sort((a, b) => a.localeCompare(b));
+}
+
+function getInstitutionProgrammes(institution) {
+  return getExplorerProgrammes()
+    .filter((programme) => programme.institution === institution)
+    .sort((a, b) => getProgrammeDisplayName(a).localeCompare(getProgrammeDisplayName(b)));
+}
+
+function getInstitutionSourcesForExplorer(institution) {
+  const starterSources = sources
+    .filter((source) => source.name === institution || source.name?.toLowerCase().includes(String(institution || "").toLowerCase()))
+    .map((source) => ({
+      institution,
+      source_url: source.url,
+      status: source.status,
+      data_found: source.tags || [],
+      shortage: [],
+      label: source.type || "Official source"
+    }));
+  const auditedSources = (adminSources || []).filter((source) => source.institution === institution);
+  return [...auditedSources, ...starterSources];
+}
+
+function dedupeLinks(links = []) {
+  const seen = new Set();
+  return links.filter((link) => {
+    const url = getSafeExternalUrl(link?.url);
+    if (!url || seen.has(url)) return false;
+    seen.add(url);
+    link.url = url;
+    return true;
+  });
+}
+
+function getInstitutionExplorerLinks(institution) {
+  const application = getInstitutionApplicationLink(institution);
+  const institutionSources = getInstitutionSourcesForExplorer(institution);
+  const programmeLinks = getInstitutionProgrammes(institution)
+    .flatMap((programme) => [programme.sourceUrl, programme.supportingSourcePath, programme.supportingFeeSourcePath])
+    .filter(Boolean)
+    .map((url) => ({ label: "Programme/source page", url }));
+  const sourceLinks = institutionSources
+    .map((source) => source.source_url || source.url)
+    .filter(Boolean)
+    .map((url) => ({ label: /prospectus|pdf|docx/i.test(url) ? "Prospectus/source document" : "Official source", url }));
+  const allLinks = dedupeLinks([
+    application ? { label: application.label || "Apply/open school site", url: application.url } : null,
+    ...sourceLinks,
+    ...programmeLinks
+  ].filter(Boolean));
+  const prospectusLinks = allLinks.filter((link) => /prospectus|pdf|docx/i.test(`${link.label} ${link.url}`));
+  const primarySource = allLinks.find((link) => !prospectusLinks.includes(link)) || allLinks[0] || null;
+  return {
+    application,
+    prospectusLinks,
+    primarySource,
+    allLinks
+  };
+}
+
+function getInstitutionFeeSchedules(institution) {
+  return adminFees.filter((schedule) => schedule.institution === institution);
+}
+
+function renderInstitutionFeeSummary(institution, limit = 5) {
+  const schedules = getInstitutionFeeSchedules(institution);
+  const feeItems = schedules.flatMap((schedule) => (schedule.items || []).map((item) => ({ ...item, schedule })));
+  if (!feeItems.length) {
+    const hasMissingNote = schedules.some((schedule) => (schedule.missingItems || []).length || (schedule.notes || []).length);
+    return `<p class="muted-inline">${hasMissingNote ? "Fee schedule has notes but exact amounts are still incomplete." : "No confirmed fee schedule captured yet."}</p>`;
+  }
+  return `
+    <ul class="explorer-fee-list">
+      ${feeItems.slice(0, limit).map((item) => `
+        <li>
+          <strong>${escapeHtml(item.name || item.programmeGroup || "Fee item")}</strong>
+          <span>${escapeHtml(item.percentOfTuition ? `${item.percentOfTuition}% of tuition` : formatMoney(item.amount, item.schedule.currency))}${item.basis ? ` - ${escapeHtml(item.basis)}` : ""}</span>
+        </li>
+      `).join("")}
+    </ul>
+    ${feeItems.length > limit ? `<p class="muted-inline">${feeItems.length - limit} more fee item(s) in admin catalogue.</p>` : ""}
+  `;
+}
+
+function getExplorerSearchResults() {
+  const query = schoolExplorerState.query.trim().toLowerCase();
+  const programmes = getExplorerProgrammes();
+  if (!query) {
+    return getInstitutionProgrammes(schoolExplorerState.selectedInstitution).slice(0, 14);
+  }
+  const terms = query.split(/\s+/).filter(Boolean);
+  return programmes
+    .filter((programme) => {
+      const text = getProgrammeExplorerText(programme);
+      return terms.every((term) => text.includes(term));
+    })
+    .slice(0, 40);
+}
+
+function getExplorerSelectedProgramme() {
+  const results = getExplorerSearchResults();
+  const allProgrammes = getExplorerProgrammes();
+  const queryActive = Boolean(schoolExplorerState.query.trim());
+  const selected = allProgrammes.find((programme) => programme.id === schoolExplorerState.selectedProgrammeId);
+  if (selected && (!queryActive || results.some((programme) => programme.id === selected.id))) return selected;
+  if (results.length) return results[0];
+  if (queryActive) return null;
+  return getInstitutionProgrammes(schoolExplorerState.selectedInstitution)[0] || allProgrammes[0] || null;
+}
+
+function renderExplorerProgrammeList(programmes) {
+  if (!programmes.length) {
+    return `
+      <article class="admin-empty">
+        <h4>No courses found.</h4>
+        <p>Try searching for a school, course, career, skill, or subject requirement.</p>
+      </article>
+    `;
+  }
+  return programmes.map((programme) => {
+    const active = programme.id === getExplorerSelectedProgramme()?.id;
+    const profile = getDomainProfile(programme);
+    const title = getProgrammeDisplayName(programme);
+    const saved = currentUser?.shortlist?.includes(programme.id);
+    const status = programme.reviewStatus === "approved" || programme.reviewStatus === "verified" ? "verified" : "review";
+    return `
+      <button class="explorer-programme-row ${active ? "active" : ""}" type="button" data-explorer-programme="${escapeHtml(programme.id)}">
+        <span>
+          <strong>${escapeHtml(title)}</strong>
+          <small>${escapeHtml(programme.institution || "Institution")} - ${escapeHtml(programme.level || "Level under review")} - ${escapeHtml(programme.faculty || programme.category || "Faculty under review")}</small>
+        </span>
+        <em>${escapeHtml(profile.key)}</em>
+        <i data-lucide="${saved ? "bookmark-check" : status === "verified" ? "badge-check" : "clipboard-list"}"></i>
+      </button>
+    `;
+  }).join("");
+}
+
+function renderSchoolCards(institutions) {
+  return institutions.map((institution) => {
+    const programmesForInstitution = getInstitutionProgrammes(institution);
+    const active = institution === schoolExplorerState.selectedInstitution;
+    const sourceCount = getInstitutionSourcesForExplorer(institution).length;
+    const feeCount = getInstitutionFeeSchedules(institution).reduce((total, schedule) => total + (schedule.items || []).length, 0);
+    return `
+      <button class="school-card ${active ? "active" : ""}" type="button" data-school-select="${escapeHtml(institution)}">
+        <div class="institution-icon">${escapeHtml(getInstitutionShortName(institution).slice(0, 4))}</div>
+        <span>
+          <strong>${escapeHtml(institution)}</strong>
+          <small>${programmesForInstitution.length} course${programmesForInstitution.length === 1 ? "" : "s"} - ${sourceCount} source${sourceCount === 1 ? "" : "s"} - ${feeCount ? `${feeCount} fee item${feeCount === 1 ? "" : "s"}` : "fees incomplete"}</small>
+        </span>
+      </button>
+    `;
+  }).join("");
+}
+
+function renderSelectedSchoolProfile(institution) {
+  const links = getInstitutionExplorerLinks(institution);
+  const sourcesForInstitution = getInstitutionSourcesForExplorer(institution);
+  const dataFound = unique(sourcesForInstitution.flatMap((source) => source.data_found || source.tags || [])).slice(0, 8);
+  const shortages = unique(sourcesForInstitution.flatMap((source) => source.shortage || source.missingItems || [])).slice(0, 5);
+  return `
+    <article class="school-profile-card">
+      <div class="school-profile-head">
+        <div>
+          <p class="section-kicker">${escapeHtml(getInstitutionShortName(institution))}</p>
+          <h4>${escapeHtml(institution || "School under review")}</h4>
+          <span>${getInstitutionProgrammes(institution).length} programme record(s) in EduGuide catalogue.</span>
+        </div>
+        <div class="school-profile-actions">
+          ${links.application?.url ? `<a class="primary-button small" href="${escapeHtml(links.application.url)}" target="_blank" rel="noreferrer"><i data-lucide="external-link"></i> Apply / Visit</a>` : `<span class="badge amber">Apply link missing</span>`}
+          <a class="secondary-action" href="${nmdsPortalUrl}" target="_blank" rel="noreferrer"><i data-lucide="wallet-cards"></i> NMDS</a>
+        </div>
+      </div>
+      <div class="school-profile-grid">
+        <div class="detail-block">
+          <h5>Prospectus & sources</h5>
+          ${
+            links.prospectusLinks.length
+              ? `<ul>${links.prospectusLinks.slice(0, 4).map((link) => `<li><a href="${escapeHtml(link.url)}" target="_blank" rel="noreferrer">${escapeHtml(link.label)}</a></li>`).join("")}</ul>`
+              : `<p class="muted-inline">No downloadable prospectus link captured yet. Add it in admin when available.</p>`
+          }
+          ${links.primarySource?.url ? `<a class="secondary-link" href="${escapeHtml(links.primarySource.url)}" target="_blank" rel="noreferrer">Open primary source</a>` : ""}
+        </div>
+        <div class="detail-block">
+          <h5>Fees</h5>
+          ${renderInstitutionFeeSummary(institution, 4)}
+        </div>
+        <div class="detail-block">
+          <h5>Known data</h5>
+          ${
+            dataFound.length
+              ? `<ul>${dataFound.map((item) => `<li>${escapeHtml(item)}</li>`).join("")}</ul>`
+              : `<p class="muted-inline">No source audit details captured yet.</p>`
+          }
+        </div>
+        <div class="detail-block">
+          <h5>Shortages</h5>
+          ${
+            shortages.length
+              ? `<ul>${shortages.map((item) => `<li>${escapeHtml(item)}</li>`).join("")}</ul>`
+              : `<p class="muted-inline">No major shortage noted for this school profile.</p>`
+          }
+        </div>
+      </div>
+    </article>
+  `;
+}
+
+function renderExplorerCourseProfile(programme) {
+  if (!programme) {
+    return `<article class="admin-empty"><h4>Select a course.</h4><p>Search or open a school to inspect course details.</p></article>`;
+  }
+  const matchingProgramme = getMatchingProgrammeFromAdmin(programme);
+  const title = getProgrammeDisplayName(programme);
+  const application = getProgrammeApplicationSummary(matchingProgramme);
+  const saved = currentUser?.shortlist?.includes(programme.id);
+  const profile = getDomainProfile(programme);
+  const requirementItems = matchingProgramme.requirements?.length ? matchingProgramme.requirements : [programme.requirementsSummary || "Entry requirements need confirmation."];
+  const careers = unique([...(programme.careers || []), ...(profile.careers || [])]).slice(0, 8);
+  const skills = unique([...(matchingProgramme.skills || []), ...(profile.skills || [])]).slice(0, 8);
+  const feeNotes = [programme.feeNote, programme.supportingFeeSourcePath ? `Fee evidence: ${programme.supportingFeeSourcePath}` : ""].filter(Boolean);
+  return `
+    <article class="course-profile-card">
+      <div class="course-profile-head">
+        <div>
+          <p class="section-kicker">${escapeHtml(programme.institution || "Institution")}</p>
+          <h4>${escapeHtml(title)}</h4>
+          <span>${escapeHtml(programme.level || "Level under review")} - ${escapeHtml(programme.duration || "Duration under review")} - ${escapeHtml(programme.faculty || programme.category || "Faculty under review")}</span>
+        </div>
+        <div class="programme-card-actions">
+          <button class="secondary-action" type="button" data-explorer-shortlist="${escapeHtml(programme.id)}">
+            <i data-lucide="${saved ? "bookmark-check" : "bookmark-plus"}"></i>
+            ${saved ? "Saved" : "Save"}
+          </button>
+          ${application.link?.url ? `<a class="primary-button small" href="${escapeHtml(application.link.url)}" target="_blank" rel="noreferrer"><i data-lucide="external-link"></i> Apply / Source</a>` : ""}
+        </div>
+      </div>
+      <div class="programme-detail course-detail-grid">
+        <div class="detail-block">
+          <h5>Requirements</h5>
+          <ul>${requirementItems.map((item) => `<li>${escapeHtml(item)}</li>`).join("")}</ul>
+        </div>
+        <div class="detail-block">
+          <h5>Careers / work fields</h5>
+          <ul>${careers.map((item) => `<li>${escapeHtml(item)}</li>`).join("") || "<li>Career links need confirmation.</li>"}</ul>
+        </div>
+        <div class="detail-block">
+          <h5>Skills</h5>
+          <ul>${skills.map((item) => `<li>${escapeHtml(item)}</li>`).join("") || "<li>Skill mapping needs confirmation.</li>"}</ul>
+        </div>
+        <div class="detail-block">
+          <h5>Fees</h5>
+          ${feeNotes.length ? `<ul>${feeNotes.map((item) => `<li>${escapeHtml(item)}</li>`).join("")}</ul>` : renderInstitutionFeeSummary(programme.institution, 3)}
+        </div>
+      </div>
+      <div class="application-links explorer-link-row">
+        ${programme.sourceUrl ? `<a class="secondary-link" href="${escapeHtml(programme.sourceUrl)}" target="_blank" rel="noreferrer">Open course source</a>` : ""}
+        <a class="secondary-link" href="${nmdsPortalUrl}" target="_blank" rel="noreferrer">Open NMDS sponsorship portal</a>
+        <button class="secondary-action" type="button" data-view-target="results"><i data-lucide="sparkles"></i> Compare with my marks</button>
+      </div>
+      ${programme.overview ? `<p class="course-overview">${escapeHtml(programme.overview)}</p>` : ""}
+    </article>
+  `;
+}
+
+function renderSchoolExplorer() {
+  const root = qs("#school-explorer");
+  if (!root) return;
+  const institutions = getExplorerInstitutionNames();
+  if (!institutions.length) {
+    root.innerHTML = `<article class="admin-empty"><h4>No school catalogue yet.</h4><p>Add programme records in Admin first.</p></article>`;
+    return;
+  }
+  if (!schoolExplorerState.selectedInstitution || !institutions.includes(schoolExplorerState.selectedInstitution)) {
+    schoolExplorerState.selectedInstitution = institutions[0];
+  }
+  const searchInput = qs("#school-search");
+  if (searchInput && searchInput.value !== schoolExplorerState.query) searchInput.value = schoolExplorerState.query;
+  const results = getExplorerSearchResults();
+  const selectedProgramme = getExplorerSelectedProgramme();
+  const selectedInstitution = selectedProgramme?.institution || schoolExplorerState.selectedInstitution;
+  if (selectedProgramme && selectedInstitution !== schoolExplorerState.selectedInstitution) {
+    schoolExplorerState.selectedInstitution = selectedInstitution;
+  }
+  root.innerHTML = `
+    <div class="school-explorer-layout">
+      <aside class="school-list-panel">
+        <div class="school-list-head">
+          <strong>${institutions.length} schools</strong>
+          <span>${getExplorerProgrammes().length} courses</span>
+        </div>
+        <div class="school-card-list">${renderSchoolCards(institutions)}</div>
+      </aside>
+      <section class="course-search-panel">
+        <div class="school-list-head">
+          <strong>${schoolExplorerState.query ? `${results.length} search result${results.length === 1 ? "" : "s"}` : `${escapeHtml(schoolExplorerState.selectedInstitution)} courses`}</strong>
+          <span>Open a course for requirements, fees, careers, and links</span>
+        </div>
+        <div class="explorer-programme-list">${renderExplorerProgrammeList(results)}</div>
+      </section>
+      <section class="school-detail-panel">
+        ${renderSelectedSchoolProfile(schoolExplorerState.selectedInstitution)}
+        ${renderExplorerCourseProfile(selectedProgramme)}
+      </section>
+    </div>
+  `;
+  if (window.lucide) window.lucide.createIcons();
 }
 
 function getUnreviewedUsers() {
@@ -5350,6 +5719,43 @@ function bindEvents() {
   qs("#admin-status-filter")?.addEventListener("change", (event) => {
     adminState.status = event.target.value;
     renderAdmin();
+  });
+  qs("#school-search")?.addEventListener("input", (event) => {
+    schoolExplorerState.query = event.target.value;
+    schoolExplorerState.selectedProgrammeId = null;
+    renderSchoolExplorer();
+  });
+  qs("#view-schools")?.addEventListener("click", (event) => {
+    const viewTarget = event.target.closest("[data-view-target]");
+    if (viewTarget) {
+      setView(viewTarget.dataset.viewTarget);
+      return;
+    }
+
+    const schoolButton = event.target.closest("[data-school-select]");
+    if (schoolButton) {
+      schoolExplorerState.selectedInstitution = schoolButton.dataset.schoolSelect;
+      schoolExplorerState.selectedProgrammeId = null;
+      schoolExplorerState.query = "";
+      recordCurrentUserActivity("school_profile_viewed", `Viewed ${schoolExplorerState.selectedInstitution}`, { institution: schoolExplorerState.selectedInstitution }, { throttleMs: 45000 });
+      renderSchoolExplorer();
+      return;
+    }
+
+    const programmeButton = event.target.closest("[data-explorer-programme]");
+    if (programmeButton) {
+      const programme = getExplorerProgrammes().find((item) => item.id === programmeButton.dataset.explorerProgramme);
+      schoolExplorerState.selectedProgrammeId = programmeButton.dataset.explorerProgramme;
+      if (programme?.institution) schoolExplorerState.selectedInstitution = programme.institution;
+      recordCurrentUserActivity("course_profile_viewed", `Viewed ${getProgrammeDisplayName(programme)}`, { programmeId: programme?.id, programmeName: getProgrammeDisplayName(programme), institution: programme?.institution }, { throttleMs: 45000 });
+      renderSchoolExplorer();
+      return;
+    }
+
+    const shortlistButton = event.target.closest("[data-explorer-shortlist]");
+    if (shortlistButton) {
+      toggleShortlist(shortlistButton.dataset.explorerShortlist);
+    }
   });
   qs("#view-admin")?.addEventListener("submit", (event) => {
     if (!event.target.matches("#admin-edit-form")) return;
