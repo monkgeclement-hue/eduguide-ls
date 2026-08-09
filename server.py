@@ -35,6 +35,8 @@ AI_CHAT_CONTEXT_LIMIT = 12
 EMAIL_VERIFICATION_TTL_MINUTES = 10
 EMAIL_VERIFICATION_RESEND_SECONDS = 45
 EMAIL_VERIFICATION_MAX_ATTEMPTS = 6
+AUTH_SESSION_TTL_DAYS = max(1, int(os.getenv("AUTH_SESSION_TTL_DAYS", "30") or "30"))
+RATE_LIMIT_STATE: dict[str, list[datetime]] = {}
 GRADE_VALUES = {"A*", "A", "B", "C", "D", "E", "F", "G", "X", "Z"}
 GEMINI_DEFAULT_MODEL = "gemini-3.6-flash"
 GEMINI_MODEL_FALLBACKS = ["gemini-3.6-flash", "gemini-3.5-flash", "gemini-flash-latest"]
@@ -1269,6 +1271,13 @@ def safe_list_runtime_events(limit: int = 1000) -> list[dict[str, Any]]:
     return []
 
 
+def safe_insert_runtime_event(user_id: str, event_type: str, label: str | None = None, payload: dict[str, Any] | None = None) -> dict[str, Any] | None:
+  try:
+    return insert_runtime_event(user_id, event_type, label, payload)
+  except Exception:
+    return None
+
+
 def normalize_email(value: str | None) -> str:
   return (value or "").strip().lower()
 
@@ -1558,13 +1567,50 @@ def parse_iso_datetime(value: str | None) -> datetime | None:
   if not value:
     return None
   try:
-    return datetime.fromisoformat(value.replace("Z", "+00:00"))
+    parsed = datetime.fromisoformat(value.replace("Z", "+00:00"))
+    return parsed if parsed.tzinfo else parsed.replace(tzinfo=timezone.utc)
   except ValueError:
     return None
 
 
 def minutes_from_now(minutes: int) -> str:
   return (datetime.now(timezone.utc) + timedelta(minutes=minutes)).isoformat(timespec="milliseconds").replace("+00:00", "Z")
+
+
+def get_request_ip(request: Request | None) -> str:
+  if not request:
+    return "unknown"
+  forwarded_for = request.headers.get("x-forwarded-for", "")
+  if forwarded_for:
+    return forwarded_for.split(",", 1)[0].strip()[:80] or "unknown"
+  return (request.client.host if request.client else "unknown")[:80]
+
+
+def check_rate_limit(request: Request | None, bucket: str, limit: int, window_seconds: int, identifier: str | None = None) -> None:
+  now = datetime.now(timezone.utc)
+  cutoff = now - timedelta(seconds=window_seconds)
+  key = f"{bucket}:{identifier or ''}:{get_request_ip(request)}"
+  hits = [hit for hit in RATE_LIMIT_STATE.get(key, []) if hit > cutoff]
+  if len(hits) >= limit:
+    retry_after = max(1, int((hits[0] + timedelta(seconds=window_seconds) - now).total_seconds()))
+    raise HTTPException(
+      status_code=429,
+      detail=f"Too many requests. Try again in {retry_after} seconds.",
+      headers={"Retry-After": str(retry_after)},
+    )
+  hits.append(now)
+  RATE_LIMIT_STATE[key] = hits
+  if len(RATE_LIMIT_STATE) > 5000:
+    stale_keys = [item_key for item_key, item_hits in RATE_LIMIT_STATE.items() if not any(hit > cutoff for hit in item_hits)]
+    for stale_key in stale_keys[:1000]:
+      RATE_LIMIT_STATE.pop(stale_key, None)
+
+
+def session_expired(last_seen_at: str | None, created_at: str | None = None) -> bool:
+  reference = parse_iso_datetime(last_seen_at) or parse_iso_datetime(created_at)
+  if not reference:
+    return False
+  return reference < datetime.now(timezone.utc) - timedelta(days=AUTH_SESSION_TTL_DAYS)
 
 
 def add_user_activity(user: dict[str, Any], activity_type: str, label: str, actor: dict[str, Any] | None = None, metadata: dict[str, Any] | None = None) -> None:
@@ -1932,10 +1978,14 @@ def get_session_user_id(token: str) -> str | None:
       "GET",
       supabase_table_path(
         "runtime_auth_sessions",
-        f"token=eq.{supabase_filter_value(token)}&select=user_id&limit=1",
+        f"token=eq.{supabase_filter_value(token)}&select=user_id,created_at,last_seen_at&limit=1",
       ),
     )
     if not rows:
+      return None
+    row = rows[0]
+    if session_expired(str(row.get("last_seen_at") or ""), str(row.get("created_at") or "")):
+      delete_auth_session(token)
       return None
     supabase_request(
       "PATCH",
@@ -1943,15 +1993,18 @@ def get_session_user_id(token: str) -> str | None:
       {"last_seen_at": now_iso()},
       prefer="return=minimal",
     )
-    return rows[0].get("user_id")
+    return row.get("user_id")
 
   with get_db_connection() as connection:
-    row = connection.execute("select user_id from auth_sessions where token = ?", (token,)).fetchone()
+    row = connection.execute("select user_id, created_at, last_seen_at from auth_sessions where token = ?", (token,)).fetchone()
     if row:
+      if session_expired(row["last_seen_at"], row["created_at"]):
+        connection.execute("delete from auth_sessions where token = ?", (token,))
+        connection.commit()
+        return None
       connection.execute("update auth_sessions set last_seen_at = current_timestamp where token = ?", (token,))
       connection.commit()
   return row["user_id"] if row else None
-
 
 def require_current_user(authorization: str | None) -> dict[str, Any]:
   token = get_bearer_token(authorization)
@@ -2075,7 +2128,8 @@ def auth_bootstrap() -> dict[str, Any]:
 
 
 @app.post("/api/auth/login")
-def auth_login(payload: AuthLoginRequest) -> dict[str, Any]:
+def auth_login(payload: AuthLoginRequest, request: Request) -> dict[str, Any]:
+  check_rate_limit(request, "auth_login", 8, 600, normalize_email(payload.email))
   seed_bootstrap_admin()
   email = normalize_email(payload.email)
   user = next((item for item in get_auth_users_internal() if item["email"] == email), None)
@@ -2096,7 +2150,8 @@ def auth_login(payload: AuthLoginRequest) -> dict[str, Any]:
 
 
 @app.post("/api/auth/register/request-code")
-def auth_register_request_code(payload: AuthRegisterRequest) -> dict[str, Any]:
+def auth_register_request_code(payload: AuthRegisterRequest, request: Request) -> dict[str, Any]:
+  check_rate_limit(request, "registration_code", 4, 900, normalize_email(payload.email))
   seed_bootstrap_admin()
   name, email, _password, _district = validate_registration_input(payload)
   if any(user["email"] == email for user in get_auth_users_internal()):
@@ -2132,7 +2187,8 @@ def auth_register_request_code(payload: AuthRegisterRequest) -> dict[str, Any]:
 
 
 @app.post("/api/auth/register/verify")
-def auth_register_verify(payload: AuthVerifyRegistrationRequest) -> dict[str, Any]:
+def auth_register_verify(payload: AuthVerifyRegistrationRequest, request: Request) -> dict[str, Any]:
+  check_rate_limit(request, "registration_verify", 10, 900, normalize_email(payload.email))
   seed_bootstrap_admin()
   name, email, password, district = validate_registration_input(payload)
   if any(user["email"] == email for user in get_auth_users_internal()):
@@ -2149,11 +2205,11 @@ def auth_register_verify(payload: AuthVerifyRegistrationRequest) -> dict[str, An
 
 
 @app.post("/api/auth/register")
-def auth_register(payload: AuthRegisterRequest) -> dict[str, Any]:
+def auth_register(payload: AuthRegisterRequest, request: Request) -> dict[str, Any]:
   if not payload.code:
     raise HTTPException(status_code=400, detail="Request and verify an email code before creating an account.")
   verify_payload = AuthVerifyRegistrationRequest(**payload.model_dump())
-  return auth_register_verify(verify_payload)
+  return auth_register_verify(verify_payload, request)
 
 
 @app.get("/api/auth/me")
@@ -2305,6 +2361,7 @@ def add_admin_programme_signal(signals: dict[str, dict[str, Any]], programme: di
 def build_admin_intelligence() -> dict[str, Any]:
   users = get_auth_users_internal()
   students = [user for user in users if user.get("role") not in {"owner", "admin"}]
+  student_ids = {str(user["id"]) for user in students}
   users_by_id = {user["id"]: user for user in users}
   signals: dict[str, dict[str, Any]] = {}
   active_ai_user_ids: set[str] = set()
@@ -2358,7 +2415,7 @@ def build_admin_intelligence() -> dict[str, Any]:
       payload = {}
     event_type = str(event.get("event_type") or "")
     event_user_id = str(event.get("user_id") or "")
-    if event_type in {"ai_guidance", "ai_compare", "ai_chat_cleared"} and event_user_id:
+    if event_type in {"ai_guidance", "ai_compare", "ai_chat_cleared"} and event_user_id in student_ids:
       active_ai_user_ids.add(event_user_id)
     if event_type in {"shortlist_updated", "programme_viewed", "course_profile_viewed"}:
       add_admin_programme_signal(
@@ -2496,6 +2553,7 @@ def admin_test_email(payload: AdminTestEmailRequest | None = None, authorization
   except Exception as exc:
     raise HTTPException(status_code=502, detail=f"SMTP test failed: {exc}")
 
+  safe_insert_runtime_event(actor["id"], "admin_test_email", "Admin sent SMTP test email", {"sentTo": mask_email(target_email)})
   return {
     "ok": True,
     "sentTo": mask_email(target_email),
@@ -2519,6 +2577,7 @@ def admin_set_user_role(user_id: str, payload: UserRoleUpdate, authorization: st
   if payload.role == "admin":
     user["reviewedAt"] = user.get("reviewedAt") or now_iso()
   add_user_activity(user, "role_changed", f"Role changed to {payload.role}", actor, {"role": payload.role})
+  safe_insert_runtime_event(actor["id"], "admin_role_changed", "Admin changed a user role", {"targetUserId": user["id"], "targetEmail": mask_email(user.get("email")), "role": payload.role})
   save_auth_users_internal(users)
   return {"ok": True, "user": public_user(user), "users": [public_user(item) for item in users]}
 
@@ -2538,6 +2597,7 @@ def admin_set_user_status(user_id: str, payload: UserStatusUpdate, authorization
   if payload.status == "active":
     user["reviewedAt"] = user.get("reviewedAt") or now_iso()
   add_user_activity(user, "status_changed", f"Account {payload.status}", actor, {"status": payload.status})
+  safe_insert_runtime_event(actor["id"], "admin_status_changed", "Admin changed account status", {"targetUserId": user["id"], "targetEmail": mask_email(user.get("email")), "status": payload.status})
   save_auth_users_internal(users)
   return {"ok": True, "user": public_user(user), "users": [public_user(item) for item in users]}
 
@@ -2551,13 +2611,15 @@ def admin_review_user(user_id: str, authorization: str | None = Header(default=N
     raise HTTPException(status_code=404, detail="User not found.")
   user["reviewedAt"] = now_iso()
   add_user_activity(user, "reviewed", "Account reviewed by admin", actor)
+  safe_insert_runtime_event(actor["id"], "admin_user_reviewed", "Admin reviewed a student account", {"targetUserId": user["id"], "targetEmail": mask_email(user.get("email"))})
   save_auth_users_internal(users)
   return {"ok": True, "user": public_user(user), "users": [public_user(item) for item in users]}
 
 
 @app.post("/api/documents/upload")
-async def upload_documents(user_id: str = Form(...), files: list[UploadFile] = File(...), authorization: str | None = Header(default=None)) -> dict[str, Any]:
+async def upload_documents(request: Request, user_id: str = Form(...), files: list[UploadFile] = File(...), authorization: str | None = Header(default=None)) -> dict[str, Any]:
   require_user_access(user_id, authorization)
+  check_rate_limit(request, "document_upload", 12, 3600, user_id)
   safe_user_id = sanitize_storage_segment(user_id, "anonymous")
   if not files:
     raise HTTPException(status_code=400, detail="No documents were uploaded.")
@@ -2625,12 +2687,13 @@ def list_user_documents(user_id: str, authorization: str | None = Header(default
 
 
 @app.post("/api/documents/{document_id}/extract")
-def rerun_document_extraction(document_id: str, authorization: str | None = Header(default=None)) -> dict[str, Any]:
+def rerun_document_extraction(document_id: str, request: Request, authorization: str | None = Header(default=None)) -> dict[str, Any]:
   safe_document_id = sanitize_storage_segment(document_id)
   row = get_document_record(safe_document_id)
   if not row:
     raise HTTPException(status_code=404, detail="Document not found.")
   require_user_access(str(row_get(row, "user_id")), authorization)
+  check_rate_limit(request, "document_ocr", 20, 3600, str(row_get(row, "user_id")))
   row = extract_document(safe_document_id)
   return {"ok": True, "document": document_response(row)}
 
@@ -2804,8 +2867,9 @@ def database_diagnostics() -> dict[str, Any]:
 
 
 @app.post("/api/events")
-def record_runtime_event(payload: RuntimeEventRequest, authorization: str | None = Header(default=None)) -> dict[str, Any]:
+def record_runtime_event(payload: RuntimeEventRequest, request: Request, authorization: str | None = Header(default=None)) -> dict[str, Any]:
   user = require_current_user(authorization)
+  check_rate_limit(request, "runtime_event", 360, 3600, user["id"])
   event_type = payload.event_type or payload.eventType
   try:
     event = insert_runtime_event(user["id"], event_type or "", payload.label, payload.payload)
@@ -2943,7 +3007,7 @@ def ai_chat_clear(authorization: str | None = Header(default=None)) -> dict[str,
 
 
 @app.post("/api/ai/guidance")
-def ai_guidance(payload: GuidanceRequest, authorization: str | None = Header(default=None)) -> dict[str, Any]:
+def ai_guidance(payload: GuidanceRequest, request: Request, authorization: str | None = Header(default=None)) -> dict[str, Any]:
   if not payload.matches and not payload.blockedMatches:
     return {
       "mode": "local_fallback",
@@ -2952,6 +3016,7 @@ def ai_guidance(payload: GuidanceRequest, authorization: str | None = Header(def
     }
 
   current_user = require_current_user(authorization) if authorization else None
+  check_rate_limit(request, "ai_guidance", 40, 3600, current_user["id"] if current_user else "guest")
   incoming_history = merge_ai_chat_histories(payload.conversation)
   server_history = safe_list_ai_chat_history(current_user["id"]) if current_user else []
   merged_history = merge_ai_chat_histories(server_history, incoming_history)
