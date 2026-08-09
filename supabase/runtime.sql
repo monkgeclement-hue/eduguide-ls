@@ -66,12 +66,23 @@ create table if not exists public.runtime_email_verifications (
   consumed_at timestamptz
 );
 
+create table if not exists public.runtime_events (
+  id text primary key,
+  user_id text not null,
+  event_type text not null,
+  label text,
+  payload jsonb not null default '{}'::jsonb,
+  created_at timestamptz not null default now()
+);
+
 create index if not exists idx_runtime_auth_sessions_user on public.runtime_auth_sessions(user_id);
 create index if not exists idx_runtime_uploaded_documents_user on public.runtime_uploaded_documents(user_id, uploaded_at desc);
 create index if not exists idx_runtime_uploaded_documents_extraction on public.runtime_uploaded_documents(extraction_status);
 create index if not exists idx_runtime_recommendation_runs_created on public.runtime_recommendation_runs(created_at desc);
 create index if not exists idx_runtime_ai_chat_messages_user_created on public.runtime_ai_chat_messages(user_id, created_at desc);
 create index if not exists idx_runtime_email_verifications_email_created on public.runtime_email_verifications(email, purpose, created_at desc);
+create index if not exists idx_runtime_events_type_created on public.runtime_events(event_type, created_at desc);
+create index if not exists idx_runtime_events_user_created on public.runtime_events(user_id, created_at desc);
 
 insert into storage.buckets (id, name, public, file_size_limit)
 values ('eduguide-documents', 'eduguide-documents', false, 10485760)
@@ -85,3 +96,4 @@ alter table public.runtime_uploaded_documents enable row level security;
 alter table public.runtime_recommendation_runs enable row level security;
 alter table public.runtime_ai_chat_messages enable row level security;
 alter table public.runtime_email_verifications enable row level security;
+alter table public.runtime_events enable row level security;

@@ -143,6 +143,7 @@ let adminActionStatus = {
   message: "",
   tone: "neutral"
 };
+const analyticsThrottleState = new Map();
 let serverAdminIntelligence = null;
 let adminIntelligenceLoading = false;
 let adminIntelligenceError = "";
@@ -608,12 +609,35 @@ function addActivityToUser(user, type, label, metadata = {}, options = {}) {
 function recordCurrentUserActivity(type, label, metadata = {}, options = {}) {
   if (!currentUser) return;
   const changed = addActivityToUser(currentUser, type, label, metadata, options);
-  if (changed || options.saveEvenWhenThrottled) saveAuthUsers();
+  if (changed || options.saveEvenWhenThrottled) {
+    saveAuthUsers();
+    recordServerEvent(type, label, metadata);
+  }
 }
 
 function recordTargetUserActivity(user, type, label, metadata = {}) {
   const changed = addActivityToUser(user, type, label, metadata);
   if (changed) saveAuthUsers();
+}
+
+function recordServerEvent(type, label, payload = {}) {
+  if (!authToken || !serverDatabaseAvailable || !currentUser) return;
+  fetch("/api/events", {
+    method: "POST",
+    headers: getAuthHeaders({ "Content-Type": "application/json" }),
+    body: JSON.stringify({ eventType: type, label, payload })
+  }).catch(() => {});
+}
+
+function recordAnalyticsEvent(type, label, payload = {}, options = {}) {
+  const throttleMs = options.throttleMs || 0;
+  const key = `${type}:${payload.programmeId || payload.institution || payload.query || label || ""}`.toLowerCase();
+  if (throttleMs) {
+    const lastAt = analyticsThrottleState.get(key) || 0;
+    if (Date.now() - lastAt < throttleMs) return;
+    analyticsThrottleState.set(key, Date.now());
+  }
+  recordServerEvent(type, label, payload);
 }
 
 function setAuthMessage(message, tone = "neutral") {
@@ -2667,8 +2691,11 @@ function syncCurrentUserProfile() {
   currentUser.needSignals = getSelectedNeedSignals();
   currentUser.preferenceText = qs("#preference-text")?.value.trim() || "";
   currentUser.grades = { ...gradeState };
-  addActivityToUser(currentUser, "profile_updated", "Updated student profile", {}, { throttleMs: 120000 });
-  saveAuthUsers();
+  recordCurrentUserActivity("profile_updated", "Updated student profile", {
+    subjects: Object.keys(gradeState).length,
+    interests: interestState.size,
+    hasPreferenceText: currentUser.preferenceText.length > 0
+  }, { throttleMs: 120000 });
   updateUserShell();
 }
 
@@ -2837,8 +2864,7 @@ async function loadCurrentUserDocuments() {
 function persistCurrentGrades() {
   if (!currentUser) return;
   currentUser.grades = { ...gradeState };
-  addActivityToUser(currentUser, "grades_updated", "Updated grades", { subjects: Object.keys(gradeState).length }, { throttleMs: 60000 });
-  saveAuthUsers();
+  recordCurrentUserActivity("grades_updated", "Updated grades", { subjects: Object.keys(gradeState).length }, { throttleMs: 60000 });
 }
 
 function applyExtractedGrades(documentId) {
@@ -2871,12 +2897,22 @@ async function rerunDocumentOcr(documentId) {
       (currentUser.documents || []).filter((item) => item.id !== documentId),
       [data.document]
     );
-    addActivityToUser(currentUser, "document_ocr", "Reran document OCR", { document: data.document.name || documentId });
-    saveAuthUsers();
+    recordCurrentUserActivity("document_ocr", "Reran document OCR", {
+      document: data.document.name || documentId,
+      extractionStatus: data.document.extractionStatus,
+      extractedGrades: data.document.extractedGrades?.length || 0
+    });
+    if (data.document.extractionStatus === "failed") {
+      recordCurrentUserActivity("ocr_failed", "OCR failed for document", {
+        document: data.document.name || documentId,
+        error: data.document.extractionError || "OCR failed"
+      }, { throttleMs: 60000 });
+    }
     renderStudentDashboard();
     qs("#dropzone-text").textContent = `${data.document.extractedGrades?.length || 0} grade suggestion(s) detected`;
   } catch (error) {
     qs("#dropzone-text").textContent = "OCR rerun failed";
+    recordCurrentUserActivity("ocr_failed", "OCR rerun failed", { documentId, error: error?.message || "OCR rerun failed" }, { throttleMs: 60000 });
   }
 }
 
@@ -2924,8 +2960,15 @@ async function addDocuments(files) {
     dropzoneText.textContent = "Upload failed; saved document names locally";
   }
   currentUser.documents = mergeDocuments(currentUser.documents || [], incoming);
-  addActivityToUser(currentUser, "document_upload", "Uploaded document(s)", { count: incoming.length });
-  saveAuthUsers();
+  recordCurrentUserActivity("document_upload", "Uploaded document(s)", { count: incoming.length });
+  const failedDocuments = incoming.filter((item) => item.extractionStatus === "failed" || item.extractionError || /ocr failed/i.test(item.status || ""));
+  if (failedDocuments.length) {
+    recordCurrentUserActivity("ocr_failed", "OCR failed for uploaded document(s)", {
+      count: failedDocuments.length,
+      documents: failedDocuments.map((item) => item.name).filter(Boolean).slice(0, 5),
+      errors: failedDocuments.map((item) => item.extractionError || item.status).filter(Boolean).slice(0, 3)
+    }, { throttleMs: 60000 });
+  }
   renderStudentDashboard();
 }
 
@@ -2938,12 +2981,11 @@ async function removeDocument(documentId) {
       if (!response.ok) throw new Error(`Document delete returned ${response.status}`);
     }
     currentUser.documents = (currentUser.documents || []).filter((item) => item.id !== documentId);
-    addActivityToUser(currentUser, "document_removed", "Removed a document", { document: documentItem?.name || documentId });
+    recordCurrentUserActivity("document_removed", "Removed a document", { document: documentItem?.name || documentId });
     qs("#dropzone-text").textContent = "Document removed";
   } catch (error) {
     qs("#dropzone-text").textContent = "Could not remove document from the server";
   }
-  saveAuthUsers();
   renderStudentDashboard();
 }
 
@@ -2953,12 +2995,21 @@ function toggleShortlist(programmeId) {
   const programme = findProgrammeById(programmeId);
   if (currentUser.shortlist.includes(programmeId)) {
     currentUser.shortlist = currentUser.shortlist.filter((id) => id !== programmeId);
-    addActivityToUser(currentUser, "shortlist_updated", "Removed a saved programme", { programmeId, programmeName: programme?.name });
+    recordCurrentUserActivity("shortlist_updated", "Removed a saved programme", {
+      programmeId,
+      programmeName: programme?.name,
+      institution: programme?.institution,
+      action: "removed"
+    });
   } else {
     currentUser.shortlist.push(programmeId);
-    addActivityToUser(currentUser, "shortlist_updated", "Saved a programme", { programmeId, programmeName: programme?.name, institution: programme?.institution });
+    recordCurrentUserActivity("shortlist_updated", "Saved a programme", {
+      programmeId,
+      programmeName: programme?.name,
+      institution: programme?.institution,
+      action: "saved"
+    });
   }
-  saveAuthUsers();
   renderResults();
   renderStudentDashboard();
   renderSchoolExplorer();
@@ -2971,10 +3022,19 @@ function calculateMatches() {
     .sort((a, b) => getTierRank(a.match.tier) - getTierRank(b.match.tier) || b.match.overall - a.match.overall || b.match.eligibility - a.match.eligibility);
   latestBlockedMatches = evaluatedMatches.filter((programme) => programme.match.tier === "blocked");
   latestMatches = evaluatedMatches.filter((programme) => programme.match.tier !== "blocked").slice(0, 80);
+  const blockedReasons = unique(
+    latestBlockedMatches.flatMap((programme) => programme.match.hardGateFailures?.length ? programme.match.hardGateFailures : programme.match.requirementGaps || [])
+  ).slice(0, 10);
   recordCurrentUserActivity(
     "matches_calculated",
     "Calculated programme matches",
-    { visibleMatches: latestMatches.length, blockedMatches: latestBlockedMatches.length },
+    {
+      visibleMatches: latestMatches.length,
+      blockedMatches: latestBlockedMatches.length,
+      tierCounts: getMatchTierCounts(latestMatches),
+      institutionMatches: getInstitutionMatchGroups().length,
+      blockedReasons
+    },
     { throttleMs: 90000 }
   );
   updateReadiness();
@@ -4462,6 +4522,9 @@ function mergeAdminIntelligence(localData) {
     studentsCount: Number(serverAdminIntelligence.studentsCount ?? localData.studentsCount),
     activeAiUsers: Number(serverAdminIntelligence.activeAiUsers ?? localData.activeAiUsers),
     topProgrammes: serverAdminIntelligence.topProgrammes?.length ? serverAdminIntelligence.topProgrammes : localData.topProgrammes,
+    topSearches: serverAdminIntelligence.topSearches || [],
+    topSchools: serverAdminIntelligence.topSchools || [],
+    blockedReasons: serverAdminIntelligence.blockedReasons || [],
     missingWarnings: unique([...(serverAdminIntelligence.missingWarnings || []), ...localData.missingWarnings]),
     blockedByMathScience: serverAdminIntelligence.blockedByMathScience?.length ? serverAdminIntelligence.blockedByMathScience : localData.blockedByMathScience,
     ocrFailures: serverAdminIntelligence.ocrFailures?.length ? serverAdminIntelligence.ocrFailures : localData.ocrFailures,
@@ -4482,8 +4545,9 @@ function renderAdminIntelligence() {
     const status = adminIntelligenceLoading ? "refreshing..." : adminIntelligenceError || source;
     summary.textContent = `${data.studentsCount} student account${data.studentsCount === 1 ? "" : "s"} - ${data.activeAiUsers} used AI guidance - ${status}`;
   }
-  const topProgrammes = data.topProgrammes.length
+  const topProgrammeItems = data.topProgrammes.length
     ? data.topProgrammes
+        .slice(0, 5)
         .map((item) => {
           const knownProgramme = findProgrammeById(item.programmeId);
           const programmeName = knownProgramme?.name || item.programme?.name || item.programmeName || item.programme || item.name || "Programme";
@@ -4493,7 +4557,22 @@ function renderAdminIntelligence() {
           return `<li><strong>${escapeHtml(programmeName)}</strong><span>${escapeHtml(institution)} - ${totalSignals} save/view signal${totalSignals === 1 ? "" : "s"}${aiMentions}</span></li>`;
         })
         .join("")
-    : `<li><strong>No programme demand yet</strong><span>Saved/viewed programmes will appear after students use results.</span></li>`;
+    : "";
+  const searchItems = data.topSearches?.length
+    ? data.topSearches
+        .slice(0, 3)
+        .map((item) => `<li><strong>Search: ${escapeHtml(item.query)}</strong><span>${Number(item.count || 0)} course search${Number(item.count || 0) === 1 ? "" : "es"}</span></li>`)
+        .join("")
+    : "";
+  const schoolItems = data.topSchools?.length
+    ? data.topSchools
+        .slice(0, 2)
+        .map((item) => `<li><strong>${escapeHtml(item.institution)}</strong><span>${Number(item.count || 0)} school profile view${Number(item.count || 0) === 1 ? "" : "s"}</span></li>`)
+        .join("")
+    : "";
+  const topProgrammes = topProgrammeItems || searchItems || schoolItems
+    ? `${topProgrammeItems}${searchItems}${schoolItems}`
+    : `<li><strong>No programme demand yet</strong><span>Saved/viewed programmes and course searches will appear after students use results.</span></li>`;
   const missingWarnings = data.missingWarnings.length
     ? data.missingWarnings.map((item) => `<li><strong>${escapeHtml(item)}</strong><span>Needs catalogue review</span></li>`).join("")
     : `<li><strong>No urgent catalogue warnings</strong><span>Open gaps are currently quiet.</span></li>`;
@@ -4509,7 +4588,11 @@ function renderAdminIntelligence() {
           return `<li><strong>${escapeHtml(user.name || "Student")}</strong><span>${escapeHtml(reason || "Science gate needs review")} - ${escapeHtml(user.email || user.id || "")}</span></li>`;
         })
         .join("")
-    : `<li><strong>No Math/Science blockers detected</strong><span>Students with missing gates will appear here.</span></li>`;
+    : "";
+  const blockedReasonItems = data.blockedReasons?.length
+    ? data.blockedReasons.slice(0, 4).map((item) => `<li><strong>${escapeHtml(item.reason)}</strong><span>${Number(item.count || 0)} match run${Number(item.count || 0) === 1 ? "" : "s"}</span></li>`).join("")
+    : "";
+  const blockedEmpty = blockedUsers || blockedReasonItems ? "" : `<li><strong>No Math/Science blockers detected</strong><span>Students with missing gates will appear here.</span></li>`;
   const uploadFailures = data.ocrFailures.length
     ? data.ocrFailures.slice(0, 5).map((item) => {
         const user = item.user || {};
@@ -4535,7 +4618,7 @@ function renderAdminIntelligence() {
     </article>
     <article class="admin-insight-card">
       <div><i data-lucide="calculator"></i><strong>Blocked by Math/Science</strong></div>
-      <ul>${blockedUsers}</ul>
+      <ul>${blockedUsers}${blockedReasonItems}${blockedEmpty}</ul>
     </article>
     <article class="admin-insight-card">
       <div><i data-lucide="file-warning"></i><strong>Upload/OCR failures</strong></div>
@@ -4623,6 +4706,7 @@ function getDeploymentReadiness() {
       { label: "Email OTP", value: emailReady ? "SMTP ready" : health.email_debug_codes ? "Debug only" : "Needs SMTP" },
       { label: "Users", value: String(diagnostics.state_counts?.auth_users ?? getVisibleUsers().length ?? 0) },
       { label: "Documents", value: String(diagnostics.document_count ?? 0) },
+      { label: "Events", value: String(diagnostics.runtime_event_count ?? 0) },
       { label: "AI chats", value: String(diagnostics.ai_chat_message_count ?? 0) }
     ],
     warnings: warningItems.slice(1)
@@ -5723,6 +5807,10 @@ function bindEvents() {
   qs("#school-search")?.addEventListener("input", (event) => {
     schoolExplorerState.query = event.target.value;
     schoolExplorerState.selectedProgrammeId = null;
+    const query = schoolExplorerState.query.trim();
+    if (query.length >= 3) {
+      recordAnalyticsEvent("course_search", "Searched schools and courses", { query: query.slice(0, 90) }, { throttleMs: 12000 });
+    }
     renderSchoolExplorer();
   });
   qs("#view-schools")?.addEventListener("click", (event) => {

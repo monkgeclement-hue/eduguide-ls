@@ -125,6 +125,13 @@ class AdminTestEmailRequest(BaseModel):
   email: str | None = None
 
 
+class RuntimeEventRequest(BaseModel):
+  eventType: str | None = None
+  event_type: str | None = None
+  label: str | None = None
+  payload: dict[str, Any] = Field(default_factory=dict)
+
+
 
 
 def get_gemini_model_candidates() -> list[str]:
@@ -226,6 +233,30 @@ def init_database() -> None:
         expires_at text not null,
         consumed_at text
       )
+      """
+    )
+    connection.execute(
+      """
+      create table if not exists runtime_events (
+        id text primary key,
+        user_id text not null,
+        event_type text not null,
+        label text,
+        payload text not null default '{}',
+        created_at text not null default current_timestamp
+      )
+      """
+    )
+    connection.execute(
+      """
+      create index if not exists idx_runtime_events_type_created
+      on runtime_events(event_type, created_at desc)
+      """
+    )
+    connection.execute(
+      """
+      create index if not exists idx_runtime_events_user_created
+      on runtime_events(user_id, created_at desc)
       """
     )
     connection.execute(
@@ -1135,6 +1166,107 @@ def save_recommendation_run(payload: GuidanceRequest, request_payload: dict[str,
       connection.commit()
   except Exception:
     pass
+
+
+def sanitize_event_type(value: str | None) -> str:
+  event_type = re.sub(r"[^a-zA-Z0-9_.:-]", "_", (value or "").strip().lower())
+  return event_type[:80]
+
+
+def sanitize_event_payload(value: Any, depth: int = 0) -> Any:
+  if depth > 3:
+    return None
+  if isinstance(value, str):
+    return value.strip()[:700]
+  if isinstance(value, (int, float, bool)) or value is None:
+    return value
+  if isinstance(value, list):
+    return [sanitize_event_payload(item, depth + 1) for item in value[:30]]
+  if isinstance(value, dict):
+    sanitized: dict[str, Any] = {}
+    for key, item in list(value.items())[:50]:
+      clean_key = re.sub(r"[^a-zA-Z0-9_.:-]", "_", str(key).strip())[:80]
+      if clean_key:
+        sanitized[clean_key] = sanitize_event_payload(item, depth + 1)
+    return sanitized
+  return str(value)[:300]
+
+
+def insert_runtime_event(user_id: str, event_type: str, label: str | None = None, payload: dict[str, Any] | None = None) -> dict[str, Any]:
+  safe_event_type = sanitize_event_type(event_type)
+  if not safe_event_type:
+    raise ValueError("Event type is required.")
+  event = {
+    "id": f"evt-{uuid.uuid4().hex[:18]}",
+    "user_id": str(user_id),
+    "event_type": safe_event_type,
+    "label": (label or "").strip()[:240] or None,
+    "payload": sanitize_event_payload(payload or {}),
+    "created_at": now_iso(),
+  }
+  if using_supabase():
+    supabase_request(
+      "POST",
+      supabase_table_path("runtime_events"),
+      event,
+      prefer="return=minimal",
+    )
+    return event
+
+  with get_db_connection() as connection:
+    connection.execute(
+      """
+      insert into runtime_events (id, user_id, event_type, label, payload, created_at)
+      values (?, ?, ?, ?, ?, ?)
+      """,
+      (
+        event["id"],
+        event["user_id"],
+        event["event_type"],
+        event["label"],
+        json.dumps(event["payload"], ensure_ascii=False),
+        event["created_at"],
+      ),
+    )
+    connection.commit()
+  return event
+
+
+def list_runtime_events(limit: int = 1000) -> list[dict[str, Any]]:
+  capped_limit = max(1, min(limit, 5000))
+  if using_supabase():
+    return supabase_request(
+      "GET",
+      supabase_table_path(
+        "runtime_events",
+        f"select=id,user_id,event_type,label,payload,created_at&order=created_at.desc&limit={capped_limit}",
+      ),
+    ) or []
+
+  with get_db_connection() as connection:
+    rows = connection.execute(
+      """
+      select id, user_id, event_type, label, payload, created_at
+      from runtime_events
+      order by created_at desc
+      limit ?
+      """,
+      (capped_limit,),
+    ).fetchall()
+  return [
+    {
+      **dict(row),
+      "payload": parse_jsonish(row["payload"], {}),
+    }
+    for row in rows
+  ]
+
+
+def safe_list_runtime_events(limit: int = 1000) -> list[dict[str, Any]]:
+  try:
+    return list_runtime_events(limit)
+  except Exception:
+    return []
 
 
 def normalize_email(value: str | None) -> str:
@@ -2176,10 +2308,16 @@ def build_admin_intelligence() -> dict[str, Any]:
   users_by_id = {user["id"]: user for user in users}
   signals: dict[str, dict[str, Any]] = {}
   active_ai_user_ids: set[str] = set()
+  runtime_events = safe_list_runtime_events(1500)
+  search_counts: dict[str, int] = {}
+  school_counts: dict[str, int] = {}
+  blocked_reason_counts: dict[str, int] = {}
 
   for user in students:
     for programme_id in user.get("shortlist") or []:
       add_admin_programme_signal(signals, {"programmeId": programme_id, "source": "saved", "weight": 3})
+    if runtime_events:
+      continue
     for activity in user.get("activity") or []:
       metadata = activity.get("metadata") if isinstance(activity.get("metadata"), dict) else {}
       activity_type = activity.get("type")
@@ -2213,6 +2351,39 @@ def build_admin_intelligence() -> dict[str, Any]:
           "createdAt": row.get("created_at"),
         }
       )
+
+  for event in runtime_events:
+    payload = parse_jsonish(event.get("payload"), {})
+    if not isinstance(payload, dict):
+      payload = {}
+    event_type = str(event.get("event_type") or "")
+    event_user_id = str(event.get("user_id") or "")
+    if event_type in {"ai_guidance", "ai_compare", "ai_chat_cleared"} and event_user_id:
+      active_ai_user_ids.add(event_user_id)
+    if event_type in {"shortlist_updated", "programme_viewed", "course_profile_viewed"}:
+      add_admin_programme_signal(
+        signals,
+        {
+          "programmeId": payload.get("programmeId"),
+          "programmeName": payload.get("programmeName"),
+          "institution": payload.get("institution"),
+          "source": "saved" if event_type == "shortlist_updated" else "viewed",
+          "weight": 2 if event_type == "shortlist_updated" else 1,
+        },
+      )
+    if event_type == "course_search":
+      query = str(payload.get("query") or "").strip().lower()
+      if len(query) >= 3:
+        search_counts[query] = search_counts.get(query, 0) + 1
+    if event_type == "school_profile_viewed":
+      institution = str(payload.get("institution") or "").strip()
+      if institution:
+        school_counts[institution] = school_counts.get(institution, 0) + 1
+    if event_type == "matches_calculated":
+      for reason in payload.get("blockedReasons") or []:
+        reason_text = str(reason or "").strip()
+        if reason_text:
+          blocked_reason_counts[reason_text] = blocked_reason_counts.get(reason_text, 0) + 1
 
   blocked_by_math_science = []
   for user in students:
@@ -2265,6 +2436,18 @@ def build_admin_intelligence() -> dict[str, Any]:
     "studentsCount": len(students),
     "activeAiUsers": len(active_ai_user_ids) or len({item.get("profileName") for item in recent_questions if item.get("profileName")}),
     "topProgrammes": sorted(signals.values(), key=lambda item: (-int(item.get("score") or 0), item.get("programmeName") or ""))[:8],
+    "topSearches": [
+      {"query": key, "count": value}
+      for key, value in sorted(search_counts.items(), key=lambda item: (-item[1], item[0]))[:8]
+    ],
+    "topSchools": [
+      {"institution": key, "count": value}
+      for key, value in sorted(school_counts.items(), key=lambda item: (-item[1], item[0]))[:8]
+    ],
+    "blockedReasons": [
+      {"reason": key, "count": value}
+      for key, value in sorted(blocked_reason_counts.items(), key=lambda item: (-item[1], item[0]))[:8]
+    ],
     "missingWarnings": runtime_warnings,
     "blockedByMathScience": blocked_by_math_science[:12],
     "ocrFailures": ocr_failures[:12],
@@ -2516,6 +2699,13 @@ def database_diagnostics() -> dict[str, Any]:
       ) or []
     except Exception:
       chat_count_rows = []
+    try:
+      event_count_rows = supabase_request(
+        "GET",
+        supabase_table_path("runtime_events", "select=id&limit=10000"),
+      ) or []
+    except Exception:
+      event_count_rows = []
     user_counts: dict[str, int] = {}
     status_counts: dict[str, int] = {}
     for document in document_rows:
@@ -2526,6 +2716,7 @@ def database_diagnostics() -> dict[str, Any]:
     extraction_statuses = [{"extraction_status": key, "total": value} for key, value in sorted(status_counts.items(), key=lambda item: (-item[1], item[0]))]
     run_count = len(run_count_rows)
     chat_message_count = len(chat_count_rows)
+    event_count = len(event_count_rows)
     document_count = len(document_rows)
     latest_runs = run_rows
   else:
@@ -2540,6 +2731,7 @@ def database_diagnostics() -> dict[str, Any]:
       ]
       run_count = connection.execute("select count(*) as total from recommendation_runs").fetchone()["total"]
       chat_message_count = connection.execute("select count(*) as total from ai_chat_messages").fetchone()["total"]
+      event_count = connection.execute("select count(*) as total from runtime_events").fetchone()["total"]
       document_count = connection.execute("select count(*) as total from uploaded_documents").fetchone()["total"]
       document_users = [
         dict(row)
@@ -2605,8 +2797,21 @@ def database_diagnostics() -> dict[str, Any]:
     "document_extraction_statuses": extraction_statuses,
     "recommendation_run_count": run_count,
     "ai_chat_message_count": chat_message_count,
+    "runtime_event_count": event_count,
+    "latest_events": safe_list_runtime_events(5),
     "latest_runs": latest_runs,
   }
+
+
+@app.post("/api/events")
+def record_runtime_event(payload: RuntimeEventRequest, authorization: str | None = Header(default=None)) -> dict[str, Any]:
+  user = require_current_user(authorization)
+  event_type = payload.event_type or payload.eventType
+  try:
+    event = insert_runtime_event(user["id"], event_type or "", payload.label, payload.payload)
+  except ValueError as exc:
+    raise HTTPException(status_code=400, detail=str(exc))
+  return {"ok": True, "eventId": event["id"]}
 
 
 def call_gemini(payload: GuidanceRequest, request_payload: dict[str, Any]) -> dict[str, Any]:
