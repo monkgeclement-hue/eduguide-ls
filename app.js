@@ -128,6 +128,12 @@ let deploymentStatus = {
   diagnostics: null,
   error: ""
 };
+let emailTestStatus = {
+  checked: false,
+  loading: false,
+  ok: false,
+  message: ""
+};
 let serverAdminIntelligence = null;
 let adminIntelligenceLoading = false;
 let adminIntelligenceError = "";
@@ -1065,6 +1071,43 @@ async function loadDeploymentStatus({ silent = false } = {}) {
   }
   renderDeploymentReadiness();
   renderAdminMetrics();
+}
+
+async function sendAdminTestEmail() {
+  if (!authToken || !isAdmin() || emailTestStatus.loading) return;
+  emailTestStatus = {
+    checked: true,
+    loading: true,
+    ok: false,
+    message: "Sending test email to the current admin account..."
+  };
+  renderDeploymentReadiness();
+  try {
+    const response = await fetch("/api/admin/test-email", {
+      method: "POST",
+      headers: getAuthHeaders({ "Content-Type": "application/json", Accept: "application/json" }),
+      body: JSON.stringify({})
+    });
+    const data = await response.json().catch(() => ({}));
+    if (!response.ok || !data.ok) throw new Error(data.detail || "Could not send the test email");
+    emailTestStatus = {
+      checked: true,
+      loading: false,
+      ok: true,
+      message: data.message || `Test email sent to ${data.sentTo || "admin email"}.`
+    };
+    loadDeploymentStatus({ silent: true });
+  } catch (error) {
+    emailTestStatus = {
+      checked: true,
+      loading: false,
+      ok: false,
+      message: error.message || "SMTP test failed"
+    };
+  }
+  renderDeploymentReadiness();
+  renderAdminMetrics();
+  if (window.lucide) window.lucide.createIcons();
 }
 
 function seedServerDatabaseState() {
@@ -4188,11 +4231,16 @@ function renderDeploymentReadiness() {
   const panel = qs("#deployment-readiness");
   if (!panel) return;
   const status = getDeploymentReadiness();
+  const emailTestClass = emailTestStatus.loading ? "loading" : emailTestStatus.ok ? "ready" : "danger";
+  const emailTestCopy = emailTestStatus.checked || emailTestStatus.loading
+    ? `<span class="email-test-status ${emailTestClass}">${escapeHtml(emailTestStatus.message)}</span>`
+    : "";
   panel.dataset.tone = status.tone;
   panel.innerHTML = `
     <div>
       <strong>${escapeHtml(status.title)}</strong>
       <span>${escapeHtml(status.message)}</span>
+      ${emailTestCopy}
       ${
         status.warnings?.length
           ? `<ul>${status.warnings.map((item) => `<li>${escapeHtml(item)}</li>`).join("")}</ul>`
@@ -4214,6 +4262,14 @@ function renderDeploymentReadiness() {
         : ""
     }
   `;
+  const testButton = qs("#test-email-delivery");
+  if (testButton) {
+    testButton.disabled = emailTestStatus.loading || !authToken || !isAdmin();
+    testButton.innerHTML = `
+      <i data-lucide="${emailTestStatus.loading ? "loader-circle" : "mail-check"}"></i>
+      ${emailTestStatus.loading ? "Sending..." : "Test Email"}
+    `;
+  }
 }
 
 function renderAdminMetrics() {
@@ -5261,6 +5317,7 @@ function bindEvents() {
   qs("#add-programme")?.addEventListener("click", createAdminProgramme);
   qs("#reset-admin-state")?.addEventListener("click", resetLocalReviewState);
   qs("#refresh-deployment-status")?.addEventListener("click", () => loadDeploymentStatus());
+  qs("#test-email-delivery")?.addEventListener("click", () => sendAdminTestEmail());
   qs("#view-admin")?.addEventListener("submit", (event) => {
     if (!event.target.matches("#admin-edit-form")) return;
     event.preventDefault();

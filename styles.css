@@ -2448,6 +2448,22 @@ textarea:focus {
   padding-left: 18px;
 }
 
+.email-test-status {
+  margin-top: 8px;
+  padding: 8px 10px;
+  border: 1px solid rgba(8, 80, 65, 0.14);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.66);
+}
+
+.email-test-status.ready {
+  color: var(--brand-deep);
+}
+
+.email-test-status.danger {
+  color: var(--danger);
+}
+
 .deployment-readiness-grid {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));

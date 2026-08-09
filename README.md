@@ -82,7 +82,7 @@ Invoke-RestMethod http://127.0.0.1:8765/health
 Invoke-RestMethod http://127.0.0.1:8765/api/db/diagnostics
 ```
 
-For public testing and hosting steps, see `DEPLOYMENT.md`. The project now includes a `Dockerfile`, `.dockerignore`, and `render.yaml` so the same FastAPI app can be deployed without exposing `.env` secrets.
+For public testing and hosting steps, see `DEPLOYMENT.md`. For the Supabase + SMTP launch checklist, see `PRODUCTION_SETUP.md`. The project now includes a `Dockerfile`, `.dockerignore`, and `render.yaml` so the same FastAPI app can be deployed without exposing `.env` secrets.
 
 In VS Code, use **Run and Debug** and choose **Run EduGuide LS** after installing `requirements.txt`. The `.vscode` task starts the FastAPI server before opening Chrome.
 

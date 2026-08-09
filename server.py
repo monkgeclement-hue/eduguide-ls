@@ -121,6 +121,10 @@ class UserStatusUpdate(BaseModel):
   status: str
 
 
+class AdminTestEmailRequest(BaseModel):
+  email: str | None = None
+
+
 
 
 def get_gemini_model_candidates() -> list[str]:
@@ -409,7 +413,8 @@ under review, say the student should verify it with the institution/admin.
 
 def get_secret(name: str, *placeholders: str) -> str | None:
   value = os.getenv(name, "").strip()
-  if not value or value in placeholders:
+  lower_value = value.lower()
+  if not value or value in placeholders or lower_value.startswith("replace_with") or lower_value.startswith("your_"):
     return None
   return value
 
@@ -437,11 +442,11 @@ def email_debug_codes_enabled() -> bool:
   return get_bool_env("EMAIL_DEBUG_CODES", False)
 
 
-def send_verification_email(email: str, name: str, code: str) -> None:
+def send_plain_email(email: str, subject: str, body_lines: list[str]) -> None:
   smtp_host = get_secret("SMTP_HOST")
   from_email = get_secret("SMTP_FROM_EMAIL")
   if not smtp_host or not from_email:
-    raise RuntimeError("SMTP_HOST and SMTP_FROM_EMAIL are required for email verification.")
+    raise RuntimeError("SMTP_HOST and SMTP_FROM_EMAIL are required for email delivery.")
 
   smtp_port = int(os.getenv("SMTP_PORT", "465" if get_bool_env("SMTP_USE_SSL", False) else "587"))
   from_name = os.getenv("SMTP_FROM_NAME", "EduGuide LS").strip() or "EduGuide LS"
@@ -451,23 +456,10 @@ def send_verification_email(email: str, name: str, code: str) -> None:
   password = get_secret("SMTP_PASSWORD")
 
   message = EmailMessage()
-  message["Subject"] = "Your EduGuide LS verification code"
+  message["Subject"] = subject
   message["From"] = f"{from_name} <{from_email}>"
   message["To"] = email
-  message.set_content(
-    "\n".join(
-      [
-        f"Hello {name or 'student'},",
-        "",
-        f"Your EduGuide LS verification code is: {code}",
-        f"It expires in {EMAIL_VERIFICATION_TTL_MINUTES} minutes.",
-        "",
-        "If you did not request this account, you can ignore this email.",
-        "",
-        "EduGuide LS",
-      ]
-    )
-  )
+  message.set_content("\n".join(body_lines))
 
   if use_ssl:
     with smtplib.SMTP_SSL(smtp_host, smtp_port, timeout=20) as server:
@@ -482,6 +474,23 @@ def send_verification_email(email: str, name: str, code: str) -> None:
     if username and password:
       server.login(username, password)
     server.send_message(message)
+
+
+def send_verification_email(email: str, name: str, code: str) -> None:
+  send_plain_email(
+    email,
+    "Your EduGuide LS verification code",
+    [
+      f"Hello {name or 'student'},",
+      "",
+      f"Your EduGuide LS verification code is: {code}",
+      f"It expires in {EMAIL_VERIFICATION_TTL_MINUTES} minutes.",
+      "",
+      "If you did not request this account, you can ignore this email.",
+      "",
+      "EduGuide LS",
+    ],
+  )
 
 
 def get_supabase_url() -> str | None:
@@ -1130,6 +1139,15 @@ def save_recommendation_run(payload: GuidanceRequest, request_payload: dict[str,
 
 def normalize_email(value: str | None) -> str:
   return (value or "").strip().lower()
+
+
+def mask_email(value: str | None) -> str:
+  email = normalize_email(value)
+  if "@" not in email:
+    return email
+  name, domain = email.split("@", 1)
+  visible = name[:2] if len(name) > 2 else name[:1]
+  return f"{visible}{'*' * max(2, len(name) - len(visible))}@{domain}"
 
 
 def hash_password(password: str, salt: str | None = None) -> tuple[str, str]:
@@ -2267,6 +2285,42 @@ def admin_intelligence(authorization: str | None = Header(default=None)) -> dict
   return build_admin_intelligence()
 
 
+@app.post("/api/admin/test-email")
+def admin_test_email(payload: AdminTestEmailRequest | None = None, authorization: str | None = Header(default=None)) -> dict[str, Any]:
+  actor = require_admin_user(authorization)
+  target_email = normalize_email((payload.email if payload else None) or actor.get("email"))
+  if not target_email or "@" not in target_email:
+    raise HTTPException(status_code=400, detail="A valid test email address is required.")
+  if not smtp_configured():
+    raise HTTPException(status_code=503, detail="SMTP is not configured. Set SMTP_HOST and SMTP_FROM_EMAIL in Render first.")
+
+  sent_at = now_iso()
+  try:
+    send_plain_email(
+      target_email,
+      "EduGuide LS production email test",
+      [
+        f"Hello {actor.get('name') or 'admin'},",
+        "",
+        "This is a production SMTP test from EduGuide LS.",
+        f"Sent at: {sent_at}",
+        "",
+        "If you received this message, the server can send account verification emails.",
+        "",
+        "EduGuide LS",
+      ],
+    )
+  except Exception as exc:
+    raise HTTPException(status_code=502, detail=f"SMTP test failed: {exc}")
+
+  return {
+    "ok": True,
+    "sentTo": mask_email(target_email),
+    "sentAt": sent_at,
+    "message": "Test email sent. Check the inbox and spam folder for the admin email.",
+  }
+
+
 @app.put("/api/admin/users/{user_id}/role")
 def admin_set_user_role(user_id: str, payload: UserRoleUpdate, authorization: str | None = Header(default=None)) -> dict[str, Any]:
   actor = require_admin_user(authorization)
@@ -2539,6 +2593,9 @@ def database_diagnostics() -> dict[str, Any]:
     "ok": True,
     "database": get_data_backend(),
     "supabase_configured": supabase_configured(),
+    "email_configured": smtp_configured(),
+    "email_debug_codes": email_debug_codes_enabled(),
+    "ai_configured": bool(get_gemini_api_key() if get_ai_provider() == "gemini" else get_openai_api_key()),
     "storage_bucket": get_supabase_storage_bucket() if using_supabase() else None,
     "startup_persistence_error": STARTUP_PERSISTENCE_ERROR,
     "state_keys": [row.get("state_key") for row in state_rows],

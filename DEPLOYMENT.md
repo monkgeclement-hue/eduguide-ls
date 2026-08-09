@@ -1,6 +1,6 @@
 # EduGuide LS Deployment
 
-This guide prepares the current FastAPI prototype for public testing. It keeps AI keys on the server, serves the frontend from FastAPI, and uses the local SQLite database for prototype persistence.
+This guide prepares the current FastAPI prototype for public testing. It keeps AI keys on the server, serves the frontend from FastAPI, and uses the local SQLite database for prototype persistence. For the final Supabase + SMTP checklist, also see `PRODUCTION_SETUP.md`.
 
 ## Local Production Check
 
@@ -87,6 +87,7 @@ The repository includes `render.yaml` for a Docker-based Render deployment.
 5. Add `GEMINI_API_KEY`, `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY`, the `ADMIN_*` variables, and the `SMTP_*` email variables as secret environment variables.
 6. Keep `AI_PROVIDER=gemini`, `GEMINI_MODEL=gemini-3.6-flash`, `DATA_BACKEND=auto`, `EMAIL_DEBUG_CODES=false`, and `SUPABASE_STORAGE_BUCKET=eduguide-documents`.
 7. Deploy, then test `/health`, `/`, and `/api/db/diagnostics`.
+8. Log in as admin, press **Check Hosting**, then press **Test Email** to prove SMTP delivery from the live server.
 
 Useful Render references:
 
