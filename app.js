@@ -4690,7 +4690,12 @@ function getDeploymentReadiness() {
   const warningItems = [];
   if (!usesSupabase) warningItems.push("Users, uploads, and AI chat are still on Render SQLite and can reset after redeploys or restarts.");
   if (!aiReady) warningItems.push("AI guidance and OCR need a valid Gemini or OpenAI key.");
-  if (!emailReady) warningItems.push("Email verification needs SMTP settings before public signups can receive codes.");
+  if (!emailReady) {
+    const missingEmailKeys = Array.isArray(health.email_missing_keys) && health.email_missing_keys.length
+      ? ` Missing: ${health.email_missing_keys.join(", ")}.`
+      : "";
+    warningItems.push(`Email verification needs SMTP settings before public signups can receive codes.${missingEmailKeys}`);
+  }
   if (!storageReady) warningItems.push("Document upload storage is not ready.");
   if (!databaseReady) warningItems.push("Database health check failed.");
   if (health.startup_persistence_error) warningItems.push(`Startup persistence error: ${health.startup_persistence_error}`);
@@ -4703,7 +4708,7 @@ function getDeploymentReadiness() {
       { label: "Database", value: usesSupabase ? "Supabase" : dataBackend === "sqlite" ? "Render SQLite" : dataBackend },
       { label: "Storage", value: storageReady ? (health.storage_bucket || "Ready") : "Needs attention" },
       { label: "AI", value: aiReady ? `${health.provider || "AI"} ${health.model || ""}`.trim() : "Not configured" },
-      { label: "Email OTP", value: emailReady ? "SMTP ready" : health.email_debug_codes ? "Debug only" : "Needs SMTP" },
+      { label: "Email OTP", value: emailReady ? "SMTP ready" : health.email_debug_codes ? "Debug only" : health.email_missing_keys?.length ? `Missing ${health.email_missing_keys.length}` : "Needs SMTP" },
       { label: "Users", value: String(diagnostics.state_counts?.auth_users ?? getVisibleUsers().length ?? 0) },
       { label: "Documents", value: String(diagnostics.document_count ?? 0) },
       { label: "Events", value: String(diagnostics.runtime_event_count ?? 0) },

@@ -467,8 +467,23 @@ def get_bool_env(name: str, default: bool = False) -> bool:
   return value.strip().lower() in {"1", "true", "yes", "on"}
 
 
+def smtp_missing_keys() -> list[str]:
+  missing = []
+  smtp_host = get_secret("SMTP_HOST")
+  username = get_secret("SMTP_USERNAME")
+  password = get_secret("SMTP_PASSWORD")
+  for key in ["SMTP_HOST", "SMTP_FROM_EMAIL"]:
+    if not get_secret(key):
+      missing.append(key)
+  if smtp_host and ("brevo" in smtp_host.lower() or username or password):
+    for key in ["SMTP_USERNAME", "SMTP_PASSWORD"]:
+      if not get_secret(key):
+        missing.append(key)
+  return missing
+
+
 def smtp_configured() -> bool:
-  return bool(get_secret("SMTP_HOST") and get_secret("SMTP_FROM_EMAIL"))
+  return not smtp_missing_keys()
 
 
 def email_debug_codes_enabled() -> bool:
@@ -478,8 +493,9 @@ def email_debug_codes_enabled() -> bool:
 def send_plain_email(email: str, subject: str, body_lines: list[str]) -> None:
   smtp_host = get_secret("SMTP_HOST")
   from_email = get_secret("SMTP_FROM_EMAIL")
-  if not smtp_host or not from_email:
-    raise RuntimeError("SMTP_HOST and SMTP_FROM_EMAIL are required for email delivery.")
+  missing = smtp_missing_keys()
+  if missing:
+    raise RuntimeError(f"Missing SMTP setting(s): {', '.join(missing)}.")
 
   smtp_port = int(os.getenv("SMTP_PORT", "465" if get_bool_env("SMTP_USE_SSL", False) else "587"))
   from_name = os.getenv("SMTP_FROM_NAME", "EduGuide LS").strip() or "EduGuide LS"
@@ -2180,9 +2196,14 @@ def auth_register_request_code(payload: AuthRegisterRequest, request: Request) -
         "message": f"Email delivery is not configured. Development code: {code}",
       }
     update_email_verification(record["id"], {"consumed_at": now_iso()})
+    missing = smtp_missing_keys()
+    if missing:
+      detail = f"Email delivery is not fully configured. Missing: {', '.join(missing)}."
+    else:
+      detail = f"Email delivery failed. SMTP is present, but the provider rejected the send or timed out. ({exc})"
     raise HTTPException(
       status_code=503,
-      detail=f"Email delivery is not configured yet. Set SMTP_HOST and SMTP_FROM_EMAIL on the server. ({exc})",
+      detail=detail,
     )
 
 
@@ -2485,6 +2506,9 @@ def build_admin_intelligence() -> dict[str, Any]:
     runtime_warnings.append("SMTP is not configured; public email verification cannot send codes.")
   if STARTUP_PERSISTENCE_ERROR:
     runtime_warnings.append(f"Startup persistence warning: {STARTUP_PERSISTENCE_ERROR}")
+  smtp_missing = smtp_missing_keys()
+  if smtp_missing:
+    runtime_warnings.append(f"SMTP missing safe key(s): {', '.join(smtp_missing)}")
 
   return {
     "ok": True,
@@ -2532,7 +2556,8 @@ def admin_test_email(payload: AdminTestEmailRequest | None = None, authorization
   if not target_email or "@" not in target_email:
     raise HTTPException(status_code=400, detail="A valid test email address is required.")
   if not smtp_configured():
-    raise HTTPException(status_code=503, detail="SMTP is not configured. Set SMTP_HOST and SMTP_FROM_EMAIL in Render first.")
+    missing = ", ".join(smtp_missing_keys())
+    raise HTTPException(status_code=503, detail=f"SMTP is not fully configured. Missing: {missing}.")
 
   sent_at = now_iso()
   try:
@@ -2849,6 +2874,7 @@ def database_diagnostics() -> dict[str, Any]:
     "database": get_data_backend(),
     "supabase_configured": supabase_configured(),
     "email_configured": smtp_configured(),
+    "email_missing_keys": smtp_missing_keys(),
     "email_debug_codes": email_debug_codes_enabled(),
     "ai_configured": bool(get_gemini_api_key() if get_ai_provider() == "gemini" else get_openai_api_key()),
     "storage_bucket": get_supabase_storage_bucket() if using_supabase() else None,
@@ -2978,6 +3004,7 @@ def health() -> dict[str, Any]:
     "gemini_configured": bool(get_gemini_api_key()),
     "openai_configured": bool(get_openai_api_key()),
     "email_configured": smtp_configured(),
+    "email_missing_keys": smtp_missing_keys(),
     "email_debug_codes": email_debug_codes_enabled(),
     "database_ready": database_ready,
     "storage_ready": storage_ready,
