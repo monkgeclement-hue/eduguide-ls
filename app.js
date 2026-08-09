@@ -134,6 +134,10 @@ let emailTestStatus = {
   ok: false,
   message: ""
 };
+let adminActionStatus = {
+  message: "",
+  tone: "neutral"
+};
 let serverAdminIntelligence = null;
 let adminIntelligenceLoading = false;
 let adminIntelligenceError = "";
@@ -1028,12 +1032,25 @@ async function loadServerDatabaseState() {
   }
 }
 
+function setAdminActionStatus(message, tone = "neutral") {
+  adminActionStatus = {
+    message: message || "",
+    tone: tone || "neutral"
+  };
+  const health = qs("#admin-health");
+  if (health && adminActionStatus.message) {
+    health.textContent = adminActionStatus.message;
+    health.dataset.tone = adminActionStatus.tone;
+  }
+}
+
 async function loadDeploymentStatus({ silent = false } = {}) {
   if (deploymentStatus.loading) return;
   deploymentStatus.loading = true;
   deploymentStatus.error = "";
   if (!silent) {
     lastPersistenceMessage = "Checking hosting status";
+    setAdminActionStatus("Checking hosting status...", "loading");
     renderDeploymentReadiness();
     renderAdminMetrics();
   }
@@ -1058,6 +1075,11 @@ async function loadDeploymentStatus({ silent = false } = {}) {
       persistenceMode = health.data_backend === "supabase" ? "server-supabase" : "server-db";
       lastPersistenceMessage = health.data_backend === "supabase" ? "Supabase database ready" : "Render SQLite is temporary";
     }
+    if (!silent) {
+      const backendLabel = health.data_backend === "supabase" ? "Supabase" : "SQLite";
+      const emailLabel = health.email_configured ? "SMTP ready" : "SMTP missing";
+      setAdminActionStatus(`Hosting checked - ${backendLabel}, ${emailLabel}`, health.email_configured ? "success" : "warning");
+    }
   } catch (error) {
     deploymentStatus = {
       checked: true,
@@ -1068,13 +1090,20 @@ async function loadDeploymentStatus({ silent = false } = {}) {
       error: error.message || "Could not check deployment status"
     };
     lastPersistenceMessage = deploymentStatus.error;
+    if (!silent) setAdminActionStatus(deploymentStatus.error, "danger");
   }
   renderDeploymentReadiness();
   renderAdminMetrics();
 }
 
 async function sendAdminTestEmail() {
-  if (!authToken || !isAdmin() || emailTestStatus.loading) return;
+  if (emailTestStatus.loading) return;
+  if (!authToken || !isAdmin()) {
+    setAdminActionStatus("Admin session is not ready. Sign in again, then retry.", "warning");
+    renderAdminMetrics();
+    return;
+  }
+  setAdminActionStatus("Sending test email to admin account...", "loading");
   emailTestStatus = {
     checked: true,
     loading: true,
@@ -1096,6 +1125,7 @@ async function sendAdminTestEmail() {
       ok: true,
       message: data.message || `Test email sent to ${data.sentTo || "admin email"}.`
     };
+    setAdminActionStatus("Test email sent. Check inbox and spam.", "success");
     loadDeploymentStatus({ silent: true });
   } catch (error) {
     emailTestStatus = {
@@ -1104,6 +1134,7 @@ async function sendAdminTestEmail() {
       ok: false,
       message: error.message || "SMTP test failed"
     };
+    setAdminActionStatus(emailTestStatus.message, "danger");
   }
   renderDeploymentReadiness();
   renderAdminMetrics();
@@ -1395,6 +1426,7 @@ function createAdminProgramme() {
   adminState.institution = "all";
   adminState.status = "all";
   lastPersistenceMessage = "New programme draft created";
+  setAdminActionStatus("New programme draft opened for editing.", "success");
   recordCurrentUserActivity("admin_programme_created", "Created a programme draft", { programmeId: programme.id, programmeName: programme.name });
   saveLocalReviewState();
   renderAdmin();
@@ -1493,6 +1525,7 @@ function resetLocalReviewState() {
   adminState.editingProgrammeId = null;
   saveServerState("review_state", getReviewStateSnapshot());
   lastPersistenceMessage = serverDatabaseAvailable ? "Database review state reset" : "Local state reset";
+  setAdminActionStatus(lastPersistenceMessage, "success");
   recordCurrentUserActivity("admin_review_reset", "Reset catalogue review state");
   renderAdmin();
   updateCounts();
@@ -4281,7 +4314,11 @@ function renderAdminMetrics() {
   qs("#admin-user-count").textContent = summary.userCount;
   qs("#admin-new-user-count").textContent = summary.newUserCount;
   const persistenceLabel = persistenceMode === "server-supabase" || persistenceMode === "supabase" ? "Supabase" : persistenceMode === "server-db" ? "Database" : "Local";
-  qs("#admin-health").textContent = `${persistenceLabel} - ${lastPersistenceMessage}`;
+  const healthPill = qs("#admin-health");
+  if (healthPill) {
+    healthPill.textContent = adminActionStatus.message || `${persistenceLabel} - ${lastPersistenceMessage}`;
+    healthPill.dataset.tone = adminActionStatus.message ? adminActionStatus.tone : "neutral";
+  }
   renderDeploymentReadiness();
   const notice = qs("#admin-user-notice");
   if (notice) {
@@ -5314,16 +5351,22 @@ function bindEvents() {
     adminState.status = event.target.value;
     renderAdmin();
   });
-  qs("#add-programme")?.addEventListener("click", createAdminProgramme);
-  qs("#reset-admin-state")?.addEventListener("click", resetLocalReviewState);
-  qs("#refresh-deployment-status")?.addEventListener("click", () => loadDeploymentStatus());
-  qs("#test-email-delivery")?.addEventListener("click", () => sendAdminTestEmail());
   qs("#view-admin")?.addEventListener("submit", (event) => {
     if (!event.target.matches("#admin-edit-form")) return;
     event.preventDefault();
     saveProgrammeEdit(event.target.dataset.programmeId);
   });
   qs("#view-admin")?.addEventListener("click", (event) => {
+    const commandButton = event.target.closest("#add-programme, #reset-admin-state, #refresh-deployment-status, #test-email-delivery");
+    if (commandButton) {
+      event.preventDefault();
+      if (commandButton.id === "add-programme") createAdminProgramme();
+      if (commandButton.id === "reset-admin-state") resetLocalReviewState();
+      if (commandButton.id === "refresh-deployment-status") loadDeploymentStatus();
+      if (commandButton.id === "test-email-delivery") sendAdminTestEmail();
+      return;
+    }
+
     const roleButton = event.target.closest("[data-user-role]");
     if (roleButton) {
       setUserRole(roleButton.dataset.userRole, roleButton.dataset.role);

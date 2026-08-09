@@ -2292,6 +2292,7 @@ textarea:focus {
 
 .admin-health {
   min-height: 34px;
+  max-width: 360px;
   padding: 8px 11px;
   border: 1px solid #c7eadf;
   border-radius: 999px;
@@ -2299,6 +2300,31 @@ textarea:focus {
   color: var(--brand-deep);
   font-size: 12px;
   font-weight: 900;
+  overflow-wrap: anywhere;
+}
+
+.admin-health[data-tone="loading"] {
+  border-color: #b8d9f3;
+  background: #edf7ff;
+  color: #0a4d78;
+}
+
+.admin-health[data-tone="success"] {
+  border-color: #9bd8c6;
+  background: #e9fbf4;
+  color: var(--brand-deep);
+}
+
+.admin-health[data-tone="warning"] {
+  border-color: #efd28d;
+  background: #fff8e8;
+  color: #684006;
+}
+
+.admin-health[data-tone="danger"] {
+  border-color: #f0a9a0;
+  background: #fff0ef;
+  color: #9f2f22;
 }
 
 .admin-notice {
