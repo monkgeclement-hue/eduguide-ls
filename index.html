@@ -56,6 +56,7 @@
             <i data-lucide="log-in"></i>
             Login
           </button>
+          <button class="text-link-button auth-link-button" type="button" id="forgot-password-button">Forgot password?</button>
         </form>
 
         <form class="auth-form" id="register-form">
@@ -106,6 +107,36 @@
             <i data-lucide="user-plus"></i>
             <span id="register-submit-label">Create Account</span>
           </button>
+        </form>
+
+        <form class="auth-form" id="reset-form">
+          <label>
+            <span>Email</span>
+            <input id="reset-email" type="email" autocomplete="email" required />
+          </label>
+          <label>
+            <span>New password</span>
+            <input id="reset-password" type="password" autocomplete="new-password" required />
+          </label>
+          <div class="email-code-panel" id="reset-verification-panel" hidden>
+            <div>
+              <strong>Verify password reset</strong>
+              <span id="reset-verification-help">Enter the 6-digit code sent to your email.</span>
+            </div>
+            <label>
+              <span>Reset code</span>
+              <input id="reset-code" type="text" inputmode="numeric" maxlength="6" autocomplete="one-time-code" placeholder="123456" />
+            </label>
+            <button class="secondary-action" type="button" id="resend-reset-code">
+              <i data-lucide="mail-check"></i>
+              Resend code
+            </button>
+          </div>
+          <button class="primary-button" type="submit">
+            <i data-lucide="key-round"></i>
+            <span id="reset-submit-label">Send Reset Code</span>
+          </button>
+          <button class="text-link-button auth-link-button" type="button" data-auth-mode="login">Back to login</button>
         </form>
 
         <p class="auth-context" id="auth-context">Public signups create student accounts. Admin access is controlled privately by the system owner.</p>

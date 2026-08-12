@@ -131,6 +131,11 @@ a {
   display: grid;
 }
 
+.auth-link-button {
+  justify-self: start;
+  font-weight: 800;
+}
+
 .email-code-panel {
   display: grid;
   gap: 12px;

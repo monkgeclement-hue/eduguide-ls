@@ -102,6 +102,16 @@ class AuthVerifyRegistrationRequest(AuthRegisterRequest):
   code: str
 
 
+class AuthPasswordResetRequest(BaseModel):
+  email: str
+
+
+class AuthPasswordResetConfirmRequest(BaseModel):
+  email: str
+  code: str
+  password: str
+
+
 class AuthProfileRequest(BaseModel):
   name: str | None = None
   district: str | None = None
@@ -586,6 +596,23 @@ def send_verification_email(email: str, name: str, code: str) -> None:
       f"It expires in {EMAIL_VERIFICATION_TTL_MINUTES} minutes.",
       "",
       "If you did not request this account, you can ignore this email.",
+      "",
+      "EduGuide LS",
+    ],
+  )
+
+
+def send_password_reset_email(email: str, name: str, code: str) -> None:
+  send_plain_email(
+    email,
+    "Reset your EduGuide LS password",
+    [
+      f"Hello {name or 'student'},",
+      "",
+      f"Your EduGuide LS password reset code is: {code}",
+      f"This code expires in {EMAIL_VERIFICATION_TTL_MINUTES} minutes.",
+      "",
+      "If you did not request this, you can ignore this email.",
       "",
       "EduGuide LS",
     ],
@@ -1898,8 +1925,8 @@ def get_verification_payload(record: dict[str, Any]) -> dict[str, Any]:
   return {}
 
 
-def verify_registration_code(email: str, code: str) -> dict[str, Any]:
-  record = get_latest_email_verification(email, "registration")
+def verify_email_code(email: str, code: str, purpose: str) -> dict[str, Any]:
+  record = get_latest_email_verification(email, purpose)
   if not record:
     raise HTTPException(status_code=400, detail="No active verification code was found. Request a new code.")
   expires_at = parse_iso_datetime(str(record.get("expires_at") or ""))
@@ -1916,6 +1943,10 @@ def verify_registration_code(email: str, code: str) -> dict[str, Any]:
     raise HTTPException(status_code=400, detail="Verification code is not correct.")
   update_email_verification(record["id"], {"consumed_at": now_iso()})
   return get_verification_payload(record)
+
+
+def verify_registration_code(email: str, code: str) -> dict[str, Any]:
+  return verify_email_code(email, code, "registration")
 
 
 def validate_registration_input(payload: AuthRegisterRequest) -> tuple[str, str, str, str]:
@@ -2281,6 +2312,85 @@ def auth_register(payload: AuthRegisterRequest, request: Request) -> dict[str, A
     raise HTTPException(status_code=400, detail="Request and verify an email code before creating an account.")
   verify_payload = AuthVerifyRegistrationRequest(**payload.model_dump())
   return auth_register_verify(verify_payload, request)
+
+
+@app.post("/api/auth/password-reset/request-code")
+def auth_password_reset_request_code(payload: AuthPasswordResetRequest, request: Request) -> dict[str, Any]:
+  email = normalize_email(payload.email)
+  check_rate_limit(request, "password_reset_code", 4, 900, email)
+  if not email or "@" not in email:
+    raise HTTPException(status_code=400, detail="Enter the email address on your account.")
+
+  users = get_auth_users_internal()
+  user = next((item for item in users if item["email"] == email), None)
+  if not user:
+    return {
+      "ok": True,
+      "email": email,
+      "emailSent": False,
+      "expiresInMinutes": EMAIL_VERIFICATION_TTL_MINUTES,
+      "resendSeconds": EMAIL_VERIFICATION_RESEND_SECONDS,
+      "message": "If that email exists, a reset code will be sent.",
+    }
+
+  code = f"{secrets.randbelow(1_000_000):06d}"
+  record = create_email_verification(email, {"email": email}, code, "password_reset")
+  try:
+    send_password_reset_email(email, user.get("name") or "student", code)
+    safe_insert_runtime_event(user["id"], "password_reset_requested", "Requested password reset code", {})
+    return {
+      "ok": True,
+      "email": email,
+      "emailSent": True,
+      "expiresInMinutes": EMAIL_VERIFICATION_TTL_MINUTES,
+      "resendSeconds": EMAIL_VERIFICATION_RESEND_SECONDS,
+    }
+  except Exception as exc:
+    if email_debug_codes_enabled():
+      return {
+        "ok": True,
+        "email": email,
+        "emailSent": False,
+        "debugCode": code,
+        "expiresInMinutes": EMAIL_VERIFICATION_TTL_MINUTES,
+        "resendSeconds": EMAIL_VERIFICATION_RESEND_SECONDS,
+        "message": f"Email delivery is not configured. Development reset code: {code}",
+      }
+    update_email_verification(record["id"], {"consumed_at": now_iso()})
+    missing = smtp_missing_keys()
+    detail = (
+      f"Email delivery is not fully configured. Missing: {', '.join(missing)}."
+      if missing
+      else f"Email delivery failed. The provider rejected the password reset email or timed out. ({exc})"
+    )
+    raise HTTPException(status_code=503, detail=detail)
+
+
+@app.post("/api/auth/password-reset/confirm")
+def auth_password_reset_confirm(payload: AuthPasswordResetConfirmRequest, request: Request) -> dict[str, Any]:
+  email = normalize_email(payload.email)
+  check_rate_limit(request, "password_reset_confirm", 10, 900, email)
+  if len(payload.password or "") < 6:
+    raise HTTPException(status_code=400, detail="Password must be at least 6 characters.")
+
+  registration = verify_email_code(email, payload.code, "password_reset")
+  if normalize_email(registration.get("email")) != email:
+    raise HTTPException(status_code=400, detail="Verification email does not match this reset request.")
+
+  users = get_auth_users_internal()
+  user = next((item for item in users if item["email"] == email), None)
+  if not user:
+    raise HTTPException(status_code=404, detail="Account not found.")
+
+  salt, password_hash = hash_password(payload.password)
+  user["passwordSalt"] = salt
+  user["passwordHash"] = password_hash
+  user.pop("password", None)
+  user["status"] = user.get("status") or "active"
+  add_user_activity(user, "password_reset", "Password reset by email verification", user)
+  safe_insert_runtime_event(user["id"], "password_reset_confirmed", "Password reset completed", {})
+  save_auth_users_internal(users)
+  return {"ok": True, "token": create_auth_session(user["id"]), "user": public_user(user)}
 
 
 @app.get("/api/auth/me")

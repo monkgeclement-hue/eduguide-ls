@@ -116,6 +116,7 @@ let currentUser = null;
 let authToken = localStorage.getItem(authTokenKey) || null;
 let authMode = "login";
 let pendingRegistration = null;
+let pendingPasswordReset = null;
 let deferredInstallPrompt = null;
 const supabaseConfig = window.EDUGUIDE_SUPABASE_CONFIG || {};
 const supabaseClient =
@@ -683,11 +684,15 @@ function bindInstallPrompt() {
 function updateAuthContext() {
   const context = qs("#auth-context");
   if (context) {
-    context.textContent = authMode === "register"
-      ? "Public registration creates student accounts only. We verify your email before the account is created."
-      : "Public registration creates student accounts only. Admin access is controlled privately by the system owner.";
+    context.textContent =
+      authMode === "register"
+        ? "Public registration creates student accounts only. We verify your email before the account is created."
+        : authMode === "reset"
+          ? "Reset your password with a one-time code sent to your account email."
+          : "Public registration creates student accounts only. Admin access is controlled privately by the system owner.";
   }
   updateRegisterVerificationUi();
+  updatePasswordResetUi();
 }
 
 function getRegistrationPayload(name, email, password, district) {
@@ -737,6 +742,43 @@ function updateRegisterVerificationUi() {
 function clearRegisterVerification() {
   pendingRegistration = null;
   updateRegisterVerificationUi();
+}
+
+function getPasswordResetPayload(email, password) {
+  return {
+    email: normalizeEmail(email),
+    password: String(password || "")
+  };
+}
+
+function getCurrentPasswordResetPayload() {
+  return getPasswordResetPayload(qs("#reset-email")?.value, qs("#reset-password")?.value);
+}
+
+function passwordResetMatchesPending(payload) {
+  return Boolean(pendingPasswordReset && pendingPasswordReset.email === payload.email);
+}
+
+function updatePasswordResetUi() {
+  const panel = qs("#reset-verification-panel");
+  const help = qs("#reset-verification-help");
+  const label = qs("#reset-submit-label");
+  const codeInput = qs("#reset-code");
+  const hasPending = Boolean(pendingPasswordReset);
+  if (panel) panel.hidden = !hasPending;
+  if (label) label.textContent = hasPending ? "Verify & Reset Password" : "Send Reset Code";
+  if (help) {
+    help.textContent = hasPending
+      ? `Enter the 6-digit reset code sent to ${pendingPasswordReset.email}. It expires in ${pendingPasswordReset.expiresInMinutes || 10} minutes.`
+      : "Enter the 6-digit code sent to your email.";
+  }
+  if (!hasPending && codeInput) codeInput.value = "";
+  if (window.lucide) window.lucide.createIcons();
+}
+
+function clearPasswordReset() {
+  pendingPasswordReset = null;
+  updatePasswordResetUi();
 }
 
 function validateRegistrationPayload(payload) {
@@ -812,16 +854,90 @@ async function verifyRegistrationCode(payload, code) {
   }
 }
 
+function validatePasswordResetPayload(payload) {
+  if (!payload.email || !payload.password) {
+    setAuthMessage("Enter your email and new password.", "error");
+    return false;
+  }
+  if (payload.password.length < 6) {
+    setAuthMessage("Use a new password with at least 6 characters.", "error");
+    return false;
+  }
+  return true;
+}
+
+async function requestPasswordResetCode(payload) {
+  if (!validatePasswordResetPayload(payload)) return false;
+  try {
+    const response = await fetch("/api/auth/password-reset/request-code", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email: payload.email })
+    });
+    const data = await response.json().catch(() => ({}));
+    if (!response.ok || !data.ok) throw new Error(data.detail || "Could not send password reset code.");
+    pendingPasswordReset = {
+      email: payload.email,
+      requestedAt: new Date().toISOString(),
+      expiresInMinutes: data.expiresInMinutes || 10
+    };
+    updatePasswordResetUi();
+    qs("#reset-code")?.focus();
+    const debugNote = data.debugCode ? ` Development code: ${data.debugCode}` : "";
+    const deliveryNote = data.emailSent
+      ? `We sent a password reset code to ${payload.email}.`
+      : data.message || "If that email exists, a reset code will be sent.";
+    setAuthMessage(`${deliveryNote}${debugNote}`, data.debugCode ? "success" : "neutral");
+    return true;
+  } catch (error) {
+    setAuthMessage(error.message || "Could not send password reset code.", "error");
+    return false;
+  }
+}
+
+async function verifyPasswordResetCode(payload, code) {
+  const cleanCode = String(code || "").replace(/\s+/g, "");
+  if (!/^\d{6}$/.test(cleanCode)) {
+    setAuthMessage("Enter the 6-digit reset code from your email.", "error");
+    qs("#reset-code")?.focus();
+    return false;
+  }
+  try {
+    const response = await fetch("/api/auth/password-reset/confirm", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ ...payload, code: cleanCode })
+    });
+    const data = await response.json().catch(() => ({}));
+    if (!response.ok || !data.ok) throw new Error(data.detail || "Password reset failed.");
+    authToken = data.token;
+    const user = normalizeUser(data.user);
+    authUsers = mergeAuthUsersInMemory(authUsers, [user]);
+    saveAuthUsers();
+    pendingPasswordReset = null;
+    updatePasswordResetUi();
+    setCurrentUser(user, isAdmin(user) ? "admin" : "student");
+    setAuthMessage("Password reset. You are signed in now.", "success");
+    return true;
+  } catch (error) {
+    setAuthMessage(error.message || "Password reset failed.", "error");
+    return false;
+  }
+}
+
 function setAuthMode(mode) {
   authMode = mode;
   if (mode !== "register") clearRegisterVerification();
+  if (mode !== "reset") clearPasswordReset();
   qsa("[data-auth-mode]").forEach((button) => button.classList.toggle("active", button.dataset.authMode === mode));
   qsa(".auth-form").forEach((form) => form.classList.toggle("active", form.id === `${mode}-form`));
   updateAuthContext();
   setAuthMessage(
     mode === "login"
       ? "Use your registered account. Your dashboard opens according to your role."
-      : "Create a student account. Admins can grant elevated access later."
+      : mode === "reset"
+        ? "Enter your account email and a new password. We will verify it with a code."
+        : "Create a student account. Admins can grant elevated access later."
   );
 }
 
@@ -926,6 +1042,21 @@ async function registerUser(name, email, password, district) {
     return false;
   }
   return verifyRegistrationCode(payload, code);
+}
+
+async function resetPassword(email, password) {
+  const payload = getPasswordResetPayload(email, password);
+  if (!validatePasswordResetPayload(payload)) return false;
+  if (!passwordResetMatchesPending(payload)) {
+    return requestPasswordResetCode(payload);
+  }
+  const code = qs("#reset-code")?.value || "";
+  if (!code.trim()) {
+    setAuthMessage("Enter the 6-digit reset code we sent to your email.", "error");
+    qs("#reset-code")?.focus();
+    return false;
+  }
+  return verifyPasswordResetCode(payload, code);
 }
 
 async function restoreAuthSession() {
@@ -5653,8 +5784,20 @@ function bindEvents() {
     event.preventDefault();
     await registerUser(qs("#register-name").value, qs("#register-email").value, qs("#register-password").value, qs("#register-district").value);
   });
+  qs("#reset-form")?.addEventListener("submit", async (event) => {
+    event.preventDefault();
+    await resetPassword(qs("#reset-email").value, qs("#reset-password").value);
+  });
   qs("#resend-register-code")?.addEventListener("click", async () => {
     await requestRegistrationCode(getCurrentRegistrationPayload());
+  });
+  qs("#resend-reset-code")?.addEventListener("click", async () => {
+    await requestPasswordResetCode(getCurrentPasswordResetPayload());
+  });
+  qs("#forgot-password-button")?.addEventListener("click", () => {
+    const loginEmail = qs("#login-email")?.value || "";
+    if (loginEmail && qs("#reset-email")) qs("#reset-email").value = loginEmail;
+    setAuthMode("reset");
   });
   ["#register-name", "#register-email", "#register-password", "#register-district"].forEach((selector) => {
     const input = qs(selector);
@@ -5662,6 +5805,15 @@ function bindEvents() {
       if (pendingRegistration) {
         clearRegisterVerification();
         setAuthMessage("Registration details changed. Send a new verification code.", "neutral");
+      }
+    });
+  });
+  ["#reset-email", "#reset-password"].forEach((selector) => {
+    const input = qs(selector);
+    input?.addEventListener("input", () => {
+      if (pendingPasswordReset) {
+        clearPasswordReset();
+        setAuthMessage("Reset details changed. Send a new reset code.", "neutral");
       }
     });
   });
