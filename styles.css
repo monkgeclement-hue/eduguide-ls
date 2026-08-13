@@ -1772,6 +1772,47 @@ textarea:focus {
   text-align: right;
 }
 
+.application-status-strip {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.application-status-strip div {
+  min-width: 0;
+  padding: 10px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--surface-soft);
+}
+
+.application-status-strip span,
+.application-status-strip strong,
+.application-status-strip small {
+  display: block;
+}
+
+.application-status-strip span {
+  color: var(--muted);
+  font-size: 10px;
+  font-weight: 900;
+  letter-spacing: 0;
+  text-transform: uppercase;
+}
+
+.application-status-strip strong {
+  margin-top: 4px;
+  color: var(--brand-deep);
+  font-size: 13px;
+}
+
+.application-status-strip small {
+  margin-top: 3px;
+  color: var(--muted);
+  font-size: 11px;
+  line-height: 1.35;
+}
+
 .application-programme-list,
 .application-document-grid {
   display: grid;
@@ -1794,6 +1835,14 @@ textarea:focus {
   color: var(--brand-deep);
   font-size: 13px;
   overflow-wrap: anywhere;
+}
+
+.application-programme-list small {
+  display: block;
+  margin-top: 5px;
+  color: var(--muted);
+  font-size: 11px;
+  line-height: 1.35;
 }
 
 .application-document-grid {
@@ -1845,6 +1894,35 @@ textarea:focus {
   line-height: 1.4;
 }
 
+.application-step-list {
+  display: grid;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.application-step-list li {
+  display: grid;
+  grid-template-columns: minmax(110px, 0.34fr) minmax(0, 1fr);
+  gap: 10px;
+  padding: 9px 10px;
+  border-left: 3px solid var(--brand);
+  border-radius: 8px;
+  background: #f8fbf9;
+}
+
+.application-step-list strong {
+  color: var(--brand-deep);
+  font-size: 12px;
+}
+
+.application-step-list span {
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.45;
+}
+
 .application-actions,
 .application-links {
   display: flex;
@@ -1856,6 +1934,40 @@ textarea:focus {
 .application-links span {
   color: var(--muted);
   font-size: 12px;
+  font-weight: 800;
+}
+
+.application-links .primary-button,
+.application-links .secondary-link,
+.application-links .secondary-action {
+  max-width: 100%;
+  white-space: normal;
+  text-align: center;
+}
+
+.application-evidence-list {
+  padding: 10px 12px;
+  border: 1px dashed #bdd8cd;
+  border-radius: 8px;
+  background: #f7fbf9;
+}
+
+.application-evidence-list strong {
+  display: block;
+  color: var(--brand-deep);
+  font-size: 12px;
+}
+
+.application-evidence-list ul {
+  margin: 7px 0 0;
+  padding-left: 18px;
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.45;
+}
+
+.application-evidence-list a {
+  color: var(--brand-deep);
   font-weight: 800;
 }
 
@@ -3532,9 +3644,14 @@ textarea:focus {
   }
 
   .application-programme-list,
+  .application-status-strip,
   .application-document-grid,
   .school-profile-grid,
   .course-detail-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .application-step-list li {
     grid-template-columns: 1fr;
   }
 

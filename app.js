@@ -2449,14 +2449,177 @@ function getInstitutionApplicationLink(institution) {
   return match ? { label: match.label, url: match.url } : null;
 }
 
+function getMatchProgrammeTitle(programme = {}) {
+  return programme.title || programme.name || "Programme under review";
+}
+
+function getEvidenceFileLabel(value) {
+  const text = String(value || "").trim();
+  if (!text || getSafeExternalUrl(text) || /under review/i.test(text)) return "";
+  return text.split(/[\\/]/).filter(Boolean).pop() || text;
+}
+
+function isProspectusLike(value) {
+  return /prospectus|handbook|pdf|docx|fee.?structure|source document/i.test(String(value || ""));
+}
+
+function getApplicationLinkPack(institution, programmes = []) {
+  const explorerLinks = institution
+    ? getInstitutionExplorerLinks(institution)
+    : { application: null, prospectusLinks: [], sourceLinks: [], allLinks: [] };
+  const programmeLinks = programmes.flatMap((programme) => {
+    const title = getMatchProgrammeTitle(programme);
+    return [
+      { label: `${title} source`, url: programme.sourceUrl || programme.source },
+      { label: `${title} supporting source`, url: programme.supportingSourcePath },
+      { label: `${title} fee evidence`, url: programme.supportingFeeSourcePath }
+    ];
+  });
+  const allLinks = dedupeLinks([
+    explorerLinks.application ? { label: explorerLinks.application.label || "Apply / visit institution", url: explorerLinks.application.url } : null,
+    ...programmeLinks,
+    ...explorerLinks.allLinks
+  ].filter(Boolean));
+  const applicationLink = allLinks.find((link) => /apply|application|portal|admission|course|programmes|official website/i.test(`${link.label} ${link.url}`)) || allLinks[0] || null;
+  const prospectusLinks = allLinks.filter((link) => isProspectusLike(`${link.label} ${link.url}`));
+  const sourceLinks = allLinks.filter((link) => link !== applicationLink && !prospectusLinks.includes(link));
+  const localEvidence = unique(programmes.flatMap((programme) => [
+    getEvidenceFileLabel(programme.sourcePath),
+    getEvidenceFileLabel(programme.supportingSourcePath),
+    getEvidenceFileLabel(programme.supportingFeeSourcePath),
+    getEvidenceFileLabel(programme.source)
+  ].filter(Boolean)));
+  return {
+    applicationLink,
+    prospectusLinks,
+    sourceLinks,
+    allLinks,
+    localEvidence
+  };
+}
+
+function normalizeFeeText(value) {
+  return String(value || "")
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, " ")
+    .trim();
+}
+
+function hasFeeTextOverlap(left, right) {
+  const leftText = normalizeFeeText(left);
+  const rightText = normalizeFeeText(right);
+  if (!leftText || !rightText) return false;
+  if (leftText.includes(rightText) || rightText.includes(leftText)) return true;
+  const skip = new Set(["and", "the", "for", "with", "degree", "diploma", "certificate", "bachelor", "programmes", "programme"]);
+  const leftTokens = new Set(leftText.split(" ").filter((token) => token.length > 2 && !skip.has(token)));
+  const rightTokens = rightText.split(" ").filter((token) => token.length > 2 && !skip.has(token));
+  return rightTokens.filter((token) => leftTokens.has(token)).length >= 2;
+}
+
+function formatFeeAmount(amount, currency = "LSL") {
+  const numeric = Number(amount);
+  if (!Number.isFinite(numeric)) return "";
+  return `${currency} ${numeric.toLocaleString("en-US", { maximumFractionDigits: Number.isInteger(numeric) ? 0 : 2 })}`;
+}
+
+function formatFeeItem(item) {
+  const amount = formatFeeAmount(item.amount ?? item.annualEstimate, item.schedule?.currency || "LSL");
+  const context = [item.studentCategory, item.basis].filter(Boolean).join(", ");
+  const label = [item.programmeGroup, item.name || item.type].filter(Boolean).join(" - ");
+  return `${label || "Fee item"}${amount ? `: ${amount}` : ""}${context ? ` (${context})` : ""}`;
+}
+
+function getApplicationFeeSummary(institution, programmes = []) {
+  const schedules = getInstitutionFeeSchedules(institution);
+  const scheduleItems = schedules.flatMap((schedule) => (schedule.items || []).map((item) => ({ ...item, schedule })));
+  const matchedItems = scheduleItems.filter((item) => programmes.some((programme) => {
+    const programmeText = `${getMatchProgrammeTitle(programme)} ${programme.faculty} ${programme.level}`;
+    return hasFeeTextOverlap(programmeText, item.programmeGroup || "") || hasFeeTextOverlap(programme.faculty, item.faculty || "");
+  }));
+  const fallbackItems = matchedItems.length
+    ? matchedItems
+    : scheduleItems.filter((item) => /application|acceptance|registration|tuition/i.test(`${item.type} ${item.name}`));
+  const explicitNotes = unique(programmes.flatMap((programme) => [
+    programme.feeNote,
+    programme.supportingFeeSourcePath ? `Fee evidence captured: ${getEvidenceFileLabel(programme.supportingFeeSourcePath) || programme.supportingFeeSourcePath}` : ""
+  ].filter(Boolean)));
+  const lines = unique([
+    ...explicitNotes,
+    ...fallbackItems.slice(0, 4).map(formatFeeItem)
+  ].filter(Boolean)).slice(0, 5);
+  const missing = unique(schedules.flatMap((schedule) => schedule.missingItems || [])).slice(0, 4);
+  const source = schedules.find((schedule) => schedule.sourceUrl || schedule.sourcePath);
+  return {
+    label: lines.length ? "Fee details captured" : "Fees under review",
+    detail: lines.length
+      ? "Use these as estimates and verify the latest official amount before payment."
+      : "No confirmed fee amount is linked for this matched pack yet.",
+    lines,
+    missing,
+    sourceLabel: source?.sourceUrl || getEvidenceFileLabel(source?.sourcePath) || "",
+    sourceUrl: getSafeExternalUrl(source?.sourceUrl)
+  };
+}
+
+function getApplicationDeadlineSummary(programmes = []) {
+  const known = programmes.map((programme) => programme.applicationDeadline || programme.deadline || programme.deadlineStatus || programme.applicationStatus).find(Boolean);
+  if (known) {
+    return {
+      label: "Deadline/status captured",
+      tone: "green",
+      detail: String(known)
+    };
+  }
+  return {
+    label: "Deadline not tracked yet",
+    tone: "amber",
+    detail: "EduGuide has no live closing-date feed yet. Check the institution source before submitting or paying."
+  };
+}
+
+function getApplicationStepList(programmes, checklist, linkPack, feeSummary) {
+  const missingDocs = checklist.filter((item) => item.ready === false).slice(0, 2).map((item) => item.label);
+  const primaryProgramme = programmes[0] || {};
+  return [
+    {
+      title: "Confirm the course",
+      note: `${getMatchProgrammeTitle(primaryProgramme)} is the strongest option in this school pack. Re-check final entry wording on the official source.`
+    },
+    {
+      title: "Open the school route",
+      note: linkPack.applicationLink ? `Use: ${linkPack.applicationLink.label}.` : "No direct application link is captured yet; use the school/source profile before applying."
+    },
+    {
+      title: "Prepare documents",
+      note: missingDocs.length ? `Still prepare: ${missingDocs.join(", ")}.` : "Your uploaded/captured document signals cover the main checklist."
+    },
+    {
+      title: "Check money before submission",
+      note: feeSummary.lines.length ? feeSummary.lines[0] : "Fee data is still under review for this pack."
+    },
+    {
+      title: "Treat NMDS as an estimate",
+      note: programmes.some(isNulFamilyProgramme)
+        ? "For NUL/IEMS, EduGuide treats NMDS sponsorship as degree-and-higher only unless verified otherwise."
+        : "Use the NMDS portal/readiness score as guidance only; sponsorship approval is separate."
+    }
+  ];
+}
+
 function getProgrammeApplicationSummary(programme) {
   const sourceUrl = getSafeExternalUrl(programme.source || programme.sourceUrl || programme.supportingSourcePath);
   const knownLink = getInstitutionApplicationLink(programme.institution);
   const link = sourceUrl ? { label: "Open programme source", url: sourceUrl } : knownLink;
+  const links = getApplicationLinkPack(programme.institution, [programme]);
+  const feeSummary = getApplicationFeeSummary(programme.institution, [programme]);
+  const deadlineSummary = getApplicationDeadlineSummary([programme]);
   return {
-    link,
+    link: links.applicationLink || link,
+    links,
+    feeSummary,
     nmdsPortal: nmdsPortalUrl,
-    deadlineStatus: "Deadline tracking is not active yet; verify current dates on the institution source.",
+    deadlineStatus: deadlineSummary.detail,
+    deadlineSummary,
     fundingPolicy: programme.match?.fundingBreakdown?.policy || getFundingPolicy(programme)
   };
 }
@@ -2593,7 +2756,14 @@ function getMatchingProgrammeFromAdmin(programme) {
     labourSector: profile.sector,
     nmdsPriority: profile.priority,
     dataConfidence: getDataConfidence(programme),
-    sourceType: programme.sourceType || "catalogue"
+    sourceType: programme.sourceType || "catalogue",
+    sourceUrl: programme.sourceUrl || null,
+    sourcePath: programme.sourcePath || null,
+    supportingSourcePath: programme.supportingSourcePath || null,
+    supportingFeeSourcePath: programme.supportingFeeSourcePath || null,
+    sourceNote: programme.sourceNote || null,
+    feeNote: programme.feeNote || null,
+    overview: programme.overview || null
   };
 }
 
@@ -3451,9 +3621,17 @@ function renderApplicationGroup(group) {
   const readiness = getApplicationReadiness(checklist);
   const primaryProgramme = topProgrammes[0];
   const application = getProgrammeApplicationSummary(primaryProgramme || {});
-  const link = application.link || getInstitutionApplicationLink(group.institution);
+  const linkPack = getApplicationLinkPack(group.institution, topProgrammes);
+  const feeSummary = getApplicationFeeSummary(group.institution, topProgrammes);
+  const deadlineSummary = getApplicationDeadlineSummary(topProgrammes);
+  const steps = getApplicationStepList(topProgrammes, checklist, linkPack, feeSummary);
+  const programmeFeeSummaries = new Map(topProgrammes.map((programme) => [programme.id, getApplicationFeeSummary(group.institution, [programme])]));
   const fundingPolicyWarnings = unique(topProgrammes.map((programme) => programme.match?.fundingBreakdown?.policy?.caution).filter(Boolean));
   const readinessBadge = readiness >= 75 ? "green" : readiness >= 45 ? "amber" : "red";
+  const sourceCount = linkPack.allLinks.length + linkPack.localEvidence.length;
+  const feeBadge = feeSummary.lines.length ? "green" : "amber";
+  const sourceBadge = sourceCount ? "green" : "amber";
+  const policyText = fundingPolicyWarnings[0] || application.fundingPolicy?.caution || "NMDS readiness is an estimate only.";
   return `
     <article class="application-card">
       <div class="application-card-head">
@@ -3468,15 +3646,42 @@ function renderApplicationGroup(group) {
         </div>
       </div>
 
+      <div class="application-status-strip">
+        <div>
+          <span>Application route</span>
+          <strong>${linkPack.applicationLink ? "Link ready" : "Link missing"}</strong>
+          <small>${escapeHtml(linkPack.applicationLink?.label || "Use school profile/source until admin confirms a direct apply link.")}</small>
+        </div>
+        <div>
+          <span>Fees</span>
+          <strong>${escapeHtml(feeSummary.label)}</strong>
+          <small>${escapeHtml(feeSummary.lines[0] || feeSummary.detail)}</small>
+        </div>
+        <div>
+          <span>Deadline/status</span>
+          <strong>${escapeHtml(deadlineSummary.label)}</strong>
+          <small>${escapeHtml(deadlineSummary.detail)}</small>
+        </div>
+        <div>
+          <span>Evidence</span>
+          <strong>${sourceCount || "Review"}</strong>
+          <small>${sourceCount ? "source/prospectus link(s) captured" : "source evidence still needs admin review"}</small>
+        </div>
+      </div>
+
       <div class="application-programme-list">
         ${topProgrammes
           .map(
-            (programme) => `
+            (programme) => {
+              const programmeFee = programmeFeeSummaries.get(programme.id);
+              return `
               <div>
                 <strong>${escapeHtml(programme.title)}</strong>
                 <span>${escapeHtml(programme.level)} - ${escapeHtml(programme.duration)} - ${escapeHtml(programme.match.tierLabel)}</span>
+                <small>${escapeHtml(programmeFee?.lines?.[0] || programmeFee?.label || "Fee under review")}</small>
               </div>
-            `
+            `;
+            }
           )
           .join("")}
       </div>
@@ -3497,26 +3702,50 @@ function renderApplicationGroup(group) {
           .join("")}
       </div>
 
+      <ol class="application-step-list">
+        ${steps.map((step) => `
+          <li>
+            <strong>${escapeHtml(step.title)}</strong>
+            <span>${escapeHtml(step.note)}</span>
+          </li>
+        `).join("")}
+      </ol>
+
       <div class="application-actions">
         <span class="badge ${readinessBadge}">Docs ${readiness}%</span>
-        <span class="badge blue">Deadline/status later</span>
-        ${
-          fundingPolicyWarnings.length
-            ? `<span class="badge amber">${escapeHtml(fundingPolicyWarnings[0])}</span>`
-            : `<span class="badge amber">NMDS estimate only</span>`
-        }
+        <span class="badge ${feeBadge}">${feeSummary.lines.length ? "Fee estimate ready" : "Fee under review"}</span>
+        <span class="badge ${deadlineSummary.tone}">${escapeHtml(deadlineSummary.label)}</span>
+        <span class="badge ${sourceBadge}">${sourceCount ? "Evidence linked" : "Evidence missing"}</span>
+        <span class="badge amber">${escapeHtml(policyText)}</span>
       </div>
 
       <div class="application-links">
         ${
-          link?.url
-            ? `<a class="secondary-link" href="${escapeHtml(link.url)}" target="_blank" rel="noreferrer">${escapeHtml(link.label || "Open application/source")}</a>`
+          linkPack.applicationLink?.url
+            ? `<a class="primary-button small" href="${escapeHtml(linkPack.applicationLink.url)}" target="_blank" rel="noreferrer"><i data-lucide="external-link"></i>${escapeHtml(linkPack.applicationLink.label || "Apply / visit")}</a>`
             : `<span>No direct application link captured yet</span>`
         }
+        ${linkPack.prospectusLinks.slice(0, 2).map((link) => `<a class="secondary-link" href="${escapeHtml(link.url)}" target="_blank" rel="noreferrer">Open prospectus/source</a>`).join("")}
+        ${linkPack.sourceLinks.slice(0, 2).map((link) => `<a class="secondary-link" href="${escapeHtml(link.url)}" target="_blank" rel="noreferrer">${escapeHtml(link.label || "Open source")}</a>`).join("")}
+        <button class="secondary-action" type="button" data-application-school="${escapeHtml(group.institution)}"><i data-lucide="school"></i> School profile</button>
         <a class="secondary-link" href="${nmdsPortalUrl}" target="_blank" rel="noreferrer">Open NMDS sponsorship portal</a>
       </div>
 
-      <p class="application-deadline-note">${escapeHtml(application.deadlineStatus)}</p>
+      ${
+        linkPack.localEvidence.length || feeSummary.missing.length || feeSummary.sourceLabel
+          ? `<div class="application-evidence-list">
+              <strong>Captured evidence and shortages</strong>
+              <ul>
+                ${feeSummary.sourceUrl ? `<li><a href="${escapeHtml(feeSummary.sourceUrl)}" target="_blank" rel="noreferrer">Open fee source</a></li>` : ""}
+                ${!feeSummary.sourceUrl && feeSummary.sourceLabel ? `<li>Fee/source file: ${escapeHtml(feeSummary.sourceLabel)}</li>` : ""}
+                ${linkPack.localEvidence.slice(0, 3).map((item) => `<li>Captured file/source: ${escapeHtml(item)}</li>`).join("")}
+                ${feeSummary.missing.slice(0, 3).map((item) => `<li>Missing fee detail: ${escapeHtml(item)}</li>`).join("")}
+              </ul>
+            </div>`
+          : ""
+      }
+
+      <p class="application-deadline-note">${escapeHtml(deadlineSummary.detail)}</p>
     </article>
   `;
 }
@@ -3651,6 +3880,7 @@ function getAiProfilePayload() {
 }
 
 function getCompactAiProgramme(programme) {
+  const application = getProgrammeApplicationSummary(programme);
   return {
     id: programme.id,
     title: programme.title,
@@ -3661,7 +3891,20 @@ function getCompactAiProgramme(programme) {
     level: programme.level,
     duration: programme.duration,
     requirements: (programme.requirements || []).slice(0, 4),
-    application: getProgrammeApplicationSummary(programme),
+    application: {
+      link: application.link ? { label: application.link.label, url: application.link.url } : null,
+      deadlineStatus: application.deadlineStatus,
+      feeSummary: {
+        label: application.feeSummary?.label,
+        lines: (application.feeSummary?.lines || []).slice(0, 2),
+        missing: (application.feeSummary?.missing || []).slice(0, 2)
+      },
+      nmdsPortal: application.nmdsPortal,
+      fundingPolicy: {
+        status: application.fundingPolicy?.status,
+        caution: application.fundingPolicy?.caution
+      }
+    },
     applicationDocuments: getApplicationDocumentChecklist([programme]).slice(0, 6),
     careers: (programme.careers || []).slice(0, 3),
     skills: (programme.skills || []).slice(0, 3),
@@ -5922,6 +6165,18 @@ function bindEvents() {
     });
   });
   qs("#view-results")?.addEventListener("click", (event) => {
+    const applicationSchoolButton = event.target.closest("[data-application-school]");
+    if (applicationSchoolButton) {
+      schoolExplorerState.selectedInstitution = applicationSchoolButton.dataset.applicationSchool;
+      schoolExplorerState.selectedProgrammeId = null;
+      schoolExplorerState.query = "";
+      recordCurrentUserActivity("application_school_profile_opened", `Opened ${schoolExplorerState.selectedInstitution} from application assistant`, {
+        institution: schoolExplorerState.selectedInstitution
+      }, { throttleMs: 45000 });
+      setView("schools");
+      return;
+    }
+
     const institutionButton = event.target.closest("[data-institution-result]");
     if (institutionButton) {
       const institution = institutionButton.dataset.institutionResult;
