@@ -2251,6 +2251,18 @@ textarea:focus {
   font-size: 12px;
 }
 
+.ai-rec .ai-evidence {
+  display: block;
+  padding: 7px 9px;
+  border: 1px solid #c7eadf;
+  border-radius: 8px;
+  background: var(--brand-soft);
+  color: var(--brand-deep);
+  font-size: 12px;
+  font-weight: 800;
+  line-height: 1.45;
+}
+
 .ai-rec small {
   color: var(--muted);
   line-height: 1.45;

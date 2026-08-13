@@ -442,8 +442,8 @@ profile details are missing.
 Return concise JSON with exactly these keys:
 - summary: string
 - direct_answer: string
-- top_recommendations: array of objects with programme, institution, tier, why, caution, action
-- comparison: array of objects with programme, institution, tier, strength, concern
+- top_recommendations: array of objects with programme, institution, tier, evidence, why, caution, action
+- comparison: array of objects with programme, institution, tier, evidence, strength, concern
 - study_plan: array of short strings
 - document_checklist: array of short strings
 - scholarship_note: string
@@ -451,6 +451,9 @@ Return concise JSON with exactly these keys:
 
 Be warm, direct, and practical. If data confidence is low or a requirement is marked
 under review, say the student should verify it with the institution/admin.
+Every recommendation must cite evidence from the supplied programme object,
+such as requirements, reasons, cautions, requirement_gaps, source, application,
+or applicationDocuments. If evidence is weak, say so instead of sounding certain.
 """
 
 
@@ -1068,17 +1071,46 @@ def extract_document(document_id: str) -> sqlite3.Row | dict[str, Any]:
 
 def compact_match(match: dict[str, Any]) -> dict[str, Any]:
   scores = match.get("scores") or match.get("match") or {}
+  requirements = (match.get("requirements") or [])[:4]
+  reasons = (scores.get("reasons") or match.get("reasons") or [])[:3]
+  cautions = (scores.get("cautions") or match.get("cautions") or [])[:3]
+  requirement_gaps = (scores.get("requirementGaps") or match.get("requirementGaps") or [])[:4]
+  application = match.get("application") if isinstance(match.get("application"), dict) else {}
+  application_documents = match.get("applicationDocuments") or match.get("application_documents") or []
+  source = match.get("source")
+  evidence = []
+  if requirements:
+    evidence.append(f"Captured requirements: {'; '.join(str(item) for item in requirements[:2])}")
+  if reasons:
+    evidence.append(f"Matcher reason: {reasons[0]}")
+  if requirement_gaps:
+    evidence.append(f"Requirement gap: {requirement_gaps[0]}")
+  if cautions:
+    evidence.append(f"Caution: {cautions[0]}")
+  if source:
+    evidence.append(f"Source: {source}")
+  if application.get("link"):
+    link = application.get("link") or {}
+    evidence.append(f"Application/source link: {link.get('label') or link.get('url')}")
+  if application_documents:
+    labels = [str(item.get("label") if isinstance(item, dict) else item) for item in application_documents[:3]]
+    evidence.append(f"Application documents: {', '.join(labels)}")
   return {
     "programme": match.get("title"),
     "institution": match.get("institution"),
     "duration": match.get("duration"),
     "faculty": match.get("faculty"),
     "level": match.get("level"),
-    "source": match.get("source"),
+    "source": source,
     "source_type": match.get("sourceType") or match.get("source_type"),
     "careers": (match.get("careers") or [])[:4],
     "skills": (match.get("skills") or [])[:4],
-    "requirements": (match.get("requirements") or [])[:4],
+    "requirements": requirements,
+    "application": application,
+    "application_documents": application_documents[:6],
+    "hard_gate_passed": scores.get("hardGatePassed") if scores.get("hardGatePassed") is not None else match.get("hard_gate_passed"),
+    "hard_gate_failures": (scores.get("hardGateFailures") or match.get("hardGateFailures") or [])[:4],
+    "evidence": evidence[:5],
     "scores": {
       "overall": scores.get("overall"),
       "academic": scores.get("academic"),
@@ -1091,15 +1123,121 @@ def compact_match(match: dict[str, Any]) -> dict[str, Any]:
     },
     "tier": scores.get("tier") or match.get("tier"),
     "tier_label": scores.get("tierLabel") or match.get("tierLabel"),
-    "requirement_gaps": (scores.get("requirementGaps") or match.get("requirementGaps") or [])[:4],
-    "reasons": (scores.get("reasons") or match.get("reasons") or [])[:3],
-    "cautions": (scores.get("cautions") or match.get("cautions") or [])[:3],
+    "requirement_gaps": requirement_gaps,
+    "reasons": reasons,
+    "cautions": cautions,
   }
 
 
 def is_recommendable_match(match: dict[str, Any]) -> bool:
   tier = str(match.get("tier_label") or match.get("tier") or "").lower()
   return "qualified" in tier or "almost" in tier
+
+
+def guidance_match_key(programme: Any, institution: Any) -> str:
+  return re.sub(r"[^a-z0-9]+", " ", f"{programme or ''} {institution or ''}".lower()).strip()
+
+
+def evidence_text(match: dict[str, Any]) -> str:
+  evidence = [str(item) for item in match.get("evidence") or [] if str(item).strip()]
+  if evidence:
+    return " | ".join(evidence[:3])
+  fallback = []
+  if match.get("requirements"):
+    fallback.append(f"Captured requirements: {'; '.join(str(item) for item in match['requirements'][:2])}")
+  if match.get("source"):
+    fallback.append(f"Source: {match['source']}")
+  if match.get("requirement_gaps"):
+    fallback.append(f"Requirement gap: {match['requirement_gaps'][0]}")
+  return " | ".join(fallback[:3]) or "Evidence is limited; verify this programme with the institution before applying."
+
+
+def recommendation_from_match(match: dict[str, Any]) -> dict[str, Any]:
+  caution_parts = match.get("cautions") or match.get("requirement_gaps") or []
+  return {
+    "programme": match.get("programme"),
+    "institution": match.get("institution"),
+    "tier": match.get("tier_label") or match.get("tier") or "Match",
+    "evidence": evidence_text(match),
+    "why": "; ".join(match.get("reasons") or ["This is supported by the matcher using your current grades, interests, and captured requirements."]),
+    "caution": "; ".join(caution_parts[:2]) if caution_parts else "Verify final requirements with the institution before applying.",
+    "action": "Open the programme or institution profile, check requirements and documents, then apply only through the captured official/source link.",
+  }
+
+
+def normalize_ai_guidance(guidance: dict[str, Any] | None, payload: GuidanceRequest) -> dict[str, Any]:
+  response = guidance if isinstance(guidance, dict) else build_fallback(payload, "The AI response was empty.")
+  compact_matches = [compact_match(item) for item in payload.matches[:8]]
+  recommendable = [item for item in compact_matches if is_recommendable_match(item)]
+  allowed = {guidance_match_key(item.get("programme"), item.get("institution")): item for item in recommendable}
+  blocked_matches = [compact_match(item) for item in payload.blockedMatches[:6]]
+
+  safe_recommendations = []
+  for item in response.get("top_recommendations") or []:
+    if not isinstance(item, dict):
+      continue
+    matched = allowed.get(guidance_match_key(item.get("programme"), item.get("institution")))
+    if not matched:
+      continue
+    merged = recommendation_from_match(matched)
+    merged.update({
+      "why": str(item.get("why") or merged["why"])[:900],
+      "caution": str(item.get("caution") or merged["caution"])[:900],
+      "action": str(item.get("action") or merged["action"])[:900],
+      "evidence": evidence_text(matched),
+      "tier": matched.get("tier_label") or matched.get("tier") or merged["tier"],
+    })
+    safe_recommendations.append(merged)
+
+  if not safe_recommendations and recommendable:
+    safe_recommendations = [recommendation_from_match(item) for item in recommendable[:3]]
+
+  safe_comparison = []
+  for item in response.get("comparison") or []:
+    if not isinstance(item, dict):
+      continue
+    matched = allowed.get(guidance_match_key(item.get("programme"), item.get("institution")))
+    if not matched:
+      continue
+    safe_comparison.append({
+      "programme": matched.get("programme"),
+      "institution": matched.get("institution"),
+      "tier": matched.get("tier_label") or matched.get("tier") or "Match",
+      "evidence": evidence_text(matched),
+      "strength": str(item.get("strength") or "; ".join(matched.get("reasons") or ["Supported by current matcher evidence."]))[:900],
+      "concern": str(item.get("concern") or "; ".join(matched.get("cautions") or matched.get("requirement_gaps") or ["Confirm final entry requirements."]))[:900],
+    })
+  if not safe_comparison and safe_recommendations:
+    safe_comparison = [
+      {
+        "programme": item["programme"],
+        "institution": item["institution"],
+        "tier": item["tier"],
+        "evidence": item["evidence"],
+        "strength": item["why"],
+        "concern": item["caution"],
+      }
+      for item in safe_recommendations[:3]
+    ]
+
+  if not recommendable and blocked_matches:
+    blocker = blocked_matches[0]
+    gaps = blocker.get("requirement_gaps") or blocker.get("cautions") or blocker.get("hard_gate_failures") or []
+    response["summary"] = "No qualified or almost-qualified recommendation is strong enough yet from the current captured evidence."
+    response["direct_answer"] = (
+      f"The closest blocked pathway is {blocker.get('programme')} at {blocker.get('institution')}. "
+      f"Main blocker: {'; '.join(str(item) for item in gaps[:2]) or 'captured requirements are not met yet'}."
+    )
+
+  response["top_recommendations"] = safe_recommendations[:4]
+  response["comparison"] = safe_comparison[:4]
+  response["study_plan"] = [str(item)[:240] for item in (response.get("study_plan") or [])[:5]]
+  response["document_checklist"] = [str(item)[:240] for item in (response.get("document_checklist") or [])[:8]]
+  response["next_questions"] = [str(item)[:180] for item in (response.get("next_questions") or [])[:3]]
+  response["summary"] = str(response.get("summary") or "Guidance generated from your current matcher evidence.")[:1200]
+  response["direct_answer"] = str(response.get("direct_answer") or "Use qualified and almost-qualified matches first; blocked paths are preparation goals, not current application recommendations.")[:1600]
+  response["scholarship_note"] = str(response.get("scholarship_note") or "Funding readiness is an estimate only; official sponsorship decisions remain with the sponsor/NMDS process.")[:1200]
+  return response
 
 
 def build_fallback(payload: GuidanceRequest, error: str | None = None) -> dict[str, Any]:
@@ -1154,6 +1292,7 @@ def build_fallback(payload: GuidanceRequest, error: str | None = None) -> dict[s
         "programme": item.get("programme"),
         "institution": item.get("institution"),
         "tier": item.get("tier_label") or item.get("tier") or "Explore",
+        "evidence": evidence_text(item),
         "why": "; ".join(item.get("reasons") or ["It aligns with your selected profile signals."]),
         "caution": "; ".join(item.get("cautions") or ["Confirm requirements with the institution."]),
         "action": "Compare requirements, duration, careers, and funding readiness before shortlisting.",
@@ -1165,6 +1304,7 @@ def build_fallback(payload: GuidanceRequest, error: str | None = None) -> dict[s
         "programme": item.get("programme"),
         "institution": item.get("institution"),
         "tier": item.get("tier_label") or item.get("tier") or "Explore",
+        "evidence": evidence_text(item),
         "strength": "; ".join(item.get("reasons") or ["Good profile alignment."]),
         "concern": "; ".join(item.get("requirement_gaps") or item.get("cautions") or ["Confirm final entry requirements."]),
       }
@@ -3093,7 +3233,10 @@ def call_gemini(payload: GuidanceRequest, request_payload: dict[str, Any]) -> di
           ),
         )
         text = response.text or ""
-        guidance = parse_json_response(text) or build_fallback(payload, "The Gemini response was not valid JSON.")
+        guidance = normalize_ai_guidance(
+          parse_json_response(text) or build_fallback(payload, "The Gemini response was not valid JSON."),
+          payload,
+        )
         return {
           "mode": "gemini",
           "provider": "gemini",
@@ -3135,7 +3278,10 @@ def call_openai(payload: GuidanceRequest, request_payload: dict[str, Any]) -> di
       ],
     )
     text = response.output_text
-    guidance = parse_json_response(text) or build_fallback(payload, "The OpenAI response was not valid JSON.")
+    guidance = normalize_ai_guidance(
+      parse_json_response(text) or build_fallback(payload, "The OpenAI response was not valid JSON."),
+      payload,
+    )
     return {
       "mode": "openai",
       "provider": "openai",

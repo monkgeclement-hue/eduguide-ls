@@ -3983,7 +3983,7 @@ async function handleAiInterviewAnswer(answer) {
 function guidanceToConversationText(guidance = {}) {
   const parts = [guidance.summary, guidance.direct_answer, guidance.scholarship_note].filter(Boolean);
   if (Array.isArray(guidance.top_recommendations) && guidance.top_recommendations.length) {
-    parts.push(`Top recommendations: ${guidance.top_recommendations.map((item) => `${item.programme || "Programme"} at ${item.institution || "Institution"}: ${item.why || item.action || "match"}`).join(" | ")}`);
+    parts.push(`Top recommendations: ${guidance.top_recommendations.map((item) => `${item.programme || "Programme"} at ${item.institution || "Institution"}: ${item.why || item.action || "match"} Evidence: ${item.evidence || "matcher evidence"}`).join(" | ")}`);
   }
   if (Array.isArray(guidance.study_plan) && guidance.study_plan.length) parts.push(`Study plan: ${guidance.study_plan.join(" | ")}`);
   if (Array.isArray(guidance.next_questions) && guidance.next_questions.length) parts.push(`Next questions: ${guidance.next_questions.join(" | ")}`);
@@ -4023,6 +4023,7 @@ function renderAiGuidance(guidance, mode, model, serverChat = null) {
                     <strong>${escapeHtml(item.programme || "Programme")} - ${escapeHtml(item.institution || "Institution")}</strong>
                     <em>${escapeHtml(item.tier || "Match")}</em>
                     <p>${escapeHtml(item.why || "This matches your current profile signals.")}</p>
+                    ${item.evidence ? `<b class="ai-evidence">Evidence: ${escapeHtml(item.evidence)}</b>` : ""}
                     <span>${escapeHtml(item.caution || "Verify final requirements before applying.")}</span>
                     <small>${escapeHtml(item.action || "Compare this option with your other matches.")}</small>
                   </div>
@@ -4043,6 +4044,7 @@ function renderAiGuidance(guidance, mode, model, serverChat = null) {
                     <strong>${escapeHtml(item.programme || "Programme")} - ${escapeHtml(item.institution || "Institution")}</strong>
                     <em>${escapeHtml(item.tier || "Match")}</em>
                     <p>${escapeHtml(item.strength || "Strong profile alignment.")}</p>
+                    ${item.evidence ? `<b class="ai-evidence">Evidence: ${escapeHtml(item.evidence)}</b>` : ""}
                     <span>${escapeHtml(item.concern || "Confirm final requirements before applying.")}</span>
                   </div>
                 `
