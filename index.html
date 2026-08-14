@@ -743,6 +743,10 @@
                   <i data-lucide="users-round"></i>
                   Users
                 </button>
+                <button class="admin-tab" type="button" data-admin-tab="audit">
+                  <i data-lucide="shield-check"></i>
+                  Audit
+                </button>
               </div>
 
               <div class="admin-workbench">
@@ -781,6 +785,16 @@
                       <span>Search by name, email, user ID, role, or activity</span>
                     </div>
                     <div class="admin-record-list" id="admin-user-list"></div>
+                  </div>
+                  <div class="admin-tab-panel" id="admin-tab-audit">
+                    <div class="admin-list-head">
+                      <span id="audit-result-count">0 events</span>
+                      <button class="secondary-action compact-action" type="button" data-admin-audit-refresh>
+                        <i data-lucide="refresh-cw"></i>
+                        Refresh
+                      </button>
+                    </div>
+                    <div class="admin-record-list" id="admin-audit-list"></div>
                   </div>
                 </section>
 

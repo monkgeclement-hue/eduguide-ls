@@ -2846,6 +2846,47 @@ textarea:focus {
   background: var(--brand-soft);
 }
 
+.audit-row {
+  align-items: start;
+}
+
+.audit-payload {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 8px;
+}
+
+.audit-payload span {
+  display: inline-grid;
+  gap: 2px;
+  max-width: 100%;
+  padding: 7px 8px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--surface-soft);
+}
+
+.audit-payload strong {
+  color: var(--brand-deep);
+  font-size: 10px;
+  font-weight: 900;
+  text-transform: uppercase;
+}
+
+.audit-payload em {
+  color: var(--muted);
+  font-size: 12px;
+  font-style: normal;
+  font-weight: 700;
+  line-height: 1.35;
+  overflow-wrap: anywhere;
+}
+
+.audit-detail-card .audit-payload {
+  display: grid;
+}
+
 .admin-row-main {
   min-width: 0;
 }

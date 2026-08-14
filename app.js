@@ -36,6 +36,7 @@ let adminState = {
   qualityFilter: "all",
   selectedProgrammeId: adminProgrammes[0]?.id || null,
   selectedUserId: null,
+  selectedAuditId: null,
   editingProgrammeId: null
 };
 let schoolExplorerState = {
@@ -149,6 +150,9 @@ const analyticsThrottleState = new Map();
 let serverAdminIntelligence = null;
 let adminIntelligenceLoading = false;
 let adminIntelligenceError = "";
+let adminAuditEvents = [];
+let adminAuditLoading = false;
+let adminAuditError = "";
 let databaseLoadedAuthUsers = false;
 let databaseLoadedReviewState = false;
 let aiChatLoadedFromServer = false;
@@ -5671,6 +5675,117 @@ async function loadAdminUsers() {
   }
 }
 
+function getAuditTone(eventType = "") {
+  const type = String(eventType || "");
+  if (/failed|blocked|suspended|rejected|error/.test(type)) return "red";
+  if (/admin|role|status|review|test_email/.test(type)) return "amber";
+  if (/login_success|registration_completed|password_reset_confirmed/.test(type)) return "green";
+  return "blue";
+}
+
+function getAuditSearchText(event = {}) {
+  return [
+    event.id,
+    event.eventType,
+    event.label,
+    event.actor?.id,
+    event.actor?.name,
+    event.actor?.email,
+    event.actor?.role,
+    JSON.stringify(event.payload || {})
+  ].join(" ").toLowerCase();
+}
+
+function getFilteredAdminAuditEvents() {
+  const query = adminState.search.trim().toLowerCase();
+  return adminAuditEvents.filter((event) => !query || getAuditSearchText(event).includes(query));
+}
+
+function renderAuditPayload(payload = {}) {
+  const entries = Object.entries(payload || {}).filter(([, value]) => value !== undefined && value !== null && String(value) !== "");
+  if (!entries.length) return `<span class="muted-inline">No extra payload.</span>`;
+  return `
+    <div class="audit-payload">
+      ${entries.slice(0, 6).map(([key, value]) => `
+        <span>
+          <strong>${escapeHtml(formatStatus(key))}</strong>
+          <em>${escapeHtml(Array.isArray(value) ? value.join(", ") : typeof value === "object" ? JSON.stringify(value) : String(value))}</em>
+        </span>
+      `).join("")}
+    </div>
+  `;
+}
+
+function renderAdminAudit() {
+  const list = qs("#admin-audit-list");
+  const count = qs("#audit-result-count");
+  if (!list || !count) return;
+  const events = getFilteredAdminAuditEvents();
+  count.textContent = adminAuditLoading ? "Loading audit..." : `${events.length} event${events.length === 1 ? "" : "s"}`;
+  if (adminAuditLoading && !adminAuditEvents.length) {
+    list.innerHTML = `<article class="admin-empty"><h4>Loading audit log...</h4><p>Reading server runtime events.</p></article>`;
+    return;
+  }
+  if (adminAuditError && !events.length) {
+    list.innerHTML = `<article class="admin-empty"><h4>Audit unavailable.</h4><p>${escapeHtml(adminAuditError)}</p></article>`;
+    return;
+  }
+  list.innerHTML = events.length
+    ? events
+        .map((event) => {
+          const active = event.id === adminState.selectedAuditId;
+          const actor = event.actor || {};
+          return `
+            <article class="admin-row audit-row ${active ? "selected" : ""}" data-audit-id="${escapeHtml(event.id || "")}">
+              <div class="admin-row-main">
+                <div class="admin-row-title">
+                  <h4>${escapeHtml(event.label || formatStatus(event.eventType || "event"))}</h4>
+                  <span class="badge ${getAuditTone(event.eventType)}">${escapeHtml(formatStatus(event.eventType || "event"))}</span>
+                </div>
+                <p>${escapeHtml(actor.name || "System / anonymous")} ${actor.email ? `- ${escapeHtml(actor.email)}` : ""}</p>
+                <div class="admin-row-meta">
+                  <span>${escapeHtml(actor.role || "system")}</span>
+                  <span>${escapeHtml(formatDateTime(event.createdAt))}</span>
+                  <span>${escapeHtml(event.id || "event")}</span>
+                </div>
+                ${renderAuditPayload(event.payload || {})}
+              </div>
+              <div class="admin-row-actions">
+                <span class="badge ${getAuditTone(event.eventType)}">${escapeHtml(actor.id || "system")}</span>
+              </div>
+            </article>
+          `;
+        })
+        .join("")
+    : `<article class="admin-empty"><h4>No audit events match.</h4><p>Try clearing search or refresh the audit log.</p></article>`;
+  if (events.length && !events.some((event) => event.id === adminState.selectedAuditId)) {
+    adminState.selectedAuditId = events[0].id || null;
+  }
+}
+
+async function loadAdminAudit({ silent = false } = {}) {
+  if (!authToken || !isAdmin() || adminAuditLoading) return;
+  adminAuditLoading = true;
+  adminAuditError = "";
+  if (!silent) renderAdminAudit();
+  try {
+    const response = await fetch("/api/admin/audit?limit=180", { headers: getAuthHeaders({ Accept: "application/json" }) });
+    const data = await response.json().catch(() => ({}));
+    if (!response.ok || !data.ok || !Array.isArray(data.events)) throw new Error(data.detail || "Unable to load audit log");
+    adminAuditEvents = data.events;
+    if (!adminState.selectedAuditId || !adminAuditEvents.some((event) => event.id === adminState.selectedAuditId)) {
+      adminState.selectedAuditId = adminAuditEvents[0]?.id || null;
+    }
+  } catch (error) {
+    adminAuditError = error.message || "Unable to load audit log";
+  } finally {
+    adminAuditLoading = false;
+    renderAdminAudit();
+    renderAdminDetail();
+    if (window.lucide) window.lucide.createIcons();
+  }
+}
+
 function applyAdminUsersResponse(data) {
   if (!Array.isArray(data?.users)) return;
   authUsers = data.users.map(normalizeUser).filter(Boolean);
@@ -5836,11 +5951,60 @@ function renderAdminUserDetail(panel) {
   `;
 }
 
+function renderAdminAuditDetail(panel) {
+  const events = getFilteredAdminAuditEvents();
+  const event = events.find((item) => item.id === adminState.selectedAuditId) || events[0];
+  if (!event) {
+    panel.innerHTML = `
+      <article class="admin-empty">
+        <h4>No audit event selected.</h4>
+        <p>Open or refresh the audit tab to inspect login, registration, admin, AI, and document activity.</p>
+      </article>
+    `;
+    return;
+  }
+  const actor = event.actor || {};
+  panel.innerHTML = `
+    <div class="detail-card audit-detail-card">
+      <div class="detail-card-head">
+        <p class="section-kicker">Audit event</p>
+        <span class="badge ${getAuditTone(event.eventType)}">${escapeHtml(formatStatus(event.eventType || "event"))}</span>
+      </div>
+      <h3>${escapeHtml(event.label || formatStatus(event.eventType || "Event"))}</h3>
+      <p class="detail-muted">${escapeHtml(formatDateTime(event.createdAt))}</p>
+      <div class="detail-meta-grid">
+        <div><span>Actor</span><strong>${escapeHtml(actor.name || "System / anonymous")}</strong></div>
+        <div><span>Email</span><strong>${escapeHtml(actor.email || "Not linked")}</strong></div>
+        <div><span>Role</span><strong>${escapeHtml(actor.role || "system")}</strong></div>
+        <div><span>Event ID</span><strong>${escapeHtml(event.id || "Missing")}</strong></div>
+      </div>
+      <div class="detail-section">
+        <h4>Payload</h4>
+        ${renderAuditPayload(event.payload || {})}
+      </div>
+      <div class="detail-section">
+        <h4>Why it matters</h4>
+        <p>Use this trail to monitor sensitive account, admin, email, AI, document, and matching actions after deployment.</p>
+      </div>
+      <div class="detail-actions">
+        <button class="secondary-action" type="button" data-admin-audit-refresh>
+          <i data-lucide="refresh-cw"></i>
+          Refresh Audit
+        </button>
+      </div>
+    </div>
+  `;
+}
+
 function renderAdminDetail() {
   const panel = qs("#admin-detail-panel");
   if (!panel) return;
   if (adminState.tab === "users") {
     renderAdminUserDetail(panel);
+    return;
+  }
+  if (adminState.tab === "audit") {
+    renderAdminAuditDetail(panel);
     return;
   }
   const programme = adminProgrammes.find((item) => item.id === adminState.selectedProgrammeId) || adminProgrammes[0];
@@ -6058,6 +6222,9 @@ function setAdminTab(tabName) {
   if (tabName === "users" && !adminState.selectedUserId) {
     adminState.selectedUserId = getVisibleUsers()[0]?.id || null;
   }
+  if (tabName === "audit" && !adminAuditEvents.length) {
+    loadAdminAudit({ silent: true });
+  }
   qsa("[data-admin-tab]").forEach((tab) => tab.classList.toggle("active", tab.dataset.adminTab === tabName));
   qsa(".admin-tab-panel").forEach((panel) => panel.classList.toggle("active", panel.id === `admin-tab-${tabName}`));
   renderAdminDetail();
@@ -6169,6 +6336,7 @@ function renderAdmin() {
   renderAdminFees();
   renderAdminSources();
   renderAdminUsers();
+  renderAdminAudit();
   renderAdminDetail();
   setAdminTab(adminState.tab);
   if (window.lucide) window.lucide.createIcons();
@@ -6500,6 +6668,21 @@ function bindEvents() {
       if (commandButton.id === "reset-admin-state") resetLocalReviewState();
       if (commandButton.id === "refresh-deployment-status") loadDeploymentStatus();
       if (commandButton.id === "test-email-delivery") sendAdminTestEmail();
+      return;
+    }
+
+    const auditRefresh = event.target.closest("[data-admin-audit-refresh]");
+    if (auditRefresh) {
+      event.preventDefault();
+      loadAdminAudit();
+      return;
+    }
+
+    const auditRow = event.target.closest("[data-audit-id]");
+    if (auditRow && auditRow.classList.contains("admin-row")) {
+      adminState.selectedAuditId = auditRow.dataset.auditId;
+      setAdminTab("audit");
+      renderAdmin();
       return;
     }
 
