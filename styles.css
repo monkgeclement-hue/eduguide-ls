@@ -1,4 +1,4 @@
-:root {
+﻿:root {
   --brand: #1d9e75;
   --brand-deep: #085041;
   --brand-mid: #0f6e56;
@@ -327,7 +327,7 @@ a {
   color: var(--brand-mid);
   font-size: 11px;
   font-weight: 800;
-  letter-spacing: 0.08em;
+  letter-spacing: 0;
   text-transform: uppercase;
 }
 
@@ -1329,6 +1329,11 @@ textarea:focus {
   color: var(--danger);
 }
 
+.badge.long {
+  white-space: normal;
+  line-height: 1.3;
+}
+
 .programme-detail {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -1347,7 +1352,7 @@ textarea:focus {
   color: var(--brand-deep);
   font-size: 12px;
   text-transform: uppercase;
-  letter-spacing: 0.05em;
+  letter-spacing: 0;
 }
 
 .detail-block ul {
@@ -1507,7 +1512,7 @@ textarea:focus {
   color: var(--brand-deep);
   font-size: 12px;
   text-transform: uppercase;
-  letter-spacing: 0.05em;
+  letter-spacing: 0;
 }
 
 .blocked-fixes ul,
@@ -1739,6 +1744,7 @@ textarea:focus {
 .application-card {
   display: grid;
   gap: 13px;
+  min-width: 0;
   padding: 14px;
   border: 1px solid var(--line);
   border-radius: 8px;
@@ -1746,11 +1752,25 @@ textarea:focus {
   box-shadow: var(--shadow);
 }
 
+.application-card > * {
+  min-width: 0;
+}
+
 .application-card-head {
   display: flex;
   align-items: start;
   justify-content: space-between;
   gap: 14px;
+}
+
+.application-card-head > div {
+  min-width: 0;
+}
+
+.application-card-head h4,
+.application-card-head span,
+.application-card-head p {
+  overflow-wrap: anywhere;
 }
 
 .application-score {
@@ -1804,6 +1824,7 @@ textarea:focus {
   margin-top: 4px;
   color: var(--brand-deep);
   font-size: 13px;
+  overflow-wrap: anywhere;
 }
 
 .application-status-strip small {
@@ -1811,6 +1832,14 @@ textarea:focus {
   color: var(--muted);
   font-size: 11px;
   line-height: 1.35;
+  overflow-wrap: anywhere;
+}
+
+.application-status-strip div,
+.application-programme-list div,
+.application-document-grid div,
+.application-step-list li {
+  min-width: 0;
 }
 
 .application-programme-list,
@@ -1931,6 +1960,20 @@ textarea:focus {
   align-items: center;
 }
 
+.application-actions {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+}
+
+.application-actions .badge {
+  flex: 1 1 auto;
+  min-width: 0;
+  justify-content: center;
+  text-align: center;
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
+
 .application-links span {
   color: var(--muted);
   font-size: 12px;
@@ -1943,6 +1986,7 @@ textarea:focus {
   max-width: 100%;
   white-space: normal;
   text-align: center;
+  overflow-wrap: anywhere;
 }
 
 .application-evidence-list {
@@ -2315,7 +2359,7 @@ textarea:focus {
   color: var(--brand-deep);
   font-size: 12px;
   text-transform: uppercase;
-  letter-spacing: 0.04em;
+  letter-spacing: 0;
 }
 
 .ai-answer-card p,
@@ -2672,6 +2716,44 @@ textarea:focus {
   padding-left: 14px;
 }
 
+.admin-quality-filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px;
+  margin: 0 0 12px;
+}
+
+.quality-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  min-height: 34px;
+  padding: 0 10px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: #fff;
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 900;
+}
+
+.quality-chip strong {
+  display: grid;
+  place-items: center;
+  min-width: 22px;
+  min-height: 22px;
+  border-radius: 999px;
+  background: var(--surface-soft);
+  color: var(--brand-deep);
+  font-size: 11px;
+}
+
+.quality-chip.active {
+  border-color: var(--brand);
+  background: var(--brand-soft);
+  color: var(--brand-deep);
+}
+
 .admin-tabs {
   display: flex;
   flex-wrap: wrap;
@@ -2803,6 +2885,46 @@ textarea:focus {
   color: var(--muted);
   font-size: 11px;
   font-weight: 700;
+}
+
+.admin-quality-bar {
+  width: 100%;
+  height: 7px;
+  margin-top: 9px;
+  overflow: hidden;
+  border-radius: 999px;
+  background: #e7eee9;
+}
+
+.admin-quality-bar span {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: var(--brand);
+}
+
+.admin-quality-checks {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+  margin-top: 8px;
+}
+
+.admin-quality-checks span {
+  padding: 4px 7px;
+  border-radius: 999px;
+  font-size: 10px;
+  font-weight: 900;
+}
+
+.admin-quality-checks .ready {
+  background: var(--brand-soft);
+  color: var(--brand-deep);
+}
+
+.admin-quality-checks .missing {
+  background: #fde9e3;
+  color: var(--danger);
 }
 
 .admin-row-actions {
@@ -2976,6 +3098,38 @@ textarea:focus {
   line-height: 1.2;
 }
 
+.admin-detail-quality {
+  display: grid;
+  gap: 10px;
+  margin: 0 0 12px;
+  padding: 11px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--surface-soft);
+}
+
+.admin-detail-quality > div:first-child {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.admin-detail-quality strong {
+  color: var(--brand-deep);
+  font-size: 24px;
+}
+
+.admin-detail-quality span {
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.detail-quality-checks {
+  margin-top: 0;
+}
+
 .detail-meta-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -3014,7 +3168,7 @@ textarea:focus {
   color: var(--brand-deep);
   font-size: 12px;
   font-weight: 900;
-  letter-spacing: 0.04em;
+  letter-spacing: 0;
   text-transform: uppercase;
 }
 
@@ -3415,6 +3569,16 @@ textarea:focus {
     grid-template-columns: 1fr;
   }
 
+  .admin-quality-filters {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .quality-chip {
+    justify-content: space-between;
+    min-width: 0;
+  }
+
   .deployment-readiness {
     grid-template-columns: 1fr;
   }
@@ -3644,15 +3808,45 @@ textarea:focus {
   }
 
   .application-programme-list,
-  .application-status-strip,
   .application-document-grid,
   .school-profile-grid,
   .course-detail-grid {
     grid-template-columns: 1fr;
   }
 
+  .application-status-strip {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .application-status-strip div {
+    padding: 8px;
+  }
+
   .application-step-list li {
     grid-template-columns: 1fr;
+  }
+
+  .application-actions,
+  .application-links {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .application-links .primary-button,
+  .application-links .secondary-link,
+  .application-links .secondary-action {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .application-actions .badge {
+    width: 100%;
+    justify-content: center;
+    text-align: center;
+  }
+
+  .application-evidence-list ul {
+    padding-left: 18px;
   }
 
   .surface-panel {

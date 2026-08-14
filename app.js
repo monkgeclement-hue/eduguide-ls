@@ -33,6 +33,7 @@ let adminState = {
   search: "",
   institution: "all",
   status: "all",
+  qualityFilter: "all",
   selectedProgrammeId: adminProgrammes[0]?.id || null,
   selectedUserId: null,
   editingProgrammeId: null
@@ -2561,19 +2562,107 @@ function getApplicationFeeSummary(institution, programmes = []) {
   };
 }
 
-function getApplicationDeadlineSummary(programmes = []) {
-  const known = programmes.map((programme) => programme.applicationDeadline || programme.deadline || programme.deadlineStatus || programme.applicationStatus).find(Boolean);
-  if (known) {
+// Deadline tracking should stay additive: if a real closing date is available, surface it clearly;
+// if data is only estimated, keep the warning tone; if missing, fall back to the source-check guidance.
+function normalizeDeadlineStatus(value) {
+  const text = String(value || "").trim();
+  if (!text) {
+    return null;
+  }
+
+  const cleaned = text.replace(/\s+/g, " ");
+  const lower = cleaned.toLowerCase();
+
+  if (/closed|applications closed|not accepting|no longer accepting|application closed|deadline passed|deadline expired|closed for applications|closed to applications/i.test(lower)) {
     return {
-      label: "Deadline/status captured",
-      tone: "green",
-      detail: String(known)
+      label: "Applications closed",
+      tone: "red",
+      detail: cleaned,
+      isVerified: false,
+      source: "programme status",
+      priority: 0
     };
   }
+
+  if (/(\d{1,2}\s+[a-zA-Z]+\s+\d{4}|\d{4}-\d{2}-\d{2}|\d{1,2}\/\d{1,2}\/\d{4})/i.test(cleaned)) {
+    return {
+      label: "Verified deadline",
+      tone: "green",
+      detail: cleaned,
+      isVerified: true,
+      source: "captured deadline",
+      priority: 1
+    };
+  }
+
+  if (/rolling|open intake|intake open|ongoing|continuous|no fixed deadline|no deadline|open for applications|accepting applications|applications open/i.test(lower)) {
+    return {
+      label: "Open intake / rolling",
+      tone: "blue",
+      detail: cleaned,
+      isVerified: false,
+      source: "programme status",
+      priority: 2
+    };
+  }
+
+  if (/estimated|likely|expected|not yet confirmed|check source|under review|to be confirmed|status captured|pending confirmation|awaiting confirmation|closing soon|deadline soon/i.test(lower)) {
+    return {
+      label: "Status captured",
+      tone: "amber",
+      detail: cleaned,
+      isVerified: false,
+      source: "programme status",
+      priority: 3
+    };
+  }
+
   return {
-    label: "Deadline not tracked yet",
-    tone: "amber",
-    detail: "EduGuide has no live closing-date feed yet. Check the institution source before submitting or paying."
+    label: "Deadline/status captured",
+    tone: "green",
+    detail: cleaned,
+    isVerified: true,
+    source: "captured status",
+    priority: 4
+  };
+}
+
+function getApplicationDeadlineSummary(programmes = []) {
+  const candidates = programmes
+    .flatMap((programme) => [
+      programme.applicationDeadline,
+      programme.deadline,
+      programme.deadlineStatus,
+      programme.applicationStatus,
+      programme.admissionDeadline,
+      programme.closingDate,
+      programme.deadlineDate,
+      programme.applicationDeadlineText
+    ])
+    .filter((value) => value !== null && value !== undefined && String(value).trim() !== "");
+
+  const normalized = candidates
+    .map((value) => normalizeDeadlineStatus(value))
+    .filter(Boolean);
+
+  if (!normalized.length) {
+    return {
+      label: "Deadline not tracked yet",
+      tone: "amber",
+      detail: "EduGuide has no verified closing-date feed for this programme yet. Check the institution source before submitting or paying."
+    };
+  }
+
+  const bestMatch = normalized
+    .slice()
+    .sort((a, b) => (a.priority ?? 99) - (b.priority ?? 99))[0];
+
+  return {
+    label: bestMatch.label,
+    tone: bestMatch.tone,
+    detail: bestMatch.detail,
+    source: bestMatch.source,
+    isVerified: Boolean(bestMatch.isVerified)
   };
 }
 
@@ -3631,7 +3720,24 @@ function renderApplicationGroup(group) {
   const sourceCount = linkPack.allLinks.length + linkPack.localEvidence.length;
   const feeBadge = feeSummary.lines.length ? "green" : "amber";
   const sourceBadge = sourceCount ? "green" : "amber";
+  const deadlineBadgeTone = deadlineSummary.label === "Applications closed"
+    ? "red"
+    : deadlineSummary.label === "Verified deadline"
+      ? "green"
+      : deadlineSummary.label === "Open intake / rolling"
+        ? "blue"
+        : "amber";
+  const deadlineBadgeLabel = deadlineSummary.label === "Applications closed"
+    ? "Closed"
+    : deadlineSummary.label === "Open intake / rolling"
+      ? "Open intake"
+      : deadlineSummary.label === "Verified deadline"
+        ? "Verified deadline"
+        : deadlineSummary.label === "Deadline not tracked yet"
+          ? "Check source"
+          : "Status note";
   const policyText = fundingPolicyWarnings[0] || application.fundingPolicy?.caution || "NMDS readiness is an estimate only.";
+  const policyBadgeClass = policyText.length > 55 ? "long" : "";
   return `
     <article class="application-card">
       <div class="application-card-head">
@@ -3660,7 +3766,7 @@ function renderApplicationGroup(group) {
         <div>
           <span>Deadline/status</span>
           <strong>${escapeHtml(deadlineSummary.label)}</strong>
-          <small>${escapeHtml(deadlineSummary.detail)}</small>
+          <small>${escapeHtml(deadlineSummary.detail)}${deadlineSummary.source ? ` · ${escapeHtml(deadlineSummary.source)}` : ""}</small>
         </div>
         <div>
           <span>Evidence</span>
@@ -3714,9 +3820,9 @@ function renderApplicationGroup(group) {
       <div class="application-actions">
         <span class="badge ${readinessBadge}">Docs ${readiness}%</span>
         <span class="badge ${feeBadge}">${feeSummary.lines.length ? "Fee estimate ready" : "Fee under review"}</span>
-        <span class="badge ${deadlineSummary.tone}">${escapeHtml(deadlineSummary.label)}</span>
+        <span class="badge ${deadlineBadgeTone}">${escapeHtml(deadlineBadgeLabel)}</span>
         <span class="badge ${sourceBadge}">${sourceCount ? "Evidence linked" : "Evidence missing"}</span>
-        <span class="badge amber">${escapeHtml(policyText)}</span>
+        <span class="badge amber ${policyBadgeClass}">${escapeHtml(policyText)}</span>
       </div>
 
       <div class="application-links">
@@ -3766,7 +3872,7 @@ function renderApplicationAssistant() {
       <div>
         <p class="section-kicker">Application assistant</p>
         <h4>Prepare before you apply</h4>
-        <span>These packs use current matched institutions, uploaded documents, source links, and NMDS readiness. Deadlines are not tracked yet.</span>
+        <span>These packs use current matched institutions, uploaded documents, source links, and NMDS readiness. When a deadline is known, it is shown as verified; otherwise the app keeps the source-check warning.</span>
       </div>
       <a class="primary-button" href="${nmdsPortalUrl}" target="_blank" rel="noreferrer">
         <i data-lucide="external-link"></i>
@@ -5180,23 +5286,119 @@ function adminSearchMatches(values) {
   return values.some((value) => String(value || "").toLowerCase().includes(query));
 }
 
+function getProgrammeQualityChecks(programme) {
+  const openGaps = adminGaps.filter((gap) => gap.programmeId === programme.id && gap.status !== "resolved");
+  const checks = [
+    {
+      key: "requirements",
+      label: "Requirements",
+      ready: Boolean(programme.requirementsSummary),
+      issue: "Missing requirements"
+    },
+    {
+      key: "duration",
+      label: "Duration",
+      ready: Boolean(programme.duration),
+      issue: "Missing duration"
+    },
+    {
+      key: "source",
+      label: "Source",
+      ready: Boolean(programme.sourceUrl || programme.supportingSourcePath || programme.sourcePath),
+      issue: "Missing source"
+    },
+    {
+      key: "fees",
+      label: "Fees",
+      ready: Boolean(programme.feeNote || programme.supportingFeeSourcePath || getInstitutionFeeSchedules(programme.institution).length),
+      issue: "Missing fee evidence"
+    },
+    {
+      key: "careers",
+      label: "Careers",
+      ready: Boolean(programme.careers?.length),
+      issue: "Careers inferred"
+    },
+    {
+      key: "review",
+      label: "Review",
+      ready: programme.reviewStatus === "approved",
+      issue: "Needs approval"
+    }
+  ];
+  const readyCount = checks.filter((check) => check.ready).length;
+  const percent = Math.round((readyCount / checks.length) * 100);
+  return {
+    checks,
+    percent,
+    readyCount,
+    total: checks.length,
+    openGaps,
+    missingKeys: checks.filter((check) => !check.ready).map((check) => check.key),
+    missingLabels: checks.filter((check) => !check.ready).map((check) => check.issue)
+  };
+}
+
+function programmeMatchesQualityFilter(programme) {
+  const filter = adminState.qualityFilter || "all";
+  if (filter === "all") return true;
+  const quality = getProgrammeQualityChecks(programme);
+  if (filter === "ready") return quality.percent >= 85 && programme.reviewStatus === "approved";
+  if (filter === "open_gaps") return quality.openGaps.length > 0;
+  if (filter === "needs_review") return programme.reviewStatus === "needs_admin_review" || programme.reviewStatus === "flagged";
+  return quality.missingKeys.includes(filter.replace("missing_", ""));
+}
+
+function getAdminQualityFilterOptions() {
+  const visibleByInstitution = adminProgrammes.filter((programme) => adminState.institution === "all" || programme.institution === adminState.institution);
+  const count = (predicate) => visibleByInstitution.filter(predicate).length;
+  return [
+    { key: "all", label: "All", count: visibleByInstitution.length },
+    { key: "needs_review", label: "Needs review", count: count((programme) => programme.reviewStatus === "needs_admin_review" || programme.reviewStatus === "flagged") },
+    { key: "missing_requirements", label: "Missing requirements", count: count((programme) => !programme.requirementsSummary) },
+    { key: "missing_duration", label: "Missing duration", count: count((programme) => !programme.duration) },
+    { key: "missing_fees", label: "Missing fees", count: count((programme) => !(programme.feeNote || programme.supportingFeeSourcePath || getInstitutionFeeSchedules(programme.institution).length)) },
+    { key: "missing_source", label: "Missing source", count: count((programme) => !(programme.sourceUrl || programme.supportingSourcePath || programme.sourcePath)) },
+    { key: "open_gaps", label: "Open gaps", count: count((programme) => getProgrammeQualityChecks(programme).openGaps.length > 0) },
+    { key: "ready", label: "Ready", count: count((programme) => {
+      const quality = getProgrammeQualityChecks(programme);
+      return quality.percent >= 85 && programme.reviewStatus === "approved";
+    }) }
+  ];
+}
+
+function renderAdminQualityFilters() {
+  const root = qs("#admin-quality-filters");
+  if (!root) return;
+  const options = getAdminQualityFilterOptions();
+  if (!options.some((option) => option.key === adminState.qualityFilter)) adminState.qualityFilter = "all";
+  root.innerHTML = options.map((option) => `
+    <button class="quality-chip ${adminState.qualityFilter === option.key ? "active" : ""}" type="button" data-quality-filter="${escapeHtml(option.key)}">
+      <span>${escapeHtml(option.label)}</span>
+      <strong>${option.count}</strong>
+    </button>
+  `).join("");
+}
+
 function getFilteredAdminProgrammes() {
   return adminProgrammes.filter((programme) => {
     const institutionMatch = adminState.institution === "all" || programme.institution === adminState.institution;
     const statusMatch = adminState.status === "all" || programme.reviewStatus === adminState.status;
+    const qualityMatch = programmeMatchesQualityFilter(programme);
     const searchMatch = adminSearchMatches([
       programme.name,
       programme.institution,
       programme.faculty,
       programme.category,
       programme.level,
+      programme.duration,
       programme.requirementsSummary,
       programme.sourceUrl,
       programme.sourceNote,
       programme.feeNote,
       (programme.careers || []).join(" ")
     ]);
-    return institutionMatch && statusMatch && searchMatch;
+    return institutionMatch && statusMatch && qualityMatch && searchMatch;
   });
 }
 
@@ -5273,12 +5475,15 @@ function badgeClassForStatus(status) {
 }
 
 function renderAdminCatalogue() {
+  renderAdminQualityFilters();
   const records = getFilteredAdminProgrammes();
   qs("#catalogue-result-count").textContent = `${records.length} records`;
   qs("#admin-programme-list").innerHTML = records.length
     ? records
         .map((programme) => {
-          const openGaps = adminGaps.filter((gap) => gap.programmeId === programme.id && gap.status === "open").length;
+          const quality = getProgrammeQualityChecks(programme);
+          const openGaps = quality.openGaps.filter((gap) => gap.status === "open").length;
+          const qualityTone = quality.percent >= 85 ? "green" : quality.percent >= 55 ? "amber" : "red";
           return `
             <article class="admin-row ${programme.id === adminState.selectedProgrammeId ? "selected" : ""}" data-programme-id="${escapeHtml(programme.id)}">
               <div class="admin-row-main">
@@ -5293,8 +5498,17 @@ function renderAdminCatalogue() {
                   <span>${escapeHtml(formatStatus(programme.sourceType || "source"))}</span>
                   <span>${openGaps} open gaps</span>
                 </div>
+                <div class="admin-quality-bar" title="Data quality ${quality.percent}%">
+                  <span style="width: ${quality.percent}%"></span>
+                </div>
+                <div class="admin-quality-checks">
+                  ${quality.checks.map((check) => `
+                    <span class="${check.ready ? "ready" : "missing"}">${check.ready ? "OK" : "!"} ${escapeHtml(check.label)}</span>
+                  `).join("")}
+                </div>
               </div>
               <div class="admin-row-actions">
+                <span class="badge ${qualityTone}">Data ${quality.percent}%</span>
                 <span class="badge ${badgeClassForStatus(programme.reviewStatus)}">${formatStatus(programme.reviewStatus)}</span>
                 <button type="button" title="Approve" data-admin-action="approve" data-programme-id="${escapeHtml(programme.id)}">
                   <i data-lucide="check"></i>
@@ -5749,6 +5963,18 @@ function renderAdminDetail() {
         <span class="badge ${badgeClassForStatus(programme.reviewStatus)}">${formatStatus(programme.reviewStatus)}</span>
       </div>
       <h3>${escapeHtml(programme.name)}</h3>
+      ${(() => {
+        const quality = getProgrammeQualityChecks(programme);
+        return `<div class="admin-detail-quality">
+          <div>
+            <strong>${quality.percent}%</strong>
+            <span>catalogue readiness</span>
+          </div>
+          <div class="admin-quality-checks detail-quality-checks">
+            ${quality.checks.map((check) => `<span class="${check.ready ? "ready" : "missing"}">${check.ready ? "OK" : "!"} ${escapeHtml(check.label)}</span>`).join("")}
+          </div>
+        </div>`;
+      })()}
       <div class="detail-meta-grid">
         <div><span>Institution</span><strong>${escapeHtml(programme.institution)}</strong></div>
         <div><span>Code</span><strong>${escapeHtml(programme.code || "Missing")}</strong></div>
@@ -5937,6 +6163,7 @@ async function markUserReviewed(userId) {
 function renderAdmin() {
   renderAdminFilters();
   renderAdminMetrics();
+  renderAdminQualityFilters();
   renderAdminCatalogue();
   renderAdminGaps();
   renderAdminFees();
@@ -6273,6 +6500,14 @@ function bindEvents() {
       if (commandButton.id === "reset-admin-state") resetLocalReviewState();
       if (commandButton.id === "refresh-deployment-status") loadDeploymentStatus();
       if (commandButton.id === "test-email-delivery") sendAdminTestEmail();
+      return;
+    }
+
+    const qualityButton = event.target.closest("[data-quality-filter]");
+    if (qualityButton) {
+      adminState.qualityFilter = qualityButton.dataset.qualityFilter || "all";
+      adminState.selectedProgrammeId = null;
+      renderAdmin();
       return;
     }
 
