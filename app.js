@@ -653,6 +653,14 @@ function setAuthMessage(message, tone = "neutral") {
   messageEl.dataset.tone = tone;
 }
 
+function getFriendlyAuthError(error, fallback) {
+  const message = String(error?.message || "");
+  if (/failed to fetch|networkerror|load failed/i.test(message)) {
+    return "Could not reach EduGuide right now. Refresh the page and try again; if it was just deployed, wait a minute for Render to wake up.";
+  }
+  return message || fallback;
+}
+
 function isStandaloneApp() {
   return Boolean(window.matchMedia?.("(display-mode: standalone)").matches || window.navigator.standalone);
 }
@@ -689,12 +697,7 @@ function bindInstallPrompt() {
 function updateAuthContext() {
   const context = qs("#auth-context");
   if (context) {
-    context.textContent =
-      authMode === "register"
-        ? "Public registration creates student accounts only. We verify your email before the account is created."
-        : authMode === "reset"
-          ? "Reset your password with a one-time code sent to your account email."
-          : "Public registration creates student accounts only. Admin access is controlled privately by the system owner.";
+    context.textContent = "";
   }
   updateRegisterVerificationUi();
   updatePasswordResetUi();
@@ -824,7 +827,7 @@ async function requestRegistrationCode(payload) {
     setAuthMessage(`${deliveryNote}${debugNote}`, data.debugCode ? "success" : "neutral");
     return true;
   } catch (error) {
-    setAuthMessage(error.message || "Could not send verification code.", "error");
+    setAuthMessage(getFriendlyAuthError(error, "Could not send verification code."), "error");
     return false;
   }
 }
@@ -854,7 +857,7 @@ async function verifyRegistrationCode(payload, code) {
     setAuthMessage("Email verified. Student account created.", "success");
     return true;
   } catch (error) {
-    setAuthMessage(error.message || "Verification failed.", "error");
+    setAuthMessage(getFriendlyAuthError(error, "Verification failed."), "error");
     return false;
   }
 }
@@ -895,7 +898,7 @@ async function requestPasswordResetCode(payload) {
     setAuthMessage(`${deliveryNote}${debugNote}`, data.debugCode ? "success" : "neutral");
     return true;
   } catch (error) {
-    setAuthMessage(error.message || "Could not send password reset code.", "error");
+    setAuthMessage(getFriendlyAuthError(error, "Could not send password reset code."), "error");
     return false;
   }
 }
@@ -925,7 +928,7 @@ async function verifyPasswordResetCode(payload, code) {
     setAuthMessage("Password reset. You are signed in now.", "success");
     return true;
   } catch (error) {
-    setAuthMessage(error.message || "Password reset failed.", "error");
+    setAuthMessage(getFriendlyAuthError(error, "Password reset failed."), "error");
     return false;
   }
 }
@@ -937,13 +940,7 @@ function setAuthMode(mode) {
   qsa("[data-auth-mode]").forEach((button) => button.classList.toggle("active", button.dataset.authMode === mode));
   qsa(".auth-form").forEach((form) => form.classList.toggle("active", form.id === `${mode}-form`));
   updateAuthContext();
-  setAuthMessage(
-    mode === "login"
-      ? "Use your registered account. Your dashboard opens according to your role."
-      : mode === "reset"
-        ? "Enter your account email and a new password. We will verify it with a code."
-        : "Create a student account. Admins can grant elevated access later."
-  );
+  setAuthMessage("");
 }
 
 function updateUserShell() {
@@ -1029,7 +1026,7 @@ async function loginWithCredentials(email, password, preferredView = "student") 
     setCurrentUser(user, isAdmin(user) ? "admin" : preferredView);
     return true;
   } catch (error) {
-    setAuthMessage(error.message || "Email or password is not correct.", "error");
+    setAuthMessage(getFriendlyAuthError(error, "Email or password is not correct."), "error");
     return false;
   }
 }

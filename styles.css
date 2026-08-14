@@ -81,22 +81,6 @@ a {
   color: var(--muted);
 }
 
-.auth-copy h1 {
-  max-width: 620px;
-  margin: 6px 0 8px;
-  color: var(--brand-deep);
-  font-family: "Playfair Display", Georgia, serif;
-  font-size: clamp(32px, 5vw, 54px);
-  line-height: 1.02;
-}
-
-.auth-copy p:last-child {
-  max-width: 620px;
-  margin: 0;
-  color: var(--muted);
-  line-height: 1.55;
-}
-
 .auth-tabs {
   display: inline-flex;
   width: fit-content;
@@ -166,16 +150,8 @@ a {
   font-size: 13px;
 }
 
-.auth-context {
-  margin: 0;
-  padding: 12px;
-  border: 1px solid #c7eadf;
-  border-radius: 8px;
-  background: var(--brand-soft);
-  color: var(--brand-deep);
-  font-size: 13px;
-  font-weight: 800;
-  line-height: 1.45;
+.auth-message:empty {
+  display: none;
 }
 
 .install-button {
