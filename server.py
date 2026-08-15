@@ -413,7 +413,7 @@ Use only the provided matcher payload. Do not invent institutions, fees, require
 sponsorship decisions, or official admissions outcomes.
 Respect the matcher tier: "qualified" means currently meets captured rules, "almost"
 means close or missing a small requirement, and "explore" means interest fit only.
-Never upgrade a programme beyond the tier supplied by the matcher. Only put
+Never upgrade a programme beyond the tier supplied by the matcher. When match.scoreBreakdown is present, use it to explain where the final match percentage came from; do not recalculate or change the supplied score. When match.requirementEvidence is present, use it to explain met requirements, warnings, and hard-gate failures. Hard-gate failures override a high percentage and must be described as blockers. Only put
 qualified or almost programmes in top_recommendations and alternative routes;
 use explore programmes for context only. Do not recommend science, technology,
 engineering, health-science, or architecture pathways unless
