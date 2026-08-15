@@ -2434,22 +2434,30 @@ except Exception as exc:
 
 
 @app.get("/api/db/state")
-def get_database_state() -> dict[str, Any]:
+def get_database_state(authorization: str | None = Header(default=None)) -> dict[str, Any]:
+  require_current_user(authorization)
+
   state = {}
   updated_at = {}
+
+  # Only expose shared state that authenticated EduGuide users actually need.
+  allowed_state_keys = {"review_state"}
+
   for row in list_state_payloads():
     state_key = row.get("state_key")
-    if state_key == "auth_users":
+
+    if state_key not in allowed_state_keys:
       continue
+
     state[state_key] = parse_jsonish(row.get("payload"), row.get("payload"))
     updated_at[state_key] = row.get("updated_at")
+
   return {
     "ok": True,
     "database": get_data_backend(),
     "state": state,
     "updated_at": updated_at,
   }
-
 
 @app.put("/api/db/state/{state_key}")
 async def put_database_state(state_key: str, request: Request, authorization: str | None = Header(default=None)) -> dict[str, Any]:

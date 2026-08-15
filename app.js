@@ -794,8 +794,8 @@ function validateRegistrationPayload(payload) {
     setAuthMessage("Please fill in your name, email, and password.", "error");
     return false;
   }
-  if (payload.password.length < 6) {
-    setAuthMessage("Use a password with at least 6 characters.", "error");
+  if (payload.password.length < 8) {
+    setAuthMessage("Use a password with at least 8 characters.", "error");
     return false;
   }
   return true;
@@ -867,8 +867,8 @@ function validatePasswordResetPayload(payload) {
     setAuthMessage("Enter your email and new password.", "error");
     return false;
   }
-  if (payload.password.length < 6) {
-    setAuthMessage("Use a new password with at least 6 characters.", "error");
+  if (payload.password.length < 8) {
+    setAuthMessage("Use a new password with at least 8 characters.", "error");
     return false;
   }
   return true;
@@ -982,18 +982,31 @@ function setCurrentUser(user, preferredView = "student") {
       currentUser.grades = { ...gradeState };
     }
   }
-  saveAuthSession();
-  loadAiChatMessages();
-  updateUserShell();
-  renderInterviewControls();
-  renderAiChatMessages();
-  loadServerAiChatMessages();
-  renderStudentDashboard();
-  renderAdminUsers();
-  calculateMatches();
-  setView(isAdmin() && preferredView === "admin" ? "admin" : "student");
-  loadCurrentUserDocuments();
+saveAuthSession();
+loadAiChatMessages();
+updateUserShell();
+renderInterviewControls();
+renderAiChatMessages();
+renderStudentDashboard();
+renderAdminUsers();
+calculateMatches();
+setView(isAdmin() && preferredView === "admin" ? "admin" : "student");
+
+if (currentUser && authToken) {
+  loadServerDatabaseState().then(() => {
+    if (!serverDatabaseAvailable) return;
+
+    seedServerDatabaseState();
+    loadServerAiChatMessages();
+    loadCurrentUserDocuments();
+
+    renderStudentDashboard();
+    renderAdminUsers();
+    calculateMatches();
+  });
 }
+}
+
 
 function signOut() {
   if (authToken) {
@@ -1170,7 +1183,9 @@ function applyReviewState(snapshot) {
 
 async function loadServerDatabaseState() {
   try {
-    const response = await fetch("/api/db/state", { headers: { Accept: "application/json" } });
+    const response = await fetch("/api/db/state", {
+  headers: getAuthHeaders({ Accept: "application/json" })
+});
     if (!response.ok) throw new Error(`Database returned ${response.status}`);
     const data = await response.json();
     serverDatabaseAvailable = Boolean(data.ok);
@@ -1306,7 +1321,8 @@ async function sendAdminTestEmail() {
 }
 
 function seedServerDatabaseState() {
-  if (!serverDatabaseAvailable) return;
+  if (!serverDatabaseAvailable || !authToken || !isAdmin()) return;
+
   if (!databaseLoadedReviewState) {
     window.setTimeout(() => saveServerState("review_state", getReviewStateSnapshot()), 0);
   }
