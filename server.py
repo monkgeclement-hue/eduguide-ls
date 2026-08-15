@@ -29,6 +29,8 @@ load_dotenv(ROOT / ".env")
 DB_PATH = ROOT / "data" / "eduguide.db"
 UPLOAD_ROOT = ROOT / "data" / "uploads"
 MAX_UPLOAD_BYTES = 10 * 1024 * 1024
+MAX_FILES_PER_UPLOAD = 5
+ALLOWED_UPLOAD_EXTENSIONS = {".pdf", ".docx", ".jpg", ".jpeg", ".png"}
 DEFAULT_SUPABASE_STORAGE_BUCKET = "eduguide-documents"
 AI_CHAT_HISTORY_LIMIT = 24
 AI_CHAT_CONTEXT_LIMIT = 12
@@ -2195,8 +2197,8 @@ def validate_registration_input(payload: AuthRegisterRequest) -> tuple[str, str,
   district = (payload.district or "").strip()
   if not name or not email or not password:
     raise HTTPException(status_code=400, detail="Name, email, and password are required.")
-  if len(password) < 6:
-    raise HTTPException(status_code=400, detail="Password must be at least 6 characters.")
+  if len(password) < 8:
+    raise HTTPException(status_code=400, detail="Password must be at least 8 characters.")
   return name, email, password, district
 
 
@@ -2398,6 +2400,21 @@ def delete_auth_session(token: str) -> None:
     connection.commit()
 
 
+def delete_all_auth_sessions_for_user(user_id: str) -> None:
+  """Delete all active sessions for a user. Used after password reset to invalidate stolen tokens."""
+  if using_supabase():
+    supabase_request(
+      "DELETE",
+      supabase_table_path("runtime_auth_sessions", f"user_id=eq.{supabase_filter_value(user_id)}"),
+      prefer="return=minimal",
+    )
+    return
+
+  with get_db_connection() as connection:
+    connection.execute("delete from auth_sessions where user_id = ?", (user_id,))
+    connection.commit()
+
+
 def sanitize_database_state_payload(state_key: str, payload: Any) -> Any:
   if state_key != "auth_users" or not isinstance(payload, dict):
     return payload
@@ -2435,7 +2452,8 @@ def get_database_state() -> dict[str, Any]:
 
 
 @app.put("/api/db/state/{state_key}")
-async def put_database_state(state_key: str, request: Request) -> dict[str, Any]:
+async def put_database_state(state_key: str, request: Request, authorization: str | None = Header(default=None)) -> dict[str, Any]:
+  require_admin_user(authorization)
   safe_key = re.sub(r"[^a-zA-Z0-9_-]", "", state_key).strip()
   if not safe_key:
     return {"ok": False, "error": "Invalid state key"}
@@ -2449,7 +2467,8 @@ async def put_database_state(state_key: str, request: Request) -> dict[str, Any]
 
 
 @app.delete("/api/db/state/{state_key}")
-def delete_database_state(state_key: str) -> dict[str, Any]:
+def delete_database_state(state_key: str, authorization: str | None = Header(default=None)) -> dict[str, Any]:
+  require_admin_user(authorization)
   safe_key = re.sub(r"[^a-zA-Z0-9_-]", "", state_key).strip()
   if not safe_key:
     return {"ok": False, "error": "Invalid state key"}
@@ -2621,8 +2640,8 @@ def auth_password_reset_confirm(payload: AuthPasswordResetConfirmRequest, reques
   maybe_cleanup_security_records()
   email = normalize_email(payload.email)
   check_rate_limit(request, "password_reset_confirm", 10, 900, email)
-  if len(payload.password or "") < 6:
-    raise HTTPException(status_code=400, detail="Password must be at least 6 characters.")
+  if len(payload.password or "") < 8:
+    raise HTTPException(status_code=400, detail="Password must be at least 8 characters.")
 
   registration = verify_email_code(email, payload.code, "password_reset")
   if normalize_email(registration.get("email")) != email:
@@ -2641,6 +2660,7 @@ def auth_password_reset_confirm(payload: AuthPasswordResetConfirmRequest, reques
   add_user_activity(user, "password_reset", "Password reset by email verification", user)
   safe_insert_runtime_event(user["id"], "password_reset_confirmed", "Password reset completed", {})
   save_auth_users_internal(users)
+  delete_all_auth_sessions_for_user(user["id"])
   return {"ok": True, "token": create_auth_session(user["id"]), "user": public_user(user)}
 
 
@@ -3082,12 +3102,16 @@ async def upload_documents(request: Request, user_id: str = Form(...), files: li
   safe_user_id = sanitize_storage_segment(user_id, "anonymous")
   if not files:
     raise HTTPException(status_code=400, detail="No documents were uploaded.")
+  if len(files) > MAX_FILES_PER_UPLOAD:
+    raise HTTPException(status_code=400, detail=f"Maximum {MAX_FILES_PER_UPLOAD} files per upload allowed.")
 
   saved_documents = []
 
   for upload in files:
     original_name = sanitize_upload_filename(upload.filename or "document")
     extension = Path(original_name).suffix.lower()
+    if extension not in ALLOWED_UPLOAD_EXTENSIONS:
+      raise HTTPException(status_code=400, detail=f"File type '{extension}' is not allowed. Supported types: {', '.join(sorted(ALLOWED_UPLOAD_EXTENSIONS))}")
     stored_name = f"{uuid.uuid4().hex}{extension}"
     content_type = upload.content_type
     chunks: list[bytes] = []
@@ -3199,7 +3223,8 @@ def delete_document(document_id: str, authorization: str | None = Header(default
 
 
 @app.get("/api/db/diagnostics")
-def database_diagnostics() -> dict[str, Any]:
+def database_diagnostics(authorization: str | None = Header(default=None)) -> dict[str, Any]:
+  require_admin_user(authorization)
   if using_supabase():
     state_rows = list_state_payloads()
     document_rows = supabase_request(
@@ -3477,17 +3502,16 @@ def ai_chat_clear(authorization: str | None = Header(default=None)) -> dict[str,
 
 @app.post("/api/ai/guidance")
 def ai_guidance(payload: GuidanceRequest, request: Request, authorization: str | None = Header(default=None)) -> dict[str, Any]:
+  current_user = require_current_user(authorization)
   if not payload.matches and not payload.blockedMatches:
     return {
       "mode": "local_fallback",
       "model": None,
       "guidance": build_fallback(payload, "No matches were sent to the AI endpoint."),
     }
-
-  current_user = require_current_user(authorization) if authorization else None
-  check_rate_limit(request, "ai_guidance", 40, 3600, current_user["id"] if current_user else "guest")
+  check_rate_limit(request, "ai_guidance", 40, 3600, current_user["id"])
   incoming_history = merge_ai_chat_histories(payload.conversation)
-  server_history = safe_list_ai_chat_history(current_user["id"]) if current_user else []
+  server_history = safe_list_ai_chat_history(current_user["id"])
   merged_history = merge_ai_chat_histories(server_history, incoming_history)
   request_payload = build_request_payload(payload, merged_history)
   save_recommendation_run(payload, request_payload)
@@ -3496,21 +3520,20 @@ def ai_guidance(payload: GuidanceRequest, request: Request, authorization: str |
   else:
     result = call_gemini(payload, request_payload)
 
-  if current_user:
-    guidance = result.get("guidance") if isinstance(result, dict) else {}
-    assistant_message = {
-      "id": f"ai-{uuid.uuid4().hex[:12]}",
-      "role": "assistant",
-      "content": guidance_to_chat_text(guidance if isinstance(guidance, dict) else {}),
-      "at": now_iso(),
-    }
-    chat = safe_save_ai_chat_history(current_user["id"], [*merged_history, assistant_message])
-    users = get_auth_users_internal()
-    stored = next((item for item in users if item["id"] == current_user["id"]), None)
-    if stored:
-      add_user_activity(stored, "ai_guidance", "Used EduGuide AI", current_user, {"mode": payload.mode})
-      save_auth_users_internal(users)
-    result["chat"] = chat
+  guidance = result.get("guidance") if isinstance(result, dict) else {}
+  assistant_message = {
+    "id": f"ai-{uuid.uuid4().hex[:12]}",
+    "role": "assistant",
+    "content": guidance_to_chat_text(guidance if isinstance(guidance, dict) else {}),
+    "at": now_iso(),
+  }
+  chat = safe_save_ai_chat_history(current_user["id"], [*merged_history, assistant_message])
+  users = get_auth_users_internal()
+  stored = next((item for item in users if item["id"] == current_user["id"]), None)
+  if stored:
+    add_user_activity(stored, "ai_guidance", "Used EduGuide AI", current_user, {"mode": payload.mode})
+    save_auth_users_internal(users)
+  result["chat"] = chat
   return result
 
 

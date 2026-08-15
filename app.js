@@ -1,4 +1,4 @@
-const catalog = window.EDUGUIDE_DATA;
+﻿const catalog = window.EDUGUIDE_DATA;
 const { subjects, interests, sources, programmes, labourNotes } = catalog;
 const adminData = window.EDUGUIDE_ADMIN_DATA || {
   summary: {},
@@ -492,7 +492,7 @@ async function saveServerState(stateKey, payload) {
   try {
     const response = await fetch(`/api/db/state/${encodeURIComponent(stateKey)}`, {
       method: "PUT",
-      headers: { "Content-Type": "application/json" },
+      headers: getAuthHeaders({ "Content-Type": "application/json" }),
       body: JSON.stringify({ payload })
     });
     if (!response.ok) throw new Error(`Database returned ${response.status}`);
@@ -1222,7 +1222,7 @@ async function loadDeploymentStatus({ silent = false } = {}) {
   try {
     const [healthResponse, diagnosticsResponse] = await Promise.all([
       fetch("/health", { headers: { Accept: "application/json" } }),
-      fetch("/api/db/diagnostics", { headers: { Accept: "application/json" } }).catch(() => null)
+      fetch("/api/db/diagnostics", { headers: getAuthHeaders({ Accept: "application/json" }) }).catch(() => null)
     ]);
     if (!healthResponse.ok) throw new Error(`Health check returned ${healthResponse.status}`);
     const health = await healthResponse.json();
