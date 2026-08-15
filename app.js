@@ -19,6 +19,34 @@ const tierMeta = {
   explore: { label: "Explore", badge: "blue", rank: 2 },
   blocked: { label: "Not eligible yet", badge: "red", rank: 3 }
 };
+const matchScoreWeights = Object.freeze({
+  academic: { label: "Academic fit", weight: 0.36 },
+  interest: { label: "Interest fit", weight: 0.24 },
+  eligibility: { label: "Eligibility", weight: 0.18 },
+  funding: { label: "Funding readiness", weight: 0.14 },
+  confidence: { label: "Data confidence", weight: 0.08 }
+});
+
+function formatScorePoints(value) {
+  const numeric = Number(value || 0);
+  return Number.isInteger(numeric) ? String(numeric) : numeric.toFixed(1);
+}
+
+function renderMatchScoreBreakdown(programme) {
+  const breakdown = programme.match?.scoreBreakdown;
+  if (!breakdown?.components?.length) return "";
+  const evidence = (programme.match.requirementEvidence || []).slice(0, 8);
+  const tierLabel =
+    programme.match.tierLabel ||
+    tierMeta[programme.match.tier]?.label ||
+    "Match";
+  const evidenceIcon = (status) =>
+    status === "met"
+      ? "circle-check"
+      : status === "blocked"
+        ? "circle-x"
+        : "triangle-alert";
+  return `    <details class="match-explanation">      <summary>        <span>          <strong>Why ${breakdown.finalScore}%?</strong>          <small>View score breakdown and requirement evidence</small>        </span>        <i data-lucide="chevron-down"></i>      </summary>      <div class="match-explanation-body">        <section class="match-score-section">          <div class="match-explanation-heading">            <div>              <span class="section-kicker">Match model</span>              <h5>Score breakdown</h5>            </div>            <span class="badge ${              tierMeta[programme.match.tier]?.badge || "blue"            }">              ${escapeHtml(tierLabel)}            </span>          </div>          <div class="match-score-components">            ${breakdown.components              .map(                (component) => `                  <div class="match-score-component">                    <div class="match-score-row">                      <strong>${escapeHtml(component.label)}</strong>                      <span>${component.score}% × ${component.weight}%</span>                    </div>`              )              .join("")}          </div>          <div class="match-score-summary">            <div class="score-row"><span>Base weighted score</span><strong>${breakdown.baseScore}%</strong></div>            <div class="score-row"><span>Tier adjustment</span><strong>${breakdown.tierPenalty ? `−${breakdown.tierPenalty}` : "0"}</strong></div>            <div class="score-row"><span>Policy adjustment</span><strong>${breakdown.policyPenalty ? `−${breakdown.policyPenalty}` : "0"}</strong></div>            <div class="match-final-row"><strong>Final match</strong><strong>${breakdown.finalScore}%</strong></div>          </div>        </section>        <aside class="requirement-evidence-section">          <div class="match-explanation-heading">            <div>              <span class="section-kicker">Decision evidence</span>              <h5>Requirements & notes</h5>            </div>          </div>          <div class="evidence-list">            ${evidence              .map(                (item) => `                  <div class="evidence-item">                    <div class="evidence-row">                      <i data-lucide="${evidenceIcon(item.status)}"></i>                      <div>                        <strong>${escapeHtml(item.title)}</strong>                        <div class="muted-row">${escapeHtml(item.detail || "")}</div>                      </div>                    </div>                  </div>`              )              .join("")}          </div>        </aside>      </div>    </details>`;}
 const gradeState = {};
 const interestState = new Set(["Technology & IT", "Natural Sciences"]);
 let latestMatches = [];
@@ -2964,6 +2992,78 @@ function getMatchExplanations(programme, scores, evaluation, tier, strictGateEva
   return { reasons: reasons.slice(0, 3), cautions: unique(cautions).slice(0, 3), requirementGaps: unique([...strictGateGaps, ...requirementGaps]) };
 }
 
+function getMatchScoreBreakdown(scores, tier, tierPenalty, policyPenalty, preTierOverall, overall) {
+  const components = Object.entries(matchScoreWeights).map(([key, config]) => {
+    const score = Number(scores[key] ?? 0);
+    return {
+      key,
+      label: config.label,
+      score,
+      weight: Math.round(config.weight * 100),
+      contribution: Number((score * config.weight).toFixed(1)),
+      maxContribution: Math.round(config.weight * 100)
+    };
+  });
+  return {
+    components,
+    baseScore: preTierOverall,
+    tierPenalty,
+    policyPenalty,
+    finalCap: tier === "blocked" ? 38 : null,
+    finalScore: overall
+  };
+}
+
+function getRequirementEvidence(evaluation, strictGateEvaluation) {
+  const evidence = [];
+  const strictRules = strictGateEvaluation?.rules || [];
+  strictRules.forEach((rule) => {
+    const passingCode = rule.codes.find((code) =>
+      gradeMeets(getGradeForSubject(code), rule.minGrade)
+    );
+    const bestCode =
+      passingCode ||
+      rule.codes.find((code) => getGradeForSubject(code)) ||
+      rule.codes[0];
+    const studentGrade = getGradeForSubject(bestCode);
+    const subjectLabel = (rule.codes || []).map(getSubjectLabel).join(" or ");
+    const met = Boolean(passingCode);
+    evidence.push({
+      status: met ? "met" : "blocked",
+      type: "hard-gate",
+      title: met
+        ? `${subjectLabel} hard requirement met`
+        : `${subjectLabel} hard requirement not met`,
+      detail: studentGrade
+        ? `Your grade: ${studentGrade} | Required: ${rule.minGrade} or better`
+        : `No grade entered | Required: ${rule.minGrade} or better`,
+      hardGate: true
+    });
+  });
+  (evaluation?.details || []).forEach((detail) => {
+    const duplicatesHardGate =
+      detail.type === "subject" &&
+      strictRules.some(
+        (rule) =>
+          rule.minGrade === detail.minGrade &&
+          (detail.codes || []).some((code) => rule.codes.includes(code))
+      );
+    if (duplicatesHardGate) return;
+    const status = detail.met || detail.passed ? "met" : detail.type === "subject" ? "blocked" : "warning";
+    const title = detail.type === "subject"
+      ? `${(detail.codes || []).map(getSubjectLabel).join(" or ")} requirement ${status === "met" ? "met" : "not met"}`
+      : detail.title || detail.type;
+    evidence.push({
+      status,
+      type: detail.type,
+      title,
+      detail: detail.detail || "",
+      hardGate: false
+    });
+  });
+  return evidence;
+}
+
 function getProgrammeMatch(programme) {
   const academic = getAcademicScore(programme);
   const interest = getInterestScore(programme);
@@ -2974,7 +3074,13 @@ function getProgrammeMatch(programme) {
   const funding = fundingBreakdown.total;
   const confidence = programme.dataConfidence || 60;
   const priority = fundingBreakdown.priority;
-  const preTierOverall = Math.round(academic * 0.36 + interest * 0.24 + eligibility * 0.18 + funding * 0.14 + confidence * 0.08);
+  const preTierOverall = Math.round(
+    academic * matchScoreWeights.academic.weight +
+    interest * matchScoreWeights.interest.weight +
+    eligibility * matchScoreWeights.eligibility.weight +
+    funding * matchScoreWeights.funding.weight +
+    confidence * matchScoreWeights.confidence.weight
+  );
   const scores = {
     academic,
     interests: interest,
@@ -2991,6 +3097,18 @@ function getProgrammeMatch(programme) {
   const policyPenalty = fundingBreakdown.policy?.rankPenalty || 0;
   const overall = tier === "blocked" ? clamp(preTierOverall - tierPenalty - policyPenalty, 0, 38) : clamp(preTierOverall - tierPenalty - policyPenalty);
   const strictGateFailures = strictGateEvaluation.failures.map(formatStrictGateFailure);
+  const scoreBreakdown = getMatchScoreBreakdown(
+    scores,
+    tier,
+    tierPenalty,
+    policyPenalty,
+    preTierOverall,
+    overall
+  );
+  const requirementEvidence = getRequirementEvidence(
+    evaluation,
+    strictGateEvaluation
+  );
   return {
     ...scores,
     overall,
@@ -3000,6 +3118,8 @@ function getProgrammeMatch(programme) {
     hardGateFailures: strictGateFailures,
     requirementGaps: unique([...strictGateFailures, ...evaluation.missing.map(formatRequirementGap)]),
     requirementDetails: evaluation.details,
+    scoreBreakdown,
+    requirementEvidence,
     ...getMatchExplanations(programme, { ...scores, overall }, evaluation, tier, strictGateEvaluation)
   };
 }
@@ -3506,6 +3626,7 @@ function renderProgrammeCard(programme) {
           </ul>
         </div>
       </div>
+      ${renderMatchScoreBreakdown(programme)}
       ${
         programme.match.cautions.length
           ? `<div class="programme-alerts">${programme.match.cautions.map((item) => `<span><i data-lucide="triangle-alert"></i>${escapeHtml(item)}</span>`).join("")}</div>`
@@ -3964,20 +4085,39 @@ function renderResults() {
     radial-gradient(circle at center, #fff 0 57%, transparent 58%),
     conic-gradient(var(--brand) 0 ${overall}%, #e6eee9 ${overall}% 100%)
   `;
-  qs("#score-list").innerHTML = [
-    ["Academic", latestMatches[0]?.match.academic || 0],
-    ["Interest", latestMatches[0]?.match.interest || 0],
-    ["Eligibility", latestMatches[0]?.match.eligibility || 0],
-    ["Scholarship estimate", latestMatches[0]?.match.funding || 0],
-    ["Data confidence", latestMatches[0]?.match.confidence || 0]
-  ]
-    .map(([label, value]) => `
-      <div>
-        <div class="score-row"><span>${label}</span><strong>${value}%</strong></div>
-        <div class="score-bar"><div style="width:${value}%"></div></div>
+  const topMatchBreakdown = latestMatches[0]?.match.scoreBreakdown;
+  const profileScoreComponents = topMatchBreakdown?.components || [];
+  qs("#score-list").innerHTML = profileScoreComponents.length
+    ? `      ${profileScoreComponents
+        .map(
+          (component) => `
+            <div class="profile-score-item">
+              <div class="score-row">
+                <span>${escapeHtml(component.label)}</span>
+                <strong>${component.score}%</strong>
+              </div>
+              <div class="score-bar">
+                <div style="width:${clamp(component.score)}%"></div>
+              </div>
+              <span class="score-weight-note">
+                ${component.weight}% model weight ·
+                ${formatScorePoints(component.contribution)}
+                / ${component.maxContribution} pts
+              </span>
+            </div>
+          `
+        )
+        .join("")}      <div class="profile-score-note">
+        <strong>
+          How ${topMatchBreakdown.finalScore}% is calculated
+        </strong>
+        <span>
+          Base ${topMatchBreakdown.baseScore}%
+          ${topMatchBreakdown.tierPenalty ? ` · tier −${topMatchBreakdown.tierPenalty}` : ""}
+          ${topMatchBreakdown.policyPenalty ? ` · policy −${topMatchBreakdown.policyPenalty}` : ""}.
+        </span>
       </div>
-    `)
-    .join("");
+    `  : "";
   renderStudentDashboard();
   if (window.lucide) window.lucide.createIcons();
 }
@@ -4047,6 +4187,8 @@ function getCompactAiProgramme(programme) {
       requirementGaps: (programme.match.requirementGaps || []).slice(0, 4),
       reasons: (programme.match.reasons || []).slice(0, 3),
       cautions: (programme.match.cautions || []).slice(0, 3),
+      scoreBreakdown: programme.match.scoreBreakdown || null,
+      requirementEvidence:  (programme.match.requirementEvidence || []).slice(0, 8),
       fundingBreakdown: {
         academic: programme.match.fundingBreakdown?.academic,
         need: programme.match.fundingBreakdown?.need,
