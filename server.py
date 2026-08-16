@@ -34,10 +34,19 @@ ALLOWED_UPLOAD_EXTENSIONS = {".pdf", ".docx", ".jpg", ".jpeg", ".png"}
 DEFAULT_SUPABASE_STORAGE_BUCKET = "eduguide-documents"
 AI_CHAT_HISTORY_LIMIT = 24
 AI_CHAT_CONTEXT_LIMIT = 12
+AI_GUIDANCE_MAX_MATCHES = 12
+AI_GUIDANCE_MAX_BLOCKED_MATCHES = 8
+AI_GUIDANCE_MAX_DOCUMENTS = 12
+AI_GUIDANCE_MAX_QUESTION_LENGTH = 900
+AI_GUIDANCE_MAX_MESSAGE_LENGTH = 1200
+AI_GUIDANCE_MAX_CONVERSATION_ITEMS = 12
+AI_GUIDANCE_MAX_PAYLOAD_BYTES = 150000
 EMAIL_VERIFICATION_TTL_MINUTES = 10
 EMAIL_VERIFICATION_RESEND_SECONDS = 45
 EMAIL_VERIFICATION_MAX_ATTEMPTS = 6
 AUTH_SESSION_TTL_DAYS = max(1, int(os.getenv("AUTH_SESSION_TTL_DAYS", "30") or "30"))
+AUTH_SESSION_TOKEN_MIN_LENGTH = 24
+AUTH_SESSION_TOKEN_MAX_LENGTH = 256
 RATE_LIMIT_STATE: dict[str, list[datetime]] = {}
 SECURITY_CLEANUP_INTERVAL_SECONDS = 3600
 LAST_SECURITY_CLEANUP_AT: datetime | None = None
@@ -73,9 +82,42 @@ PUBLIC_DATA_FILES = {"admin-catalog.js", "catalog.js", "source-manifest.json", "
 PUBLIC_ICON_FILES = {"icon-192.svg", "icon-512.svg", "icon-192.png", "icon-512.png", "apple-touch-icon.png"}
 mimetypes.add_type("application/manifest+json", ".webmanifest")
 mimetypes.add_type("image/svg+xml", ".svg")
+CSP_POLICY = (
+  "default-src 'self'; "
+  "base-uri 'self'; "
+  "object-src 'none'; "
+  "frame-ancestors 'none'; "
+  "form-action 'self'; "
+  "connect-src 'self' https://*.supabase.co; "
+  "img-src 'self' data: blob: https://*.supabase.co; "
+  "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://fonts.gstatic.com; "
+  "font-src 'self' data: https://fonts.gstatic.com https://fonts.googleapis.com; "
+  "script-src 'self' 'unsafe-inline'; "
+  "media-src 'self' blob:; "
+  "manifest-src 'self'; "
+  "worker-src 'self' blob:;"
+)
 NO_CACHE_HEADERS = {"Cache-Control": "no-cache, max-age=0, must-revalidate", "X-Content-Type-Options": "nosniff"}
 STATIC_CACHE_HEADERS = {"Cache-Control": "public, max-age=300, stale-while-revalidate=86400", "X-Content-Type-Options": "nosniff"}
 IMMUTABLE_CACHE_HEADERS = {"Cache-Control": "public, max-age=604800, immutable", "X-Content-Type-Options": "nosniff"}
+SECURITY_HEADERS = {
+  "Strict-Transport-Security": "max-age=31536000; includeSubDomains",
+  "X-Frame-Options": "DENY",
+  "X-Content-Type-Options": "nosniff",
+  "Referrer-Policy": "strict-origin-when-cross-origin",
+  "Permissions-Policy": "camera=(), microphone=(), geolocation=(), interest-cohort=()",
+  "Cross-Origin-Opener-Policy": "same-origin",
+  "Cross-Origin-Resource-Policy": "same-origin",
+  "Content-Security-Policy": CSP_POLICY,
+}
+
+
+@app.middleware("http")
+async def add_security_headers(request: Request, call_next):
+  response = await call_next(request)
+  for header_name, header_value in SECURITY_HEADERS.items():
+    response.headers.setdefault(header_name, header_value)
+  return response
 
 
 class GuidanceRequest(BaseModel):
@@ -359,6 +401,63 @@ def sanitize_upload_filename(filename: str) -> str:
   return cleaned[:120] or "document"
 
 
+def validate_file_signature(content: bytes, extension: str) -> bool:
+  """Validate file type via magic number signatures (first bytes of file)."""
+  if len(content) < 4:
+    return False
+  
+  magic_signatures = {
+    ".pdf": b"%PDF",
+    ".docx": b"PK\x03\x04",  # ZIP signature
+    ".xlsx": b"PK\x03\x04",  # ZIP signature
+    ".jpg": (b"\xFF\xD8\xFF",),
+    ".jpeg": (b"\xFF\xD8\xFF",),
+    ".png": b"\x89PNG\r\n\x1a\n",
+  }
+  
+  if extension not in magic_signatures:
+    return True  # Unknown extension - let MIME check handle it
+  
+  expected = magic_signatures[extension]
+  
+  if isinstance(expected, tuple):
+    # For formats with multiple possible signatures
+    return any(content.startswith(sig) for sig in expected)
+  else:
+    return content.startswith(expected)
+
+
+def validate_mime_type(content_type: str | None, extension: str) -> bool:
+  """Validate MIME type against file extension."""
+  if not content_type:
+    return False
+  
+  # Normalize MIME type
+  mime_base = content_type.split(";")[0].lower().strip()
+  
+  allowed_mimes = {
+    ".pdf": {"application/pdf"},
+    ".docx": {
+      "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+      "application/msword",
+      "application/vnd.ms-word",
+    },
+    ".xlsx": {
+      "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+      "application/vnd.ms-excel",
+      "application/x-msexcel",
+    },
+    ".jpg": {"image/jpeg"},
+    ".jpeg": {"image/jpeg"},
+    ".png": {"image/png"},
+  }
+  
+  if extension not in allowed_mimes:
+    return True  # Unknown extension - accept any MIME
+  
+  return mime_base in allowed_mimes[extension]
+
+
 def row_get(row: sqlite3.Row | dict[str, Any], key: str, default: Any = None) -> Any:
   if isinstance(row, sqlite3.Row):
     return row[key] if key in row.keys() else default
@@ -378,6 +477,101 @@ def parse_jsonish(value: Any, fallback: Any = None) -> Any:
     except json.JSONDecodeError:
       return fallback
   return fallback
+
+
+def sanitize_guidance_text(value: Any, limit: int) -> str:
+  text = str(value or "").replace("\x00", "").strip()
+  return text[:limit]
+
+
+def sanitize_profile_payload(payload: AuthProfileRequest) -> AuthProfileRequest:
+  safe_name = sanitize_guidance_text(payload.name, 120)
+  safe_district = sanitize_guidance_text(payload.district, 120)
+  safe_stream = sanitize_guidance_text(payload.stream, 80)
+  safe_leaving_year = sanitize_guidance_text(payload.leavingYear, 20)
+  safe_income_band = payload.incomeBand if payload.incomeBand in {"low", "mid", "high"} else "mid"
+  safe_need_signals = [sanitize_guidance_text(item, 60) for item in (payload.needSignals or [])[:10] if str(item or "").strip()]
+  safe_preference_text = sanitize_guidance_text(payload.preferenceText, 2000)
+  safe_grades = {
+    sanitize_guidance_text(key, 40): sanitize_guidance_text(value, 10)
+    for key, value in list((payload.grades or {}).items())[:50]
+    if str(key or "").strip() and str(value or "").strip()
+  }
+  safe_documents = [sanitize_guidance_object(item, 0, 1800) for item in (payload.documents or [])[:25]]
+  safe_shortlist = [sanitize_guidance_text(item, 120) for item in (payload.shortlist or [])[:25] if str(item or "").strip()]
+  return AuthProfileRequest(
+    name=safe_name,
+    district=safe_district,
+    stream=safe_stream,
+    leavingYear=safe_leaving_year,
+    incomeBand=safe_income_band,
+    needSignals=safe_need_signals,
+    preferenceText=safe_preference_text,
+    grades=safe_grades,
+    documents=safe_documents,
+    shortlist=safe_shortlist,
+  )
+
+
+def sanitize_guidance_object(value: Any, depth: int = 0, limit: int = 2000) -> Any:
+  if depth > 4:
+    return None
+  if isinstance(value, str):
+    return sanitize_guidance_text(value, limit)
+  if isinstance(value, bool):
+    return value
+  if isinstance(value, (int, float)):
+    return value
+  if value is None:
+    return None
+  if isinstance(value, list):
+    return [sanitize_guidance_object(item, depth + 1) for item in value[:50]]
+  if isinstance(value, dict):
+    cleaned: dict[str, Any] = {}
+    for key, item in list(value.items())[:50]:
+      safe_key = re.sub(r"[^a-zA-Z0-9_\-]", "_", str(key)).strip("_")
+      if not safe_key:
+        continue
+      cleaned[safe_key] = sanitize_guidance_object(item, depth + 1)
+    return cleaned
+  return sanitize_guidance_text(value, limit)
+
+
+def validate_and_sanitize_guidance_payload(payload: GuidanceRequest) -> GuidanceRequest:
+  serialized = json.dumps(payload.model_dump(mode="json"), ensure_ascii=False, default=str)
+  if len(serialized.encode("utf-8")) > AI_GUIDANCE_MAX_PAYLOAD_BYTES:
+    raise HTTPException(status_code=413, detail="AI payload exceeds the supported size limit.")
+
+  question = sanitize_guidance_text(payload.question, AI_GUIDANCE_MAX_QUESTION_LENGTH)
+  if len(question.encode("utf-8")) > AI_GUIDANCE_MAX_QUESTION_LENGTH:
+    raise HTTPException(status_code=400, detail="AI question is too long.")
+
+  matches = [sanitize_guidance_object(item) for item in (payload.matches or [])[:AI_GUIDANCE_MAX_MATCHES]]
+  blocked_matches = [sanitize_guidance_object(item) for item in (payload.blockedMatches or [])[:AI_GUIDANCE_MAX_BLOCKED_MATCHES]]
+  documents = [sanitize_guidance_object(item) for item in (payload.documents or [])[:AI_GUIDANCE_MAX_DOCUMENTS]]
+  conversation = [
+    {
+      "id": sanitize_guidance_text(item.get("id", ""), 80),
+      "role": sanitize_guidance_text(item.get("role", "user"), 20),
+      "content": sanitize_guidance_text(item.get("content", ""), AI_GUIDANCE_MAX_MESSAGE_LENGTH),
+    }
+    for item in (payload.conversation or [])[:AI_GUIDANCE_MAX_CONVERSATION_ITEMS]
+    if isinstance(item, dict)
+  ]
+
+  sanitized = GuidanceRequest(
+    profile=sanitize_guidance_object(payload.profile, 0, 5000) if isinstance(payload.profile, dict) else {},
+    readiness=sanitize_guidance_object(payload.readiness, 0, 5000) if isinstance(payload.readiness, dict) else {},
+    matches=matches,
+    blockedMatches=blocked_matches,
+    documents=documents,
+    conversation=conversation,
+    question=question,
+    mode=payload.mode if payload.mode in {"guidance", "compare", "interview"} else "guidance",
+  )
+  if not sanitized.matches and not sanitized.blockedMatches:
+    return sanitized
+  return sanitized
 
 
 def document_response(row: sqlite3.Row | dict[str, Any]) -> dict[str, Any]:
@@ -2301,46 +2495,76 @@ def seed_bootstrap_admin() -> None:
   save_auth_users_internal(users)
 
 
+def hash_session_token(token: str) -> str:
+  return hashlib.sha256((token or "").encode("utf-8")).hexdigest()
+
+
+def normalize_session_token(token: str | None) -> str:
+  clean = (token or "").strip()
+  if not clean:
+    raise HTTPException(status_code=401, detail="Authentication required.")
+  if len(clean) < AUTH_SESSION_TOKEN_MIN_LENGTH or len(clean) > AUTH_SESSION_TOKEN_MAX_LENGTH:
+    raise HTTPException(status_code=401, detail="Authentication required.")
+  if not re.fullmatch(r"[A-Za-z0-9._~\-+=:/]+", clean):
+    raise HTTPException(status_code=401, detail="Authentication required.")
+  return clean
+
+
 def get_bearer_token(authorization: str | None) -> str:
   if not authorization or not authorization.lower().startswith("bearer "):
     raise HTTPException(status_code=401, detail="Authentication required.")
-  token = authorization.split(" ", 1)[1].strip()
-  if not token:
-    raise HTTPException(status_code=401, detail="Authentication required.")
+  token = normalize_session_token(authorization.split(" ", 1)[1].strip())
   return token
 
 
 def get_session_user_id(token: str) -> str | None:
+  normalized_token = normalize_session_token(token)
+  token_hash = hash_session_token(normalized_token)
   if using_supabase():
     rows = supabase_request(
       "GET",
       supabase_table_path(
         "runtime_auth_sessions",
-        f"token=eq.{supabase_filter_value(token)}&select=user_id,created_at,last_seen_at&limit=1",
+        f"token=eq.{supabase_filter_value(token_hash)}&select=user_id,created_at,last_seen_at&limit=1",
       ),
     )
     if not rows:
-      return None
+      legacy_rows = supabase_request(
+        "GET",
+        supabase_table_path(
+          "runtime_auth_sessions",
+          f"token=eq.{supabase_filter_value(normalized_token)}&select=user_id,created_at,last_seen_at&limit=1",
+        ),
+      )
+      if not legacy_rows:
+        return None
+      rows = legacy_rows
     row = rows[0]
     if session_expired(str(row.get("last_seen_at") or ""), str(row.get("created_at") or "")):
-      delete_auth_session(token)
+      delete_auth_session(normalized_token)
       return None
     supabase_request(
       "PATCH",
-      supabase_table_path("runtime_auth_sessions", f"token=eq.{supabase_filter_value(token)}"),
+      supabase_table_path("runtime_auth_sessions", f"token=eq.{supabase_filter_value(token_hash if rows[0].get('token') != normalized_token else normalized_token)}"),
       {"last_seen_at": now_iso()},
       prefer="return=minimal",
     )
     return row.get("user_id")
 
   with get_db_connection() as connection:
-    row = connection.execute("select user_id, created_at, last_seen_at from auth_sessions where token = ?", (token,)).fetchone()
+    row = connection.execute(
+      "select user_id, created_at, last_seen_at, token from auth_sessions where token = ? or token = ?",
+      (token_hash, normalized_token),
+    ).fetchone()
     if row:
       if session_expired(row["last_seen_at"], row["created_at"]):
-        connection.execute("delete from auth_sessions where token = ?", (token,))
+        connection.execute("delete from auth_sessions where token = ? or token = ?", (row["token"], normalized_token))
         connection.commit()
         return None
-      connection.execute("update auth_sessions set last_seen_at = current_timestamp where token = ?", (token,))
+      connection.execute(
+        "update auth_sessions set last_seen_at = current_timestamp where token = ? or token = ?",
+        (row["token"], normalized_token),
+      )
       connection.commit()
   return row["user_id"] if row else None
 
@@ -2371,32 +2595,40 @@ def require_user_access(target_user_id: str, authorization: str | None) -> dict[
 
 def create_auth_session(user_id: str) -> str:
   token = secrets.token_urlsafe(32)
+  stored_token = hash_session_token(token)
   if using_supabase():
     supabase_request(
       "POST",
       supabase_table_path("runtime_auth_sessions"),
-      {"token": token, "user_id": user_id},
+      {"token": stored_token, "user_id": user_id},
       prefer="return=minimal",
     )
     return token
 
   with get_db_connection() as connection:
-    connection.execute("insert into auth_sessions (token, user_id) values (?, ?)", (token, user_id))
+    connection.execute("insert into auth_sessions (token, user_id) values (?, ?)", (stored_token, user_id))
     connection.commit()
   return token
 
 
 def delete_auth_session(token: str) -> None:
+  normalized_token = normalize_session_token(token)
+  stored_token = hash_session_token(normalized_token)
   if using_supabase():
     supabase_request(
       "DELETE",
-      supabase_table_path("runtime_auth_sessions", f"token=eq.{supabase_filter_value(token)}"),
+      supabase_table_path("runtime_auth_sessions", f"token=eq.{supabase_filter_value(stored_token)}"),
+      prefer="return=minimal",
+    )
+    supabase_request(
+      "DELETE",
+      supabase_table_path("runtime_auth_sessions", f"token=eq.{supabase_filter_value(normalized_token)}"),
       prefer="return=minimal",
     )
     return
 
   with get_db_connection() as connection:
-    connection.execute("delete from auth_sessions where token = ?", (token,))
+    connection.execute("delete from auth_sessions where token = ? or token = ?", (stored_token, normalized_token))
     connection.commit()
 
 
@@ -2434,8 +2666,9 @@ except Exception as exc:
 
 
 @app.get("/api/db/state")
-def get_database_state(authorization: str | None = Header(default=None)) -> dict[str, Any]:
-  require_current_user(authorization)
+def get_database_state(request: Request, authorization: str | None = Header(default=None)) -> dict[str, Any]:
+  current_user = require_current_user(authorization)
+  check_rate_limit(request, "db_state", 60, 60, current_user["id"])
 
   state = {}
   updated_at = {}
@@ -2467,9 +2700,15 @@ async def put_database_state(state_key: str, request: Request, authorization: st
     return {"ok": False, "error": "Invalid state key"}
   if safe_key == "auth_users":
     return {"ok": True, "state_key": safe_key, "ignored": True}
-  body = await request.json()
+  try:
+    body = await request.json()
+  except Exception as exc:
+    raise HTTPException(status_code=400, detail="Request body must be JSON.") from exc
   payload = body.get("payload", body) if isinstance(body, dict) else body
   payload = sanitize_database_state_payload(safe_key, payload)
+  serialized = json.dumps(payload, ensure_ascii=False, default=str)
+  if len(serialized.encode("utf-8")) > 250000:
+    raise HTTPException(status_code=413, detail="State payload exceeds the supported size limit.")
   save_state_payload(safe_key, payload)
   return {"ok": True, "state_key": safe_key}
 
@@ -2691,18 +2930,19 @@ def auth_logout(request: Request, authorization: str | None = Header(default=Non
 @app.put("/api/auth/me")
 def auth_update_me(payload: AuthProfileRequest, authorization: str | None = Header(default=None)) -> dict[str, Any]:
   current = require_current_user(authorization)
+  safe_payload = sanitize_profile_payload(payload)
   users = get_auth_users_internal()
   user = next((item for item in users if item["id"] == current["id"]), None)
   if not user:
     raise HTTPException(status_code=404, detail="User not found.")
   for field in ["name", "district", "stream", "leavingYear", "incomeBand", "preferenceText"]:
-    value = getattr(payload, field)
+    value = getattr(safe_payload, field)
     if value is not None:
       user[field] = value
-  user["needSignals"] = payload.needSignals
-  user["grades"] = payload.grades
-  user["documents"] = payload.documents
-  user["shortlist"] = payload.shortlist
+  user["needSignals"] = safe_payload.needSignals
+  user["grades"] = safe_payload.grades
+  user["documents"] = safe_payload.documents
+  user["shortlist"] = safe_payload.shortlist
   add_user_activity(user, "profile_updated", "Updated profile", user)
   save_auth_users_internal(users)
   return {"ok": True, "user": public_user(user)}
@@ -3120,6 +3360,11 @@ async def upload_documents(request: Request, user_id: str = Form(...), files: li
     extension = Path(original_name).suffix.lower()
     if extension not in ALLOWED_UPLOAD_EXTENSIONS:
       raise HTTPException(status_code=400, detail=f"File type '{extension}' is not allowed. Supported types: {', '.join(sorted(ALLOWED_UPLOAD_EXTENSIONS))}")
+    
+    # Validate MIME type
+    if not validate_mime_type(upload.content_type, extension):
+      raise HTTPException(status_code=400, detail=f"MIME type '{upload.content_type}' does not match file extension '{extension}'.")
+    
     stored_name = f"{uuid.uuid4().hex}{extension}"
     content_type = upload.content_type
     chunks: list[bytes] = []
@@ -3139,6 +3384,11 @@ async def upload_documents(request: Request, user_id: str = Form(...), files: li
 
     document_id = uuid.uuid4().hex
     content = b"".join(chunks)
+    
+    # Validate file signature (magic numbers)
+    if not validate_file_signature(content, extension):
+      raise HTTPException(status_code=400, detail=f"File signature validation failed for '{extension}'. The file may be corrupted or not actually a {extension} file.")
+    
     if using_supabase():
       storage_path = f"{safe_user_id}/{stored_name}"
       upload_supabase_storage_object(storage_path, content, content_type)
@@ -3465,31 +3715,6 @@ def call_openai(payload: GuidanceRequest, request_payload: dict[str, Any]) -> di
     }
 
 
-@app.get("/health")
-def health() -> dict[str, Any]:
-  provider = get_ai_provider()
-  database_ready = check_data_backend_ready()
-  storage_ready = check_document_storage_ready()
-  return {
-    "ok": database_ready and storage_ready and not STARTUP_PERSISTENCE_ERROR,
-    "data_backend": get_data_backend(),
-    "provider": provider,
-    "ai_configured": bool(get_gemini_api_key() if provider == "gemini" else get_openai_api_key()),
-    "gemini_configured": bool(get_gemini_api_key()),
-    "openai_configured": bool(get_openai_api_key()),
-    "email_configured": smtp_configured(),
-    "email_transport": email_transport(),
-    "email_missing_keys": smtp_missing_keys(),
-    "email_debug_codes": email_debug_codes_enabled(),
-    "database_ready": database_ready,
-    "storage_ready": storage_ready,
-    "supabase_configured": supabase_configured(),
-    "storage_bucket": get_supabase_storage_bucket() if using_supabase() else None,
-    "startup_persistence_error": STARTUP_PERSISTENCE_ERROR,
-    "model": get_gemini_model_candidates()[0] if provider == "gemini" else os.getenv("OPENAI_MODEL", "gpt-5.2"),
-  }
-
-
 @app.get("/api/ai/chat")
 def ai_chat_history(authorization: str | None = Header(default=None)) -> dict[str, Any]:
   user = require_current_user(authorization)
@@ -3511,22 +3736,23 @@ def ai_chat_clear(authorization: str | None = Header(default=None)) -> dict[str,
 @app.post("/api/ai/guidance")
 def ai_guidance(payload: GuidanceRequest, request: Request, authorization: str | None = Header(default=None)) -> dict[str, Any]:
   current_user = require_current_user(authorization)
-  if not payload.matches and not payload.blockedMatches:
+  safe_payload = validate_and_sanitize_guidance_payload(payload)
+  if not safe_payload.matches and not safe_payload.blockedMatches:
     return {
       "mode": "local_fallback",
       "model": None,
-      "guidance": build_fallback(payload, "No matches were sent to the AI endpoint."),
+      "guidance": build_fallback(safe_payload, "No matches were sent to the AI endpoint."),
     }
   check_rate_limit(request, "ai_guidance", 40, 3600, current_user["id"])
-  incoming_history = merge_ai_chat_histories(payload.conversation)
+  incoming_history = merge_ai_chat_histories(safe_payload.conversation)
   server_history = safe_list_ai_chat_history(current_user["id"])
   merged_history = merge_ai_chat_histories(server_history, incoming_history)
-  request_payload = build_request_payload(payload, merged_history)
-  save_recommendation_run(payload, request_payload)
+  request_payload = build_request_payload(safe_payload, merged_history)
+  save_recommendation_run(safe_payload, request_payload)
   if get_ai_provider() == "openai":
-    result = call_openai(payload, request_payload)
+    result = call_openai(safe_payload, request_payload)
   else:
-    result = call_gemini(payload, request_payload)
+    result = call_gemini(safe_payload, request_payload)
 
   guidance = result.get("guidance") if isinstance(result, dict) else {}
   assistant_message = {
@@ -3539,10 +3765,64 @@ def ai_guidance(payload: GuidanceRequest, request: Request, authorization: str |
   users = get_auth_users_internal()
   stored = next((item for item in users if item["id"] == current_user["id"]), None)
   if stored:
-    add_user_activity(stored, "ai_guidance", "Used EduGuide AI", current_user, {"mode": payload.mode})
+    add_user_activity(stored, "ai_guidance", "Used EduGuide AI", current_user, {"mode": safe_payload.mode})
     save_auth_users_internal(users)
   result["chat"] = chat
   return result
+
+
+@app.get("/health")
+def health() -> dict[str, bool]:
+  """Minimal public health check endpoint.
+  
+  Returns only: ok, database_ready, storage_ready.
+  Detailed diagnostics are available at /api/db/diagnostics (admin-only).
+  """
+  return {
+    "ok": True,
+    "database_ready": check_data_backend_ready(),
+    "storage_ready": check_document_storage_ready()
+  }
+
+
+@app.get("/api/db/diagnostics")
+def database_diagnostics(authorization: str | None = Header(default=None)) -> dict[str, Any]:
+  """Detailed diagnostics endpoint (admin-only).
+  
+  Returns comprehensive hosting, configuration, and health information.
+  Requires admin authentication.
+  """
+  require_admin_user(authorization)
+  
+  return {
+    "ok": True,
+    "timestamp": now_iso(),
+    "backend": get_data_backend(),
+    "database": {
+      "ready": check_data_backend_ready(),
+      "type": "supabase" if using_supabase() else "sqlite",
+      "path": str(DB_PATH) if not using_supabase() else "remote"
+    },
+    "storage": {
+      "ready": check_document_storage_ready(),
+      "type": "supabase" if using_supabase() else "local",
+      "bucket": get_supabase_storage_bucket() if using_supabase() else str(UPLOAD_ROOT)
+    },
+    "configuration": {
+      "auth_session_ttl_days": AUTH_SESSION_TTL_DAYS,
+      "max_upload_bytes": MAX_UPLOAD_BYTES,
+      "max_files_per_upload": MAX_FILES_PER_UPLOAD,
+      "allowed_upload_extensions": sorted(ALLOWED_UPLOAD_EXTENSIONS),
+      "ai_model": GEMINI_DEFAULT_MODEL,
+      "rate_limiting_enabled": True
+    },
+    "environment": {
+      "gemini_api_configured": bool(os.getenv("GEMINI_API_KEY")),
+      "openai_api_configured": bool(os.getenv("OPENAI_API_KEY")),
+      "supabase_configured": bool(os.getenv("SUPABASE_URL") and os.getenv("SUPABASE_KEY")),
+      "smtp_configured": bool(os.getenv("SMTP_HOST") and os.getenv("SMTP_USER"))
+    }
+  }
 
 
 @app.get("/")

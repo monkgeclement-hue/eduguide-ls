@@ -26,6 +26,10 @@ const matchScoreWeights = Object.freeze({
   funding: { label: "Funding readiness", weight: 0.14 },
   confidence: { label: "Data confidence", weight: 0.08 }
 });
+const programmeFreshnessThresholds = Object.freeze({
+  currentDays: 180,
+  reviewSoonDays: 365
+});
 
 function formatScorePoints(value) {
   const numeric = Number(value || 0);
@@ -612,6 +616,56 @@ function formatDateTime(value) {
   });
 }
 
+function formatDateOnly(value) {
+  if (!value) return "Not recorded";
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return "Not recorded";
+  return date.toLocaleDateString("en-LS", {
+    year: "numeric",
+    month: "short",
+    day: "numeric"
+  });
+}
+
+function getProgrammeVerificationMeta(programme) {
+  const reviewStatus = programme?.reviewStatus || "needs_admin_review";
+  const reviewedAt = programme?.reviewedAt || null;
+  const ageDays = reviewedAt ? Math.max(0, Math.floor((Date.now() - new Date(reviewedAt).getTime()) / 86400000)) : null;
+  const sourceLabel = programme?.sourceUrl || programme?.sourcePath ? "Official source trace" : "Source not yet confirmed";
+  if (reviewStatus === "approved") {
+    if (ageDays === null) {
+      return { tone: "warning", label: "Approval pending recheck", summary: "Approved record needs a fresh review date.", icon: "shield-check", source: { label: sourceLabel, value: programme?.sourceUrl || programme?.sourcePath || "Not recorded" }, ageDays, status: "approved" };
+    }
+    if (ageDays <= programmeFreshnessThresholds.currentDays) {
+      return { tone: "success", label: "Verified current", summary: `Reviewed ${formatDateOnly(reviewedAt)} and still within the current evidence window.`, icon: "shield-check", source: { label: sourceLabel, value: programme?.sourceUrl || programme?.sourcePath || "Not recorded" }, ageDays, status: "approved" };
+    }
+    if (ageDays <= programmeFreshnessThresholds.reviewSoonDays) {
+      return { tone: "warning", label: "Review recommended", summary: `Last verified ${formatDateOnly(reviewedAt)}; it is due for a fresh check soon.`, icon: "triangle-alert", source: { label: sourceLabel, value: programme?.sourceUrl || programme?.sourcePath || "Not recorded" }, ageDays, status: "approved" };
+    }
+    return { tone: "danger", label: "Stale approval", summary: `This record has not been reviewed for ${ageDays} days.`, icon: "triangle-alert", source: { label: sourceLabel, value: programme?.sourceUrl || programme?.sourcePath || "Not recorded" }, ageDays, status: "approved" };
+  }
+  if (reviewStatus === "flagged") {
+    return { tone: "warning", label: "Needs admin attention", summary: "This record was flagged and should be checked before it is trusted.", icon: "flag", source: { label: sourceLabel, value: programme?.sourceUrl || programme?.sourcePath || "Not recorded" }, ageDays, status: "flagged" };
+  }
+  if (reviewStatus === "rejected") {
+    return { tone: "danger", label: "Rejected record", summary: "This programme has been rejected and should not be treated as active.", icon: "x-circle", source: { label: sourceLabel, value: programme?.sourceUrl || programme?.sourcePath || "Not recorded" }, ageDays, status: "rejected" };
+  }
+  return { tone: "neutral", label: "Awaiting review", summary: "This programme is still awaiting admin verification.", icon: "clock-3", source: { label: sourceLabel, value: programme?.sourceUrl || programme?.sourcePath || "Not recorded" }, ageDays, status: "needs_admin_review" };
+}
+
+function getProgrammeVerificationPayload(programme) {
+  const verification = getProgrammeVerificationMeta(programme);
+  return {
+    status: verification.status,
+    label: verification.label,
+    tone: verification.tone,
+    sourceLabel: verification.source?.label || "Source not yet confirmed",
+    sourceUrl: verification.source?.value || null,
+    reviewedAt: programme?.reviewedAt || null,
+    ageDays: verification.ageDays
+  };
+}
+
 function addActivityToUser(user, type, label, metadata = {}, options = {}) {
   if (!user) return false;
   const now = new Date().toISOString();
@@ -1144,7 +1198,8 @@ const programmePersistFields = [
   "extractionMethod",
   "sourceNote",
   "feeNote",
-  "reviewStatus"
+  "reviewStatus",
+  "reviewedAt"
 ];
 
 function getProgrammePersistPayload(programme) {
@@ -1396,24 +1451,27 @@ async function recordReviewEvent(entityTable, entityId, action, notes, payload =
 
 async function persistProgrammeStatus(programme, status) {
   saveLocalReviewState();
+  const reviewedAt = ["approved", "flagged", "rejected"].includes(status) ? (programme.reviewedAt || new Date().toISOString()) : null;
   if (!supabaseClient) return;
   if (isCustomAdminProgramme(programme)) {
     await recordReviewEvent("programmes", programme.id, status === "approved" ? "approved" : status === "rejected" ? "rejected" : "flagged", `Admin marked manual programme ${formatStatus(status)}.`, {
       programme_name: programme.name,
       institution: programme.institution,
-      review_status: status
+      review_status: status,
+      reviewed_at: reviewedAt
     });
     return;
   }
   const { error } = await supabaseClient
     .from("programmes")
-    .update({ review_status: status, updated_at: new Date().toISOString() })
+    .update({ review_status: status, reviewed_at: reviewedAt, updated_at: new Date().toISOString() })
     .eq("external_key", programme.id);
   if (error) throw error;
   await recordReviewEvent("programmes", programme.id, status === "approved" ? "approved" : status === "rejected" ? "rejected" : "flagged", `Admin marked programme ${formatStatus(status)}.`, {
     programme_name: programme.name,
     institution: programme.institution,
-    review_status: status
+    review_status: status,
+    reviewed_at: reviewedAt
   });
 }
 
@@ -1665,6 +1723,17 @@ async function saveProgrammeEdit(id) {
     adminState.editingProgrammeId = null;
     renderAdmin();
     return;
+  }
+
+  if (programme.reviewStatus === "approved") {
+    const reviewReset = {
+      from: "approved",
+      to: "needs_admin_review"
+    };
+    changes.reviewStatus = reviewReset;
+    changes.reviewedAt = { from: programme.reviewedAt || null, to: null };
+    programme.reviewStatus = "needs_admin_review";
+    programme.reviewedAt = null;
   }
 
   const autoResolvedGaps = [];
@@ -3578,6 +3647,8 @@ function renderProgrammeCard(programme) {
   const fundingPolicy = fundingBreakdown.policy || getFundingPolicy(programme);
   const fundingPolicyBadge = fundingPolicy.eligible === false ? "red" : isNulFamilyProgramme(programme) ? "amber" : "blue";
   const showFundingPolicy = fundingPolicy.status !== "Standard NMDS estimate";
+  const verification = getProgrammeVerificationMeta(programme);
+  const sourceInfo = verification.source;
   return `
     <article class="programme-card">
       <div class="programme-top">
@@ -3593,9 +3664,29 @@ function renderProgrammeCard(programme) {
             <span class="badge ${eligibilityBadge}">Eligibility ${programme.match.eligibility}%</span>
             <span class="badge ${confidenceBadge}">Data ${programme.match.confidence}%</span>
           </div>
+          <div class="programme-trust-strip ${verification.tone}">
+            <div class="programme-trust-main">
+              <i data-lucide="${verification.icon}"></i>
+              <div>
+                <strong>${escapeHtml(verification.label)}</strong>
+                <span>${escapeHtml(verification.summary)}</span>
+              </div>
+            </div>
+            <span class="programme-trust-source">${escapeHtml(sourceInfo.label)} · ${escapeHtml(sourceInfo.value)}</span>
+          </div>
         </div>
         <div class="programme-card-actions">
-          <div class="match-badge tier-${programme.match.tier}">${programme.match.overall}%</div>
+          <button
+            type="button"
+            role="button"
+            tabindex="0"
+            class="match-badge tier-${programme.match.tier}"
+            data-programme-score-toggle="${escapeHtml(programme.id)}"
+            aria-expanded="false"
+            aria-label="Toggle match score explanation for ${escapeHtml(programme.title)}"
+          >
+            ${programme.match.overall}%
+          </button>
           <button class="secondary-action" type="button" data-shortlist-programme="${escapeHtml(programme.id)}">
             <i data-lucide="${saved ? "bookmark-check" : "bookmark-plus"}"></i>
             ${saved ? "Saved" : "Save"}
@@ -4172,6 +4263,7 @@ function getCompactAiProgramme(programme) {
     careers: (programme.careers || []).slice(0, 3),
     skills: (programme.skills || []).slice(0, 3),
     hard_gate_passed: programme.match.hardGatePassed,
+    verification: getProgrammeVerificationPayload(programme),
     match: {
       overall: programme.match.overall,
       academic: programme.match.academic,
@@ -6390,16 +6482,20 @@ async function setProgrammeReviewStatus(id, status) {
   const programme = adminProgrammes.find((item) => item.id === id);
   if (!programme) return;
   const previousStatus = programme.reviewStatus;
+  const previousReviewedAt = programme.reviewedAt || null;
+  const nextReviewedAt = new Date().toISOString();
   programme.reviewStatus = status;
+  programme.reviewedAt = ["approved", "flagged", "rejected"].includes(status) ? nextReviewedAt : null;
   adminState.selectedProgrammeId = id;
   lastPersistenceMessage = supabaseClient ? "Saving..." : "Saved locally";
   renderAdmin();
   try {
     await persistProgrammeStatus(programme, status);
     lastPersistenceMessage = supabaseClient ? "Synced programme review" : "Saved locally";
-    recordCurrentUserActivity("admin_programme_reviewed", `Marked programme ${formatStatus(status)}`, { programmeId: programme.id, programmeName: programme.name, status });
+    recordCurrentUserActivity("admin_programme_reviewed", `Marked programme ${formatStatus(status)}`, { programmeId: programme.id, programmeName: programme.name, status, reviewedAt: programme.reviewedAt });
   } catch (error) {
     programme.reviewStatus = previousStatus;
+    programme.reviewedAt = previousReviewedAt;
     lastPersistenceMessage = `Sync failed: ${error.message || "programme update"}`;
   }
   renderAdmin();
@@ -6714,6 +6810,13 @@ function bindEvents() {
       qsa(".tab-panel").forEach((panel) => panel.classList.toggle("active", panel.id === `tab-${button.dataset.resultsTab}`));
     });
   });
+  qsa("[data-programme-score-toggle]").forEach((badge) => {
+    badge.addEventListener("keydown", (event) => {
+      if (event.key !== "Enter" && event.key !== " ") return;
+      event.preventDefault();
+      badge.click();
+    });
+  });
   qs("#view-results")?.addEventListener("click", (event) => {
     const applicationSchoolButton = event.target.closest("[data-application-school]");
     if (applicationSchoolButton) {
@@ -6745,13 +6848,24 @@ function bindEvents() {
       return;
     }
 
-    const badge = event.target.closest(".match-badge");
+    const badge = event.target.closest("[data-programme-score-toggle]");
     if (badge) {
       const card = badge.closest(".programme-card");
       const details = card ? card.querySelector(".match-explanation") : null;
       if (details) {
-        details.open = !details.open;
-        if (details.open) details.querySelector("summary")?.scrollIntoView({ behavior: "smooth", block: "nearest" });
+        const nextOpen = !details.open;
+        details.open = nextOpen;
+        badge.setAttribute("aria-expanded", String(nextOpen));
+        recordAnalyticsEvent(
+          "explanation_toggled",
+          "Opened programme score explanation",
+          {
+            programmeId: badge.dataset.programmeScoreToggle,
+            open: nextOpen
+          },
+          { throttleMs: 30000 }
+        );
+        if (nextOpen) details.querySelector("summary")?.scrollIntoView({ behavior: "smooth", block: "nearest" });
       }
       return;
     }
@@ -6931,11 +7045,9 @@ function bindEvents() {
 }
 
 async function init() {
-  await loadServerDatabaseState();
   loadDeploymentStatus({ silent: true });
   loadAuthUsers();
   loadLocalReviewState();
-  seedServerDatabaseState();
   renderGrades();
   renderInterests();
   loadAiChatMessages();

@@ -1242,10 +1242,23 @@ textarea:focus {
   place-items: center;
   min-width: 64px;
   min-height: 52px;
+  border: 0;
   border-radius: 8px;
   background: var(--brand-soft);
   color: var(--brand-deep);
   font-weight: 900;
+  cursor: pointer;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.match-badge:hover {
+  transform: translateY(-1px);
+}
+
+.match-badge:focus-visible {
+  outline: 3px solid rgba(29, 158, 117, 0.3);
+  outline-offset: 2px;
+  box-shadow: 0 0 0 4px rgba(29, 158, 117, 0.12);
 }
 
 .match-badge.tier-qualified {
