@@ -1102,6 +1102,78 @@ textarea:focus {
   flex: 0 0 auto;
 }
 
+.student-overview-panel {
+  display: grid;
+  gap: 16px;
+  margin-bottom: 16px;
+}
+
+.profile-progress-wrap {
+  display: grid;
+  gap: 10px;
+}
+
+.progress-pill {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 32px;
+  padding: 0 12px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: var(--brand-soft);
+  color: var(--brand-deep);
+  font-size: 12px;
+  font-weight: 900;
+}
+
+.profile-progress-track {
+  height: 12px;
+  background: rgba(29, 158, 117, 0.12);
+}
+
+.profile-progress-bar {
+  background: linear-gradient(90deg, var(--brand), var(--brand-mid));
+}
+
+.profile-progress-meta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.profile-progress-meta strong {
+  color: var(--brand-deep);
+  font-size: 13px;
+  text-align: right;
+}
+
+.next-actions-box {
+  padding: 14px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--surface-soft);
+}
+
+.next-actions-box h4 {
+  margin: 0 0 10px;
+  color: var(--brand-deep);
+  font-size: 16px;
+}
+
+.next-actions-box ul {
+  display: grid;
+  gap: 8px;
+  margin: 0;
+  padding-left: 18px;
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.5;
+}
+
 .student-plan-panel {
   margin-top: 16px;
 }
@@ -2633,6 +2705,139 @@ textarea:focus {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
   gap: 10px;
+}
+
+.admin-report-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 12px;
+}
+
+.admin-report-card {
+  display: grid;
+  gap: 12px;
+  min-height: 160px;
+  padding: 14px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: linear-gradient(180deg, #ffffff, #f8fbfa);
+}
+
+.admin-report-top {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.admin-report-icon {
+  display: grid;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  border-radius: 8px;
+  background: var(--brand-soft);
+  color: var(--brand-deep);
+}
+
+.admin-report-top strong {
+  color: var(--brand-deep);
+  font-size: 14px;
+}
+
+.admin-report-value {
+  color: var(--brand-deep);
+  font-size: 22px;
+  line-height: 1.2;
+}
+
+.admin-report-note {
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.45;
+}
+
+.admin-report-summary {
+  display: grid;
+  gap: 12px;
+  margin-top: 14px;
+  padding: 14px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: linear-gradient(180deg, #ffffff, #f5faf8);
+}
+
+.admin-report-summary-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  color: var(--brand-deep);
+  font-size: 13px;
+}
+
+.admin-report-summary-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  gap: 10px;
+}
+
+.admin-report-summary-row {
+  display: grid;
+  gap: 4px;
+  padding: 10px 12px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: #fff;
+}
+
+.admin-report-summary-row small {
+  color: var(--muted);
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.admin-report-summary-row strong {
+  color: var(--brand-deep);
+  font-size: 18px;
+}
+
+.admin-report-summary-layout {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 12px;
+}
+
+.admin-report-summary-section {
+  display: grid;
+  gap: 8px;
+  padding: 12px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: #fff;
+}
+
+.admin-report-summary-section h5 {
+  margin: 0;
+  color: var(--brand-deep);
+  font-size: 13px;
+}
+
+.admin-report-summary-item {
+  display: grid;
+  gap: 2px;
+  padding-top: 8px;
+  border-top: 1px solid #edf3ef;
+}
+
+.admin-report-summary-item strong {
+  color: var(--brand-deep);
+  font-size: 13px;
+}
+
+.admin-report-summary-item span {
+  color: var(--muted);
+  font-size: 12px;
 }
 
 .admin-insight-card {

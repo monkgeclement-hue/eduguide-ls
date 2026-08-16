@@ -257,17 +257,31 @@
               </div>
             </article>
             <article class="student-action-card">
+              <div class="action-icon"><i data-lucide="sparkles"></i></div>
+              <div>
+                <span>Qualified</span>
+                <strong id="qualified-count">0</strong>
+              </div>
+            </article>
+            <article class="student-action-card">
+              <div class="action-icon"><i data-lucide="triangle-alert"></i></div>
+              <div>
+                <span>Almost qualified</span>
+                <strong id="almost-count">0</strong>
+              </div>
+            </article>
+            <article class="student-action-card">
               <div class="action-icon"><i data-lucide="bookmark-check"></i></div>
               <div>
-                <span>Shortlisted programmes</span>
+                <span>Shortlisted</span>
                 <strong id="shortlist-count">0</strong>
               </div>
             </article>
             <article class="student-action-card">
               <div class="action-icon"><i data-lucide="files"></i></div>
               <div>
-                <span>Uploaded documents</span>
-                <strong id="document-count">0</strong>
+                <span>Documents ready</span>
+                <strong id="documents-ready-count">0</strong>
               </div>
             </article>
             <article class="student-action-card">
@@ -278,6 +292,29 @@
               </div>
             </article>
           </div>
+
+          <section class="surface-panel student-overview-panel">
+            <div class="section-head">
+              <div>
+                <p class="section-kicker">Student progress</p>
+                <h3>Profile completion and next steps</h3>
+              </div>
+              <div class="progress-pill" id="profile-progress-pill">0% complete</div>
+            </div>
+            <div class="profile-progress-wrap">
+              <div class="progress-track profile-progress-track">
+                <div id="profile-progress-bar" class="progress-bar profile-progress-bar" style="width: 0%"></div>
+              </div>
+              <div class="profile-progress-meta">
+                <span>What is still missing?</span>
+                <strong id="profile-progress-label">Add a few more details to improve matches.</strong>
+              </div>
+            </div>
+            <div class="next-actions-box">
+              <h4>Your next actions</h4>
+              <ul id="next-actions-list"></ul>
+            </div>
+          </section>
 
           <div class="dashboard-grid">
             <section class="surface-panel profile-panel">
@@ -740,6 +777,10 @@
                   <i data-lucide="shield-check"></i>
                   Audit
                 </button>
+                <button class="admin-tab" type="button" data-admin-tab="reports">
+                  <i data-lucide="file-chart-column-increasing"></i>
+                  Reports
+                </button>
               </div>
 
               <div class="admin-workbench">
@@ -788,6 +829,33 @@
                       </button>
                     </div>
                     <div class="admin-record-list" id="admin-audit-list"></div>
+                  </div>
+                  <div class="admin-tab-panel" id="admin-tab-reports">
+                    <div class="admin-list-head">
+                      <span>System intelligence</span>
+                      <div style="display:flex; gap:8px; align-items:center; flex-wrap:wrap;">
+                        <label class="inline-filter" style="display:flex; align-items:center; gap:6px; color:var(--muted); font-size:12px;">
+                          <span>Institution</span>
+                          <select id="admin-report-institution-filter" style="min-width: 180px;">
+                            <option value="all">All institutions</option>
+                          </select>
+                        </label>
+                        <button class="secondary-action compact-action" type="button" data-admin-report-export>
+                          <i data-lucide="download"></i>
+                          Export CSV
+                        </button>
+                        <button class="secondary-action compact-action" type="button" data-admin-report-print>
+                          <i data-lucide="printer"></i>
+                          Print PDF
+                        </button>
+                        <button class="secondary-action compact-action" type="button" data-admin-report-refresh>
+                          <i data-lucide="refresh-cw"></i>
+                          Refresh
+                        </button>
+                      </div>
+                    </div>
+                    <div class="admin-report-grid" id="admin-report-grid"></div>
+                    <div class="admin-report-summary" id="admin-report-summary"></div>
                   </div>
                 </section>
 

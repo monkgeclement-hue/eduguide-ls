@@ -40,17 +40,75 @@ function renderMatchScoreBreakdown(programme) {
   const breakdown = programme.match?.scoreBreakdown;
   if (!breakdown?.components?.length) return "";
   const evidence = (programme.match.requirementEvidence || []).slice(0, 8);
-  const tierLabel =
-    programme.match.tierLabel ||
-    tierMeta[programme.match.tier]?.label ||
-    "Match";
+  const tierLabel = programme.match.tierLabel || tierMeta[programme.match.tier]?.label || "Match";
   const evidenceIcon = (status) =>
     status === "met"
       ? "circle-check"
       : status === "blocked"
         ? "circle-x"
         : "triangle-alert";
-  return `    <details class="match-explanation">      <summary>        <span>          <strong>Why ${breakdown.finalScore}%?</strong>          <small>View score breakdown and requirement evidence</small>        </span>        <i data-lucide="chevron-down"></i>      </summary>      <div class="match-explanation-body">        <section class="match-score-section">          <div class="match-explanation-heading">            <div>              <span class="section-kicker">Match model</span>              <h5>Score breakdown</h5>            </div>            <span class="badge ${              tierMeta[programme.match.tier]?.badge || "blue"            }">              ${escapeHtml(tierLabel)}            </span>          </div>          <div class="match-score-components">            ${breakdown.components              .map(                (component) => `                  <div class="match-score-component">                    <div class="match-score-row">                      <strong>${escapeHtml(component.label)}</strong>                      <span>${component.score}% × ${component.weight}%</span>                    </div>`              )              .join("")}          </div>          <div class="match-score-summary">            <div class="score-row"><span>Base weighted score</span><strong>${breakdown.baseScore}%</strong></div>            <div class="score-row"><span>Tier adjustment</span><strong>${breakdown.tierPenalty ? `−${breakdown.tierPenalty}` : "0"}</strong></div>            <div class="score-row"><span>Policy adjustment</span><strong>${breakdown.policyPenalty ? `−${breakdown.policyPenalty}` : "0"}</strong></div>            <div class="match-final-row"><strong>Final match</strong><strong>${breakdown.finalScore}%</strong></div>          </div>        </section>        <aside class="requirement-evidence-section">          <div class="match-explanation-heading">            <div>              <span class="section-kicker">Decision evidence</span>              <h5>Requirements & notes</h5>            </div>          </div>          <div class="evidence-list">            ${evidence              .map(                (item) => `                  <div class="evidence-item">                    <div class="evidence-row">                      <i data-lucide="${evidenceIcon(item.status)}"></i>                      <div>                        <strong>${escapeHtml(item.title)}</strong>                        <div class="muted-row">${escapeHtml(item.detail || "")}</div>                      </div>                    </div>                  </div>`              )              .join("")}          </div>        </aside>      </div>    </details>`;}
+  return `
+    <details class="match-explanation">
+      <summary>
+        <span>
+          <strong>Why ${breakdown.finalScore}%?</strong>
+          <small>View score breakdown and requirement evidence</small>
+        </span>
+        <i data-lucide="chevron-down"></i>
+      </summary>
+      <div class="match-explanation-body">
+        <section class="match-score-section">
+          <div class="match-explanation-heading">
+            <div>
+              <span class="section-kicker">Match model</span>
+              <h5>Score breakdown</h5>
+            </div>
+            <span class="badge ${tierMeta[programme.match.tier]?.badge || "blue"}">
+              ${escapeHtml(tierLabel)}
+            </span>
+          </div>
+          <div class="match-score-components">
+            ${breakdown.components.map((component) => `
+              <div class="match-score-component">
+                <div class="match-score-row">
+                  <strong>${escapeHtml(component.label)}</strong>
+                  <span>${component.score}% × ${component.weight}%</span>
+                </div>
+              </div>
+            `).join("")}
+          </div>
+          <div class="match-score-summary">
+            <div class="score-row"><span>Base weighted score</span><strong>${breakdown.baseScore}%</strong></div>
+            <div class="score-row"><span>Tier adjustment</span><strong>${breakdown.tierPenalty ? `−${breakdown.tierPenalty}` : "0"}</strong></div>
+            <div class="score-row"><span>Policy adjustment</span><strong>${breakdown.policyPenalty ? `−${breakdown.policyPenalty}` : "0"}</strong></div>
+            <div class="match-final-row"><strong>Final match</strong><strong>${breakdown.finalScore}%</strong></div>
+          </div>
+        </section>
+        <aside class="requirement-evidence-section">
+          <div class="match-explanation-heading">
+            <div>
+              <span class="section-kicker">Decision evidence</span>
+              <h5>Requirements & notes</h5>
+            </div>
+          </div>
+          <div class="evidence-list">
+            ${evidence.map((item) => `
+              <div class="evidence-item">
+                <div class="evidence-row">
+                  <i data-lucide="${evidenceIcon(item.status)}"></i>
+                  <div>
+                    <strong>${escapeHtml(item.title)}</strong>
+                    <div class="muted-row">${escapeHtml(item.detail || "")}</div>
+                  </div>
+                </div>
+              </div>
+            `).join("")}
+          </div>
+        </aside>
+      </div>
+    </details>
+  `;
+}
 const gradeState = {};
 const interestState = new Set(["Technology & IT", "Natural Sciences"]);
 let latestMatches = [];
@@ -64,6 +122,7 @@ let adminState = {
   tab: "catalogue",
   search: "",
   institution: "all",
+  reportInstitution: "all",
   status: "all",
   qualityFilter: "all",
   selectedProgrammeId: adminProgrammes[0]?.id || null,
@@ -3370,8 +3429,10 @@ function renderExtractedGrades(documentItem) {
 
 function renderDocumentList() {
   const list = qs("#document-list");
+  if (!list) return;
   const documents = currentUser?.documents || [];
-  qs("#document-count").textContent = documents.length;
+  const documentCount = qs("#document-count");
+  if (documentCount) documentCount.textContent = documents.length;
   if (!documents.length) {
     list.innerHTML = `
       <article>
@@ -3416,14 +3477,85 @@ function renderDocumentList() {
     .join("");
 }
 
-function renderStudentDashboard() {
-  if (!qs("#profile-completion")) return;
+function getStudentDashboardSnapshot() {
   const completion = getProfileCompletion();
+  const qualifiedCount = latestMatches.filter((programme) => programme.match?.tier === "qualified").length;
+  const almostCount = latestMatches.filter((programme) => programme.match?.tier === "almost").length;
   const shortlistCount = currentUser?.shortlist?.length || 0;
   const documentCount = currentUser?.documents?.length || 0;
-  qs("#profile-completion").textContent = `${completion}%`;
-  qs("#shortlist-count").textContent = shortlistCount;
-  qs("#next-action-label").textContent = documentCount < 2 ? "Add documents" : shortlistCount ? "Compare saved" : "Save matches";
+  const documentReadyCount = (currentUser?.documents || []).filter((documentItem) => documentItem.url || documentItem.extractionStatus === "completed" || documentItem.extractionStatus === "processed" || /uploaded/i.test(documentItem.status || "")).length;
+  const missingSignals = [];
+  if (!qs("#full-name")?.value?.trim()) missingSignals.push("name");
+  if (!qs("#district")?.value) missingSignals.push("district");
+  if (!qs("#stream")?.value) missingSignals.push("stream");
+  if (!qs("#leaving-year")?.value) missingSignals.push("year");
+  if (!Object.keys(gradeState).length) missingSignals.push("grades");
+  if (!interestState.size) missingSignals.push("interests");
+  const nextActions = [];
+  if (documentCount < 2) {
+    nextActions.push("Upload at least two supporting documents to improve funding and application readiness.");
+  } else if (documentReadyCount < 2) {
+    nextActions.push("Confirm both uploaded documents are processed and ready for review.");
+  }
+  if (Object.keys(gradeState).length < 4) {
+    nextActions.push("Add your strongest subjects and grades so the eligibility score becomes more accurate.");
+  }
+  if (qualifiedCount + almostCount === 0) {
+    nextActions.push("Run your programme match check to see which institutions fit your current profile.");
+  } else if (shortlistCount === 0) {
+    nextActions.push("Save your strongest matches and compare them side by side before applying.");
+  } else {
+    nextActions.push("Compare your shortlisted programmes and prepare the application route for each one.");
+  }
+  if (!nextActions.length) {
+    nextActions.push("Your profile is in good shape. Review the best matches and prepare your application pack.");
+  }
+  const progressLabel = missingSignals.length >= 4
+    ? "Add a few more details to improve matches."
+    : missingSignals.length >= 2
+      ? "You are close. A few more details will sharpen the recommendations."
+      : "Your profile is looking strong; keep refining your final choices.";
+  const nextActionLabel = documentCount < 2 ? "Add documents" : shortlistCount ? "Compare saved" : qualifiedCount + almostCount ? "Save matches" : "Review matches";
+
+  return {
+    completion,
+    qualifiedCount,
+    almostCount,
+    shortlistCount,
+    documentCount,
+    documentReadyCount,
+    nextActionLabel,
+    nextActions: nextActions.slice(0, 3),
+    progressLabel
+  };
+}
+
+function renderStudentDashboard() {
+  const completionEl = qs("#profile-completion");
+  if (!completionEl) return;
+  const snapshot = getStudentDashboardSnapshot();
+  const qualifiedEl = qs("#qualified-count");
+  const almostEl = qs("#almost-count");
+  const shortlistEl = qs("#shortlist-count");
+  const documentsReadyEl = qs("#documents-ready-count");
+  const nextActionLabelEl = qs("#next-action-label");
+  const progressPillEl = qs("#profile-progress-pill");
+  const progressBarEl = qs("#profile-progress-bar");
+  const progressLabelEl = qs("#profile-progress-label");
+
+  completionEl.textContent = `${snapshot.completion}%`;
+  if (qualifiedEl) qualifiedEl.textContent = snapshot.qualifiedCount;
+  if (almostEl) almostEl.textContent = snapshot.almostCount;
+  if (shortlistEl) shortlistEl.textContent = snapshot.shortlistCount;
+  if (documentsReadyEl) documentsReadyEl.textContent = snapshot.documentReadyCount;
+  if (nextActionLabelEl) nextActionLabelEl.textContent = snapshot.nextActionLabel;
+  if (progressPillEl) progressPillEl.textContent = `${snapshot.completion}% complete`;
+  if (progressBarEl) progressBarEl.style.width = `${snapshot.completion}%`;
+  if (progressLabelEl) progressLabelEl.textContent = snapshot.progressLabel;
+  const list = qs("#next-actions-list");
+  if (list) {
+    list.innerHTML = snapshot.nextActions.map((item) => `<li>${escapeHtml(item)}</li>`).join("");
+  }
   renderDocumentList();
   if (window.lucide) window.lucide.createIcons();
 }
@@ -5368,6 +5500,391 @@ function renderAdminIntelligence() {
   `;
 }
 
+function getAdminReportCards() {
+  const summary = getAdminSummary();
+  const intelligence = mergeAdminIntelligence(getAdminIntelligence());
+  const students = getVisibleUsers().filter((user) => !isAdmin(user));
+  const institutionCount = new Set(adminProgrammes.map((programme) => programme.institution)).size;
+  const qualityScores = adminProgrammes.map((programme) => getProgrammeQualityChecks(programme).percent);
+  const averageQuality = qualityScores.length ? Math.round(qualityScores.reduce((total, value) => total + value, 0) / qualityScores.length) : 0;
+  const adminCoverage = summary.programmeCount ? Math.min(100, Math.round((summary.programmeCount / Math.max(1, institutionCount * 8)) * 100)) : 0;
+
+  return [
+    {
+      key: "catalogue_health",
+      title: "Catalogue health",
+      value: `${averageQuality}%`,
+      note: `${summary.programmeCount} tracked programmes across ${institutionCount} institutions.`,
+      icon: "shield-check"
+    },
+    {
+      key: "student_activity",
+      title: "Student activity",
+      value: String(students.length),
+      note: `${intelligence.activeAiUsers} students used AI guidance this cycle.`,
+      icon: "users-round"
+    },
+    {
+      key: "open_gaps",
+      title: "Open gaps",
+      value: String(summary.openGapCount),
+      note: `${summary.reviewCount} records still need review before publication.`,
+      icon: "list-checks"
+    },
+    {
+      key: "fee_evidence",
+      title: "Fee evidence",
+      value: `${summary.feeItemCount}`,
+      note: "Structured fee items ready for finance and student review.",
+      icon: "badge-dollar-sign"
+    },
+    {
+      key: "ai_usage",
+      title: "AI guide usage",
+      value: `${intelligence.activeAiUsers}`,
+      note: "Students who asked for help or compared shortlisted programmes.",
+      icon: "message-circle-question"
+    },
+    {
+      key: "coverage",
+      title: "Coverage index",
+      value: `${adminCoverage}%`,
+      note: `${summary.newUserCount} new registrations need a quick admin review.`,
+      icon: "chart-column-big"
+    }
+  ];
+}
+
+function getReportInstitutionScope() {
+  const scope = adminState.reportInstitution || "all";
+  const institutions = Array.from(
+    new Set([
+      ...(adminData.institutions || []).map((item) => item.name),
+      ...adminProgrammes.map((programme) => programme.institution)
+    ].filter(Boolean))
+  ).sort();
+  const selected = scope === "all" ? "All institutions" : scope;
+  const filteredProgrammes = scope === "all"
+    ? adminProgrammes
+    : adminProgrammes.filter((programme) => programme.institution === scope);
+  const visibleStudents = getVisibleUsers().filter((user) => !isAdmin(user));
+  const filteredStudents = scope === "all"
+    ? visibleStudents
+    : visibleStudents.filter((user) => {
+        const institutionMatches = [user.institution, user.school, user.preferredInstitution, user.selectedInstitution]
+          .filter(Boolean)
+          .some((value) => value === scope);
+        return institutionMatches || (user.shortlist || []).some((programmeId) => {
+          const programme = findProgrammeById(programmeId);
+          return programme && programme.institution === scope;
+        });
+      });
+  const summary = {
+    programmeCount: filteredProgrammes.length,
+    reviewCount: filteredProgrammes.filter((programme) => programme.reviewStatus === "needs_admin_review" || programme.reviewStatus === "flagged").length,
+    openGapCount: adminGaps.filter((gap) => gap.status === "open" && (
+      scope === "all" || filteredProgrammes.some((programme) => programme.id === gap.programmeId)
+    )).length,
+    feeItemCount: filteredProgrammes.length
+      ? filteredProgrammes.reduce((total, programme) => {
+          const feeSchedules = getInstitutionFeeSchedules(programme.institution);
+          return total + feeSchedules.reduce((scheduleTotal, schedule) => scheduleTotal + (schedule.items || []).length, 0);
+        }, 0)
+      : 0,
+    userCount: filteredStudents.length,
+    newUserCount: filteredStudents.filter((user) => !user.reviewedAt).length,
+    institutionCount: scope === "all" ? institutions.length : 1,
+    averageProgrammeQuality: filteredProgrammes.length
+      ? Math.round(filteredProgrammes.reduce((total, programme) => total + getProgrammeQualityChecks(programme).percent, 0) / filteredProgrammes.length)
+      : 0,
+    activeAiUsers: filteredStudents.filter((user) => getActivityCount(user, "ai_guidance") || getActivityCount(user, "ai_compare")).length,
+    studentAccounts: filteredStudents.length
+  };
+
+  return {
+    label: selected,
+    institutions,
+    programmes: filteredProgrammes,
+    students: filteredStudents,
+    summary
+  };
+}
+
+function getAdminReportSnapshot() {
+  const scope = getReportInstitutionScope();
+  const intelligence = mergeAdminIntelligence(getAdminIntelligence());
+  const qualityScores = scope.programmes.map((programme) => getProgrammeQualityChecks(programme).percent);
+  const averageQuality = qualityScores.length
+    ? Math.round(qualityScores.reduce((total, value) => total + value, 0) / qualityScores.length)
+    : 0;
+  const reportSummary = {
+    programmeCount: scope.summary.programmeCount,
+    reviewCount: scope.summary.reviewCount,
+    openGapCount: scope.summary.openGapCount,
+    feeItemCount: scope.summary.feeItemCount,
+    userCount: scope.summary.userCount,
+    newUserCount: scope.summary.newUserCount,
+    institutionCount: scope.summary.institutionCount,
+    averageProgrammeQuality: averageQuality,
+    activeAiUsers: scope.summary.activeAiUsers,
+    studentAccounts: scope.summary.studentAccounts
+  };
+
+  const topProgrammes = (intelligence.topProgrammes || [])
+    .filter((item) => {
+      const programme = item.programme || findProgrammeById(item.programmeId);
+      return scope.label === "All institutions" || !programme || programme.institution === scope.label;
+    })
+    .map((item) => ({
+      programmeId: item.programmeId,
+      programmeName: item.programme?.name || item.programmeName || item.name || "Programme",
+      institution: item.programme?.institution || item.institution || "Institution not captured",
+      saved: Number(item.saved || 0),
+      viewed: Number(item.viewed || 0),
+      aiMentions: Number(item.aiMentions || 0)
+    }));
+
+  return {
+    generatedAt: new Date().toISOString(),
+    scope: scope.label,
+    summary: reportSummary,
+    topProgrammes,
+    missingWarnings: (intelligence.missingWarnings || []).filter((warning) => {
+      if (scope.label === "All institutions") return true;
+      return warning.toLowerCase().includes(scope.label.toLowerCase());
+    }),
+    blockedByMathScience: (intelligence.blockedByMathScience || [])
+      .filter((item) => {
+        const user = item.user || item;
+        return scope.label === "All institutions" || user.institution === scope.label || user.school === scope.label || user.preferredInstitution === scope.label;
+      })
+      .map((item) => ({
+        name: item.user?.name || item.name || "Student",
+        email: item.user?.email || item.email || "",
+        reason: item.reason || "Math/Science blocker"
+      })),
+    ocrFailures: (intelligence.ocrFailures || [])
+      .filter((item) => {
+        const user = item.user || {};
+        return scope.label === "All institutions" || user.institution === scope.label || user.school === scope.label || user.preferredInstitution === scope.label;
+      })
+      .map((item) => ({
+        documentName: item.documentName || item.document?.name || "Document",
+        userName: item.user?.name || item.name || "Student",
+        error: item.error || item.document?.extractionError || item.status || "OCR failed"
+      })),
+    newUsers: (intelligence.newUsers || [])
+      .filter((user) => {
+        return scope.label === "All institutions" || user.institution === scope.label || user.school === scope.label || user.preferredInstitution === scope.label;
+      })
+      .map((user) => ({
+        name: user.name || "Student",
+        email: user.email || "",
+        district: user.district || "district missing"
+      })),
+    cards: getAdminReportCards()
+  };
+}
+
+function renderAdminReportSummary() {
+  const panel = qs("#admin-report-summary");
+  if (!panel) return;
+  const scope = getReportInstitutionScope();
+  const topProgrammes = (getAdminReportSnapshot().topProgrammes || []).slice(0, 4);
+  const warnings = (getAdminReportSnapshot().missingWarnings || []).slice(0, 4);
+  const summaryRows = [
+    { label: "Programmes", value: String(scope.summary.programmeCount) },
+    { label: "Open gaps", value: String(scope.summary.openGapCount) },
+    { label: "Fee items", value: String(scope.summary.feeItemCount) },
+    { label: "AI users", value: String(scope.summary.activeAiUsers) },
+    { label: "Students", value: String(scope.summary.userCount) },
+    { label: "Avg. quality", value: `${scope.summary.averageProgrammeQuality}%` }
+  ];
+  panel.innerHTML = `
+    <div class="admin-report-summary-header">
+      <strong>Printable summary</strong>
+      <span>${escapeHtml(scope.label)}</span>
+    </div>
+    <div class="admin-report-summary-grid">
+      ${summaryRows.map((row) => `
+        <div class="admin-report-summary-row">
+          <small>${escapeHtml(row.label)}</small>
+          <strong>${escapeHtml(row.value)}</strong>
+        </div>
+      `).join("")}
+    </div>
+    <div class="admin-report-summary-layout">
+      <div class="admin-report-summary-section">
+        <h5>Top programmes</h5>
+        ${topProgrammes.length ? topProgrammes.map((item) => `
+          <div class="admin-report-summary-item">
+            <strong>${escapeHtml(item.programmeName)}</strong>
+            <span>${escapeHtml(item.institution)}</span>
+          </div>
+        `).join("") : `<p>No programme signals yet.</p>`}
+      </div>
+      <div class="admin-report-summary-section">
+        <h5>Warnings</h5>
+        ${warnings.length ? warnings.map((item) => `
+          <div class="admin-report-summary-item">
+            <strong>${escapeHtml(item)}</strong>
+            <span>Needs admin follow-up</span>
+          </div>
+        `).join("") : `<p>All systems look clear.</p>`}
+      </div>
+    </div>
+  `;
+}
+
+function renderAdminReports() {
+  const grid = qs("#admin-report-grid");
+  if (!grid) return;
+  const cards = getAdminReportCards();
+  grid.innerHTML = cards.map((card) => `
+    <article class="admin-report-card">
+      <div class="admin-report-top">
+        <span class="admin-report-icon"><i data-lucide="${escapeHtml(card.icon)}"></i></span>
+        <strong>${escapeHtml(card.title)}</strong>
+      </div>
+      <div class="admin-report-value">${escapeHtml(card.value)}</div>
+      <div class="admin-report-note">${escapeHtml(card.note)}</div>
+    </article>
+  `).join("");
+  renderAdminReportSummary();
+  if (window.lucide) window.lucide.createIcons();
+}
+
+function exportAdminReportCsv() {
+  const report = getAdminReportSnapshot();
+  const rows = [
+    ["report_scope", report.scope],
+    ["generated_at", report.generatedAt],
+    [""],
+    ["metric", "value"],
+    ["programme_count", String(report.summary.programmeCount)],
+    ["review_count", String(report.summary.reviewCount)],
+    ["open_gap_count", String(report.summary.openGapCount)],
+    ["fee_item_count", String(report.summary.feeItemCount)],
+    ["student_account_count", String(report.summary.userCount)],
+    ["new_user_count", String(report.summary.newUserCount)],
+    ["active_ai_users", String(report.summary.activeAiUsers)],
+    ["average_programme_quality", `${report.summary.averageProgrammeQuality}%`],
+    [""],
+    ["programme_name", "institution", "saved", "viewed", "ai_mentions"],
+    ...((report.topProgrammes || []).map((item) => [item.programmeName, item.institution, String(item.saved), String(item.viewed), String(item.aiMentions)])),
+    [""],
+    ["warning"],
+    ...((report.missingWarnings || []).map((item) => [item]))
+  ];
+  const csv = rows.map((row) => row.map((cell) => `"${String(cell ?? "").replace(/"/g, '""')}"`).join(",")).join("\n");
+  const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = `eduguide-admin-report-${new Date().toISOString().slice(0, 10)}.csv`;
+  document.body.appendChild(link);
+  link.click();
+  link.remove();
+  URL.revokeObjectURL(url);
+  lastPersistenceMessage = "Exported report to CSV";
+}
+
+function printAdminReport() {
+  const report = getAdminReportSnapshot();
+  const scope = getReportInstitutionScope();
+  const topProgrammes = (report.topProgrammes || []).slice(0, 5);
+  const warnings = (report.missingWarnings || []).slice(0, 5);
+  const content = `
+    <html>
+      <head>
+        <title>EduGuide Admin Report</title>
+        <style>
+          body { font-family: Arial, sans-serif; margin: 24px; color: #183a31; }
+          h1 { margin-bottom: 8px; }
+          .meta { color: #51666d; margin-bottom: 18px; }
+          .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 12px; margin: 18px 0; }
+          .card { border: 1px solid #d5e5df; border-radius: 10px; padding: 12px; background: #f7faf9; }
+          .label { display: block; font-size: 11px; color: #51666d; text-transform: uppercase; }
+          .value { display: block; font-size: 22px; font-weight: 700; margin-top: 6px; }
+          .section { margin-top: 18px; }
+          .item { border-bottom: 1px solid #e7efe9; padding: 8px 0; }
+          .item strong { display: block; }
+          .item span { color: #51666d; }
+          @media print { body { margin: 0; } }
+        </style>
+      </head>
+      <body>
+        <h1>EduGuide Admin Report</h1>
+        <div class="meta">Scope: ${escapeHtml(scope.label)} • Generated: ${escapeHtml(new Date(report.generatedAt).toLocaleString())}</div>
+        <div class="grid">
+          <div class="card"><span class="label">Programmes</span><span class="value">${report.summary.programmeCount}</span></div>
+          <div class="card"><span class="label">Students</span><span class="value">${report.summary.userCount}</span></div>
+          <div class="card"><span class="label">Open gaps</span><span class="value">${report.summary.openGapCount}</span></div>
+          <div class="card"><span class="label">Fee items</span><span class="value">${report.summary.feeItemCount}</span></div>
+          <div class="card"><span class="label">AI users</span><span class="value">${report.summary.activeAiUsers}</span></div>
+          <div class="card"><span class="label">Avg. quality</span><span class="value">${report.summary.averageProgrammeQuality}%</span></div>
+        </div>
+        <div class="section">
+          <h3>Top programmes</h3>
+          ${topProgrammes.length ? topProgrammes.map((item) => `
+            <div class="item"><strong>${escapeHtml(item.programmeName)}</strong><span>${escapeHtml(item.institution)} • saved ${item.saved}, viewed ${item.viewed}</span></div>
+          `).join("") : `<div class="item">No programme signals yet.</div>`}
+        </div>
+        <div class="section">
+          <h3>Warnings</h3>
+          ${warnings.length ? warnings.map((item) => `
+            <div class="item"><strong>${escapeHtml(item)}</strong><span>Needs admin follow-up</span></div>
+          `).join("") : `<div class="item">No warnings to report.</div>`}
+        </div>
+      </body>
+    </html>
+  `;
+  const win = window.open("", "_blank", "width=980,height=900");
+  if (!win) {
+    lastPersistenceMessage = "Could not open print window";
+    return;
+  }
+  win.document.write(content);
+  win.document.close();
+  win.focus();
+  win.print();
+  lastPersistenceMessage = "Prepared printable admin report";
+}
+
+function downloadAdminReport() {
+  const report = getAdminReportSnapshot();
+  const payload = JSON.stringify(report, null, 2);
+  const blob = new Blob([payload], { type: "application/json" });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = `eduguide-admin-report-${new Date().toISOString().slice(0, 10)}.json`;
+  document.body.appendChild(link);
+  link.click();
+  link.remove();
+  URL.revokeObjectURL(url);
+  lastPersistenceMessage = "Exported admin report";
+  if (window.lucide) window.lucide.createIcons();
+}
+
+function populateReportInstitutionFilter() {
+  const filter = qs("#admin-report-institution-filter");
+  if (!filter) return;
+  const institutions = Array.from(
+    new Set([
+      ...(adminData.institutions || []).map((item) => item.name),
+      ...adminProgrammes.map((programme) => programme.institution)
+    ].filter(Boolean))
+  ).sort();
+  const current = adminState.reportInstitution || "all";
+  filter.innerHTML = [
+    `<option value="all">All institutions</option>`,
+    ...institutions.map((institution) => `<option value="${escapeHtml(institution)}">${escapeHtml(institution)}</option>`)
+  ].join("");
+  filter.value = institutions.includes(current) ? current : "all";
+  adminState.reportInstitution = filter.value;
+}
+
 function renderAdminFilters() {
   const filter = qs("#admin-institution-filter");
   if (!filter) return;
@@ -5384,6 +5901,7 @@ function renderAdminFilters() {
   ].join("");
   filter.value = institutions.includes(current) ? current : "all";
   adminState.institution = filter.value;
+  populateReportInstitutionFilter();
 }
 
 function getDeploymentReadiness() {
@@ -6588,6 +7106,7 @@ function renderAdmin() {
   renderAdminSources();
   renderAdminUsers();
   renderAdminAudit();
+  renderAdminReports();
   renderAdminDetail();
   setAdminTab(adminState.tab);
   if (window.lucide) window.lucide.createIcons();
@@ -6881,12 +7400,29 @@ function bindEvents() {
     if (!shortcut) return;
     setAdminTab(shortcut.dataset.adminTabShortcut);
   });
+  const reportExport = event.target.closest("[data-admin-report-export]");
+  if (reportExport) {
+    event.preventDefault();
+    exportAdminReportCsv();
+    return;
+  }
+  const reportPrint = event.target.closest("[data-admin-report-print]");
+  if (reportPrint) {
+    event.preventDefault();
+    printAdminReport();
+    return;
+  }
   qs("#admin-search")?.addEventListener("input", (event) => {
     adminState.search = event.target.value;
     renderAdmin();
   });
   qs("#admin-institution-filter")?.addEventListener("change", (event) => {
     adminState.institution = event.target.value;
+    renderAdmin();
+  });
+  qs("#admin-report-institution-filter")?.addEventListener("change", (event) => {
+    adminState.reportInstitution = event.target.value;
+    renderAdminReports();
     renderAdmin();
   });
   qs("#admin-status-filter")?.addEventListener("change", (event) => {
@@ -6954,6 +7490,28 @@ function bindEvents() {
     if (auditRefresh) {
       event.preventDefault();
       loadAdminAudit();
+      return;
+    }
+
+    const reportRefresh = event.target.closest("[data-admin-report-refresh]");
+    if (reportRefresh) {
+      event.preventDefault();
+      if (isAdmin()) loadAdminIntelligence();
+      renderAdminReports();
+      return;
+    }
+
+    const reportExport = event.target.closest("[data-admin-report-export]");
+    if (reportExport) {
+      event.preventDefault();
+      exportAdminReportCsv();
+      return;
+    }
+
+    const reportPrint = event.target.closest("[data-admin-report-print]");
+    if (reportPrint) {
+      event.preventDefault();
+      printAdminReport();
       return;
     }
 
