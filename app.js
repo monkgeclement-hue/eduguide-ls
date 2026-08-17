@@ -1384,6 +1384,8 @@ async function loadDeploymentStatus({ silent = false } = {}) {
     if (!healthResponse.ok) throw new Error(`Health check returned ${healthResponse.status}`);
     const health = await healthResponse.json();
     const diagnostics = diagnosticsResponse?.ok ? await diagnosticsResponse.json() : null;
+    const resolvedBackend = health.data_backend ?? diagnostics?.database ?? null;
+    const resolvedEmailConfigured = Boolean(health.email_configured ?? diagnostics?.email_configured ?? false);
     deploymentStatus = {
       checked: true,
       loading: false,
@@ -1392,14 +1394,14 @@ async function loadDeploymentStatus({ silent = false } = {}) {
       diagnostics,
       error: ""
     };
-    if (health.data_backend) {
-      persistenceMode = health.data_backend === "supabase" ? "server-supabase" : "server-db";
-      lastPersistenceMessage = health.data_backend === "supabase" ? "Supabase database ready" : "Render SQLite is temporary";
+    if (resolvedBackend) {
+      persistenceMode = resolvedBackend === "supabase" ? "server-supabase" : "server-db";
+      lastPersistenceMessage = resolvedBackend === "supabase" ? "Supabase database ready" : "Render SQLite is temporary";
     }
     if (!silent) {
-      const backendLabel = health.data_backend === "supabase" ? "Supabase" : "SQLite";
-      const emailLabel = health.email_configured ? "SMTP ready" : "SMTP missing";
-      setAdminActionStatus(`Hosting checked - ${backendLabel}, ${emailLabel}`, health.email_configured ? "success" : "warning");
+      const backendLabel = resolvedBackend === "supabase" ? "Supabase" : resolvedBackend === "sqlite" ? "SQLite" : "Unknown";
+      const emailLabel = resolvedEmailConfigured ? "SMTP ready" : "SMTP missing";
+      setAdminActionStatus(`Hosting checked - ${backendLabel}, ${emailLabel}`, resolvedEmailConfigured ? "success" : "warning");
     }
   } catch (error) {
     deploymentStatus = {
@@ -5932,25 +5934,26 @@ function getDeploymentReadiness() {
 
   const health = deploymentStatus.health || {};
   const diagnostics = deploymentStatus.diagnostics || {};
-  const dataBackend = health.data_backend || diagnostics.database || "unknown";
-  const usesSupabase = Boolean(health.supabase_configured || dataBackend === "supabase");
-  const aiReady = Boolean(health.ai_configured);
-  const emailReady = Boolean(health.email_configured);
-  const emailTransport = health.email_transport === "brevo_api" ? "Brevo API" : "SMTP";
-  const storageReady = Boolean(health.storage_ready);
-  const databaseReady = Boolean(health.database_ready);
+  const dataBackend = health.data_backend ?? diagnostics.database ?? "unknown";
+  const usesSupabase = Boolean(health.supabase_configured ?? diagnostics.supabase_configured ?? dataBackend === "supabase");
+  const aiReady = Boolean(health.ai_configured ?? diagnostics.ai_configured ?? false);
+  const emailReady = Boolean(health.email_configured ?? diagnostics.email_configured ?? false);
+  const emailTransport = (health.email_transport ?? diagnostics.email_transport ?? "smtp") === "brevo_api" ? "Brevo API" : "SMTP";
+  const storageReady = Boolean(health.storage_ready ?? diagnostics.storage_ready ?? false);
+  const databaseReady = Boolean(health.database_ready ?? diagnostics.database_ready ?? false);
   const warningItems = [];
   if (!usesSupabase) warningItems.push("Users, uploads, and AI chat are still on Render SQLite and can reset after redeploys or restarts.");
   if (!aiReady) warningItems.push("AI guidance and OCR need a valid Gemini or OpenAI key.");
   if (!emailReady) {
-    const missingEmailKeys = Array.isArray(health.email_missing_keys) && health.email_missing_keys.length
-      ? ` Missing: ${health.email_missing_keys.join(", ")}.`
+    const missingEmailKeys = Array.isArray(health.email_missing_keys ?? diagnostics.email_missing_keys)
+      && (health.email_missing_keys ?? diagnostics.email_missing_keys).length
+      ? ` Missing: ${(health.email_missing_keys ?? diagnostics.email_missing_keys).join(", ")}.`
       : "";
     warningItems.push(`Email verification needs SMTP settings before public signups can receive codes.${missingEmailKeys}`);
   }
   if (!storageReady) warningItems.push("Document upload storage is not ready.");
   if (!databaseReady) warningItems.push("Database health check failed.");
-  if (health.startup_persistence_error) warningItems.push(`Startup persistence error: ${health.startup_persistence_error}`);
+  if (health.startup_persistence_error ?? diagnostics.startup_persistence_error) warningItems.push(`Startup persistence error: ${health.startup_persistence_error ?? diagnostics.startup_persistence_error}`);
 
   return {
     tone: warningItems.length ? "warning" : "ready",

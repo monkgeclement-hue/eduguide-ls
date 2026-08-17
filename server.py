@@ -3484,6 +3484,8 @@ def delete_document(document_id: str, authorization: str | None = Header(default
 @app.get("/api/db/diagnostics")
 def database_diagnostics(authorization: str | None = Header(default=None)) -> dict[str, Any]:
   require_admin_user(authorization)
+  ai_provider = get_ai_provider()
+  ai_model = get_gemini_model_candidates()[0] if ai_provider == "gemini" else (os.getenv("OPENAI_MODEL", "gpt-5.2").strip() or "gpt-5.2")
   if using_supabase():
     state_rows = list_state_payloads()
     document_rows = supabase_request(
@@ -3589,13 +3591,18 @@ def database_diagnostics(authorization: str | None = Header(default=None)) -> di
       state_counts[state_key] = 1
   return {
     "ok": True,
+    "timestamp": now_iso(),
     "database": get_data_backend(),
+    "database_ready": check_data_backend_ready(),
     "supabase_configured": supabase_configured(),
+    "storage_ready": check_document_storage_ready(),
     "email_configured": smtp_configured(),
     "email_transport": email_transport(),
     "email_missing_keys": smtp_missing_keys(),
     "email_debug_codes": email_debug_codes_enabled(),
-    "ai_configured": bool(get_gemini_api_key() if get_ai_provider() == "gemini" else get_openai_api_key()),
+    "ai_configured": bool(get_gemini_api_key() if ai_provider == "gemini" else get_openai_api_key()),
+    "ai_provider": ai_provider,
+    "ai_model": ai_model,
     "storage_bucket": get_supabase_storage_bucket() if using_supabase() else None,
     "startup_persistence_error": STARTUP_PERSISTENCE_ERROR,
     "state_keys": [row.get("state_key") for row in state_rows],
@@ -3773,56 +3780,31 @@ def ai_guidance(payload: GuidanceRequest, request: Request, authorization: str |
 
 
 @app.get("/health")
-def health() -> dict[str, bool]:
-  """Minimal public health check endpoint.
-  
-  Returns only: ok, database_ready, storage_ready.
-  Detailed diagnostics are available at /api/db/diagnostics (admin-only).
+def health() -> dict[str, Any]:
+  """Public health endpoint with compatibility fields for admin status UI.
+
+  Keep the minimal response shape for health checks, while also exposing the older
+  backend/email values that the admin dashboard still reads before it fetches
+  /api/db/diagnostics.
   """
+  ai_provider = get_ai_provider()
+  ai_model = get_gemini_model_candidates()[0] if ai_provider == "gemini" else (os.getenv("OPENAI_MODEL", "gpt-5.2").strip() or "gpt-5.2")
   return {
     "ok": True,
     "database_ready": check_data_backend_ready(),
-    "storage_ready": check_document_storage_ready()
-  }
-
-
-@app.get("/api/db/diagnostics")
-def database_diagnostics(authorization: str | None = Header(default=None)) -> dict[str, Any]:
-  """Detailed diagnostics endpoint (admin-only).
-  
-  Returns comprehensive hosting, configuration, and health information.
-  Requires admin authentication.
-  """
-  require_admin_user(authorization)
-  
-  return {
-    "ok": True,
-    "timestamp": now_iso(),
-    "backend": get_data_backend(),
-    "database": {
-      "ready": check_data_backend_ready(),
-      "type": "supabase" if using_supabase() else "sqlite",
-      "path": str(DB_PATH) if not using_supabase() else "remote"
-    },
-    "storage": {
-      "ready": check_document_storage_ready(),
-      "type": "supabase" if using_supabase() else "local",
-      "bucket": get_supabase_storage_bucket() if using_supabase() else str(UPLOAD_ROOT)
-    },
-    "configuration": {
-      "auth_session_ttl_days": AUTH_SESSION_TTL_DAYS,
-      "max_upload_bytes": MAX_UPLOAD_BYTES,
-      "max_files_per_upload": MAX_FILES_PER_UPLOAD,
-      "allowed_upload_extensions": sorted(ALLOWED_UPLOAD_EXTENSIONS),
-      "ai_model": GEMINI_DEFAULT_MODEL,
-      "rate_limiting_enabled": True
-    },
-    "environment": {
-      "gemini_api_configured": bool(os.getenv("GEMINI_API_KEY")),
-      "openai_api_configured": bool(os.getenv("OPENAI_API_KEY")),
-      "supabase_configured": bool(os.getenv("SUPABASE_URL") and os.getenv("SUPABASE_KEY")),
-      "smtp_configured": bool(os.getenv("SMTP_HOST") and os.getenv("SMTP_USER"))
-    }
+    "storage_ready": check_document_storage_ready(),
+    "database": get_data_backend(),
+    "data_backend": get_data_backend(),
+    "supabase_configured": supabase_configured(),
+    "email_configured": smtp_configured(),
+    "email_transport": email_transport(),
+    "email_missing_keys": smtp_missing_keys(),
+    "email_debug_codes": email_debug_codes_enabled(),
+    "ai_configured": bool(get_gemini_api_key() if ai_provider == "gemini" else get_openai_api_key()),
+    "ai_provider": ai_provider,
+    "ai_model": ai_model,
+    "storage_bucket": get_supabase_storage_bucket() if using_supabase() else None,
+    "startup_persistence_error": STARTUP_PERSISTENCE_ERROR,
   }
 
 
