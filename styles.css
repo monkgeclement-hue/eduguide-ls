@@ -3603,6 +3603,138 @@ textarea:focus {
   gap: 14px;
 }
 
+.student-focus-panel {
+  display: grid;
+  gap: 14px;
+}
+
+.student-focus-actions,
+.student-top-match-list {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.student-focus-actions button,
+.student-top-match-list button {
+  display: grid;
+  gap: 4px;
+  min-width: 0;
+  padding: 12px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--surface-soft);
+  color: var(--brand-deep);
+  text-align: left;
+  cursor: pointer;
+}
+
+.student-focus-actions button {
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: center;
+}
+
+.student-focus-actions svg {
+  grid-row: span 2;
+  width: 18px;
+  color: var(--brand-mid);
+}
+
+.student-focus-actions span,
+.student-top-match-list strong {
+  font-size: 13px;
+  font-weight: 900;
+}
+
+.student-focus-actions small,
+.student-top-match-list small,
+.student-top-matches-head span,
+.student-top-matches-empty span {
+  color: var(--muted);
+  font-size: 11px;
+  font-weight: 700;
+  line-height: 1.35;
+}
+
+.student-top-matches {
+  display: grid;
+  gap: 8px;
+}
+
+.student-top-matches-head {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  align-items: baseline;
+}
+
+.student-top-matches-head strong,
+.student-top-matches-empty strong {
+  color: var(--brand-deep);
+  font-size: 13px;
+}
+
+.student-top-match-list button {
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+}
+
+.student-top-match-list b {
+  color: var(--brand-mid);
+  font-size: 17px;
+}
+
+.student-top-matches-empty {
+  display: grid;
+  gap: 3px;
+  padding: 12px;
+  border: 1px dashed var(--line);
+  border-radius: 8px;
+}
+
+.dashboard-disclosure {
+  min-width: 0;
+}
+
+.dashboard-disclosure > summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px 2px;
+  color: var(--brand-deep);
+  cursor: pointer;
+  list-style: none;
+}
+
+.dashboard-disclosure > summary::-webkit-details-marker {
+  display: none;
+}
+
+.dashboard-disclosure > summary span {
+  display: grid;
+  gap: 3px;
+}
+
+.dashboard-disclosure > summary strong {
+  font-size: 14px;
+}
+
+.dashboard-disclosure > summary small {
+  color: var(--muted);
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.dashboard-disclosure > summary svg {
+  width: 17px;
+  transition: transform 160ms ease;
+}
+
+.dashboard-disclosure[open] > summary svg {
+  transform: rotate(180deg);
+}
+
 .school-explorer-head {
   align-items: center;
 }
@@ -3640,6 +3772,65 @@ textarea:focus {
   grid-template-columns: minmax(210px, 270px) minmax(260px, 360px) minmax(0, 1fr);
   gap: 14px;
   align-items: start;
+}
+
+.explorer-search-summary,
+.explorer-matched-schools {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.explorer-search-summary {
+  justify-content: space-between;
+  padding: 10px 12px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--surface-soft);
+}
+
+.explorer-search-summary > div:first-child {
+  display: grid;
+  gap: 2px;
+}
+
+.explorer-search-summary strong,
+.explorer-matched-schools > span {
+  color: var(--brand-deep);
+  font-size: 12px;
+  font-weight: 900;
+}
+
+.explorer-search-summary span:not(.badge),
+.explorer-matched-schools > span {
+  color: var(--muted);
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.explorer-search-types,
+.explorer-matched-schools {
+  gap: 6px;
+}
+
+.explorer-back-button {
+  display: none;
+  align-items: center;
+  gap: 5px;
+  width: fit-content;
+  min-height: 32px;
+  padding: 0 8px;
+  border: 1px solid var(--line);
+  border-radius: 7px;
+  background: #fff;
+  color: var(--brand-mid);
+  font-size: 12px;
+  font-weight: 900;
+}
+
+.explorer-back-button svg {
+  width: 15px;
 }
 
 .school-list-panel,
@@ -4201,6 +4392,65 @@ textarea:focus {
 
   .student-action-card strong {
     font-size: 16px;
+  }
+
+  .student-focus-actions,
+  .student-top-match-list {
+    grid-template-columns: 1fr;
+  }
+
+  .student-focus-panel .section-head {
+    grid-template-columns: 1fr;
+  }
+
+  .student-focus-panel .primary-button {
+    width: 100%;
+  }
+
+  .dashboard-disclosure > summary {
+    min-height: 50px;
+    padding: 13px 2px;
+  }
+
+  .explorer-search-summary {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .explorer-matched-schools {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .explorer-matched-schools .secondary-action {
+    width: 100%;
+    justify-content: flex-start;
+  }
+
+  .explorer-screen-courses .school-list-panel,
+  .explorer-screen-courses .school-detail-panel,
+  .explorer-screen-course .school-list-panel,
+  .explorer-screen-course .course-search-panel,
+  .explorer-no-results .school-list-panel,
+  .explorer-screen-schools .course-search-panel,
+  .explorer-screen-schools .school-detail-panel,
+  .explorer-screen-course .school-detail-panel .school-profile-card {
+    display: none;
+  }
+
+  .explorer-screen-courses .course-search-panel,
+  .explorer-screen-course .school-detail-panel {
+    display: grid;
+  }
+
+  .explorer-screen-courses .explorer-back-button,
+  .explorer-screen-course .explorer-back-button {
+    display: inline-flex;
+  }
+
+  .explorer-screen-courses .explorer-programme-list,
+  .explorer-screen-course .course-profile-card {
+    min-width: 0;
   }
 
   .profile-preset-strip {

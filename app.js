@@ -133,7 +133,8 @@ let adminState = {
 let schoolExplorerState = {
   query: "",
   selectedInstitution: adminData.institutions?.[0]?.name || adminProgrammes[0]?.institution || "",
-  selectedProgrammeId: null
+  selectedProgrammeId: null,
+  screen: "schools"
 };
 
 const persistenceKey = "eduguide-admin-review-state-v1";
@@ -1880,6 +1881,10 @@ function setView(viewName) {
     setView("student");
     return;
   }
+  if (viewName === "schools") {
+    schoolExplorerState.screen = "schools";
+    schoolExplorerState.selectedProgrammeId = null;
+  }
   renderViewOnDemand(viewName);
   qsa(".view").forEach((view) => view.classList.toggle("active", view.id === `view-${viewName}`));
   qsa(".side-link").forEach((link) => link.classList.toggle("active", link.dataset.view === viewName));
@@ -3558,6 +3563,13 @@ function renderStudentDashboard() {
   if (list) {
     list.innerHTML = snapshot.nextActions.map((item) => `<li>${escapeHtml(item)}</li>`).join("");
   }
+  const topMatches = qs("#student-top-matches");
+  if (topMatches) {
+    const matches = latestMatches.filter((programme) => programme.match?.tier !== "blocked").slice(0, 3);
+    topMatches.innerHTML = matches.length
+      ? `<div class="student-top-matches-head"><strong>Top three matches</strong><span>Based on your current profile</span></div><div class="student-top-match-list">${matches.map((programme) => `<button type="button" data-view-target="results"><span><strong>${escapeHtml(programme.title)}</strong><small>${escapeHtml(programme.institution)} · ${escapeHtml(programme.match.tierLabel || "Explore")}</small></span><b>${programme.match.overall}%</b></button>`).join("")}</div>`
+      : `<div class="student-top-matches-empty"><strong>Add grades to see your top matches.</strong><span>EduGuide will compare your subjects, interests, and programme requirements.</span></div>`;
+  }
   renderDocumentList();
   if (window.lucide) window.lucide.createIcons();
 }
@@ -5056,19 +5068,34 @@ function renderInstitutionFeeSummary(institution, limit = 5) {
   `;
 }
 
-function getExplorerSearchResults() {
+function getExplorerSearchMatches() {
   const query = schoolExplorerState.query.trim().toLowerCase();
   const programmes = getExplorerProgrammes();
   if (!query) {
-    return getInstitutionProgrammes(schoolExplorerState.selectedInstitution).slice(0, 14);
+    return {
+      schools: getExplorerInstitutionNames(),
+      programmes: getInstitutionProgrammes(schoolExplorerState.selectedInstitution).slice(0, 14)
+    };
   }
   const terms = query.split(/\s+/).filter(Boolean);
-  return programmes
-    .filter((programme) => {
-      const text = getProgrammeExplorerText(programme);
-      return terms.every((term) => text.includes(term));
-    })
-    .slice(0, 40);
+  const programmeMatches = programmes.filter((programme) => {
+    const text = getProgrammeExplorerText(programme);
+    return terms.every((term) => text.includes(term));
+  });
+  const schoolMatches = getExplorerInstitutionNames().filter((institution) => {
+    const text = institution.toLowerCase();
+    return terms.every((term) => text.includes(term)) || programmeMatches.some((programme) => programme.institution === institution);
+  });
+  const careerSkillMatches = programmeMatches.filter((programme) => {
+    const profile = getDomainProfile(programme);
+    const careerSkillText = [...(programme.careers || []), ...(profile.careers || []), ...(profile.skills || [])].join(" ").toLowerCase();
+    return terms.some((term) => careerSkillText.includes(term));
+  });
+  return { schools: schoolMatches, programmes: programmeMatches.slice(0, 40), careerSkillMatches: careerSkillMatches.length };
+}
+
+function getExplorerSearchResults() {
+  return getExplorerSearchMatches().programmes;
 }
 
 function getExplorerSelectedProgramme() {
@@ -5088,6 +5115,10 @@ function renderExplorerProgrammeList(programmes) {
       <article class="admin-empty">
         <h4>No courses found.</h4>
         <p>Try searching for a school, course, career, skill, or subject requirement.</p>
+        <button class="secondary-action compact-action" type="button" data-school-search-reset>
+          <i data-lucide="rotate-ccw"></i>
+          Clear search
+        </button>
       </article>
     `;
   }
@@ -5251,14 +5282,33 @@ function renderSchoolExplorer() {
   }
   const searchInput = qs("#school-search");
   if (searchInput && searchInput.value !== schoolExplorerState.query) searchInput.value = schoolExplorerState.query;
-  const results = getExplorerSearchResults();
+  const searchMatches = getExplorerSearchMatches();
+  const results = searchMatches.programmes;
   const selectedProgramme = getExplorerSelectedProgramme();
   const selectedInstitution = selectedProgramme?.institution || schoolExplorerState.selectedInstitution;
   if (selectedProgramme && selectedInstitution !== schoolExplorerState.selectedInstitution) {
     schoolExplorerState.selectedInstitution = selectedInstitution;
   }
+  const searchSummary = schoolExplorerState.query
+    ? `
+      <div class="explorer-search-summary">
+        <div>
+          <strong>Search results</strong>
+          <span>${searchMatches.schools.length} school${searchMatches.schools.length === 1 ? "" : "s"}, ${results.length} programme${results.length === 1 ? "" : "s"}, ${searchMatches.careerSkillMatches} career/skill match${searchMatches.careerSkillMatches === 1 ? "" : "es"}</span>
+        </div>
+        <div class="explorer-search-types">
+          <span class="badge blue">Schools</span>
+          <span class="badge green">Programmes</span>
+          <span class="badge amber">Careers & skills</span>
+        </div>
+      </div>
+      ${searchMatches.schools.length ? `<div class="explorer-matched-schools"><span>Matching schools</span>${searchMatches.schools.slice(0, 6).map((institution) => `<button class="secondary-action compact-action" type="button" data-school-select="${escapeHtml(institution)}"><i data-lucide="school"></i>${escapeHtml(institution)}</button>`).join("")}</div>` : ""}
+    `
+    : "";
+  const screen = schoolExplorerState.screen || "schools";
   root.innerHTML = `
-    <div class="school-explorer-layout">
+    ${searchSummary}
+    <div class="school-explorer-layout explorer-screen-${screen}${schoolExplorerState.query && !searchMatches.schools.length && !results.length ? " explorer-no-results" : ""}">
       <aside class="school-list-panel">
         <div class="school-list-head">
           <strong>${institutions.length} schools</strong>
@@ -5268,12 +5318,14 @@ function renderSchoolExplorer() {
       </aside>
       <section class="course-search-panel">
         <div class="school-list-head">
+          ${screen !== "schools" ? `<button class="explorer-back-button" type="button" data-explorer-back="schools"><i data-lucide="arrow-left"></i> Schools</button>` : ""}
           <strong>${schoolExplorerState.query ? `${results.length} search result${results.length === 1 ? "" : "s"}` : `${escapeHtml(schoolExplorerState.selectedInstitution)} courses`}</strong>
           <span>Open a course for requirements, fees, careers, and links</span>
         </div>
         <div class="explorer-programme-list">${renderExplorerProgrammeList(results)}</div>
       </section>
       <section class="school-detail-panel">
+        ${screen === "course" ? `<button class="explorer-back-button" type="button" data-explorer-back="courses"><i data-lucide="arrow-left"></i> Courses</button>` : ""}
         ${renderSelectedSchoolProfile(schoolExplorerState.selectedInstitution)}
         ${renderExplorerCourseProfile(selectedProgramme)}
       </section>
@@ -7231,6 +7283,16 @@ function bindEvents() {
     });
   });
   qs("#logout-button")?.addEventListener("click", signOut);
+  qs("#view-student")?.addEventListener("click", (event) => {
+    const focusButton = event.target.closest("[data-student-focus]");
+    if (!focusButton) return;
+    const target = focusButton.dataset.studentFocus === "documents" ? "#dropzone" : "#grade-grid";
+    const element = qs(target);
+    element?.closest("details")?.setAttribute("open", "");
+    if (target === "#grade-grid") qs("#grade-grid select")?.focus();
+    element?.scrollIntoView({ behavior: "smooth", block: "start" });
+    if (target === "#dropzone") qs("#file-input")?.click();
+  });
   qsa("[data-view]").forEach((button) => {
     button.addEventListener("click", () => setView(button.dataset.view));
   });
@@ -7437,6 +7499,7 @@ function bindEvents() {
   qs("#school-search")?.addEventListener("input", (event) => {
     schoolExplorerState.query = event.target.value;
     schoolExplorerState.selectedProgrammeId = null;
+    schoolExplorerState.screen = "schools";
     const query = schoolExplorerState.query.trim();
     if (query.length >= 3) {
       recordAnalyticsEvent("course_search", "Searched schools and courses", { query: query.slice(0, 90) }, { throttleMs: 12000 });
@@ -7444,6 +7507,23 @@ function bindEvents() {
     renderSchoolExplorer();
   });
   qs("#view-schools")?.addEventListener("click", (event) => {
+    const resetButton = event.target.closest("[data-school-search-reset]");
+    if (resetButton) {
+      schoolExplorerState.query = "";
+      schoolExplorerState.selectedProgrammeId = null;
+      schoolExplorerState.screen = "schools";
+      renderSchoolExplorer();
+      return;
+    }
+
+    const backButton = event.target.closest("[data-explorer-back]");
+    if (backButton) {
+      schoolExplorerState.screen = backButton.dataset.explorerBack || "schools";
+      if (schoolExplorerState.screen === "courses") schoolExplorerState.selectedProgrammeId = null;
+      renderSchoolExplorer();
+      return;
+    }
+
     const viewTarget = event.target.closest("[data-view-target]");
     if (viewTarget) {
       setView(viewTarget.dataset.viewTarget);
@@ -7455,6 +7535,7 @@ function bindEvents() {
       schoolExplorerState.selectedInstitution = schoolButton.dataset.schoolSelect;
       schoolExplorerState.selectedProgrammeId = null;
       schoolExplorerState.query = "";
+      schoolExplorerState.screen = "courses";
       recordCurrentUserActivity("school_profile_viewed", `Viewed ${schoolExplorerState.selectedInstitution}`, { institution: schoolExplorerState.selectedInstitution }, { throttleMs: 45000 });
       renderSchoolExplorer();
       return;
@@ -7465,6 +7546,7 @@ function bindEvents() {
       const programme = getExplorerProgrammes().find((item) => item.id === programmeButton.dataset.explorerProgramme);
       schoolExplorerState.selectedProgrammeId = programmeButton.dataset.explorerProgramme;
       if (programme?.institution) schoolExplorerState.selectedInstitution = programme.institution;
+      schoolExplorerState.screen = "course";
       recordCurrentUserActivity("course_profile_viewed", `Viewed ${getProgrammeDisplayName(programme)}`, { programmeId: programme?.id, programmeName: getProgrammeDisplayName(programme), institution: programme?.institution }, { throttleMs: 45000 });
       renderSchoolExplorer();
       return;

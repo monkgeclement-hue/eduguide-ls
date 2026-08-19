@@ -14,7 +14,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link rel="preload" href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Playfair+Display:wght@600;700&display=swap" as="style" onload="this.onload=null;this.rel='stylesheet'" />
     <noscript><link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet" /></noscript>
-    <link rel="stylesheet" href="/styles.css" />
+    <link rel="stylesheet" href="/styles.css?v=27" />
   </head>
   <body>
     <section class="auth-screen" id="auth-screen">
@@ -316,8 +316,29 @@
             </div>
           </section>
 
+          <section class="surface-panel student-focus-panel">
+            <div class="section-head">
+              <div>
+                <p class="section-kicker">Start here</p>
+                <h3>Your next best moves</h3>
+              </div>
+              <button class="primary-button small" type="button" data-view-target="results">
+                <i data-lucide="sparkles"></i>
+                Find programmes
+              </button>
+            </div>
+            <div class="student-focus-actions">
+              <button type="button" data-student-focus="profile"><i data-lucide="pencil-line"></i><span>Add grades</span><small>Improve match accuracy</small></button>
+              <button type="button" data-student-focus="documents"><i data-lucide="file-up"></i><span>Upload results</span><small>Build document readiness</small></button>
+              <button type="button" data-view-target="schools"><i data-lucide="school"></i><span>Browse schools</span><small>Search courses and careers</small></button>
+            </div>
+            <div class="student-top-matches" id="student-top-matches"></div>
+          </section>
+
           <div class="dashboard-grid">
-            <section class="surface-panel profile-panel">
+            <details class="dashboard-disclosure">
+              <summary><span><strong>Academic profile</strong><small>Grades, interests, and preferences</small></span><i data-lucide="chevron-down"></i></summary>
+              <section class="surface-panel profile-panel">
               <div class="section-head">
                 <div>
                   <p class="section-kicker">Profile</p>
@@ -394,8 +415,11 @@
                 <span>Tell EduGuide what you enjoy or want</span>
                 <textarea id="preference-text" placeholder="Example: I love computers and design, but my marks are stronger in English and Mathematics. I want a career with good opportunities."></textarea>
               </label>
-            </section>
+              </section>
+            </details>
 
+            <details class="dashboard-disclosure">
+              <summary><span><strong>Funding and documents</strong><small>Scholarship estimate and upload readiness</small></span><i data-lucide="chevron-down"></i></summary>
             <aside class="surface-panel guidance-panel">
               <div class="section-head">
                 <div>
@@ -493,8 +517,11 @@
                 <a href="https://www.scholarships.manp.gov.ls" target="_blank" rel="noreferrer">Open sponsorship portal</a>
               </div>
             </aside>
+            </details>
           </div>
 
+          <details class="dashboard-disclosure">
+            <summary><span><strong>Application plan</strong><small>Steps to prepare before applying</small></span><i data-lucide="chevron-down"></i></summary>
           <section class="surface-panel student-plan-panel">
             <div class="section-head">
               <div>
@@ -529,6 +556,7 @@
               </article>
             </div>
           </section>
+          </details>
         </section>
 
         <section class="view" id="view-results">
@@ -899,7 +927,7 @@
     <script src="/data/supabase-config.js" defer></script>
     <script src="/data/catalog.js" defer></script>
     <script src="/data/admin-catalog.js" defer></script>
-    <script src="/app.js?v=26" defer></script>
+    <script src="/app.js?v=27" defer></script>
     <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js" async onload="window.lucide && window.lucide.createIcons()"></script>
     <script src="https://unpkg.com/@supabase/supabase-js@2" async></script>
   </body>
