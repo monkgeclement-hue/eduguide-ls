@@ -7334,6 +7334,11 @@ function bindEvents() {
     calculateMatches();
     setView("results");
   });
+  qs("#profile-view-matches")?.addEventListener("click", () => {
+    syncCurrentUserProfile();
+    calculateMatches();
+    setView("results");
+  });
   qs("#refresh-button")?.addEventListener("click", calculateMatches);
   qs("#sample-profile")?.addEventListener("click", loadSampleProfile);
   qsa("[data-profile-preset]").forEach((button) => {

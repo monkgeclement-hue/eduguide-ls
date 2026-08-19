@@ -4513,9 +4513,41 @@ textarea:focus {
   .dropzone {
     min-height: 120px;
   }
+  .profile-match-action {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 14px;
+    margin-top: 16px;
+    padding: 13px;
+    border: 1px solid #b9e2d4;
+    border-radius: 8px;
+    background: var(--brand-soft);
+  }
+  .profile-match-action > div {
+    display: grid;
+    gap: 3px;
+  }
+  .profile-match-action strong {
+    color: var(--brand-deep);
+    font-size: 14px;
+  }
+  .profile-match-action span {
+    color: var(--muted);
+    font-size: 12px;
+    font-weight: 700;
+    line-height: 1.4;
+  }
 
   .institution-match-summary {
     gap: 10px;
+    .profile-match-action {
+      align-items: stretch;
+      flex-direction: column;
+    }
+    .profile-match-action .primary-button {
+      width: 100%;
+    }
   }
 
   .tier-summary {
