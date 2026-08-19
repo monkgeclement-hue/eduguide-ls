@@ -14,7 +14,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link rel="preload" href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Playfair+Display:wght@600;700&display=swap" as="style" onload="this.onload=null;this.rel='stylesheet'" />
     <noscript><link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet" /></noscript>
-    <link rel="stylesheet" href="/styles.css?v=30" />
+    <link rel="stylesheet" href="/styles.css?v=31" />
   </head>
   <body>
     <section class="auth-screen" id="auth-screen">
@@ -163,6 +163,10 @@
           <button class="side-link" type="button" data-view="ai">
             <i data-lucide="bot"></i>
             <span>AI Guide</span>
+          </button>
+          <button class="side-link" type="button" data-view="profile">
+            <i data-lucide="circle-user-round"></i>
+            <span>Profile</span>
           </button>
           <button class="side-link" type="button" data-view="admin" data-admin-only>
             <i data-lucide="database"></i>
@@ -980,7 +984,7 @@
     <script src="/data/supabase-config.js" defer></script>
     <script src="/data/catalog.js" defer></script>
     <script src="/data/admin-catalog.js" defer></script>
-    <script src="/app.js?v=30" defer></script>
+    <script src="/app.js?v=31" defer></script>
     <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js" async onload="window.lucide && window.lucide.createIcons()"></script>
     <script src="https://unpkg.com/@supabase/supabase-js@2" async></script>
   </body>
