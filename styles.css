@@ -498,9 +498,9 @@ a {
 .summary-band {
   display: grid;
   grid-template-columns: minmax(0, 1.2fr) minmax(280px, 0.8fr);
-  gap: 16px;
-  margin-bottom: 16px;
-  padding: 24px;
+  gap: 12px;
+  margin-bottom: 10px;
+  padding: 12px 16px;
   border-radius: var(--radius);
   background: var(--brand-deep);
   color: #fff;
@@ -526,9 +526,9 @@ a {
 
 .summary-copy h2 {
   max-width: 720px;
-  margin: 16px 0 8px;
+  margin: 8px 0 5px;
   font-family: "Playfair Display", Georgia, serif;
-  font-size: clamp(28px, 4vw, 48px);
+  font-size: clamp(24px, 3vw, 32px);
   line-height: 1.03;
 }
 
@@ -536,14 +536,15 @@ a {
   max-width: 620px;
   margin: 0;
   color: rgba(255, 255, 255, 0.72);
-  line-height: 1.6;
+  font-size: 13px;
+  line-height: 1.35;
 }
 
 .summary-actions {
   display: flex;
   flex-wrap: wrap;
   gap: 10px;
-  margin-top: 22px;
+  margin-top: 10px;
 }
 
 .primary-button,
@@ -604,8 +605,8 @@ a {
 }
 
 .metric-card {
-  min-height: 96px;
-  padding: 16px;
+  min-height: 54px;
+  padding: 9px 12px;
   border: 1px solid rgba(255, 255, 255, 0.14);
   border-radius: 8px;
   background: rgba(255, 255, 255, 0.1);
@@ -618,8 +619,8 @@ a {
 
 .metric-card strong {
   display: block;
-  margin-top: 8px;
-  font-size: 30px;
+  margin-top: 3px;
+  font-size: 23px;
 }
 
 .dashboard-grid,
@@ -4355,12 +4356,12 @@ textarea:focus {
   }
 
   .summary-band {
-    gap: 12px;
-    padding: 14px;
+    gap: 8px;
+    padding: 9px 11px;
   }
 
   .summary-band h2 {
-    font-size: clamp(25px, 8vw, 34px);
+    font-size: clamp(22px, 7vw, 28px);
   }
 
   .summary-band p {
@@ -4378,12 +4379,12 @@ textarea:focus {
   }
 
   .stats-grid.compact .metric-card {
-    min-height: 72px;
-    padding: 10px;
+    min-height: 48px;
+    padding: 7px 9px;
   }
 
   .stats-grid.compact .metric-card strong {
-    font-size: 25px;
+    font-size: 20px;
   }
 
   .stats-grid.compact,
