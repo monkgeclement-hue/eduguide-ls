@@ -76,8 +76,8 @@ try {
   $response = Invoke-ApiRequest -Method "GET" -Endpoint "/health"
   if ($response.Success -and $response.Status -eq 200) {
     $health = $response.Body
-    if ($health.ok -and $null -ne $health.database_ready -and $null -ne $health.storage_ready) {
-      Write-TestPass "Health endpoint responds with ok, database_ready, storage_ready"
+    if ($health.ok -and $null -ne $health.database_ready -and $null -ne $health.storage_ready -and $null -ne $health.data_backend -and $null -ne $health.email_configured -and $null -ne $health.ai_configured) {
+      Write-TestPass "Health endpoint responds with persistence, email, and AI readiness fields"
     }
     else {
       Write-TestFail "Health endpoint missing required fields"
@@ -140,7 +140,22 @@ catch {
   Write-TestFail "Diagnostics auth check failed: $_"
 }
 
-# Test 5: API Data Files
+# Test 5: Current session must require authentication
+Write-TestHeader "Current User Authentication"
+try {
+  $response = Invoke-ApiRequest -Method "GET" -Endpoint "/api/auth/me"
+  if ($response.Status -eq 401) {
+    Write-TestPass "Current user endpoint properly requires authentication"
+  }
+  else {
+    Write-TestFail "Current user endpoint should require auth, got status $($response.Status)"
+  }
+}
+catch {
+  Write-TestFail "Current user auth check failed: $_"
+}
+
+# Test 6: API Data Files
 Write-TestHeader "Static Assets"
 $assetTests = @(
   @{ Path = "/data/admin-catalog.js"; Name = "Admin catalog" }
@@ -164,7 +179,7 @@ foreach ($asset in $assetTests) {
   }
 }
 
-# Test 6: MIME Type Validation (Negative Test)
+# Test 7: MIME Type Validation (Negative Test)
 Write-TestHeader "File Upload Validation"
 $tempPath = [System.IO.Path]::GetTempFileName()
 try {
@@ -183,7 +198,7 @@ finally {
   }
 }
 
-# Test 7: CSP Headers
+# Test 8: CSP Headers
 Write-TestHeader "Security Headers"
 try {
   $response = Invoke-WebRequest -Uri "$BaseUrl/" -Method GET -UseBasicParsing -ErrorAction Stop

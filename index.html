@@ -14,7 +14,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link rel="preload" href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Playfair+Display:wght@600;700&display=swap" as="style" onload="this.onload=null;this.rel='stylesheet'" />
     <noscript><link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet" /></noscript>
-    <link rel="stylesheet" href="/styles.css?v=28" />
+    <link rel="stylesheet" href="/styles.css?v=29" />
   </head>
   <body>
     <section class="auth-screen" id="auth-screen">
@@ -827,6 +827,10 @@
                     <div class="admin-list-head">
                       <span id="catalogue-result-count">0 records</span>
                       <span>Click a row to inspect evidence</span>
+                      <button class="secondary-action compact-action" type="button" id="publish-institution" title="Choose an institution filter first">
+                        <i data-lucide="shield-check"></i>
+                        Publish institution
+                      </button>
                     </div>
                     <div class="admin-record-list" id="admin-programme-list"></div>
                   </div>
@@ -937,7 +941,7 @@
     <script src="/data/supabase-config.js" defer></script>
     <script src="/data/catalog.js" defer></script>
     <script src="/data/admin-catalog.js" defer></script>
-    <script src="/app.js?v=28" defer></script>
+    <script src="/app.js?v=29" defer></script>
     <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js" async onload="window.lucide && window.lucide.createIcons()"></script>
     <script src="https://unpkg.com/@supabase/supabase-js@2" async></script>
   </body>

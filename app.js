@@ -726,6 +726,15 @@ function getProgrammeVerificationPayload(programme) {
   };
 }
 
+function getSourceFreshnessMeta(programme = {}) {
+  const reviewedAt = programme.reviewedAt || null;
+  if (!reviewedAt) return { tone: "amber", label: "Source date not recorded", detail: "Ask the institution or admin to confirm the latest source." };
+  const ageDays = Math.max(0, Math.floor((Date.now() - new Date(reviewedAt).getTime()) / 86400000));
+  if (ageDays <= programmeFreshnessThresholds.currentDays) return { tone: "green", label: "Source checked recently", detail: `Checked ${formatDateOnly(reviewedAt)}.` };
+  if (ageDays <= programmeFreshnessThresholds.reviewSoonDays) return { tone: "amber", label: "Source review due", detail: `Last checked ${formatDateOnly(reviewedAt)}.` };
+  return { tone: "red", label: "Source review overdue", detail: `Last checked ${formatDateOnly(reviewedAt)}.` };
+}
+
 function addActivityToUser(user, type, label, metadata = {}, options = {}) {
   if (!user) return false;
   const now = new Date().toISOString();
@@ -3047,10 +3056,7 @@ function getMatchingProgrammeFromSeed(programme) {
 }
 
 function getMatchingCatalogue() {
-  const realProgrammes = adminProgrammes
-    .filter((programme) => programme.reviewStatus !== "rejected")
-    .map(getMatchingProgrammeFromAdmin);
-  return realProgrammes.length ? realProgrammes : programmes.filter((programme) => programme.status === "approved").map(getMatchingProgrammeFromSeed);
+  return getExplorerProgrammes().map(getMatchingProgrammeFromAdmin);
 }
 
 function getFundingScore(programme) {
@@ -4267,10 +4273,10 @@ function renderResults() {
   if (!latestMatches.length) {
     qs("#tab-programmes").innerHTML = `
       ${renderStrictGateNotice()}
-      <article class="admin-empty">
+      ${getPublicProgrammeCount() ? `<article class="admin-empty">
         <h4>No eligible programme matches yet.</h4>
         <p>Enter the subjects required for your target pathway. Technology usually needs Mathematics; engineering, architecture, and many science programmes need Mathematics plus Physical Science or a recognised science subject.</p>
-      </article>
+      </article>` : getPublicProgrammeEmptyState("catalogue")}
     `;
     qs("#tab-applications").innerHTML = renderApplicationAssistant();
     qs("#tab-skills").innerHTML = "";
@@ -4934,8 +4940,27 @@ function renderSources() {
 }
 
 function getExplorerProgrammes() {
-  const realProgrammes = adminProgrammes.filter((programme) => programme.reviewStatus !== "rejected");
-  return realProgrammes.length ? realProgrammes : programmes.map((programme) => ({
+  return adminProgrammes.filter(isPublicProgramme);
+}
+
+function isPublicProgramme(programme = {}) {
+  return [programme.reviewStatus, programme.status, programme.publicationStatus]
+    .some((status) => ["approved", "published", "verified"].includes(String(status || "").toLowerCase()));
+}
+
+function getPublicProgrammeCount() {
+  return getExplorerProgrammes().length;
+}
+
+function getPublicProgrammeEmptyState(context = "catalogue") {
+  const copy = context === "schools"
+    ? "The school and course catalogue is being verified. Check back soon for reviewed programme records."
+    : "The programme catalogue is being verified. Add your profile details now, then check back when reviewed matches are published.";
+  return `<article class="catalogue-visibility-empty"><i data-lucide="shield-check"></i><div><h4>Catalogue verification in progress</h4><p>${copy}</p><small>Pending records remain available to admins for review and publishing.</small></div></article>`;
+}
+
+function getSeedFallbackProgrammes() {
+  return programmes.filter((programme) => programme.status === "approved").map((programme) => ({
     id: programme.id,
     institution: programme.institution,
     name: programme.title,
@@ -5225,6 +5250,7 @@ function renderExplorerCourseProfile(programme) {
   const careers = unique([...(programme.careers || []), ...(profile.careers || [])]).slice(0, 8);
   const skills = unique([...(matchingProgramme.skills || []), ...(profile.skills || [])]).slice(0, 8);
   const feeNotes = [programme.feeNote, programme.supportingFeeSourcePath ? `Fee evidence: ${programme.supportingFeeSourcePath}` : ""].filter(Boolean);
+  const freshness = getSourceFreshnessMeta(programme);
   return `
     <article class="course-profile-card">
       <div class="course-profile-head">
@@ -5232,6 +5258,7 @@ function renderExplorerCourseProfile(programme) {
           <p class="section-kicker">${escapeHtml(programme.institution || "Institution")}</p>
           <h4>${escapeHtml(title)}</h4>
           <span>${escapeHtml(programme.level || "Level under review")} - ${escapeHtml(programme.duration || "Duration under review")} - ${escapeHtml(programme.faculty || programme.category || "Faculty under review")}</span>
+          <span class="source-freshness ${freshness.tone}"><strong>${escapeHtml(freshness.label)}</strong> ${escapeHtml(freshness.detail)}</span>
         </div>
         <div class="programme-card-actions">
           <button class="secondary-action" type="button" data-explorer-shortlist="${escapeHtml(programme.id)}">
@@ -5262,6 +5289,7 @@ function renderExplorerCourseProfile(programme) {
       <div class="application-links explorer-link-row">
         ${programme.sourceUrl ? `<a class="secondary-link" href="${escapeHtml(programme.sourceUrl)}" target="_blank" rel="noreferrer">Open course source</a>` : ""}
         <a class="secondary-link" href="${nmdsPortalUrl}" target="_blank" rel="noreferrer">Open NMDS sponsorship portal</a>
+        <button class="secondary-action" type="button" data-report-source="${escapeHtml(programme.id)}"><i data-lucide="flag"></i> Report outdated source</button>
         <button class="secondary-action" type="button" data-view-target="results"><i data-lucide="sparkles"></i> Compare with my marks</button>
       </div>
       ${programme.overview ? `<p class="course-overview">${escapeHtml(programme.overview)}</p>` : ""}
@@ -5272,6 +5300,11 @@ function renderExplorerCourseProfile(programme) {
 function renderSchoolExplorer() {
   const root = qs("#school-explorer");
   if (!root) return;
+  if (!getPublicProgrammeCount()) {
+    root.innerHTML = getPublicProgrammeEmptyState("schools");
+    if (window.lucide) window.lucide.createIcons();
+    return;
+  }
   const institutions = getExplorerInstitutionNames();
   if (!institutions.length) {
     root.innerHTML = `<article class="admin-empty"><h4>No school catalogue yet.</h4><p>Add programme records in Admin first.</p></article>`;
@@ -6014,7 +6047,7 @@ function getDeploymentReadiness() {
     items: [
       { label: "Database", value: usesSupabase ? "Supabase" : dataBackend === "sqlite" ? "Render SQLite" : dataBackend },
       { label: "Storage", value: storageReady ? (health.storage_bucket || "Ready") : "Needs attention" },
-      { label: "AI", value: aiReady ? `${health.provider || "AI"} ${health.model || ""}`.trim() : "Not configured" },
+      { label: "AI", value: aiReady ? `${health.ai_provider ?? diagnostics.ai_provider ?? "AI"} ${health.ai_model ?? diagnostics.ai_model ?? ""}`.trim() : "Not configured" },
       { label: "Email OTP", value: emailReady ? `${emailTransport} ready` : health.email_debug_codes ? "Debug only" : health.email_missing_keys?.length ? `Missing ${health.email_missing_keys.length}` : "Needs email" },
       { label: "Users", value: String(diagnostics.state_counts?.auth_users ?? getVisibleUsers().length ?? 0) },
       { label: "Documents", value: String(diagnostics.document_count ?? 0) },
@@ -6301,6 +6334,11 @@ function badgeClassForStatus(status) {
 function renderAdminCatalogue() {
   renderAdminQualityFilters();
   const records = getFilteredAdminProgrammes();
+  const publishButton = qs("#publish-institution");
+  if (publishButton) {
+    publishButton.disabled = adminState.institution === "all";
+    publishButton.title = adminState.institution === "all" ? "Choose an institution filter first" : `Publish pending ${adminState.institution} records`;
+  }
   qs("#catalogue-result-count").textContent = `${records.length} records`;
   qs("#admin-programme-list").innerHTML = records.length
     ? records
@@ -7076,6 +7114,24 @@ async function setProgrammeReviewStatus(id, status) {
   calculateMatches();
 }
 
+async function publishSelectedInstitution() {
+  if (!isAdmin() || adminState.institution === "all") {
+    setAdminActionStatus("Choose an institution filter before publishing.", "warning");
+    return;
+  }
+  const records = getFilteredAdminProgrammes().filter((programme) => !isPublicProgramme(programme) && programme.reviewStatus !== "rejected");
+  if (!records.length) {
+    setAdminActionStatus("No pending records match this institution filter.", "neutral");
+    return;
+  }
+  const confirmed = window.confirm(`Publish ${records.length} record(s) for ${adminState.institution}? Students will see them after this action.`);
+  if (!confirmed) return;
+  for (const programme of records) {
+    await setProgrammeReviewStatus(programme.id, "approved");
+  }
+  setAdminActionStatus(`Published ${records.length} record(s) for ${adminState.institution}.`, "success");
+}
+
 async function setGapStatus(id, status) {
   const gap = adminGaps.find((item) => item.id === id);
   if (!gap) return;
@@ -7168,10 +7224,11 @@ function renderAdmin() {
 }
 
 function updateCounts() {
-  const institutions = new Set(adminProgrammes.map((programme) => programme.institution));
+  const publicProgrammes = getExplorerProgrammes();
+  const institutions = new Set(publicProgrammes.map((programme) => programme.institution));
   qs("#institution-count").textContent = institutions.size;
-  qs("#programme-count").textContent = adminProgrammes.length || programmes.length;
-  qs("#approved-count").textContent = adminProgrammes.length || programmes.filter((programme) => programme.status === "approved").length;
+  qs("#programme-count").textContent = publicProgrammes.length;
+  qs("#approved-count").textContent = publicProgrammes.length;
   qs("#source-count").textContent = getAllAdminSources().length || sources.length;
   qs("#pending-count").textContent = adminGaps.filter((item) => item.status === "open").length;
 }
@@ -7560,6 +7617,19 @@ function bindEvents() {
     const shortlistButton = event.target.closest("[data-explorer-shortlist]");
     if (shortlistButton) {
       toggleShortlist(shortlistButton.dataset.explorerShortlist);
+      return;
+    }
+
+    const reportSourceButton = event.target.closest("[data-report-source]");
+    if (reportSourceButton) {
+      const programme = getExplorerProgrammes().find((item) => item.id === reportSourceButton.dataset.reportSource);
+      recordCurrentUserActivity("source_outdated_reported", "Reported a potentially outdated programme source", {
+        programmeId: programme?.id,
+        programmeName: getProgrammeDisplayName(programme),
+        institution: programme?.institution
+      }, { throttleMs: 45000 });
+      reportSourceButton.textContent = "Report noted";
+      reportSourceButton.disabled = true;
     }
   });
   qs("#view-admin")?.addEventListener("submit", (event) => {
@@ -7575,6 +7645,12 @@ function bindEvents() {
       if (commandButton.id === "reset-admin-state") resetLocalReviewState();
       if (commandButton.id === "refresh-deployment-status") loadDeploymentStatus();
       if (commandButton.id === "test-email-delivery") sendAdminTestEmail();
+      return;
+    }
+
+    if (event.target.closest("#publish-institution")) {
+      event.preventDefault();
+      publishSelectedInstitution();
       return;
     }
 

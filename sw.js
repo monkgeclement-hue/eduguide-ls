@@ -1,4 +1,4 @@
-const CACHE_NAME = "eduguide-ls-shell-v28";
+const CACHE_NAME = "eduguide-ls-shell-v29";
 const APP_SHELL = [
   "/",
   "/index.html",
