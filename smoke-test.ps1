@@ -179,7 +179,42 @@ foreach ($asset in $assetTests) {
   }
 }
 
-# Test 7: MIME Type Validation (Negative Test)
+# Test 7: Frontend Cache Contract
+Write-TestHeader "Frontend Cache Contract"
+try {
+  $indexResponse = Invoke-WebRequest -Uri "$BaseUrl/" -Method GET -UseBasicParsing -ErrorAction Stop
+  $serviceWorkerResponse = Invoke-WebRequest -Uri "$BaseUrl/sw.js" -Method GET -UseBasicParsing -ErrorAction Stop
+  $hasVersionedApp = $indexResponse.Content -match '/app\.js\?v=\d+'
+  $hasVersionedStyles = $indexResponse.Content -match '/styles\.css\?v=\d+'
+  $hasVersionedShell = $serviceWorkerResponse.Content -match 'eduguide-ls-shell-v\d+'
+  if ($hasVersionedApp -and $hasVersionedStyles -and $hasVersionedShell) {
+    Write-TestPass "Frontend assets and service worker use cache-busting versions"
+  }
+  else {
+    Write-TestFail "Frontend cache-busting version contract is incomplete"
+  }
+}
+catch {
+  Write-TestFail "Frontend cache contract check failed: $_"
+}
+
+# Test 8: Public Catalogue Boundary
+Write-TestHeader "Public Catalogue Boundary"
+try {
+  $catalogResponse = Invoke-WebRequest -Uri "$BaseUrl/data/catalog.js" -Method GET -UseBasicParsing -ErrorAction Stop
+  $pendingPublicRecords = ([regex]::Matches($catalogResponse.Content, 'needs_admin_review')).Count
+  if ($pendingPublicRecords -eq 0) {
+    Write-TestPass "Public catalogue asset contains no pending review records"
+  }
+  else {
+    Write-TestFail "Public catalogue asset contains $pendingPublicRecords pending review records"
+  }
+}
+catch {
+  Write-TestFail "Public catalogue boundary check failed: $_"
+}
+
+# Test 9: MIME Type Validation (Negative Test)
 Write-TestHeader "File Upload Validation"
 $tempPath = [System.IO.Path]::GetTempFileName()
 try {
@@ -198,7 +233,7 @@ finally {
   }
 }
 
-# Test 8: CSP Headers
+# Test 10: CSP Headers
 Write-TestHeader "Security Headers"
 try {
   $response = Invoke-WebRequest -Uri "$BaseUrl/" -Method GET -UseBasicParsing -ErrorAction Stop
