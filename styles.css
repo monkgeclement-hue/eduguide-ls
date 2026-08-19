@@ -482,6 +482,20 @@ a {
 }
 
 .profile-actions { gap: 8px; flex-wrap: wrap; }
+.profile-actions .secondary-button {
+  border-color: var(--line);
+  color: var(--brand-deep);
+  background: var(--surface-soft);
+}
+.profile-actions .secondary-button:hover,
+.profile-actions .secondary-button:focus-visible {
+  border-color: var(--brand);
+  background: var(--brand-soft);
+}
+.profile-actions .secondary-button svg {
+  width: 16px;
+  height: 16px;
+}
 .profile-stats-grid { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 10px; }
 .profile-stats-grid .surface-panel { padding: 14px; }
 .profile-stats-grid span { display: block; color: var(--muted); font-size: 12px; }
