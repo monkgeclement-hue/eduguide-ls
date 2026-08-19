@@ -256,6 +256,7 @@ let aiInterviewState = {
 
 const titles = {
   student: "Student Dashboard",
+  profile: "My Profile",
   results: "Recommendation Results",
   schools: "Schools & Courses",
   ai: "EduGuide AI",
@@ -645,6 +646,7 @@ function saveAuthUsers() {
 }
 
 function renderViewOnDemand(viewName) {
+  if (viewName === "profile") renderStudentProfile();
   if (viewName === "admin") {
     renderAdmin();
     loadAdminUsers();
@@ -654,6 +656,78 @@ function renderViewOnDemand(viewName) {
   if (viewName === "schools") renderSchoolExplorer();
   if (viewName === "results") renderResults();
   if (viewName === "ai") renderAiChatMessages();
+}
+
+function renderStudentProfile() {
+  if (!currentUser) return;
+  const activity = (currentUser.activity || []).slice(0, 6);
+  const activityList = qs("#profile-activity-list");
+  if (activityList) {
+    activityList.innerHTML = activity.length
+      ? activity.map((item) => `
+          <li>
+            <span><strong>${escapeHtml(item.label || "Account activity")}</strong><small>${escapeHtml(formatDateTime(item.at))}</small></span>
+            <i data-lucide="check-circle-2"></i>
+          </li>
+        `).join("")
+      : `<li class="profile-empty-activity">No account activity recorded yet.</li>`;
+  }
+  qs("#profile-name")?.replaceChildren(document.createTextNode(currentUser.name || "Student"));
+  qs("#profile-email")?.replaceChildren(document.createTextNode(currentUser.email || "Not recorded"));
+  qs("#profile-role")?.replaceChildren(document.createTextNode(getUserRoleLabel(currentUser)));
+  qs("#profile-status")?.replaceChildren(document.createTextNode(formatStatus(currentUser.status || "active")));
+  qs("#profile-district")?.replaceChildren(document.createTextNode(currentUser.district || "Not recorded"));
+  qs("#profile-shortlist-count")?.replaceChildren(document.createTextNode(String(currentUser.shortlist?.length || 0)));
+  qs("#profile-document-count")?.replaceChildren(document.createTextNode(String(currentUser.documents?.length || 0)));
+  if (window.lucide) window.lucide.createIcons();
+}
+
+let refreshInProgress = false;
+
+async function refreshAppData() {
+  if (refreshInProgress) return;
+  refreshInProgress = true;
+  const button = qs("#refresh-button");
+  const originalLabel = button?.getAttribute("title") || "Refresh results";
+  if (button) {
+    button.disabled = true;
+    button.classList.add("is-refreshing");
+    button.setAttribute("title", "Refreshing data...");
+    button.setAttribute("aria-label", "Refreshing data");
+  }
+  try {
+    if (authToken) {
+      const response = await fetch("/api/auth/me", { headers: getAuthHeaders({ Accept: "application/json" }) });
+      if (response.ok) {
+        const data = await response.json();
+        if (data.user) {
+          currentUser = normalizeUser(data.user);
+          authUsers = mergeAuthUsersInMemory(authUsers, [currentUser]);
+          saveAuthSession();
+          updateUserShell();
+        }
+      }
+    }
+    await loadServerDatabaseState();
+    if (serverDatabaseAvailable) {
+      seedServerDatabaseState();
+      await loadCurrentUserDocuments();
+    }
+    calculateMatches();
+    renderStudentDashboard();
+    if (qs("#view-profile")?.classList.contains("active")) renderStudentProfile();
+    setAuthMessage("EduGuide data refreshed.", "success");
+  } catch (error) {
+    setAuthMessage(`Refresh could not complete: ${error.message || "try again"}`, "error");
+  } finally {
+    refreshInProgress = false;
+    if (button) {
+      button.disabled = false;
+      button.classList.remove("is-refreshing");
+      button.setAttribute("title", originalLabel);
+      button.setAttribute("aria-label", originalLabel);
+    }
+  }
 }
 
 function saveAuthSession() {
@@ -1104,7 +1178,9 @@ function updateUserShell() {
     if ("disabled" in element) element.disabled = !isAdmin();
   });
   if (!currentUser) return;
-  qs("#user-avatar").textContent = getInitials(currentUser.name, currentUser.email);
+  const initials = getInitials(currentUser.name, currentUser.email);
+  qs("#user-avatar").textContent = initials;
+  qs("#profile-avatar").textContent = initials;
   qs("#user-chip-name").textContent = `${currentUser.name} - ${getUserRoleLabel(currentUser)}`;
   qs("#full-name").value = currentUser.name || "";
   if (currentUser.district) qs("#district").value = currentUser.district;
@@ -7339,7 +7415,8 @@ function bindEvents() {
       }
     });
   });
-  qs("#logout-button")?.addEventListener("click", signOut);
+  qs("#profile-logout-button")?.addEventListener("click", signOut);
+  qs("#user-chip")?.addEventListener("click", () => setView("profile"));
   qs("#view-student")?.addEventListener("click", (event) => {
     const focusButton = event.target.closest("[data-student-focus]");
     if (!focusButton) return;
@@ -7396,7 +7473,7 @@ function bindEvents() {
     calculateMatches();
     setView("results");
   });
-  qs("#refresh-button")?.addEventListener("click", calculateMatches);
+  qs("#refresh-button")?.addEventListener("click", refreshAppData);
   qs("#sample-profile")?.addEventListener("click", loadSampleProfile);
   qsa("[data-profile-preset]").forEach((button) => {
     button.addEventListener("click", () => applyProfilePreset(button.dataset.profilePreset));

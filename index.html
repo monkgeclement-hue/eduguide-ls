@@ -14,7 +14,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link rel="preload" href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Playfair+Display:wght@600;700&display=swap" as="style" onload="this.onload=null;this.rel='stylesheet'" />
     <noscript><link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet" /></noscript>
-    <link rel="stylesheet" href="/styles.css?v=29" />
+    <link rel="stylesheet" href="/styles.css?v=30" />
   </head>
   <body>
     <section class="auth-screen" id="auth-screen">
@@ -198,12 +198,9 @@
               <i data-lucide="smartphone"></i>
               <span>Install</span>
             </button>
-            <div class="user-chip" id="user-chip">
+            <button class="user-chip" id="user-chip" type="button" title="Open my profile" aria-label="Open my profile">
               <div class="avatar" id="user-avatar">ST</div>
               <span id="user-chip-name">Student</span>
-            </div>
-            <button class="icon-button" type="button" title="Logout" id="logout-button">
-              <i data-lucide="log-out"></i>
             </button>
           </div>
         </header>
@@ -567,6 +564,48 @@
             </div>
           </section>
           </details>
+        </section>
+
+        <section class="view" id="view-profile">
+          <div class="profile-page">
+            <section class="surface-panel profile-identity-panel">
+              <div class="profile-identity-head">
+                <div class="avatar profile-avatar" id="profile-avatar">ST</div>
+                <div>
+                  <p class="section-kicker">Account profile</p>
+                  <h2 id="profile-name">Student</h2>
+                  <p id="profile-email">Not recorded</p>
+                </div>
+              </div>
+              <div class="profile-actions">
+                <button class="primary-button small" type="button" data-view-target="student">
+                  <i data-lucide="pencil-line"></i>
+                  Edit academic profile
+                </button>
+                <button class="secondary-button small" type="button" id="profile-logout-button">
+                  <i data-lucide="log-out"></i>
+                  Log out
+                </button>
+              </div>
+            </section>
+            <section class="profile-stats-grid">
+              <article class="surface-panel"><span>Account status</span><strong id="profile-status">Active</strong></article>
+              <article class="surface-panel"><span>Role</span><strong id="profile-role">Student</strong></article>
+              <article class="surface-panel"><span>District</span><strong id="profile-district">Not recorded</strong></article>
+              <article class="surface-panel"><span>Saved programmes</span><strong id="profile-shortlist-count">0</strong></article>
+              <article class="surface-panel"><span>Uploaded documents</span><strong id="profile-document-count">0</strong></article>
+            </section>
+            <section class="surface-panel profile-activity-panel">
+              <div class="section-head">
+                <div>
+                  <p class="section-kicker">Account activity</p>
+                  <h3>Recent actions</h3>
+                </div>
+                <i class="profile-section-icon" data-lucide="activity"></i>
+              </div>
+              <ul class="profile-activity-list" id="profile-activity-list"></ul>
+            </section>
+          </div>
         </section>
 
         <section class="view" id="view-results">
@@ -941,7 +980,7 @@
     <script src="/data/supabase-config.js" defer></script>
     <script src="/data/catalog.js" defer></script>
     <script src="/data/admin-catalog.js" defer></script>
-    <script src="/app.js?v=29" defer></script>
+    <script src="/app.js?v=30" defer></script>
     <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js" async onload="window.lucide && window.lucide.createIcons()"></script>
     <script src="https://unpkg.com/@supabase/supabase-js@2" async></script>
   </body>

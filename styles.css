@@ -375,6 +375,18 @@ a {
   font-size: 13px;
 }
 
+.user-chip {
+  cursor: pointer;
+  font: inherit;
+  text-align: left;
+}
+
+.user-chip:hover,
+.user-chip:focus-visible {
+  border-color: var(--brand);
+  color: var(--brand-deep);
+}
+
 .avatar {
   display: grid;
   place-items: center;
@@ -412,6 +424,14 @@ a {
   border-color: #c7eadf;
 }
 
+.icon-button.is-refreshing svg {
+  animation: refresh-spin 0.8s linear infinite;
+}
+
+@keyframes refresh-spin {
+  to { transform: rotate(360deg); }
+}
+
 .view {
   display: none;
 }
@@ -419,6 +439,61 @@ a {
 .view.active {
   display: block;
 }
+
+.profile-page {
+  display: grid;
+  gap: 16px;
+  max-width: 760px;
+}
+
+.profile-identity-panel,
+.profile-identity-head,
+.profile-actions {
+  display: flex;
+  align-items: center;
+}
+
+.profile-identity-panel {
+  justify-content: space-between;
+  gap: 18px;
+}
+
+.profile-identity-head {
+  gap: 12px;
+}
+
+.profile-avatar {
+  width: 48px;
+  height: 48px;
+  font-size: 16px;
+}
+
+.profile-identity-head h2 {
+  margin: 2px 0 3px;
+  color: var(--brand-deep);
+  font-family: "Playfair Display", Georgia, serif;
+  font-size: 24px;
+}
+
+.profile-identity-head p:last-child {
+  margin: 0;
+  color: var(--muted);
+  font-size: 13px;
+}
+
+.profile-actions { gap: 8px; flex-wrap: wrap; }
+.profile-stats-grid { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 10px; }
+.profile-stats-grid .surface-panel { padding: 14px; }
+.profile-stats-grid span { display: block; color: var(--muted); font-size: 12px; }
+.profile-stats-grid strong { display: block; margin-top: 5px; color: var(--brand-deep); font-size: 16px; }
+.profile-section-icon { color: var(--brand); }
+.profile-activity-list { display: grid; gap: 8px; margin: 0; padding: 0; list-style: none; }
+.profile-activity-list li { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 10px 0; border-top: 1px solid var(--line); }
+.profile-activity-list li:first-child { border-top: 0; }
+.profile-activity-list li span { display: grid; gap: 3px; }
+.profile-activity-list small { color: var(--muted); }
+.profile-activity-list svg { width: 16px; color: var(--brand); }
+.profile-empty-activity { color: var(--muted); }
 
 .summary-band {
   display: grid;
@@ -4264,6 +4339,11 @@ textarea:focus {
     overflow: hidden;
   }
 
+  .profile-identity-panel { align-items: flex-start; flex-direction: column; }
+  .profile-actions { width: 100%; }
+  .profile-actions button { flex: 1; min-width: 0; }
+  .profile-stats-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+
   .user-chip span:last-child {
     overflow: hidden;
     text-overflow: ellipsis;
@@ -4275,7 +4355,35 @@ textarea:focus {
   }
 
   .summary-band {
-    padding: 18px;
+    gap: 12px;
+    padding: 14px;
+  }
+
+  .summary-band h2 {
+    font-size: clamp(25px, 8vw, 34px);
+  }
+
+  .summary-band p {
+    font-size: 13px;
+  }
+
+  .summary-actions .primary-button {
+    min-height: 42px;
+    padding: 9px 12px;
+    font-size: 13px;
+  }
+
+  .stats-grid.compact {
+    gap: 7px;
+  }
+
+  .stats-grid.compact .metric-card {
+    min-height: 72px;
+    padding: 10px;
+  }
+
+  .stats-grid.compact .metric-card strong {
+    font-size: 25px;
   }
 
   .stats-grid.compact,
