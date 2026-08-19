@@ -7399,22 +7399,24 @@ function bindEvents() {
     button.addEventListener("click", () => setAdminTab(button.dataset.adminTab));
   });
   qs("#view-admin")?.addEventListener("click", (event) => {
+    const reportExport = event.target.closest("[data-admin-report-export]");
+    if (reportExport) {
+      event.preventDefault();
+      exportAdminReportCsv();
+      return;
+    }
+
+    const reportPrint = event.target.closest("[data-admin-report-print]");
+    if (reportPrint) {
+      event.preventDefault();
+      printAdminReport();
+      return;
+    }
+
     const shortcut = event.target.closest("[data-admin-tab-shortcut]");
     if (!shortcut) return;
     setAdminTab(shortcut.dataset.adminTabShortcut);
   });
-  const reportExport = event.target.closest("[data-admin-report-export]");
-  if (reportExport) {
-    event.preventDefault();
-    exportAdminReportCsv();
-    return;
-  }
-  const reportPrint = event.target.closest("[data-admin-report-print]");
-  if (reportPrint) {
-    event.preventDefault();
-    printAdminReport();
-    return;
-  }
   qs("#admin-search")?.addEventListener("input", (event) => {
     adminState.search = event.target.value;
     renderAdmin();
