@@ -76,10 +76,10 @@
     "extraction_method": "html_course_cards",
     "review_status": "approved",
     "career_options": [
-      "Journalist",
-      "Broadcast Producer",
-      "Content Producer",
-      "Public Relations Officer"
+      "Film Producer",
+      "Director",
+      "Video Editor",
+      "Cinematographer"
     ],
     "source_note": "Auto-enriched from repository evidence and institution rules."
   },
@@ -160,10 +160,10 @@
     "extraction_method": "html_course_cards",
     "review_status": "approved",
     "career_options": [
-      "Journalist",
-      "Broadcast Producer",
-      "Content Producer",
-      "Public Relations Officer"
+      "Communications Officer",
+      "Public Relations Officer",
+      "Corporate Communications Specialist",
+      "Content Strategist"
     ],
     "source_note": "Auto-enriched from repository evidence and institution rules."
   },
@@ -181,10 +181,10 @@
     "extraction_method": "html_course_cards",
     "review_status": "approved",
     "career_options": [
-      "Journalist",
-      "Broadcast Producer",
-      "Content Producer",
-      "Public Relations Officer"
+      "Business Systems Analyst",
+      "IT Business Analyst",
+      "Systems Administrator",
+      "Technology Project Officer"
     ],
     "source_note": "Auto-enriched from repository evidence and institution rules."
   },
@@ -223,10 +223,10 @@
     "extraction_method": "html_course_cards",
     "review_status": "approved",
     "career_options": [
-      "Journalist",
-      "Broadcast Producer",
-      "Content Producer",
-      "Public Relations Officer"
+      "Software Engineer",
+      "Software Developer",
+      "Systems Architect",
+      "Quality Assurance Engineer"
     ],
     "source_note": "Auto-enriched from repository evidence and institution rules."
   },
@@ -286,10 +286,10 @@
     "extraction_method": "html_course_cards",
     "review_status": "approved",
     "career_options": [
-      "Journalist",
-      "Broadcast Producer",
-      "Content Producer",
-      "Public Relations Officer"
+      "Business Systems Analyst",
+      "IT Business Analyst",
+      "Systems Administrator",
+      "Technology Project Officer"
     ],
     "source_note": "Auto-enriched from repository evidence and institution rules."
   },
@@ -412,10 +412,10 @@
     "extraction_method": "html_course_cards",
     "review_status": "approved",
     "career_options": [
-      "Journalist",
-      "Broadcast Producer",
-      "Content Producer",
-      "Public Relations Officer"
+      "Film Producer",
+      "Director",
+      "Video Editor",
+      "Cinematographer"
     ],
     "source_note": "Auto-enriched from repository evidence and institution rules."
   },
@@ -538,10 +538,10 @@
     "extraction_method": "html_course_cards",
     "review_status": "approved",
     "career_options": [
-      "Journalist",
-      "Broadcast Producer",
-      "Content Producer",
-      "Public Relations Officer"
+      "Software Engineer",
+      "Software Developer",
+      "Systems Architect",
+      "Quality Assurance Engineer"
     ],
     "source_note": "Auto-enriched from repository evidence and institution rules."
   },
@@ -559,10 +559,10 @@
     "extraction_method": "html_course_cards",
     "review_status": "approved",
     "career_options": [
-      "Journalist",
-      "Broadcast Producer",
-      "Content Producer",
-      "Public Relations Officer"
+      "Communications Officer",
+      "Public Relations Officer",
+      "Corporate Communications Specialist",
+      "Content Strategist"
     ],
     "source_note": "Auto-enriched from repository evidence and institution rules."
   },
@@ -627,10 +627,10 @@
     "extraction_method": "javascript_programme_objects",
     "review_status": "approved",
     "career_options": [
-      "Architect",
-      "Architectural Technologist",
-      "Quantity Surveyor",
-      "Urban Planner"
+      "Electrical Engineer",
+      "Electronics Engineer",
+      "Telecommunications Engineer",
+      "Control Systems Engineer"
     ],
     "source_note": "Auto-enriched from repository evidence and institution rules."
   },
@@ -679,10 +679,10 @@
     "extraction_method": "javascript_programme_objects",
     "review_status": "approved",
     "career_options": [
-      "Architect",
-      "Architectural Technologist",
-      "Quantity Surveyor",
-      "Urban Planner"
+      "Cybersecurity Analyst",
+      "Digital Forensics Investigator",
+      "Security Engineer",
+      "Network Security Specialist"
     ],
     "source_note": "Auto-enriched from repository evidence and institution rules."
   },
@@ -705,10 +705,10 @@
     "extraction_method": "javascript_programme_objects",
     "review_status": "approved",
     "career_options": [
-      "Accountant",
-      "Auditor",
-      "Financial Analyst",
-      "Banking Officer"
+      "Data Scientist",
+      "Data Analyst",
+      "Machine Learning Engineer",
+      "Business Intelligence Analyst"
     ],
     "source_note": "Auto-enriched from repository evidence and institution rules."
   },
@@ -731,10 +731,10 @@
     "extraction_method": "javascript_programme_objects",
     "review_status": "approved",
     "career_options": [
-      "Architect",
-      "Architectural Technologist",
-      "Quantity Surveyor",
-      "Urban Planner"
+      "Software Engineer",
+      "Software Developer",
+      "Systems Architect",
+      "Quality Assurance Engineer"
     ],
     "source_note": "Auto-enriched from repository evidence and institution rules."
   },
@@ -757,10 +757,10 @@
     "extraction_method": "javascript_programme_objects",
     "review_status": "approved",
     "career_options": [
-      "Business Analyst",
-      "Operations Manager",
-      "Business Development Officer",
-      "Entrepreneur"
+      "Accountant",
+      "Auditor",
+      "Financial Analyst",
+      "Banking Officer"
     ],
     "source_note": "Auto-enriched from repository evidence and institution rules."
   },
@@ -783,10 +783,10 @@
     "extraction_method": "javascript_programme_objects",
     "review_status": "approved",
     "career_options": [
-      "Business Analyst",
-      "Operations Manager",
-      "Business Development Officer",
-      "Entrepreneur"
+      "Accountant",
+      "Auditor",
+      "Financial Analyst",
+      "Banking Officer"
     ],
     "source_note": "Auto-enriched from repository evidence and institution rules."
   },
@@ -809,10 +809,10 @@
     "extraction_method": "javascript_programme_objects",
     "review_status": "approved",
     "career_options": [
-      "Architect",
-      "Architectural Technologist",
-      "Quantity Surveyor",
-      "Urban Planner"
+      "Accountant",
+      "Auditor",
+      "Financial Analyst",
+      "Banking Officer"
     ],
     "source_note": "Auto-enriched from repository evidence and institution rules."
   },
@@ -835,10 +835,10 @@
     "extraction_method": "javascript_programme_objects",
     "review_status": "approved",
     "career_options": [
-      "Human Resources Officer",
-      "Talent Acquisition Specialist",
-      "Training Coordinator",
-      "Employee Relations Officer"
+      "Accountant",
+      "Auditor",
+      "Financial Analyst",
+      "Banking Officer"
     ],
     "source_note": "Auto-enriched from repository evidence and institution rules."
   },
@@ -861,10 +861,10 @@
     "extraction_method": "javascript_programme_objects",
     "review_status": "approved",
     "career_options": [
-      "Business Analyst",
-      "Operations Manager",
-      "Business Development Officer",
-      "Entrepreneur"
+      "Accountant",
+      "Auditor",
+      "Financial Analyst",
+      "Banking Officer"
     ],
     "source_note": "Auto-enriched from repository evidence and institution rules."
   },
@@ -1430,7 +1430,7 @@
   {
     "id": "national-university-of-lesotho-bachelor-of-science-in-biotechnology-9-semesters-4-years",
     "institution": "National University of Lesotho",
-    "name": "Bachelor Of Science In Biotechnology - 9 Semesters (4 ½ Years)",
+    "name": "Bachelor Of Science In Biotechnology - 9 Semesters (4 \u00bd Years)",
     "category": "Science & Technology",
     "faculty": "Science & Technology",
     "level": "Degree",
@@ -1476,7 +1476,7 @@
   {
     "id": "national-university-of-lesotho-bachelor-of-science-in-chemical-technology-9-semesters-4-years",
     "institution": "National University of Lesotho",
-    "name": "Bachelor Of Science In Chemical Technology - 9 Semesters (4 ½ Years)",
+    "name": "Bachelor Of Science In Chemical Technology - 9 Semesters (4 \u00bd Years)",
     "category": "Science & Technology",
     "faculty": "Science & Technology",
     "level": "Degree",
@@ -1871,7 +1871,7 @@
     "category": "Humanities",
     "faculty": "Humanities",
     "level": "Diploma",
-    "duration": "3-4 years",
+    "duration": "3 years",
     "requirements_summary": "LGCSE or its equivalent in the 3rd class pass A pass in English Language Aggregate not exceeding 40 in the best five (5) passed subjects.",
     "source_url": "https://nul.ls/humanities/academic-programmes/",
     "source_type": "official_academic_programmes_page",
@@ -1894,7 +1894,7 @@
     "category": "Humanities",
     "faculty": "Humanities",
     "level": "Diploma",
-    "duration": "3-4 years",
+    "duration": "3 years",
     "requirements_summary": "LGCSE or its equivalent in the 3rd class pass A pass in English Language Aggregate not exceeding 40 in the best five (5) passed subjects.",
     "source_url": "https://nul.ls/humanities/academic-programmes/",
     "source_type": "official_academic_programmes_page",
@@ -2009,7 +2009,7 @@
     "category": "Humanities",
     "faculty": "Humanities",
     "level": "Diploma",
-    "duration": "3-4 years",
+    "duration": "3 years",
     "requirements_summary": "For admissibility into Year 1, applicants must have: Sat for a minimum of six (6) subjects in LGCSE examinations. Obtained a C grade or better in at least four (4) subjects including English Language Obtained at least a D-grade in two other subjects.",
     "source_url": "https://nul.ls/humanities/academic-programmes/",
     "source_type": "official_academic_programmes_page",
@@ -2055,7 +2055,7 @@
     "category": "Humanities",
     "faculty": "Humanities",
     "level": "Diploma",
-    "duration": "3-4 years",
+    "duration": "3 years",
     "requirements_summary": "At least second class 2nd division (2:2) with Mean 60 in the Social Sciences, Humanities and/or any related preferred junior degree recognized by NUL. Advanced certificate in Development Studies, with at least 3 Credits in development related subjects, with 4 years continuous work experience in the institution or agency recognized by the Development Studies department and its Faculty. Equivalent criteria as may be approved by the department and the Faculty.",
     "source_url": "https://nul.ls/humanities/academic-programmes/",
     "source_type": "official_academic_programmes_page",
@@ -2308,7 +2308,7 @@
     "category": "Humanities",
     "faculty": "Humanities",
     "level": "Masters",
-    "duration": "3 years",
+    "duration": "5 years with attachment and project",
     "requirements_summary": null,
     "source_url": "https://nul.ls/humanities/academic-programmes/",
     "source_type": "official_academic_programmes_page",
@@ -2377,7 +2377,7 @@
     "category": "Law",
     "faculty": "Law",
     "level": "Diploma",
-    "duration": "3-4 years",
+    "duration": "3 years",
     "requirements_summary": "A recognised Bachelor's Degree with a minimum of Second Class-Second Division Or A recognised Bachelor's Degree with Pass, coupled with extensive work experience. The Executive Professional Development Programme This is an executive professional development programme targeting the busy professionals who wish to gain specialized knowledge in pension law. The programme is comprehensive and practical, ideal for decision makers and advisors of the pension fund business. The program comprises of ten intricate courses, namely, Introduction to Lesotho's Private Pension Fund System, Pension Funds and the Employment Connection, Death Benefits Before Retirement, Deductions from Pension Benefits, Disability Benefits, Member's Right to Information, Financial Planning and Pension Funds, Governance of Pension Funds, Investment Regulation, The Role of and Functions of the Regulator. The following are some of the topics covered in the programme: The regulatory and legislative framework of the pension fund business in Lesotho Pensions and the employment relationship Pension plan funding requirements and investment principles",
     "source_url": "https://nul.ls/faculty-of-law/academic-programmes/",
     "source_type": "official_academic_programmes_page",
@@ -2400,7 +2400,7 @@
     "category": "Law",
     "faculty": "Law",
     "level": "Diploma",
-    "duration": "3-4 years",
+    "duration": "3 years",
     "requirements_summary": "A recognised Bachelor's Degree with a minimum of Second Class-Second Division Or A recognised Bachelor's Degree with Pass, coupled with extensive work experience Mode of Learning The Faculty offers the program in block teaching mode. It is offered through blended learning which is a combination of online learning and face-to-face learning.",
     "source_url": "https://nul.ls/faculty-of-law/academic-programmes/",
     "source_type": "official_academic_programmes_page",
@@ -2936,10 +2936,10 @@
     "extraction_method": "html_headings_and_context",
     "review_status": "approved",
     "career_options": [
-      "Business Analyst",
-      "Operations Manager",
-      "Business Development Officer",
-      "Entrepreneur"
+      "Accountant",
+      "Auditor",
+      "Financial Analyst",
+      "Banking Officer"
     ],
     "supporting_fee_source_path": "data/real/fees/nul-fee-structure-2024-2025.json",
     "fee_note": "Fee schedule available: NUL Fee Structure 2024/25 (2024/25). Confirm the programme group and latest amount before payment.",
@@ -2976,7 +2976,7 @@
     "faculty": "Social Sciences",
     "level": "Degree",
     "duration": "5 years with attachment and project",
-    "requirements_summary": ": To be considered for admission, candidates must have: sat for a minimum of six (6) subjects in LGCSE Examination LGCSE or its equivalent with a minimum achievement rating of a \"C\" or better in four subjects including English Language and Mathematics. A \"D\" or better in the remaining two subjects. Indirect Entry The normal entry requirements for candidates shall be:  A Diploma in Business Management from the Institute of Extra Mural Studies (IEMS) achieved with distinction. OR",
+    "requirements_summary": ": To be considered for admission, candidates must have: sat for a minimum of six (6) subjects in LGCSE Examination LGCSE or its equivalent with a minimum achievement rating of a \"C\" or better in four subjects including English Language and Mathematics. A \"D\" or better in the remaining two subjects. Indirect Entry The normal entry requirements for candidates shall be: \uf0b7 A Diploma in Business Management from the Institute of Extra Mural Studies (IEMS) achieved with distinction. OR",
     "source_url": "https://nul.ls/faculty-of-social-sciences/academic-programmes/",
     "source_type": "official_academic_programmes_page",
     "extraction_method": "html_headings_and_context",
@@ -3021,7 +3021,7 @@
     "category": "Business & Commerce",
     "faculty": "Social Sciences",
     "level": "Diploma",
-    "duration": "3-4 years",
+    "duration": "3 years",
     "requirements_summary": null,
     "source_url": "https://nul.ls/faculty-of-social-sciences/academic-programmes/",
     "source_type": "official_academic_programmes_page",
@@ -3205,7 +3205,7 @@
     "category": "Social Sciences",
     "faculty": "Social Sciences",
     "level": "Masters",
-    "duration": "3 years",
+    "duration": "5 years with attachment and project",
     "requirements_summary": null,
     "source_url": "https://nul.ls/faculty-of-social-sciences/academic-programmes/",
     "source_type": "official_academic_programmes_page",
@@ -3366,7 +3366,7 @@
     "category": "Business & Commerce",
     "faculty": "Social Sciences",
     "level": "Diploma",
-    "duration": "3-4 years",
+    "duration": "3 years",
     "requirements_summary": "A minimum of Bachelor of Commerce, Engineering, Finance, Statistics degree, or Advanced Diploma in Project Management (at least a second-class second-class division) OR any related Bachelor's degree with a minimum of three (3) years post degree experience in the field of Project Management, OR Individuals with experience of working as project managers or within project management team or experienced managers working in business who require project management competencies may be considered.",
     "source_url": "https://nul.ls/faculty-of-social-sciences/academic-programmes/",
     "source_type": "official_academic_programmes_page",
@@ -3435,7 +3435,7 @@
     "category": "Education",
     "faculty": "Education",
     "level": "Diploma",
-    "duration": "3-4 years",
+    "duration": "3 years",
     "requirements_summary": "It is offered jointly by the Lesotho Agricultural College (LAC) and the National University of Lesotho (NUL). Students take agriculture content from LAC in the first two years. Then they take Education in the third year in the Faculty of Education.",
     "source_url": "https://nul.ls/faculty-of-education/academic-programmes/",
     "source_type": "official_academic_programmes_page",
@@ -3550,7 +3550,7 @@
     "category": "Education",
     "faculty": "Education",
     "level": "Diploma",
-    "duration": "3-4 years",
+    "duration": "3 years",
     "requirements_summary": "To be admitted into Year 1, the following shall apply: Applicants should have sat for a minimum of six (6) subjects in LGCSE examinations. Of the six (6) subjects, four (4) should be passed with a C grade or better inclusive of English Language. The other two (2) subjects must be passed with at least a D grade. The entrance requirements for selected specialisations shall be: Business Education Applicants intending to take subjects in Business Education must have a C grade or better in Mathematics. English Language Education Applicants intending to take English Language as a teaching subject must have a B grade or better in English Language",
     "source_url": "https://nul.ls/faculty-of-education/academic-programmes/",
     "source_type": "official_academic_programmes_page",
@@ -3619,7 +3619,7 @@
     "category": "Education",
     "faculty": "Education",
     "level": "Diploma",
-    "duration": "3-4 years",
+    "duration": "3 years",
     "requirements_summary": "This programme is for candidates who aspire to have a teaching qualification. The candidates applying for this programme should hold any Bachelor's degree with two majors recognised as teaching subjects in Lesotho schools, or single majors in BSc. Agriculture or BA Pastoral Care and Counselling for those aspiring to teach Agriculture or Religious Education. The normal requirements for (PGDE) programme are a relevant undergraduate degree from a recognized university provided that the undergraduate degree programme included a substantial component of studies recognized by the Faculty of Education as teaching subjects. D. MASTERS DEGREE PROGRAMMES",
     "source_url": "https://nul.ls/faculty-of-education/academic-programmes/",
     "source_type": "official_academic_programmes_page",
@@ -4102,7 +4102,7 @@
     "category": "Education",
     "faculty": "IEMS",
     "level": "Diploma",
-    "duration": "3-4 years",
+    "duration": "3 years",
     "requirements_summary": null,
     "source_url": "https://nul.ls/iems-2/academic-programmes/",
     "source_type": "official_academic_programmes_page",
@@ -4125,7 +4125,7 @@
     "category": "Business & Commerce",
     "faculty": "IEMS",
     "level": "Diploma",
-    "duration": "3-4 years",
+    "duration": "3 years",
     "requirements_summary": "The minimum requirement is a GCE with pass in Mathematics and English Language . Other equivalent qualifications recognized by the National University of Lesotho will also be considered. OR Candidates who sat for LGCSE should have passed four (4) subjects with Grade E passes in both English Language and Mathematics. The minimum Grades in the other subjects should be E",
     "source_url": "https://nul.ls/iems-2/academic-programmes/",
     "source_type": "official_academic_programmes_page",
@@ -4148,7 +4148,7 @@
     "category": "Creative Arts & Communication",
     "faculty": "IEMS",
     "level": "Diploma",
-    "duration": "3-4 years",
+    "duration": "3 years",
     "requirements_summary": ": A Lesotho General Certificate of Secondary Education (LGCSE) with an achievement rating of D (50-59) or better in 4 subjects including English Language and Sesotho Language or alternative language; A Cambridge Overseas School Certificate (LGCSE) with an achievement rating of D (7) or better in 4 subjects including English Language and Sesotho Language or alternative language; Anyone with a GCE pass and who at least in the last five (5) years has been working in the field of journalism. This category of candidates shall take and pass an English proficiency test before consideration for admission; Other alternative qualifications recognized by the NUL University.",
     "source_url": "https://nul.ls/iems-2/academic-programmes/",
     "source_type": "official_academic_programmes_page",
@@ -4194,7 +4194,7 @@
     "category": "Education",
     "faculty": "IEMS",
     "level": "Diploma",
-    "duration": "3-4 years",
+    "duration": "3 years",
     "requirements_summary": null,
     "source_url": "https://nul.ls/iems-2/academic-programmes/",
     "source_type": "official_academic_programmes_page",
@@ -4884,10 +4884,10 @@
     "extraction_method": "html_course_page_plus_manual_handbook_extract",
     "review_status": "approved",
     "career_options": [
-      "Business Analyst",
-      "Operations Manager",
-      "Business Development Officer",
-      "Entrepreneur"
+      "Accountant",
+      "Auditor",
+      "Financial Analyst",
+      "Banking Officer"
     ],
     "supporting_fee_source_path": "data/real/fees/cas-fee-structure-partial-2024.json",
     "fee_note": "Fee schedule available: CAS fees partial manual extract (current evidence). Confirm the programme group and latest amount before payment.",
@@ -4916,10 +4916,10 @@
     "extraction_method": "html_course_page_plus_manual_handbook_extract",
     "review_status": "approved",
     "career_options": [
-      "Business Analyst",
-      "Operations Manager",
-      "Business Development Officer",
-      "Entrepreneur"
+      "Accountant",
+      "Auditor",
+      "Financial Analyst",
+      "Banking Officer"
     ],
     "supporting_fee_source_path": "data/real/fees/cas-fee-structure-partial-2024.json",
     "fee_note": "Fee schedule available: CAS fees partial manual extract (current evidence). Confirm the programme group and latest amount before payment.",
@@ -4947,10 +4947,10 @@
     "extraction_method": "html_course_page_plus_manual_handbook_extract",
     "review_status": "approved",
     "career_options": [
-      "Business Analyst",
-      "Operations Manager",
-      "Business Development Officer",
-      "Entrepreneur"
+      "Accountant",
+      "Auditor",
+      "Financial Analyst",
+      "Banking Officer"
     ],
     "supporting_fee_source_path": "data/real/fees/cas-fee-structure-partial-2024.json",
     "fee_note": "Fee schedule available: CAS fees partial manual extract (current evidence). Confirm the programme group and latest amount before payment.",
@@ -4978,10 +4978,10 @@
     "extraction_method": "html_course_page_plus_manual_handbook_extract",
     "review_status": "approved",
     "career_options": [
-      "Business Analyst",
-      "Operations Manager",
-      "Business Development Officer",
-      "Entrepreneur"
+      "Accountant",
+      "Auditor",
+      "Financial Analyst",
+      "Banking Officer"
     ],
     "supporting_fee_source_path": "data/real/fees/cas-fee-structure-partial-2024.json",
     "fee_note": "Fee schedule available: CAS fees partial manual extract (current evidence). Confirm the programme group and latest amount before payment.",
@@ -5004,10 +5004,10 @@
     "extraction_method": "html_course_page",
     "review_status": "approved",
     "career_options": [
-      "Business Analyst",
-      "Operations Manager",
-      "Business Development Officer",
-      "Entrepreneur"
+      "Accountant",
+      "Auditor",
+      "Financial Analyst",
+      "Banking Officer"
     ],
     "supporting_fee_source_path": "data/real/fees/cas-fee-structure-partial-2024.json",
     "fee_note": "Fee schedule available: CAS fees partial manual extract (current evidence). Confirm the programme group and latest amount before payment.",
@@ -5031,10 +5031,10 @@
     "review_status": "approved",
     "source_note": "Course is part of the known CAS catalogue, but the page timed out during the latest scrape; details need admin review from the official CAS source. Auto-enriched from repository evidence and institution rules.",
     "career_options": [
-      "Business Analyst",
-      "Operations Manager",
-      "Business Development Officer",
-      "Entrepreneur"
+      "Accountant",
+      "Auditor",
+      "Financial Analyst",
+      "Banking Officer"
     ],
     "supporting_fee_source_path": "data/real/fees/cas-fee-structure-partial-2024.json",
     "fee_note": "Fee schedule available: CAS fees partial manual extract (current evidence). Confirm the programme group and latest amount before payment."
@@ -5082,10 +5082,10 @@
     "extraction_method": "html_course_page",
     "review_status": "approved",
     "career_options": [
-      "Business Analyst",
-      "Operations Manager",
-      "Business Development Officer",
-      "Entrepreneur"
+      "Accountant",
+      "Auditor",
+      "Financial Analyst",
+      "Banking Officer"
     ],
     "supporting_fee_source_path": "data/real/fees/cas-fee-structure-partial-2024.json",
     "fee_note": "Fee schedule available: CAS fees partial manual extract (current evidence). Confirm the programme group and latest amount before payment.",
@@ -5195,14 +5195,14 @@
     "category": "Education",
     "faculty": "Teacher Education",
     "level": "Degree",
-    "duration": "3 years",
+    "duration": "4 years",
     "mode": "Blended face-to-face and virtual classrooms",
     "requirements_summary": "LGCSE/COSC with at least 4 subjects at C or better and 2 subjects at D or better; or AS with at least 2 subjects at C and 2 subjects at E; or a Diploma with Education (second class pass, or pass plus 2 years experience); or a Diploma without Education with pass. Certificate in Early Childhood Education is also an entry route for the Preschool and Foundation Phase programme.",
     "career_options": [
-      "Primary school teacher from Grade R to Grade 7",
-      "Curriculum developer",
-      "Teaching and learning resource developer",
-      "Textbook author"
+      "Teacher",
+      "Curriculum Developer",
+      "Education Officer",
+      "Teaching and Learning Resource Developer"
     ],
     "source_url": null,
     "source_path": "C:/Users/lepha/Downloads/Lesotho College Of Education.pdf",
@@ -5220,14 +5220,14 @@
     "category": "Education",
     "faculty": "Teacher Education",
     "level": "Degree",
-    "duration": "3 years",
+    "duration": "4 years",
     "mode": "Blended face-to-face and virtual classrooms",
     "requirements_summary": "LGCSE/COSC with at least 4 subjects at C or better and 2 subjects at D or better; or AS with at least 2 subjects at C and 2 subjects at E; or a Diploma with Education (second class pass, or pass plus 2 years experience); or a Diploma without Education with pass. Certificate in Early Childhood Education is also an entry route for the Preschool and Foundation Phase programme.",
     "career_options": [
-      "Preschool to Grade 3 teacher",
-      "Curriculum developer",
-      "Teaching and learning resource developer",
-      "Textbook author"
+      "Teacher",
+      "Curriculum Developer",
+      "Education Officer",
+      "Teaching and Learning Resource Developer"
     ],
     "source_url": null,
     "source_path": "C:/Users/lepha/Downloads/Lesotho College Of Education.pdf",
@@ -5247,10 +5247,10 @@
     "duration": "15 months",
     "requirements_summary": "Applicant must possess LGCSE/COSC or equivalent. Foreign acquired qualifications should be evaluated by the Examinations Council of Lesotho before submission. Candidate must have passed a minimum of six subjects, including D or better in English Language, D or better in Mathematics, D or better in Physics/Chemistry/Biology, and D or better in any other three subjects. Working experience as a ward attendant is an added advantage.",
     "career_options": [
-      "Nursing Assistant",
-      "Clinic Assistant",
-      "Community Care Assistant",
-      "Care Home Assistant"
+      "Registered Nurse",
+      "Community Health Nurse",
+      "Clinical Nurse",
+      "Nursing Specialist"
     ],
     "source_url": "https://www.scribd.com/document/763854725/2024-2025-Final-Prospectus",
     "source_path": "C:/Users/lepha/Downloads/data/Paray 2024-2025-final-prospectus.pdf",
@@ -5271,9 +5271,9 @@
     "duration": "3 years",
     "requirements_summary": "Applicant must possess LGCSE/COSC or equivalent. Foreign acquired qualifications should be evaluated by ECOL before submission. Candidate must have passed a minimum of six subjects, including D or better in Mathematics, D or better in English Language, C or better in Physics/Chemistry, C or better in Biology, and C or better in any other two subjects. OR Certificate in Nursing Assistant passed with merit/distinction and a minimum of five passed subjects at COSC/LGCSE. Working experience as a Nursing Assistant is an added advantage.",
     "career_options": [
-      "Nurse",
-      "Clinic Nurse",
+      "Registered Nurse",
       "Community Health Nurse",
+      "Clinical Nurse",
       "Nursing Specialist"
     ],
     "source_url": "https://www.scribd.com/document/763854725/2024-2025-Final-Prospectus",
@@ -5295,10 +5295,10 @@
     "duration": "1 year",
     "requirements_summary": "Entry route is Diploma in Nursing and registration certificate with Lesotho Nursing Council (LNC), OR Diploma in Nursing second-year transcript pending final results. This is a post-basic pathway and should not be treated as direct high-school entry.",
     "career_options": [
-      "Midwife",
-      "Maternal Health Nurse",
-      "Maternity Unit Nurse",
-      "Neonatal Care Nurse"
+      "Registered Nurse",
+      "Community Health Nurse",
+      "Clinical Nurse",
+      "Nursing Specialist"
     ],
     "source_url": "https://www.scribd.com/document/763854725/2024-2025-Final-Prospectus",
     "source_path": "C:/Users/lepha/Downloads/data/Paray 2024-2025-final-prospectus.pdf",
@@ -5319,11 +5319,10 @@
     "duration": "4 years / 8 semesters",
     "requirements_summary": "Minimum entry level for BBA and BHCM is Higher Secondary School Level (10+2) or equivalent A-Levels, CBSE or other courses recognised by the National Education Board of Nepal, with a minimum of second division (45% aggregate) or 2.0 CGPA and minimum Grade C in each subject. Students must also pass the college entrance test, group discussion, and interview.",
     "career_options": [
-      "Banking Officer",
-      "Marketing Officer",
-      "Human Resource Officer",
-      "Entrepreneur",
-      "Strategic Management Assistant"
+      "Business Analyst",
+      "Operations Manager",
+      "Business Development Officer",
+      "Entrepreneur"
     ],
     "source_url": "https://www.imperialcollege.edu.np/",
     "source_path": "C:/Users/lepha/Downloads/data/IBC prospectus-outlined-fonts.pdf",
@@ -5342,11 +5341,10 @@
     "duration": "4 years / 8 semesters",
     "requirements_summary": "Minimum entry level for BBA and BHCM is Higher Secondary School Level (10+2) or equivalent A-Levels, CBSE or other courses recognised by the National Education Board of Nepal, with a minimum of second division (45% aggregate) or 2.0 CGPA and minimum Grade C in each subject. Students must also pass the college entrance test, group discussion, and interview.",
     "career_options": [
-      "Hospital Management Officer",
-      "Health Insurance Officer",
-      "Pharmaceutical Company Officer",
-      "Medical Representative",
-      "Health Care Facility Administrator"
+      "Laboratory Technologist",
+      "Research Scientist",
+      "Science Teacher",
+      "Quality Control Analyst"
     ],
     "source_url": "https://www.imperialcollege.edu.np/",
     "source_path": "C:/Users/lepha/Downloads/data/IBC prospectus-outlined-fonts.pdf",

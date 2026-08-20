@@ -581,7 +581,7 @@ function loadAuthUsers() {
   }
 }
 
-async function saveServerState(stateKey, payload) {
+async function saveServerState(stateKey, payload, { throwOnError = false } = {}) {
   if (!serverDatabaseAvailable) return;
   try {
     const response = await fetch(`/api/db/state/${encodeURIComponent(stateKey)}`, {
@@ -595,6 +595,7 @@ async function saveServerState(stateKey, payload) {
     serverDatabaseAvailable = false;
     persistenceMode = supabaseClient ? "supabase" : "local";
     lastPersistenceMessage = `Database save failed: ${error.message || "offline"}`;
+    if (throwOnError) throw error;
   }
 }
 
@@ -1379,16 +1380,25 @@ function applyCustomGaps(customGaps = []) {
 }
 
 function getReviewStateSnapshot() {
+  const baselineProgrammes = new Map((adminData.programmes || []).map((programme) => [programme.id, programme]));
+  const programmeStatuses = Object.fromEntries(
+    adminProgrammes
+      .filter((programme) => programme.reviewStatus !== baselineProgrammes.get(programme.id)?.reviewStatus)
+      .map((programme) => [programme.id, programme.reviewStatus])
+  );
+  const programmeEdits = Object.fromEntries(
+    adminProgrammes
+      .filter((programme) => {
+        const baseline = baselineProgrammes.get(programme.id);
+        return !baseline || programmePersistFields.some((field) => !valuesAreEqual(programme[field], baseline[field]));
+      })
+      .map((programme) => [programme.id, getProgrammePersistPayload(programme)])
+  );
   return {
     catalogueDataVersion,
     customProgrammes: adminProgrammes.filter(isCustomAdminProgramme).map((programme) => ({ ...programme })),
-    programmeStatuses: Object.fromEntries(adminProgrammes.map((programme) => [programme.id, programme.reviewStatus])),
-    programmeEdits: Object.fromEntries(
-      adminProgrammes.map((programme) => [
-        programme.id,
-        getProgrammePersistPayload(programme)
-      ])
-    ),
+    programmeStatuses,
+    programmeEdits,
     customGaps: adminGaps.filter(isCustomAdminGap).map((gap) => ({ ...gap })),
     gapStatuses: Object.fromEntries(adminGaps.map((gap) => [gap.id, gap.status])),
     savedAt: new Date().toISOString()
@@ -1601,7 +1611,9 @@ async function recordReviewEvent(entityTable, entityId, action, notes, payload =
 }
 
 async function persistProgrammeStatus(programme, status) {
-  saveLocalReviewState();
+  const snapshot = getReviewStateSnapshot();
+  localStorage.setItem(persistenceKey, JSON.stringify(snapshot));
+  await saveServerState("review_state", snapshot, { throwOnError: true });
   const reviewedAt = ["approved", "flagged", "rejected"].includes(status) ? (programme.reviewedAt || new Date().toISOString()) : null;
   if (!supabaseClient) return;
   if (isCustomAdminProgramme(programme)) {
@@ -1627,7 +1639,9 @@ async function persistProgrammeStatus(programme, status) {
 }
 
 async function persistProgrammeEdit(programme, changes) {
-  saveLocalReviewState();
+  const snapshot = getReviewStateSnapshot();
+  localStorage.setItem(persistenceKey, JSON.stringify(snapshot));
+  await saveServerState("review_state", snapshot, { throwOnError: true });
   if (!supabaseClient) return;
   if (isCustomAdminProgramme(programme)) {
     await recordReviewEvent("programmes", programme.id, "created_or_updated", "Admin saved a manual programme record.", {
@@ -7184,11 +7198,13 @@ async function setProgrammeReviewStatus(id, status) {
   try {
     await persistProgrammeStatus(programme, status);
     lastPersistenceMessage = supabaseClient ? "Synced programme review" : "Saved locally";
+    setAdminActionStatus(`Programme marked ${formatStatus(status)}.`, "success");
     recordCurrentUserActivity("admin_programme_reviewed", `Marked programme ${formatStatus(status)}`, { programmeId: programme.id, programmeName: programme.name, status, reviewedAt: programme.reviewedAt });
   } catch (error) {
     programme.reviewStatus = previousStatus;
     programme.reviewedAt = previousReviewedAt;
     lastPersistenceMessage = `Sync failed: ${error.message || "programme update"}`;
+    setAdminActionStatus(lastPersistenceMessage, "danger");
   }
   renderAdmin();
   updateCounts();

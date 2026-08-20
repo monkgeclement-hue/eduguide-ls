@@ -11,6 +11,18 @@ REAL_DIR = ROOT / "data" / "real"
 PROGRAMMES_FILE = REAL_DIR / "programmes.flat.json"
 
 
+SPECIFIC_CAREER_RULES: list[tuple[tuple[str, ...], list[str]]] = [
+    (("business information technology", "business it"), ["Business Systems Analyst", "IT Business Analyst", "Systems Administrator", "Technology Project Officer"]),
+    (("digital film", "film production", "film and television"), ["Film Producer", "Director", "Video Editor", "Cinematographer"]),
+    (("professional communication", "public relations"), ["Communications Officer", "Public Relations Officer", "Corporate Communications Specialist", "Content Strategist"]),
+    (("network security", "cyber security", "cybersecurity", "computer forensics"), ["Cybersecurity Analyst", "Digital Forensics Investigator", "Security Engineer", "Network Security Specialist"]),
+    (("data science", "data analytics"), ["Data Scientist", "Data Analyst", "Machine Learning Engineer", "Business Intelligence Analyst"]),
+    (("software engineering",), ["Software Engineer", "Software Developer", "Systems Architect", "Quality Assurance Engineer"]),
+    (("electrical engineering", "electronics and communication", "electronics engineering"), ["Electrical Engineer", "Electronics Engineer", "Telecommunications Engineer", "Control Systems Engineer"]),
+    (("accounting", "finance", "investment and banking"), ["Accountant", "Auditor", "Financial Analyst", "Banking Officer"]),
+    (("nursing", "midwifery", "nursing assistant"), ["Registered Nurse", "Community Health Nurse", "Clinical Nurse", "Nursing Specialist"]),
+]
+
 CAREER_RULES: list[tuple[tuple[str, ...], list[str]]] = [
     (("fashion", "textile", "retailing"), ["Fashion Designer", "Textile Designer", "Fashion Buyer", "Retail Manager"]),
     (("architect", "built environment", "construction"), ["Architect", "Architectural Technologist", "Quantity Surveyor", "Urban Planner"]),
@@ -42,6 +54,9 @@ def text(record: dict[str, Any]) -> str:
 
 def infer_careers(record: dict[str, Any]) -> list[str]:
     haystack = text(record)
+    for keywords, careers in SPECIFIC_CAREER_RULES:
+        if any(keyword in haystack for keyword in keywords):
+            return careers
     for keywords, careers in CAREER_RULES:
         if any(keyword in haystack for keyword in keywords):
             return careers
@@ -108,8 +123,9 @@ def main() -> None:
     fee_sources = load_fee_sources()
     changed = {"careers": 0, "durations": 0, "fee_evidence": 0, "approved": 0}
     for record in programmes:
-        if not record.get("career_options"):
-            record["career_options"] = infer_careers(record)
+        inferred_careers = infer_careers(record)
+        if record.get("career_options") != inferred_careers:
+            record["career_options"] = inferred_careers
             changed["careers"] += 1
         duration = inferred_duration(record)
         if duration and record.get("duration") != duration:

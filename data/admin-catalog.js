@@ -1,6 +1,6 @@
 window.EDUGUIDE_ADMIN_DATA = {
   "summary": {
-    "programmeCount": 234,
+    "programmeCount": 233,
     "institutionCount": 11,
     "sourceCount": 25,
     "feeScheduleCount": 6,
@@ -162,10 +162,10 @@ window.EDUGUIDE_ADMIN_DATA = {
       "overview": null,
       "requirementsSummary": "You must pass at least 4 subjects with a grade of C or better and 2 subjects with a grade of D or better",
       "careers": [
-        "Journalist",
-        "Broadcast Producer",
-        "Content Producer",
-        "Public Relations Officer"
+        "Film Producer",
+        "Director",
+        "Video Editor",
+        "Cinematographer"
       ],
       "sourceUrl": "https://www.portal.co.ls/apply/courses",
       "sourcePath": null,
@@ -274,10 +274,10 @@ window.EDUGUIDE_ADMIN_DATA = {
       "overview": null,
       "requirementsSummary": "You must pass at least 4 subjects with a grade of C or better and 2 subjects with a grade of D or better",
       "careers": [
-        "Journalist",
-        "Broadcast Producer",
-        "Content Producer",
-        "Public Relations Officer"
+        "Communications Officer",
+        "Public Relations Officer",
+        "Corporate Communications Specialist",
+        "Content Strategist"
       ],
       "sourceUrl": "https://www.portal.co.ls/apply/courses",
       "sourcePath": null,
@@ -302,10 +302,10 @@ window.EDUGUIDE_ADMIN_DATA = {
       "overview": null,
       "requirementsSummary": "You must pass at least 4 subjects with a grade of C or better and 2 subjects with a grade of D or better",
       "careers": [
-        "Journalist",
-        "Broadcast Producer",
-        "Content Producer",
-        "Public Relations Officer"
+        "Business Systems Analyst",
+        "IT Business Analyst",
+        "Systems Administrator",
+        "Technology Project Officer"
       ],
       "sourceUrl": "https://www.portal.co.ls/apply/courses",
       "sourcePath": null,
@@ -358,10 +358,10 @@ window.EDUGUIDE_ADMIN_DATA = {
       "overview": null,
       "requirementsSummary": "You must pass at least 4 subjects with a grade of C or better and 2 subjects with a grade of D or better",
       "careers": [
-        "Journalist",
-        "Broadcast Producer",
-        "Content Producer",
-        "Public Relations Officer"
+        "Software Engineer",
+        "Software Developer",
+        "Systems Architect",
+        "Quality Assurance Engineer"
       ],
       "sourceUrl": "https://www.portal.co.ls/apply/courses",
       "sourcePath": null,
@@ -442,10 +442,10 @@ window.EDUGUIDE_ADMIN_DATA = {
       "overview": null,
       "requirementsSummary": "You must pass at least 3 subjects with a grade of C or better and 2 subjects with a grade of D or better",
       "careers": [
-        "Journalist",
-        "Broadcast Producer",
-        "Content Producer",
-        "Public Relations Officer"
+        "Business Systems Analyst",
+        "IT Business Analyst",
+        "Systems Administrator",
+        "Technology Project Officer"
       ],
       "sourceUrl": "https://www.portal.co.ls/apply/courses",
       "sourcePath": null,
@@ -610,10 +610,10 @@ window.EDUGUIDE_ADMIN_DATA = {
       "overview": null,
       "requirementsSummary": "You must pass at least 3 subjects with a grade of C or better and 2 subjects with a grade of D or better",
       "careers": [
-        "Journalist",
-        "Broadcast Producer",
-        "Content Producer",
-        "Public Relations Officer"
+        "Film Producer",
+        "Director",
+        "Video Editor",
+        "Cinematographer"
       ],
       "sourceUrl": "https://www.portal.co.ls/apply/courses?page=2",
       "sourcePath": null,
@@ -778,10 +778,10 @@ window.EDUGUIDE_ADMIN_DATA = {
       "overview": null,
       "requirementsSummary": "You must pass at least 3 subjects with a grade of C or better and 2 subjects with a grade of D or better",
       "careers": [
-        "Journalist",
-        "Broadcast Producer",
-        "Content Producer",
-        "Public Relations Officer"
+        "Software Engineer",
+        "Software Developer",
+        "Systems Architect",
+        "Quality Assurance Engineer"
       ],
       "sourceUrl": "https://www.portal.co.ls/apply/courses?page=2",
       "sourcePath": null,
@@ -806,10 +806,10 @@ window.EDUGUIDE_ADMIN_DATA = {
       "overview": null,
       "requirementsSummary": "You must pass at least 3 subjects with a grade of C or better and 2 subjects with a grade of D or better",
       "careers": [
-        "Journalist",
-        "Broadcast Producer",
-        "Content Producer",
-        "Public Relations Officer"
+        "Communications Officer",
+        "Public Relations Officer",
+        "Corporate Communications Specialist",
+        "Content Strategist"
       ],
       "sourceUrl": "https://www.portal.co.ls/apply/courses?page=2",
       "sourcePath": null,
@@ -890,38 +890,10 @@ window.EDUGUIDE_ADMIN_DATA = {
       "overview": "The BEng in Electronics and Communication Engineering is a comprehensive, professionally oriented five-year undergraduate programme that equips students with the knowledge and practical skills needed to excel in the rapidly evolving fields of electronics, communication systems, and network technologies. The curriculum blends strong theoretical foundations with hands-on laboratory work and project-based learning along with a credit-bearing six-month industrial attachment, enabling students to understand, design, and apply modern electronic and communication solutions. Graduates are prepared for diverse career opportunities in areas such as telecommunications, embedded systems, signal processing, networking, and electronics design, as well as for roles in research, industry innovation, and leadership. This degree fosters technical proficiency, problem-solving ability, teamwork, and ethical professional practice, ensuring that students are ready to contribute effectively to technological advancement locally and internationally.",
       "requirementsSummary": "IGCSE/BGCSE/equivalent with 5 Passes including Mathematics, and Physics or Double Sciences or Physics and Chemistry. Applicants in possession of a Diploma or Higher Diploma in related fields may be given exemptions based on the credit point equivalency.",
       "careers": [
-        "Architect",
-        "Architectural Technologist",
-        "Quantity Surveyor",
-        "Urban Planner"
-      ],
-      "sourceUrl": "https://www.bothouniversity.com/lesotho/programmes",
-      "sourcePath": null,
-      "supportingSourcePath": null,
-      "supportingFeeSourcePath": null,
-      "feeNote": null,
-      "sourceType": "official_js_bundle",
-      "extractionMethod": "javascript_programme_objects",
-      "reviewStatus": "approved",
-      "sourceNote": "Auto-enriched from repository evidence and institution rules."
-    },
-    {
-      "id": "botho-university-lesotho-bachelor-of-engineering-in-electrical-engineering",
-      "institution": "Botho University Lesotho",
-      "name": "Bachelor of Engineering in Electrical Engineering",
-      "code": "EEN8BO23BW",
-      "category": "Engineering & Built Environment",
-      "faculty": null,
-      "level": "Degree",
-      "duration": "4 years with attachment",
-      "deliveryMode": null,
-      "overview": "The Bachelor of Engineering (BEng) in Electrical Engineering is a professionally oriented programme designed to produce competent, innovative, and industry-ready electrical engineers. The programme provides a strong foundation in mathematics, science, and core electrical engineering principles, combined with extensive practical and design-based learning preparing graduates for industries in Botswana and globally. Students develop skills in areas such as electrical circuits, electronics, power systems, control and instrumentation, renewable energy, and computer applications in engineering. It combines strong theory, practical learning and a credit-bearing six-month industrial attachment, supporting professional practice, career readiness and lifelong learning.",
-      "requirementsSummary": "IGCSE/BGCSE/equivalent with 5 Passes including English, Mathematics, and Physics or Double Sciences or Physics and Chemistry. Applicants in possession of a Diploma or Higher Diploma in related fields may be given exemptions based on the credit point equivalency.",
-      "careers": [
-        "Architect",
-        "Architectural Technologist",
-        "Quantity Surveyor",
-        "Urban Planner"
+        "Electrical Engineer",
+        "Electronics Engineer",
+        "Telecommunications Engineer",
+        "Control Systems Engineer"
       ],
       "sourceUrl": "https://www.bothouniversity.com/lesotho/programmes",
       "sourcePath": null,
@@ -974,10 +946,10 @@ window.EDUGUIDE_ADMIN_DATA = {
       "overview": "Want to protect the digital future? The BSc in Cyber Security and Risk Management prepares students to tackle cybercrime and strategic threats. This industry-aligned programme integrates networking, programming, and IT law with hands-on experience in threat mitigation and risk analysis. Through practical labs and industrial attachments, learners master international best practices to solve complex security challenges. Graduates are equipped for global careers as security architects, penetration testers, or incident responders across public and private sectors. This degree secures a path into a high-demand field, producing leaders capable of safeguarding digital assets and ensuring organisational resilience.",
       "requirementsSummary": "IGCSE/BGCSE/equivalent with 5 Passes including English and Mathematics. Applicants in possession of a Diploma or Higher Diploma in related fields may be given exemptions based on the credit point equivalency.",
       "careers": [
-        "Architect",
-        "Architectural Technologist",
-        "Quantity Surveyor",
-        "Urban Planner"
+        "Cybersecurity Analyst",
+        "Digital Forensics Investigator",
+        "Security Engineer",
+        "Network Security Specialist"
       ],
       "sourceUrl": "https://www.bothouniversity.com/lesotho/programmes",
       "sourcePath": null,
@@ -1002,10 +974,10 @@ window.EDUGUIDE_ADMIN_DATA = {
       "overview": "Want to become a data expert? Our BSc in Data Science equips you to transform raw data into meaningful insights. This forward-looking programme integrates statistics, machine learning, computer science, and data analytics, preparing students to master data processing, analytics, and visualisation alongside advanced techniques in machine learning, data mining, and big data technologies. Through hands-on experience with AI, cloud computing, a capstone project, and an industrial attachment, students develop practical, industry-ready skills. Graduates are prepared for exciting careers as data scientists, business analysts, or AI engineers across finance, healthcare, technology, and beyond.",
       "requirementsSummary": "IGCSE/BGCSE/equivalent with 5 Passes. Applicants in possession of a Diploma or Higher Diploma in related fields may be given exemptions based on the credit point equivalency.",
       "careers": [
-        "Accountant",
-        "Auditor",
-        "Financial Analyst",
-        "Banking Officer"
+        "Data Scientist",
+        "Data Analyst",
+        "Machine Learning Engineer",
+        "Business Intelligence Analyst"
       ],
       "sourceUrl": "https://www.bothouniversity.com/lesotho/programmes",
       "sourcePath": null,
@@ -1030,10 +1002,10 @@ window.EDUGUIDE_ADMIN_DATA = {
       "overview": "Want to master software innovation? The BSc in Software Engineering develops the professional competence required to thrive in the global tech industry. This programme prepares students to design, develop, test, and maintain high-quality software solutions for complex business challenges. By integrating rigorous engineering principles with industry-standard tools, learners gain expertise in software architecture, algorithms, and mission-critical systems. Through hands-on practice and robust methodologies, students become adaptable to both current and emerging technologies. Graduates are equipped for careers as software developers, system architects, or quality engineers, ready to drive innovation and support large-scale digital transformation.",
       "requirementsSummary": "IGCSE/BGCSE/equivalent with 5 Passes. Applicants in possession of a Diploma or Higher Diploma in related fields may be given exemptions based on the credit point equivalency.",
       "careers": [
-        "Architect",
-        "Architectural Technologist",
-        "Quantity Surveyor",
-        "Urban Planner"
+        "Software Engineer",
+        "Software Developer",
+        "Systems Architect",
+        "Quality Assurance Engineer"
       ],
       "sourceUrl": "https://www.bothouniversity.com/lesotho/programmes",
       "sourcePath": null,
@@ -1058,10 +1030,10 @@ window.EDUGUIDE_ADMIN_DATA = {
       "overview": "Aiming for a leadership role in the global business world? The Bachelor of Business Administration in Business Management provides the strategic mindset and practical skills you need. The programme covers management, finance, marketing, entrepreneurship, operations, and digital transformation, with a strong emphasis on innovation, sustainability, and ethical leadership. Through case studies, collaborative projects, and industry-driven learning, you will gain real-world experience while sharpening critical thinking and problem-solving abilities. Whether your ambition is to launch an entrepreneurial venture or advance in a corporate career, this degree equips you to drive innovation and achieve lasting success.",
       "requirementsSummary": "IGCSE/BGCSE/equivalent with 5 Passes including English and Mathematics. Applicants in possession of a Diploma or Higher Diploma in related fields may be given exemptions based on the credit point equivalency.",
       "careers": [
-        "Business Analyst",
-        "Operations Manager",
-        "Business Development Officer",
-        "Entrepreneur"
+        "Accountant",
+        "Auditor",
+        "Financial Analyst",
+        "Banking Officer"
       ],
       "sourceUrl": "https://www.bothouniversity.com/lesotho/programmes",
       "sourcePath": null,
@@ -1086,10 +1058,10 @@ window.EDUGUIDE_ADMIN_DATA = {
       "overview": "Your future in accounting starts here. The Bachelor of Commerce in Accounting offers a practical, industry-focused pathway to a rewarding career in accounting and finance. You will build expertise in financial reporting, auditing, taxation, and management accounting. What makes this degree distinctive is its strong balance of theory and practice, including a compulsory semester-long internship that provides invaluable real-world experience. Graduates are prepared for a wide range of careers in public and private accounting, financial analysis, banking, and government. The programme also lays a solid foundation for professional certifications such as ACCA, CPA, and CIMA, opening doors to advanced career opportunities and ensuring you are ready to excel in today's financial world.",
       "requirementsSummary": "IGCSE/BGCSE/equivalent with 5 Passes including English and Mathematics. Applicants in possession of a Diploma or Higher Diploma in related fields may be given exemptions based on the credit point equivalency.",
       "careers": [
-        "Business Analyst",
-        "Operations Manager",
-        "Business Development Officer",
-        "Entrepreneur"
+        "Accountant",
+        "Auditor",
+        "Financial Analyst",
+        "Banking Officer"
       ],
       "sourceUrl": "https://www.bothouniversity.com/lesotho/programmes",
       "sourcePath": null,
@@ -1114,10 +1086,10 @@ window.EDUGUIDE_ADMIN_DATA = {
       "overview": "Step into the world of high-level finance with the Bachelor of Commerce in Finance. This programme provides a robust, industry-aligned foundation in corporate finance, investment management, and financial markets. You will develop essential expertise in financial modelling, valuation, risk assessment, and portfolio construction, using the same analytical tools and data as modern finance professionals. What distinguishes this degree is its seamless integration of academic rigour and practical application. Through simulations, case studies, and industry-standard platforms, you will tackle real-world financial challenges. The curriculum is further enriched by a compulsory professional attachment and a research dissertation, ensuring you graduate with the hands-on experience employers demand. Whether you aspire to work in investment banking, fintech, or corporate treasury, this degree provides the strategic mindset and quantitative skills to excel in global financial sectors.",
       "requirementsSummary": "IGCSE/BGCSE/equivalent with 5 Passes including English and Mathematics. Applicants in possession of a Diploma or Higher Diploma in related fields may be given exemptions based on the credit point equivalency.",
       "careers": [
-        "Architect",
-        "Architectural Technologist",
-        "Quantity Surveyor",
-        "Urban Planner"
+        "Accountant",
+        "Auditor",
+        "Financial Analyst",
+        "Banking Officer"
       ],
       "sourceUrl": "https://www.bothouniversity.com/lesotho/programmes",
       "sourcePath": null,
@@ -1142,10 +1114,10 @@ window.EDUGUIDE_ADMIN_DATA = {
       "overview": "Elevate your career in a global industry with the Bachelor of Commerce in Hospitality Management. This programme focuses on service excellence and operational efficiency, equipping you to thrive in the fast-paced tourism and hospitality sectors. You will build a versatile toolkit covering hotel operations, food and beverage management, and event planning, all supported by core business disciplines like marketing, accounting, and human resources. What makes this degree unique is its extensive work-integrated learning, with almost half of the programme dedicated to industry-based experience. This hands-on approach sharpens your leadership, customer service, and problem-solving skills in real-world environments. With an additional focus on digital transformation and sustainability, you will graduate ready for supervisory and management roles. Whether your goal is to manage a luxury resort or launch an entrepreneurial venture, this degree provides the expertise to lead in the modern hospitality landscape.",
       "requirementsSummary": "IGCSE/BGCSE/equivalent with 5 Passes. Applicants in possession of a Diploma or Higher Diploma in related fields may be given exemptions based on the credit point equivalency.",
       "careers": [
-        "Human Resources Officer",
-        "Talent Acquisition Specialist",
-        "Training Coordinator",
-        "Employee Relations Officer"
+        "Accountant",
+        "Auditor",
+        "Financial Analyst",
+        "Banking Officer"
       ],
       "sourceUrl": "https://www.bothouniversity.com/lesotho/programmes",
       "sourcePath": null,
@@ -1170,10 +1142,10 @@ window.EDUGUIDE_ADMIN_DATA = {
       "overview": "Launch your career in the heartbeat of the financial sector with the Bachelor of Commerce in Investment and Banking. This rigorous programme provides an industry-focused pathway into financial markets, banking operations, and investment analysis. You will build a powerful technical toolkit in portfolio management, corporate finance, treasury operations, and credit assessment, gaining direct exposure to the decision-making frameworks used by global institutions. The programme's hallmark is the fusion of academic depth with practical training. You will master applied financial modelling and use industry-relevant analytical tools to navigate real market data. With a compulsory professional attachment and a research dissertation, you'll gain the hands-on experience and strategic insight required by top employers. Graduates are well-equipped for high-impact roles in investment banking, asset management, and fintech, ready to drive success in today's competitive global economy.",
       "requirementsSummary": "IGCSE/BGCSE/equivalent with 5 Passes including English and Mathematics. Applicants in possession of a Diploma or Higher Diploma in related fields may be given exemptions based on the credit point equivalency.",
       "careers": [
-        "Business Analyst",
-        "Operations Manager",
-        "Business Development Officer",
-        "Entrepreneur"
+        "Accountant",
+        "Auditor",
+        "Financial Analyst",
+        "Banking Officer"
       ],
       "sourceUrl": "https://www.bothouniversity.com/lesotho/programmes",
       "sourcePath": null,
@@ -3662,10 +3634,10 @@ window.EDUGUIDE_ADMIN_DATA = {
       "overview": null,
       "requirementsSummary": null,
       "careers": [
-        "Business Analyst",
-        "Operations Manager",
-        "Business Development Officer",
-        "Entrepreneur"
+        "Accountant",
+        "Auditor",
+        "Financial Analyst",
+        "Banking Officer"
       ],
       "sourceUrl": "https://nul.ls/faculty-of-social-sciences/academic-programmes/",
       "sourcePath": null,
@@ -6098,10 +6070,10 @@ window.EDUGUIDE_ADMIN_DATA = {
       "overview": "The CAT qualification is offered on a 12 months basis from January to December and July to June. The CAT qualification level is the preparation stage for the ACCA qualification. Therefore, upon completion there is automatic transfer onto ACCA qualification programme and will be given free exemptions from the first three examinations at Applied Knowledge Skills Module level. That is; Completion of CAT Stage Certificate lead to Applied Skills Module level of the ACCA qualification. There are nine modules in this qualification.",
       "requirementsSummary": "LGCSE/COSC with minimum 6 subjects, 4 credits including Mathematics or English or Accounting, and aggregate not exceeding 36; or Diploma/IB/Certificate from a MOET-registered TVET institution; or comparable qualifications assessed by ECOL/MOET.",
       "careers": [
-        "Business Analyst",
-        "Operations Manager",
-        "Business Development Officer",
-        "Entrepreneur"
+        "Accountant",
+        "Auditor",
+        "Financial Analyst",
+        "Banking Officer"
       ],
       "sourceUrl": "https://cas.ac.ls/course/certified-accounting-certificate-cat/",
       "sourcePath": null,
@@ -6126,10 +6098,10 @@ window.EDUGUIDE_ADMIN_DATA = {
       "overview": "ACCA is the world's most forward-thinking professional accountancy body. ACCA is able to create the innovative, strategic-thinking accountants for the fast-changing world. It is the largest professional body of financial accountants. ACCA qualification is recognized on a variety of national frameworks around the world and accredited by the Lesotho Council on Higher Education (CHE). ACCA has a joint examination partnership with the Lesotho Institute of Accountants that allows students to qualify using the ACCA qualification structure. This is the gold standard qualification in accountancy, opening doors to highly respected, interesting career opportunities in any sector.",
       "requirementsSummary": "CAT entry requires LGCSE/COSC with minimum 6 subjects, 4 credits including Mathematics or English or Accounting, and aggregate not exceeding 36. Applied Knowledge entry is available to non-accounting degree holders, diploma holders from HEI/TVET, or A-Level applicants with Mathematics and English plus 3 years accounting work experience.",
       "careers": [
-        "Business Analyst",
-        "Operations Manager",
-        "Business Development Officer",
-        "Entrepreneur"
+        "Accountant",
+        "Auditor",
+        "Financial Analyst",
+        "Banking Officer"
       ],
       "sourceUrl": "https://cas.ac.ls/course/acca/",
       "sourcePath": null,
@@ -6154,10 +6126,10 @@ window.EDUGUIDE_ADMIN_DATA = {
       "overview": "CIMA is the world's leading, and largest professional body of management accountants. It's unique blend of management accounting, financial accounting and business oriented subjects produces competent and confident business leaders who can lead their organizations to sustainable success. CIMA is driving the technological evolution in the business world and at the core of the CIMA qualification are digital skills which ensure our students and members remain relevant in driving organizations forward.",
       "requirementsSummary": "Certificate in Business Accounting entry uses the same LGCSE/COSC requirements as CAT; or a TVET Diploma; or comparable qualifications.",
       "careers": [
-        "Business Analyst",
-        "Operations Manager",
-        "Business Development Officer",
-        "Entrepreneur"
+        "Accountant",
+        "Auditor",
+        "Financial Analyst",
+        "Banking Officer"
       ],
       "sourceUrl": "https://cas.ac.ls/course/cima/",
       "sourcePath": null,
@@ -6182,10 +6154,10 @@ window.EDUGUIDE_ADMIN_DATA = {
       "overview": "The Certificate is offered on a nine months basis from April to December. There are three modules in this qualification.",
       "requirementsSummary": "Applicant must be employed by the Government of Lesotho for at least 2 years in accounts or finance.",
       "careers": [
-        "Business Analyst",
-        "Operations Manager",
-        "Business Development Officer",
-        "Entrepreneur"
+        "Accountant",
+        "Auditor",
+        "Financial Analyst",
+        "Banking Officer"
       ],
       "sourceUrl": "https://cas.ac.ls/course/certificate-in-international-public-financial-management/",
       "sourcePath": null,
@@ -6210,10 +6182,10 @@ window.EDUGUIDE_ADMIN_DATA = {
       "overview": "Financial services is an area in the business ecosystem associated with management of money, value creation, financial assets and property. A career in the financial services sector is potentially an appealing prospect to those who have keen interest and aptitude to work in the ever-growing sector, characterised by dynamism, digitalisation and constant innovation.",
       "requirementsSummary": "DIRECT ENTRY: LGCSE - A Candidate Should have sat for a minimum of six (6) subjects, Must have four credits which include Mathematics and English Language and any other two (2) subjects, plus Passes in any two (2) subjects Admissions Points Score (APS) should not exceed 34. COSC A candidate. Should have sat for a minimum of six (6) subjects, Must have four credits which include Mathematics and English Language and any other two (2) subjects, plus Passes in any two (2) subjects Admissions Points Score (APS) should not exceed 34. INTERNATIONAL STUDENTS International students who hold foreign qualifications are advised to submit their transcripts or results slips to Examination Council of Lesotho (ECOL) for evaluation and conversion of their results to the local standards so that CAS can assess them accordingly. INDIRECT ENTRY: A candidate should have A pass or better in Diploma in Business Management or equivalent qualifications from recognised institutions or, IB Diploma with a minimum of six subjects, including three at higher level, and should have achieved a total score of at least 30 out of 45 points or,",
       "careers": [
-        "Business Analyst",
-        "Operations Manager",
-        "Business Development Officer",
-        "Entrepreneur"
+        "Accountant",
+        "Auditor",
+        "Financial Analyst",
+        "Banking Officer"
       ],
       "sourceUrl": "https://cas.ac.ls/bachelor-of-arts-in-financial-services-bafs/",
       "sourcePath": null,
@@ -6238,10 +6210,10 @@ window.EDUGUIDE_ADMIN_DATA = {
       "overview": null,
       "requirementsSummary": null,
       "careers": [
-        "Business Analyst",
-        "Operations Manager",
-        "Business Development Officer",
-        "Entrepreneur"
+        "Accountant",
+        "Auditor",
+        "Financial Analyst",
+        "Banking Officer"
       ],
       "sourceUrl": "https://cas.ac.ls/course/lesotho-professional-accountancy-programmelepap",
       "sourcePath": null,
@@ -6294,10 +6266,10 @@ window.EDUGUIDE_ADMIN_DATA = {
       "overview": "The Business Development unit has a team comprised of quality personnel who have immense skill, technical know-how and extensive experience as well as necessary credentials to facilitate tasks and projects. The team holds comprehensive qualifications recognized on a global scale , and aims to provide excellent service to our clients and add value to customers.",
       "requirementsSummary": null,
       "careers": [
-        "Business Analyst",
-        "Operations Manager",
-        "Business Development Officer",
-        "Entrepreneur"
+        "Accountant",
+        "Auditor",
+        "Financial Analyst",
+        "Banking Officer"
       ],
       "sourceUrl": "https://cas.ac.ls/course/corporate-training-ct/",
       "sourcePath": null,
@@ -6434,10 +6406,10 @@ window.EDUGUIDE_ADMIN_DATA = {
       "overview": null,
       "requirementsSummary": "LGCSE/COSC with at least 4 subjects at C or better and 2 subjects at D or better; or AS with at least 2 subjects at C and 2 subjects at E; or a Diploma with Education (second class pass, or pass plus 2 years experience); or a Diploma without Education with pass. Certificate in Early Childhood Education is also an entry route for the Preschool and Foundation Phase programme.",
       "careers": [
-        "Primary school teacher from Grade R to Grade 7",
-        "Curriculum developer",
-        "Teaching and learning resource developer",
-        "Textbook author"
+        "Teacher",
+        "Curriculum Developer",
+        "Education Officer",
+        "Teaching and Learning Resource Developer"
       ],
       "sourceUrl": null,
       "sourcePath": "C:/Users/lepha/Downloads/Lesotho College Of Education.pdf",
@@ -6462,10 +6434,10 @@ window.EDUGUIDE_ADMIN_DATA = {
       "overview": null,
       "requirementsSummary": "LGCSE/COSC with at least 4 subjects at C or better and 2 subjects at D or better; or AS with at least 2 subjects at C and 2 subjects at E; or a Diploma with Education (second class pass, or pass plus 2 years experience); or a Diploma without Education with pass. Certificate in Early Childhood Education is also an entry route for the Preschool and Foundation Phase programme.",
       "careers": [
-        "Preschool to Grade 3 teacher",
-        "Curriculum developer",
-        "Teaching and learning resource developer",
-        "Textbook author"
+        "Teacher",
+        "Curriculum Developer",
+        "Education Officer",
+        "Teaching and Learning Resource Developer"
       ],
       "sourceUrl": null,
       "sourcePath": "C:/Users/lepha/Downloads/Lesotho College Of Education.pdf",
@@ -6490,10 +6462,10 @@ window.EDUGUIDE_ADMIN_DATA = {
       "overview": null,
       "requirementsSummary": "Applicant must possess LGCSE/COSC or equivalent. Foreign acquired qualifications should be evaluated by the Examinations Council of Lesotho before submission. Candidate must have passed a minimum of six subjects, including D or better in English Language, D or better in Mathematics, D or better in Physics/Chemistry/Biology, and D or better in any other three subjects. Working experience as a ward attendant is an added advantage.",
       "careers": [
-        "Nursing Assistant",
-        "Clinic Assistant",
-        "Community Care Assistant",
-        "Care Home Assistant"
+        "Registered Nurse",
+        "Community Health Nurse",
+        "Clinical Nurse",
+        "Nursing Specialist"
       ],
       "sourceUrl": "https://www.scribd.com/document/763854725/2024-2025-Final-Prospectus",
       "sourcePath": "C:/Users/lepha/Downloads/data/Paray 2024-2025-final-prospectus.pdf",
@@ -6518,9 +6490,9 @@ window.EDUGUIDE_ADMIN_DATA = {
       "overview": null,
       "requirementsSummary": "Applicant must possess LGCSE/COSC or equivalent. Foreign acquired qualifications should be evaluated by ECOL before submission. Candidate must have passed a minimum of six subjects, including D or better in Mathematics, D or better in English Language, C or better in Physics/Chemistry, C or better in Biology, and C or better in any other two subjects. OR Certificate in Nursing Assistant passed with merit/distinction and a minimum of five passed subjects at COSC/LGCSE. Working experience as a Nursing Assistant is an added advantage.",
       "careers": [
-        "Nurse",
-        "Clinic Nurse",
+        "Registered Nurse",
         "Community Health Nurse",
+        "Clinical Nurse",
         "Nursing Specialist"
       ],
       "sourceUrl": "https://www.scribd.com/document/763854725/2024-2025-Final-Prospectus",
@@ -6546,10 +6518,10 @@ window.EDUGUIDE_ADMIN_DATA = {
       "overview": null,
       "requirementsSummary": "Entry route is Diploma in Nursing and registration certificate with Lesotho Nursing Council (LNC), OR Diploma in Nursing second-year transcript pending final results. This is a post-basic pathway and should not be treated as direct high-school entry.",
       "careers": [
-        "Midwife",
-        "Maternal Health Nurse",
-        "Maternity Unit Nurse",
-        "Neonatal Care Nurse"
+        "Registered Nurse",
+        "Community Health Nurse",
+        "Clinical Nurse",
+        "Nursing Specialist"
       ],
       "sourceUrl": "https://www.scribd.com/document/763854725/2024-2025-Final-Prospectus",
       "sourcePath": "C:/Users/lepha/Downloads/data/Paray 2024-2025-final-prospectus.pdf",
@@ -6574,11 +6546,10 @@ window.EDUGUIDE_ADMIN_DATA = {
       "overview": null,
       "requirementsSummary": "Minimum entry level for BBA and BHCM is Higher Secondary School Level (10+2) or equivalent A-Levels, CBSE or other courses recognised by the National Education Board of Nepal, with a minimum of second division (45% aggregate) or 2.0 CGPA and minimum Grade C in each subject. Students must also pass the college entrance test, group discussion, and interview.",
       "careers": [
-        "Banking Officer",
-        "Marketing Officer",
-        "Human Resource Officer",
-        "Entrepreneur",
-        "Strategic Management Assistant"
+        "Business Analyst",
+        "Operations Manager",
+        "Business Development Officer",
+        "Entrepreneur"
       ],
       "sourceUrl": "https://www.imperialcollege.edu.np/",
       "sourcePath": "C:/Users/lepha/Downloads/data/IBC prospectus-outlined-fonts.pdf",
@@ -6603,11 +6574,10 @@ window.EDUGUIDE_ADMIN_DATA = {
       "overview": null,
       "requirementsSummary": "Minimum entry level for BBA and BHCM is Higher Secondary School Level (10+2) or equivalent A-Levels, CBSE or other courses recognised by the National Education Board of Nepal, with a minimum of second division (45% aggregate) or 2.0 CGPA and minimum Grade C in each subject. Students must also pass the college entrance test, group discussion, and interview.",
       "careers": [
-        "Hospital Management Officer",
-        "Health Insurance Officer",
-        "Pharmaceutical Company Officer",
-        "Medical Representative",
-        "Health Care Facility Administrator"
+        "Laboratory Technologist",
+        "Research Scientist",
+        "Science Teacher",
+        "Quality Control Analyst"
       ],
       "sourceUrl": "https://www.imperialcollege.edu.np/",
       "sourcePath": "C:/Users/lepha/Downloads/data/IBC prospectus-outlined-fonts.pdf",
