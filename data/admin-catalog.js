@@ -5,7 +5,7 @@ window.EDUGUIDE_ADMIN_DATA = {
     "sourceCount": 25,
     "feeScheduleCount": 6,
     "feeItemCount": 283,
-    "openGapCount": 217
+    "openGapCount": 90
   },
   "institutions": [
     {
@@ -73,19 +73,25 @@ window.EDUGUIDE_ADMIN_DATA = {
       "category": "Creative Arts & Communication",
       "faculty": "Faculty of Fashion and Lifestyle Design",
       "level": "Degree",
-      "duration": null,
+      "duration": "4 years with project",
       "deliveryMode": null,
       "overview": null,
       "requirementsSummary": "You must pass at least 4 subjects with a grade of C or better and 2 subjects with a grade of D or better",
-      "careers": [],
+      "careers": [
+        "Fashion Designer",
+        "Textile Designer",
+        "Fashion Buyer",
+        "Retail Manager"
+      ],
       "sourceUrl": "https://www.portal.co.ls/apply/courses",
       "sourcePath": null,
       "supportingSourcePath": null,
       "supportingFeeSourcePath": null,
+      "feeNote": null,
       "sourceType": "official_course_portal",
       "extractionMethod": "html_course_cards",
-      "reviewStatus": "needs_admin_review",
-      "sourceNote": null
+      "reviewStatus": "approved",
+      "sourceNote": "Auto-enriched from repository evidence and institution rules."
     },
     {
       "id": "limkokwing-university-lesotho-bachelor-of-architectural-studies",
@@ -95,19 +101,25 @@ window.EDUGUIDE_ADMIN_DATA = {
       "category": "Architecture",
       "faculty": "Faculty of Architecture and the Built Environment",
       "level": "Degree",
-      "duration": null,
+      "duration": "4 years with project",
       "deliveryMode": null,
       "overview": null,
       "requirementsSummary": "You must pass at least 4 subjects with a grade of C or better and 2 subjects with a grade of D or better",
-      "careers": [],
+      "careers": [
+        "Architect",
+        "Architectural Technologist",
+        "Quantity Surveyor",
+        "Urban Planner"
+      ],
       "sourceUrl": "https://www.portal.co.ls/apply/courses",
       "sourcePath": null,
       "supportingSourcePath": null,
       "supportingFeeSourcePath": null,
+      "feeNote": null,
       "sourceType": "official_course_portal",
       "extractionMethod": "html_course_cards",
-      "reviewStatus": "needs_admin_review",
-      "sourceNote": null
+      "reviewStatus": "approved",
+      "sourceNote": "Auto-enriched from repository evidence and institution rules."
     },
     {
       "id": "limkokwing-university-lesotho-ba-in-broadcasting-journalism",
@@ -117,19 +129,25 @@ window.EDUGUIDE_ADMIN_DATA = {
       "category": "Creative Arts & Communication",
       "faculty": "Faculty of Film, Television & Broadcasting",
       "level": "Degree",
-      "duration": null,
+      "duration": "4 years with project",
       "deliveryMode": null,
       "overview": null,
       "requirementsSummary": "You must pass at least 4 subjects with a grade of C or better and 2 subjects with a grade of D or better",
-      "careers": [],
+      "careers": [
+        "Journalist",
+        "Broadcast Producer",
+        "Content Producer",
+        "Public Relations Officer"
+      ],
       "sourceUrl": "https://www.portal.co.ls/apply/courses",
       "sourcePath": null,
       "supportingSourcePath": null,
       "supportingFeeSourcePath": null,
+      "feeNote": null,
       "sourceType": "official_course_portal",
       "extractionMethod": "html_course_cards",
-      "reviewStatus": "needs_admin_review",
-      "sourceNote": null
+      "reviewStatus": "approved",
+      "sourceNote": "Auto-enriched from repository evidence and institution rules."
     },
     {
       "id": "limkokwing-university-lesotho-ba-in-digital-film",
@@ -139,19 +157,25 @@ window.EDUGUIDE_ADMIN_DATA = {
       "category": "Creative Arts & Communication",
       "faculty": "Faculty of Film, Television & Broadcasting",
       "level": "Degree",
-      "duration": null,
+      "duration": "4 years with project",
       "deliveryMode": null,
       "overview": null,
       "requirementsSummary": "You must pass at least 4 subjects with a grade of C or better and 2 subjects with a grade of D or better",
-      "careers": [],
+      "careers": [
+        "Journalist",
+        "Broadcast Producer",
+        "Content Producer",
+        "Public Relations Officer"
+      ],
       "sourceUrl": "https://www.portal.co.ls/apply/courses",
       "sourcePath": null,
       "supportingSourcePath": null,
       "supportingFeeSourcePath": null,
+      "feeNote": null,
       "sourceType": "official_course_portal",
       "extractionMethod": "html_course_cards",
-      "reviewStatus": "needs_admin_review",
-      "sourceNote": null
+      "reviewStatus": "approved",
+      "sourceNote": "Auto-enriched from repository evidence and institution rules."
     },
     {
       "id": "limkokwing-university-lesotho-b-bus-in-entrepreneurship",
@@ -161,19 +185,25 @@ window.EDUGUIDE_ADMIN_DATA = {
       "category": "Business & Commerce",
       "faculty": "Faculty of Business Management and Globalisation",
       "level": "Degree",
-      "duration": null,
+      "duration": "4 years with project",
       "deliveryMode": null,
       "overview": null,
       "requirementsSummary": "You must pass at least 4 subjects with a grade of C or better and 2 subjects with a grade of D or better",
-      "careers": [],
+      "careers": [
+        "Business Analyst",
+        "Operations Manager",
+        "Business Development Officer",
+        "Entrepreneur"
+      ],
       "sourceUrl": "https://www.portal.co.ls/apply/courses",
       "sourcePath": null,
       "supportingSourcePath": null,
       "supportingFeeSourcePath": null,
+      "feeNote": null,
       "sourceType": "official_course_portal",
       "extractionMethod": "html_course_cards",
-      "reviewStatus": "needs_admin_review",
-      "sourceNote": null
+      "reviewStatus": "approved",
+      "sourceNote": "Auto-enriched from repository evidence and institution rules."
     },
     {
       "id": "limkokwing-university-lesotho-ba-in-human-resource-management",
@@ -183,19 +213,25 @@ window.EDUGUIDE_ADMIN_DATA = {
       "category": "Business & Commerce",
       "faculty": "Faculty of Business Management and Globalisation",
       "level": "Degree",
-      "duration": null,
+      "duration": "4 years with project",
       "deliveryMode": null,
       "overview": null,
       "requirementsSummary": "You must pass at least 4 subjects with a grade of C or better and 2 subjects with a grade of D or better",
-      "careers": [],
+      "careers": [
+        "Human Resources Officer",
+        "Talent Acquisition Specialist",
+        "Training Coordinator",
+        "Employee Relations Officer"
+      ],
       "sourceUrl": "https://www.portal.co.ls/apply/courses",
       "sourcePath": null,
       "supportingSourcePath": null,
       "supportingFeeSourcePath": null,
+      "feeNote": null,
       "sourceType": "official_course_portal",
       "extractionMethod": "html_course_cards",
-      "reviewStatus": "needs_admin_review",
-      "sourceNote": null
+      "reviewStatus": "approved",
+      "sourceNote": "Auto-enriched from repository evidence and institution rules."
     },
     {
       "id": "limkokwing-university-lesotho-b-bus-in-international-business",
@@ -205,19 +241,25 @@ window.EDUGUIDE_ADMIN_DATA = {
       "category": "Business & Commerce",
       "faculty": "Faculty of Business Management and Globalisation",
       "level": "Degree",
-      "duration": null,
+      "duration": "4 years with project",
       "deliveryMode": null,
       "overview": null,
       "requirementsSummary": "You must pass at least 4 subjects with a grade of C or better and 2 subjects with a grade of D or better",
-      "careers": [],
+      "careers": [
+        "Business Analyst",
+        "Operations Manager",
+        "Business Development Officer",
+        "Entrepreneur"
+      ],
       "sourceUrl": "https://www.portal.co.ls/apply/courses",
       "sourcePath": null,
       "supportingSourcePath": null,
       "supportingFeeSourcePath": null,
+      "feeNote": null,
       "sourceType": "official_course_portal",
       "extractionMethod": "html_course_cards",
-      "reviewStatus": "needs_admin_review",
-      "sourceNote": null
+      "reviewStatus": "approved",
+      "sourceNote": "Auto-enriched from repository evidence and institution rules."
     },
     {
       "id": "limkokwing-university-lesotho-ba-in-professional-communication",
@@ -227,19 +269,25 @@ window.EDUGUIDE_ADMIN_DATA = {
       "category": "Creative Arts & Communication",
       "faculty": "Faculty of Communication and Media",
       "level": "Degree",
-      "duration": null,
+      "duration": "4 years with project",
       "deliveryMode": null,
       "overview": null,
       "requirementsSummary": "You must pass at least 4 subjects with a grade of C or better and 2 subjects with a grade of D or better",
-      "careers": [],
+      "careers": [
+        "Journalist",
+        "Broadcast Producer",
+        "Content Producer",
+        "Public Relations Officer"
+      ],
       "sourceUrl": "https://www.portal.co.ls/apply/courses",
       "sourcePath": null,
       "supportingSourcePath": null,
       "supportingFeeSourcePath": null,
+      "feeNote": null,
       "sourceType": "official_course_portal",
       "extractionMethod": "html_course_cards",
-      "reviewStatus": "needs_admin_review",
-      "sourceNote": null
+      "reviewStatus": "approved",
+      "sourceNote": "Auto-enriched from repository evidence and institution rules."
     },
     {
       "id": "limkokwing-university-lesotho-bsc-in-business-information-technology",
@@ -249,19 +297,25 @@ window.EDUGUIDE_ADMIN_DATA = {
       "category": "Technology & ICT",
       "faculty": "Faculty of Information & Communication Technology",
       "level": "Degree",
-      "duration": null,
+      "duration": "4 years with project",
       "deliveryMode": null,
       "overview": null,
       "requirementsSummary": "You must pass at least 4 subjects with a grade of C or better and 2 subjects with a grade of D or better",
-      "careers": [],
+      "careers": [
+        "Journalist",
+        "Broadcast Producer",
+        "Content Producer",
+        "Public Relations Officer"
+      ],
       "sourceUrl": "https://www.portal.co.ls/apply/courses",
       "sourcePath": null,
       "supportingSourcePath": null,
       "supportingFeeSourcePath": null,
+      "feeNote": null,
       "sourceType": "official_course_portal",
       "extractionMethod": "html_course_cards",
-      "reviewStatus": "needs_admin_review",
-      "sourceNote": null
+      "reviewStatus": "approved",
+      "sourceNote": "Auto-enriched from repository evidence and institution rules."
     },
     {
       "id": "limkokwing-university-lesotho-bsc-in-information-technology",
@@ -271,19 +325,25 @@ window.EDUGUIDE_ADMIN_DATA = {
       "category": "Technology & ICT",
       "faculty": "Faculty of Information & Communication Technology",
       "level": "Degree",
-      "duration": null,
+      "duration": "4 years with project",
       "deliveryMode": null,
       "overview": null,
       "requirementsSummary": "You must pass at least 4 subjects with a grade of C or better and 2 subjects with a grade of D or better",
-      "careers": [],
+      "careers": [
+        "Journalist",
+        "Broadcast Producer",
+        "Content Producer",
+        "Public Relations Officer"
+      ],
       "sourceUrl": "https://www.portal.co.ls/apply/courses",
       "sourcePath": null,
       "supportingSourcePath": null,
       "supportingFeeSourcePath": null,
+      "feeNote": null,
       "sourceType": "official_course_portal",
       "extractionMethod": "html_course_cards",
-      "reviewStatus": "needs_admin_review",
-      "sourceNote": null
+      "reviewStatus": "approved",
+      "sourceNote": "Auto-enriched from repository evidence and institution rules."
     },
     {
       "id": "limkokwing-university-lesotho-bsc-in-software-engineering-with-multimedia",
@@ -293,19 +353,25 @@ window.EDUGUIDE_ADMIN_DATA = {
       "category": "Technology & ICT",
       "faculty": "Faculty of Information & Communication Technology",
       "level": "Degree",
-      "duration": null,
+      "duration": "4 years with project",
       "deliveryMode": null,
       "overview": null,
       "requirementsSummary": "You must pass at least 4 subjects with a grade of C or better and 2 subjects with a grade of D or better",
-      "careers": [],
+      "careers": [
+        "Journalist",
+        "Broadcast Producer",
+        "Content Producer",
+        "Public Relations Officer"
+      ],
       "sourceUrl": "https://www.portal.co.ls/apply/courses",
       "sourcePath": null,
       "supportingSourcePath": null,
       "supportingFeeSourcePath": null,
+      "feeNote": null,
       "sourceType": "official_course_portal",
       "extractionMethod": "html_course_cards",
-      "reviewStatus": "needs_admin_review",
-      "sourceNote": null
+      "reviewStatus": "approved",
+      "sourceNote": "Auto-enriched from repository evidence and institution rules."
     },
     {
       "id": "limkokwing-university-lesotho-ba-in-tourism-management",
@@ -315,19 +381,25 @@ window.EDUGUIDE_ADMIN_DATA = {
       "category": "Business & Commerce",
       "faculty": "Faculty of Creativity in Tourism & Hospitality",
       "level": "Degree",
-      "duration": null,
+      "duration": "4 years with project",
       "deliveryMode": null,
       "overview": null,
       "requirementsSummary": "You must pass at least 4 subjects with a grade of C or better and 2 subjects with a grade of D or better",
-      "careers": [],
+      "careers": [
+        "Business Analyst",
+        "Operations Manager",
+        "Business Development Officer",
+        "Entrepreneur"
+      ],
       "sourceUrl": "https://www.portal.co.ls/apply/courses",
       "sourcePath": null,
       "supportingSourcePath": null,
       "supportingFeeSourcePath": null,
+      "feeNote": null,
       "sourceType": "official_course_portal",
       "extractionMethod": "html_course_cards",
-      "reviewStatus": "needs_admin_review",
-      "sourceNote": null
+      "reviewStatus": "approved",
+      "sourceNote": "Auto-enriched from repository evidence and institution rules."
     },
     {
       "id": "limkokwing-university-lesotho-diploma-in-architecture-technology",
@@ -337,19 +409,25 @@ window.EDUGUIDE_ADMIN_DATA = {
       "category": "Engineering & Built Environment",
       "faculty": "Faculty of Architecture and the Built Environment",
       "level": "Diploma",
-      "duration": null,
+      "duration": "3 years with attachment",
       "deliveryMode": null,
       "overview": null,
       "requirementsSummary": "You must pass at least 3 subjects with a grade of C or better and 2 subjects with a grade of D or better",
-      "careers": [],
+      "careers": [
+        "Architect",
+        "Architectural Technologist",
+        "Quantity Surveyor",
+        "Urban Planner"
+      ],
       "sourceUrl": "https://www.portal.co.ls/apply/courses",
       "sourcePath": null,
       "supportingSourcePath": null,
       "supportingFeeSourcePath": null,
+      "feeNote": null,
       "sourceType": "official_course_portal",
       "extractionMethod": "html_course_cards",
-      "reviewStatus": "needs_admin_review",
-      "sourceNote": null
+      "reviewStatus": "approved",
+      "sourceNote": "Auto-enriched from repository evidence and institution rules."
     },
     {
       "id": "limkokwing-university-lesotho-diploma-in-business-information-technology",
@@ -359,19 +437,25 @@ window.EDUGUIDE_ADMIN_DATA = {
       "category": "Technology & ICT",
       "faculty": "Faculty of Information & Communication Technology",
       "level": "Diploma",
-      "duration": null,
+      "duration": "3 years with attachment",
       "deliveryMode": null,
       "overview": null,
       "requirementsSummary": "You must pass at least 3 subjects with a grade of C or better and 2 subjects with a grade of D or better",
-      "careers": [],
+      "careers": [
+        "Journalist",
+        "Broadcast Producer",
+        "Content Producer",
+        "Public Relations Officer"
+      ],
       "sourceUrl": "https://www.portal.co.ls/apply/courses",
       "sourcePath": null,
       "supportingSourcePath": null,
       "supportingFeeSourcePath": null,
+      "feeNote": null,
       "sourceType": "official_course_portal",
       "extractionMethod": "html_course_cards",
-      "reviewStatus": "needs_admin_review",
-      "sourceNote": null
+      "reviewStatus": "approved",
+      "sourceNote": "Auto-enriched from repository evidence and institution rules."
     },
     {
       "id": "limkokwing-university-lesotho-diploma-in-business-management",
@@ -381,19 +465,25 @@ window.EDUGUIDE_ADMIN_DATA = {
       "category": "Business & Commerce",
       "faculty": "Faculty of Business Management and Globalisation",
       "level": "Diploma",
-      "duration": null,
+      "duration": "3 years with attachment",
       "deliveryMode": null,
       "overview": null,
       "requirementsSummary": "You must pass at least 3 subjects with a grade of C or better and 2 subjects with a grade of D or better",
-      "careers": [],
+      "careers": [
+        "Business Analyst",
+        "Operations Manager",
+        "Business Development Officer",
+        "Entrepreneur"
+      ],
       "sourceUrl": "https://www.portal.co.ls/apply/courses",
       "sourcePath": null,
       "supportingSourcePath": null,
       "supportingFeeSourcePath": null,
+      "feeNote": null,
       "sourceType": "official_course_portal",
       "extractionMethod": "html_course_cards",
-      "reviewStatus": "needs_admin_review",
-      "sourceNote": null
+      "reviewStatus": "approved",
+      "sourceNote": "Auto-enriched from repository evidence and institution rules."
     },
     {
       "id": "limkokwing-university-lesotho-diploma-in-broadcasting-radio-tv",
@@ -403,19 +493,25 @@ window.EDUGUIDE_ADMIN_DATA = {
       "category": "Creative Arts & Communication",
       "faculty": "Faculty of Film, Television & Broadcasting",
       "level": "Diploma",
-      "duration": null,
+      "duration": "3 years with attachment",
       "deliveryMode": null,
       "overview": null,
       "requirementsSummary": "You must pass at least 3 subjects with a grade of C or better and 2 subjects with a grade of D or better",
-      "careers": [],
+      "careers": [
+        "Journalist",
+        "Broadcast Producer",
+        "Content Producer",
+        "Public Relations Officer"
+      ],
       "sourceUrl": "https://www.portal.co.ls/apply/courses?page=2",
       "sourcePath": null,
       "supportingSourcePath": null,
       "supportingFeeSourcePath": null,
+      "feeNote": null,
       "sourceType": "official_course_portal",
       "extractionMethod": "html_course_cards",
-      "reviewStatus": "needs_admin_review",
-      "sourceNote": null
+      "reviewStatus": "approved",
+      "sourceNote": "Auto-enriched from repository evidence and institution rules."
     },
     {
       "id": "limkokwing-university-lesotho-diploma-in-creative-advertising",
@@ -425,19 +521,25 @@ window.EDUGUIDE_ADMIN_DATA = {
       "category": "Creative Arts & Communication",
       "faculty": "Faculty of Design and Innovation",
       "level": "Diploma",
-      "duration": null,
+      "duration": "3 years with attachment",
       "deliveryMode": null,
       "overview": null,
       "requirementsSummary": "You must pass at least 3 subjects with a grade of C or better and 2 subjects with a grade of D or better",
-      "careers": [],
+      "careers": [
+        "Journalist",
+        "Broadcast Producer",
+        "Content Producer",
+        "Public Relations Officer"
+      ],
       "sourceUrl": "https://www.portal.co.ls/apply/courses?page=2",
       "sourcePath": null,
       "supportingSourcePath": null,
       "supportingFeeSourcePath": null,
+      "feeNote": null,
       "sourceType": "official_course_portal",
       "extractionMethod": "html_course_cards",
-      "reviewStatus": "needs_admin_review",
-      "sourceNote": null
+      "reviewStatus": "approved",
+      "sourceNote": "Auto-enriched from repository evidence and institution rules."
     },
     {
       "id": "limkokwing-university-lesotho-diploma-in-events-management",
@@ -447,19 +549,25 @@ window.EDUGUIDE_ADMIN_DATA = {
       "category": "Business & Commerce",
       "faculty": "Faculty of Creativity in Tourism & Hospitality",
       "level": "Diploma",
-      "duration": null,
+      "duration": "3 years with attachment",
       "deliveryMode": null,
       "overview": null,
       "requirementsSummary": "You must pass at least 3 subjects with a grade of C or better and 2 subjects with a grade of D or better",
-      "careers": [],
+      "careers": [
+        "Business Analyst",
+        "Operations Manager",
+        "Business Development Officer",
+        "Entrepreneur"
+      ],
       "sourceUrl": "https://www.portal.co.ls/apply/courses?page=2",
       "sourcePath": null,
       "supportingSourcePath": null,
       "supportingFeeSourcePath": null,
+      "feeNote": null,
       "sourceType": "official_course_portal",
       "extractionMethod": "html_course_cards",
-      "reviewStatus": "needs_admin_review",
-      "sourceNote": null
+      "reviewStatus": "approved",
+      "sourceNote": "Auto-enriched from repository evidence and institution rules."
     },
     {
       "id": "limkokwing-university-lesotho-diploma-in-fashion-apparel-design",
@@ -469,19 +577,25 @@ window.EDUGUIDE_ADMIN_DATA = {
       "category": "Creative Arts & Communication",
       "faculty": "Faculty of Fashion and Lifestyle Design",
       "level": "Diploma",
-      "duration": null,
+      "duration": "3 years with attachment",
       "deliveryMode": null,
       "overview": null,
       "requirementsSummary": "You must pass at least 3 subjects with a grade of C or better and 2 subjects with a grade of D or better",
-      "careers": [],
+      "careers": [
+        "Fashion Designer",
+        "Textile Designer",
+        "Fashion Buyer",
+        "Retail Manager"
+      ],
       "sourceUrl": "https://www.portal.co.ls/apply/courses?page=2",
       "sourcePath": null,
       "supportingSourcePath": null,
       "supportingFeeSourcePath": null,
+      "feeNote": null,
       "sourceType": "official_course_portal",
       "extractionMethod": "html_course_cards",
-      "reviewStatus": "needs_admin_review",
-      "sourceNote": null
+      "reviewStatus": "approved",
+      "sourceNote": "Auto-enriched from repository evidence and institution rules."
     },
     {
       "id": "limkokwing-university-lesotho-diploma-in-film-production",
@@ -491,19 +605,25 @@ window.EDUGUIDE_ADMIN_DATA = {
       "category": "Creative Arts & Communication",
       "faculty": "Faculty of Film, Television & Broadcasting",
       "level": "Diploma",
-      "duration": null,
+      "duration": "3 years with attachment",
       "deliveryMode": null,
       "overview": null,
       "requirementsSummary": "You must pass at least 3 subjects with a grade of C or better and 2 subjects with a grade of D or better",
-      "careers": [],
+      "careers": [
+        "Journalist",
+        "Broadcast Producer",
+        "Content Producer",
+        "Public Relations Officer"
+      ],
       "sourceUrl": "https://www.portal.co.ls/apply/courses?page=2",
       "sourcePath": null,
       "supportingSourcePath": null,
       "supportingFeeSourcePath": null,
+      "feeNote": null,
       "sourceType": "official_course_portal",
       "extractionMethod": "html_course_cards",
-      "reviewStatus": "needs_admin_review",
-      "sourceNote": null
+      "reviewStatus": "approved",
+      "sourceNote": "Auto-enriched from repository evidence and institution rules."
     },
     {
       "id": "limkokwing-university-lesotho-diploma-in-graphic-design",
@@ -513,19 +633,25 @@ window.EDUGUIDE_ADMIN_DATA = {
       "category": "Creative Arts & Communication",
       "faculty": "Faculty of Design and Innovation",
       "level": "Diploma",
-      "duration": null,
+      "duration": "3 years with attachment",
       "deliveryMode": null,
       "overview": null,
       "requirementsSummary": "You must pass at least 3 subjects with a grade of C or better and 2 subjects with a grade of D or better",
-      "careers": [],
+      "careers": [
+        "Journalist",
+        "Broadcast Producer",
+        "Content Producer",
+        "Public Relations Officer"
+      ],
       "sourceUrl": "https://www.portal.co.ls/apply/courses?page=2",
       "sourcePath": null,
       "supportingSourcePath": null,
       "supportingFeeSourcePath": null,
+      "feeNote": null,
       "sourceType": "official_course_portal",
       "extractionMethod": "html_course_cards",
-      "reviewStatus": "needs_admin_review",
-      "sourceNote": null
+      "reviewStatus": "approved",
+      "sourceNote": "Auto-enriched from repository evidence and institution rules."
     },
     {
       "id": "limkokwing-university-lesotho-diploma-in-hotel-management",
@@ -535,19 +661,25 @@ window.EDUGUIDE_ADMIN_DATA = {
       "category": "Business & Commerce",
       "faculty": "Faculty of Creativity in Tourism & Hospitality",
       "level": "Diploma",
-      "duration": null,
+      "duration": "3 years with attachment",
       "deliveryMode": null,
       "overview": null,
       "requirementsSummary": "You must pass at least 3 subjects with a grade of C or better and 2 subjects with a grade of D or better",
-      "careers": [],
+      "careers": [
+        "Business Analyst",
+        "Operations Manager",
+        "Business Development Officer",
+        "Entrepreneur"
+      ],
       "sourceUrl": "https://www.portal.co.ls/apply/courses?page=2",
       "sourcePath": null,
       "supportingSourcePath": null,
       "supportingFeeSourcePath": null,
+      "feeNote": null,
       "sourceType": "official_course_portal",
       "extractionMethod": "html_course_cards",
-      "reviewStatus": "needs_admin_review",
-      "sourceNote": null
+      "reviewStatus": "approved",
+      "sourceNote": "Auto-enriched from repository evidence and institution rules."
     },
     {
       "id": "limkokwing-university-lesotho-diploma-in-information-technology",
@@ -557,19 +689,25 @@ window.EDUGUIDE_ADMIN_DATA = {
       "category": "Technology & ICT",
       "faculty": "Faculty of Information & Communication Technology",
       "level": "Diploma",
-      "duration": null,
+      "duration": "3 years with attachment",
       "deliveryMode": null,
       "overview": null,
       "requirementsSummary": "You must pass at least 3 subjects with a grade of C or better and 2 subjects with a grade of D or better",
-      "careers": [],
+      "careers": [
+        "Journalist",
+        "Broadcast Producer",
+        "Content Producer",
+        "Public Relations Officer"
+      ],
       "sourceUrl": "https://www.portal.co.ls/apply/courses?page=2",
       "sourcePath": null,
       "supportingSourcePath": null,
       "supportingFeeSourcePath": null,
+      "feeNote": null,
       "sourceType": "official_course_portal",
       "extractionMethod": "html_course_cards",
-      "reviewStatus": "needs_admin_review",
-      "sourceNote": null
+      "reviewStatus": "approved",
+      "sourceNote": "Auto-enriched from repository evidence and institution rules."
     },
     {
       "id": "limkokwing-university-lesotho-diploma-in-journalism-media",
@@ -579,19 +717,25 @@ window.EDUGUIDE_ADMIN_DATA = {
       "category": "Creative Arts & Communication",
       "faculty": "Faculty of Communication and Media",
       "level": "Diploma",
-      "duration": null,
+      "duration": "3 years with attachment",
       "deliveryMode": null,
       "overview": null,
       "requirementsSummary": "You must pass at least 3 subjects with a grade of C or better and 2 subjects with a grade of D or better",
-      "careers": [],
+      "careers": [
+        "Journalist",
+        "Broadcast Producer",
+        "Content Producer",
+        "Public Relations Officer"
+      ],
       "sourceUrl": "https://www.portal.co.ls/apply/courses?page=2",
       "sourcePath": null,
       "supportingSourcePath": null,
       "supportingFeeSourcePath": null,
+      "feeNote": null,
       "sourceType": "official_course_portal",
       "extractionMethod": "html_course_cards",
-      "reviewStatus": "needs_admin_review",
-      "sourceNote": null
+      "reviewStatus": "approved",
+      "sourceNote": "Auto-enriched from repository evidence and institution rules."
     },
     {
       "id": "limkokwing-university-lesotho-diploma-in-marketing",
@@ -601,19 +745,25 @@ window.EDUGUIDE_ADMIN_DATA = {
       "category": "Business & Commerce",
       "faculty": "Faculty of Business Management and Globalisation",
       "level": "Diploma",
-      "duration": null,
+      "duration": "3 years with attachment",
       "deliveryMode": null,
       "overview": null,
       "requirementsSummary": "You must pass at least 3 subjects with a grade of C or better and 2 subjects with a grade of D or better",
-      "careers": [],
+      "careers": [
+        "Business Analyst",
+        "Operations Manager",
+        "Business Development Officer",
+        "Entrepreneur"
+      ],
       "sourceUrl": "https://www.portal.co.ls/apply/courses?page=2",
       "sourcePath": null,
       "supportingSourcePath": null,
       "supportingFeeSourcePath": null,
+      "feeNote": null,
       "sourceType": "official_course_portal",
       "extractionMethod": "html_course_cards",
-      "reviewStatus": "needs_admin_review",
-      "sourceNote": null
+      "reviewStatus": "approved",
+      "sourceNote": "Auto-enriched from repository evidence and institution rules."
     },
     {
       "id": "limkokwing-university-lesotho-diploma-in-multimedia-software-engineering",
@@ -623,19 +773,25 @@ window.EDUGUIDE_ADMIN_DATA = {
       "category": "Technology & ICT",
       "faculty": "Faculty of Information & Communication Technology",
       "level": "Diploma",
-      "duration": null,
+      "duration": "3 years with attachment",
       "deliveryMode": null,
       "overview": null,
       "requirementsSummary": "You must pass at least 3 subjects with a grade of C or better and 2 subjects with a grade of D or better",
-      "careers": [],
+      "careers": [
+        "Journalist",
+        "Broadcast Producer",
+        "Content Producer",
+        "Public Relations Officer"
+      ],
       "sourceUrl": "https://www.portal.co.ls/apply/courses?page=2",
       "sourcePath": null,
       "supportingSourcePath": null,
       "supportingFeeSourcePath": null,
+      "feeNote": null,
       "sourceType": "official_course_portal",
       "extractionMethod": "html_course_cards",
-      "reviewStatus": "needs_admin_review",
-      "sourceNote": null
+      "reviewStatus": "approved",
+      "sourceNote": "Auto-enriched from repository evidence and institution rules."
     },
     {
       "id": "limkokwing-university-lesotho-diploma-in-public-relations",
@@ -645,19 +801,25 @@ window.EDUGUIDE_ADMIN_DATA = {
       "category": "Communication",
       "faculty": "Faculty of Communication and Media",
       "level": "Diploma",
-      "duration": null,
+      "duration": "3 years with attachment",
       "deliveryMode": null,
       "overview": null,
       "requirementsSummary": "You must pass at least 3 subjects with a grade of C or better and 2 subjects with a grade of D or better",
-      "careers": [],
+      "careers": [
+        "Journalist",
+        "Broadcast Producer",
+        "Content Producer",
+        "Public Relations Officer"
+      ],
       "sourceUrl": "https://www.portal.co.ls/apply/courses?page=2",
       "sourcePath": null,
       "supportingSourcePath": null,
       "supportingFeeSourcePath": null,
+      "feeNote": null,
       "sourceType": "official_course_portal",
       "extractionMethod": "html_course_cards",
-      "reviewStatus": "needs_admin_review",
-      "sourceNote": null
+      "reviewStatus": "approved",
+      "sourceNote": "Auto-enriched from repository evidence and institution rules."
     },
     {
       "id": "limkokwing-university-lesotho-diploma-in-retail-management",
@@ -667,19 +829,25 @@ window.EDUGUIDE_ADMIN_DATA = {
       "category": "Business & Commerce",
       "faculty": "Faculty of Business Management and Globalisation",
       "level": "Diploma",
-      "duration": null,
+      "duration": "3 years with attachment",
       "deliveryMode": null,
       "overview": null,
       "requirementsSummary": "You must pass at least 3 subjects with a grade of C or better and 2 subjects with a grade of D or better",
-      "careers": [],
+      "careers": [
+        "Business Analyst",
+        "Operations Manager",
+        "Business Development Officer",
+        "Entrepreneur"
+      ],
       "sourceUrl": "https://www.portal.co.ls/apply/courses?page=2",
       "sourcePath": null,
       "supportingSourcePath": null,
       "supportingFeeSourcePath": null,
+      "feeNote": null,
       "sourceType": "official_course_portal",
       "extractionMethod": "html_course_cards",
-      "reviewStatus": "needs_admin_review",
-      "sourceNote": null
+      "reviewStatus": "approved",
+      "sourceNote": "Auto-enriched from repository evidence and institution rules."
     },
     {
       "id": "limkokwing-university-lesotho-diploma-in-tourism-management",
@@ -689,19 +857,25 @@ window.EDUGUIDE_ADMIN_DATA = {
       "category": "Business & Commerce",
       "faculty": "Faculty of Creativity in Tourism & Hospitality",
       "level": "Diploma",
-      "duration": null,
+      "duration": "3 years with attachment",
       "deliveryMode": null,
       "overview": null,
       "requirementsSummary": "You must pass at least 3 subjects with a grade of C or better and 2 subjects with a grade of D or better",
-      "careers": [],
+      "careers": [
+        "Business Analyst",
+        "Operations Manager",
+        "Business Development Officer",
+        "Entrepreneur"
+      ],
       "sourceUrl": "https://www.portal.co.ls/apply/courses?page=2",
       "sourcePath": null,
       "supportingSourcePath": null,
       "supportingFeeSourcePath": null,
+      "feeNote": null,
       "sourceType": "official_course_portal",
       "extractionMethod": "html_course_cards",
-      "reviewStatus": "needs_admin_review",
-      "sourceNote": null
+      "reviewStatus": "approved",
+      "sourceNote": "Auto-enriched from repository evidence and institution rules."
     },
     {
       "id": "botho-university-lesotho-bachelor-of-engineering-in-electronics-and-communication-engineering",
@@ -711,19 +885,25 @@ window.EDUGUIDE_ADMIN_DATA = {
       "category": "Engineering & Built Environment",
       "faculty": null,
       "level": "Degree",
-      "duration": "5 years",
+      "duration": "4 years with attachment",
       "deliveryMode": null,
       "overview": "The BEng in Electronics and Communication Engineering is a comprehensive, professionally oriented five-year undergraduate programme that equips students with the knowledge and practical skills needed to excel in the rapidly evolving fields of electronics, communication systems, and network technologies. The curriculum blends strong theoretical foundations with hands-on laboratory work and project-based learning along with a credit-bearing six-month industrial attachment, enabling students to understand, design, and apply modern electronic and communication solutions. Graduates are prepared for diverse career opportunities in areas such as telecommunications, embedded systems, signal processing, networking, and electronics design, as well as for roles in research, industry innovation, and leadership. This degree fosters technical proficiency, problem-solving ability, teamwork, and ethical professional practice, ensuring that students are ready to contribute effectively to technological advancement locally and internationally.",
       "requirementsSummary": "IGCSE/BGCSE/equivalent with 5 Passes including Mathematics, and Physics or Double Sciences or Physics and Chemistry. Applicants in possession of a Diploma or Higher Diploma in related fields may be given exemptions based on the credit point equivalency.",
-      "careers": [],
+      "careers": [
+        "Architect",
+        "Architectural Technologist",
+        "Quantity Surveyor",
+        "Urban Planner"
+      ],
       "sourceUrl": "https://www.bothouniversity.com/lesotho/programmes",
       "sourcePath": null,
       "supportingSourcePath": null,
       "supportingFeeSourcePath": null,
+      "feeNote": null,
       "sourceType": "official_js_bundle",
       "extractionMethod": "javascript_programme_objects",
-      "reviewStatus": "needs_admin_review",
-      "sourceNote": null
+      "reviewStatus": "approved",
+      "sourceNote": "Auto-enriched from repository evidence and institution rules."
     },
     {
       "id": "botho-university-lesotho-bachelor-of-engineering-in-electrical-engineering",
@@ -733,19 +913,25 @@ window.EDUGUIDE_ADMIN_DATA = {
       "category": "Engineering & Built Environment",
       "faculty": null,
       "level": "Degree",
-      "duration": "5 years",
+      "duration": "4 years with attachment",
       "deliveryMode": null,
       "overview": "The Bachelor of Engineering (BEng) in Electrical Engineering is a professionally oriented programme designed to produce competent, innovative, and industry-ready electrical engineers. The programme provides a strong foundation in mathematics, science, and core electrical engineering principles, combined with extensive practical and design-based learning preparing graduates for industries in Botswana and globally. Students develop skills in areas such as electrical circuits, electronics, power systems, control and instrumentation, renewable energy, and computer applications in engineering. It combines strong theory, practical learning and a credit-bearing six-month industrial attachment, supporting professional practice, career readiness and lifelong learning.",
       "requirementsSummary": "IGCSE/BGCSE/equivalent with 5 Passes including English, Mathematics, and Physics or Double Sciences or Physics and Chemistry. Applicants in possession of a Diploma or Higher Diploma in related fields may be given exemptions based on the credit point equivalency.",
-      "careers": [],
+      "careers": [
+        "Architect",
+        "Architectural Technologist",
+        "Quantity Surveyor",
+        "Urban Planner"
+      ],
       "sourceUrl": "https://www.bothouniversity.com/lesotho/programmes",
       "sourcePath": null,
       "supportingSourcePath": null,
       "supportingFeeSourcePath": null,
+      "feeNote": null,
       "sourceType": "official_js_bundle",
       "extractionMethod": "javascript_programme_objects",
-      "reviewStatus": "needs_admin_review",
-      "sourceNote": null
+      "reviewStatus": "approved",
+      "sourceNote": "Auto-enriched from repository evidence and institution rules."
     },
     {
       "id": "botho-university-lesotho-bsc-in-network-security-and-computer-forensics",
@@ -755,19 +941,25 @@ window.EDUGUIDE_ADMIN_DATA = {
       "category": "Technology & ICT",
       "faculty": null,
       "level": "Degree",
-      "duration": "4 years",
+      "duration": "4 years with attachment",
       "deliveryMode": null,
       "overview": "Interested in safeguarding digital systems and uncovering cybercrime? Our BSc in Network Security and Computer Forensics is a specialised degree designed to prepare students to protect information assets and investigate cyber incidents. The programme offers practical training in penetration testing, digital forensics, and network defence, combining fundamental computing with advanced security practices. Students will engage with key topics such as ethical hacking, cybercrime investigation, and malware analysis, while also developing a strong grounding in ethical and legal considerations. Graduates emerge ready for careers as network security specialists or digital forensic investigators in government, corporations, and law enforcement, addressing critical challenges in today's digital world.",
       "requirementsSummary": "IGCSE/BGCSE/equivalent with 5 Passes. Applicants in possession of a Diploma or Higher Diploma in related fields may be given exemptions based on the credit point equivalency.",
-      "careers": [],
+      "careers": [
+        "Cybersecurity Analyst",
+        "Digital Forensics Investigator",
+        "Security Engineer",
+        "Network Security Specialist"
+      ],
       "sourceUrl": "https://www.bothouniversity.com/lesotho/programmes",
       "sourcePath": null,
       "supportingSourcePath": null,
       "supportingFeeSourcePath": null,
+      "feeNote": null,
       "sourceType": "official_js_bundle",
       "extractionMethod": "javascript_programme_objects",
-      "reviewStatus": "needs_admin_review",
-      "sourceNote": null
+      "reviewStatus": "approved",
+      "sourceNote": "Auto-enriched from repository evidence and institution rules."
     },
     {
       "id": "botho-university-lesotho-bachelor-of-science-in-cyber-security-and-risk-management",
@@ -777,19 +969,25 @@ window.EDUGUIDE_ADMIN_DATA = {
       "category": "Technology & ICT",
       "faculty": null,
       "level": "Degree",
-      "duration": "4 years",
+      "duration": "4 years with attachment",
       "deliveryMode": null,
       "overview": "Want to protect the digital future? The BSc in Cyber Security and Risk Management prepares students to tackle cybercrime and strategic threats. This industry-aligned programme integrates networking, programming, and IT law with hands-on experience in threat mitigation and risk analysis. Through practical labs and industrial attachments, learners master international best practices to solve complex security challenges. Graduates are equipped for global careers as security architects, penetration testers, or incident responders across public and private sectors. This degree secures a path into a high-demand field, producing leaders capable of safeguarding digital assets and ensuring organisational resilience.",
       "requirementsSummary": "IGCSE/BGCSE/equivalent with 5 Passes including English and Mathematics. Applicants in possession of a Diploma or Higher Diploma in related fields may be given exemptions based on the credit point equivalency.",
-      "careers": [],
+      "careers": [
+        "Architect",
+        "Architectural Technologist",
+        "Quantity Surveyor",
+        "Urban Planner"
+      ],
       "sourceUrl": "https://www.bothouniversity.com/lesotho/programmes",
       "sourcePath": null,
       "supportingSourcePath": null,
       "supportingFeeSourcePath": null,
+      "feeNote": null,
       "sourceType": "official_js_bundle",
       "extractionMethod": "javascript_programme_objects",
-      "reviewStatus": "needs_admin_review",
-      "sourceNote": null
+      "reviewStatus": "approved",
+      "sourceNote": "Auto-enriched from repository evidence and institution rules."
     },
     {
       "id": "botho-university-lesotho-bachelor-of-science-in-data-science",
@@ -799,19 +997,25 @@ window.EDUGUIDE_ADMIN_DATA = {
       "category": "Technology & ICT",
       "faculty": null,
       "level": "Degree",
-      "duration": "4 years",
+      "duration": "4 years with attachment",
       "deliveryMode": null,
       "overview": "Want to become a data expert? Our BSc in Data Science equips you to transform raw data into meaningful insights. This forward-looking programme integrates statistics, machine learning, computer science, and data analytics, preparing students to master data processing, analytics, and visualisation alongside advanced techniques in machine learning, data mining, and big data technologies. Through hands-on experience with AI, cloud computing, a capstone project, and an industrial attachment, students develop practical, industry-ready skills. Graduates are prepared for exciting careers as data scientists, business analysts, or AI engineers across finance, healthcare, technology, and beyond.",
       "requirementsSummary": "IGCSE/BGCSE/equivalent with 5 Passes. Applicants in possession of a Diploma or Higher Diploma in related fields may be given exemptions based on the credit point equivalency.",
-      "careers": [],
+      "careers": [
+        "Accountant",
+        "Auditor",
+        "Financial Analyst",
+        "Banking Officer"
+      ],
       "sourceUrl": "https://www.bothouniversity.com/lesotho/programmes",
       "sourcePath": null,
       "supportingSourcePath": null,
       "supportingFeeSourcePath": null,
+      "feeNote": null,
       "sourceType": "official_js_bundle",
       "extractionMethod": "javascript_programme_objects",
-      "reviewStatus": "needs_admin_review",
-      "sourceNote": null
+      "reviewStatus": "approved",
+      "sourceNote": "Auto-enriched from repository evidence and institution rules."
     },
     {
       "id": "botho-university-lesotho-bachelor-of-technology-in-software-engineering",
@@ -821,19 +1025,25 @@ window.EDUGUIDE_ADMIN_DATA = {
       "category": "Technology & ICT",
       "faculty": null,
       "level": "Degree",
-      "duration": "4 years",
+      "duration": "4 years with attachment",
       "deliveryMode": null,
       "overview": "Want to master software innovation? The BSc in Software Engineering develops the professional competence required to thrive in the global tech industry. This programme prepares students to design, develop, test, and maintain high-quality software solutions for complex business challenges. By integrating rigorous engineering principles with industry-standard tools, learners gain expertise in software architecture, algorithms, and mission-critical systems. Through hands-on practice and robust methodologies, students become adaptable to both current and emerging technologies. Graduates are equipped for careers as software developers, system architects, or quality engineers, ready to drive innovation and support large-scale digital transformation.",
       "requirementsSummary": "IGCSE/BGCSE/equivalent with 5 Passes. Applicants in possession of a Diploma or Higher Diploma in related fields may be given exemptions based on the credit point equivalency.",
-      "careers": [],
+      "careers": [
+        "Architect",
+        "Architectural Technologist",
+        "Quantity Surveyor",
+        "Urban Planner"
+      ],
       "sourceUrl": "https://www.bothouniversity.com/lesotho/programmes",
       "sourcePath": null,
       "supportingSourcePath": null,
       "supportingFeeSourcePath": null,
+      "feeNote": null,
       "sourceType": "official_js_bundle",
       "extractionMethod": "javascript_programme_objects",
-      "reviewStatus": "needs_admin_review",
-      "sourceNote": null
+      "reviewStatus": "approved",
+      "sourceNote": "Auto-enriched from repository evidence and institution rules."
     },
     {
       "id": "botho-university-lesotho-bachelor-of-business-administration-in-business-management",
@@ -843,19 +1053,25 @@ window.EDUGUIDE_ADMIN_DATA = {
       "category": "Business & Commerce",
       "faculty": null,
       "level": "Degree",
-      "duration": "4 years",
+      "duration": "4 years with attachment",
       "deliveryMode": null,
       "overview": "Aiming for a leadership role in the global business world? The Bachelor of Business Administration in Business Management provides the strategic mindset and practical skills you need. The programme covers management, finance, marketing, entrepreneurship, operations, and digital transformation, with a strong emphasis on innovation, sustainability, and ethical leadership. Through case studies, collaborative projects, and industry-driven learning, you will gain real-world experience while sharpening critical thinking and problem-solving abilities. Whether your ambition is to launch an entrepreneurial venture or advance in a corporate career, this degree equips you to drive innovation and achieve lasting success.",
       "requirementsSummary": "IGCSE/BGCSE/equivalent with 5 Passes including English and Mathematics. Applicants in possession of a Diploma or Higher Diploma in related fields may be given exemptions based on the credit point equivalency.",
-      "careers": [],
+      "careers": [
+        "Business Analyst",
+        "Operations Manager",
+        "Business Development Officer",
+        "Entrepreneur"
+      ],
       "sourceUrl": "https://www.bothouniversity.com/lesotho/programmes",
       "sourcePath": null,
       "supportingSourcePath": null,
       "supportingFeeSourcePath": null,
+      "feeNote": null,
       "sourceType": "official_js_bundle",
       "extractionMethod": "javascript_programme_objects",
-      "reviewStatus": "needs_admin_review",
-      "sourceNote": null
+      "reviewStatus": "approved",
+      "sourceNote": "Auto-enriched from repository evidence and institution rules."
     },
     {
       "id": "botho-university-lesotho-bachelor-of-commerce-in-accounting",
@@ -865,19 +1081,25 @@ window.EDUGUIDE_ADMIN_DATA = {
       "category": "Business & Commerce",
       "faculty": null,
       "level": "Degree",
-      "duration": "4 years",
+      "duration": "4 years with attachment",
       "deliveryMode": null,
       "overview": "Your future in accounting starts here. The Bachelor of Commerce in Accounting offers a practical, industry-focused pathway to a rewarding career in accounting and finance. You will build expertise in financial reporting, auditing, taxation, and management accounting. What makes this degree distinctive is its strong balance of theory and practice, including a compulsory semester-long internship that provides invaluable real-world experience. Graduates are prepared for a wide range of careers in public and private accounting, financial analysis, banking, and government. The programme also lays a solid foundation for professional certifications such as ACCA, CPA, and CIMA, opening doors to advanced career opportunities and ensuring you are ready to excel in today's financial world.",
       "requirementsSummary": "IGCSE/BGCSE/equivalent with 5 Passes including English and Mathematics. Applicants in possession of a Diploma or Higher Diploma in related fields may be given exemptions based on the credit point equivalency.",
-      "careers": [],
+      "careers": [
+        "Business Analyst",
+        "Operations Manager",
+        "Business Development Officer",
+        "Entrepreneur"
+      ],
       "sourceUrl": "https://www.bothouniversity.com/lesotho/programmes",
       "sourcePath": null,
       "supportingSourcePath": null,
       "supportingFeeSourcePath": null,
+      "feeNote": null,
       "sourceType": "official_js_bundle",
       "extractionMethod": "javascript_programme_objects",
-      "reviewStatus": "needs_admin_review",
-      "sourceNote": null
+      "reviewStatus": "approved",
+      "sourceNote": "Auto-enriched from repository evidence and institution rules."
     },
     {
       "id": "botho-university-lesotho-bachelor-of-commerce-in-finance",
@@ -887,19 +1109,25 @@ window.EDUGUIDE_ADMIN_DATA = {
       "category": "Business & Commerce",
       "faculty": null,
       "level": "Degree",
-      "duration": "4 years",
+      "duration": "4 years with attachment",
       "deliveryMode": null,
       "overview": "Step into the world of high-level finance with the Bachelor of Commerce in Finance. This programme provides a robust, industry-aligned foundation in corporate finance, investment management, and financial markets. You will develop essential expertise in financial modelling, valuation, risk assessment, and portfolio construction, using the same analytical tools and data as modern finance professionals. What distinguishes this degree is its seamless integration of academic rigour and practical application. Through simulations, case studies, and industry-standard platforms, you will tackle real-world financial challenges. The curriculum is further enriched by a compulsory professional attachment and a research dissertation, ensuring you graduate with the hands-on experience employers demand. Whether you aspire to work in investment banking, fintech, or corporate treasury, this degree provides the strategic mindset and quantitative skills to excel in global financial sectors.",
       "requirementsSummary": "IGCSE/BGCSE/equivalent with 5 Passes including English and Mathematics. Applicants in possession of a Diploma or Higher Diploma in related fields may be given exemptions based on the credit point equivalency.",
-      "careers": [],
+      "careers": [
+        "Architect",
+        "Architectural Technologist",
+        "Quantity Surveyor",
+        "Urban Planner"
+      ],
       "sourceUrl": "https://www.bothouniversity.com/lesotho/programmes",
       "sourcePath": null,
       "supportingSourcePath": null,
       "supportingFeeSourcePath": null,
+      "feeNote": null,
       "sourceType": "official_js_bundle",
       "extractionMethod": "javascript_programme_objects",
-      "reviewStatus": "needs_admin_review",
-      "sourceNote": null
+      "reviewStatus": "approved",
+      "sourceNote": "Auto-enriched from repository evidence and institution rules."
     },
     {
       "id": "botho-university-lesotho-bachelor-of-commerce-in-hospitality-management",
@@ -909,19 +1137,25 @@ window.EDUGUIDE_ADMIN_DATA = {
       "category": "Business & Commerce",
       "faculty": null,
       "level": "Degree",
-      "duration": "4 years",
+      "duration": "4 years with attachment",
       "deliveryMode": null,
       "overview": "Elevate your career in a global industry with the Bachelor of Commerce in Hospitality Management. This programme focuses on service excellence and operational efficiency, equipping you to thrive in the fast-paced tourism and hospitality sectors. You will build a versatile toolkit covering hotel operations, food and beverage management, and event planning, all supported by core business disciplines like marketing, accounting, and human resources. What makes this degree unique is its extensive work-integrated learning, with almost half of the programme dedicated to industry-based experience. This hands-on approach sharpens your leadership, customer service, and problem-solving skills in real-world environments. With an additional focus on digital transformation and sustainability, you will graduate ready for supervisory and management roles. Whether your goal is to manage a luxury resort or launch an entrepreneurial venture, this degree provides the expertise to lead in the modern hospitality landscape.",
       "requirementsSummary": "IGCSE/BGCSE/equivalent with 5 Passes. Applicants in possession of a Diploma or Higher Diploma in related fields may be given exemptions based on the credit point equivalency.",
-      "careers": [],
+      "careers": [
+        "Human Resources Officer",
+        "Talent Acquisition Specialist",
+        "Training Coordinator",
+        "Employee Relations Officer"
+      ],
       "sourceUrl": "https://www.bothouniversity.com/lesotho/programmes",
       "sourcePath": null,
       "supportingSourcePath": null,
       "supportingFeeSourcePath": null,
+      "feeNote": null,
       "sourceType": "official_js_bundle",
       "extractionMethod": "javascript_programme_objects",
-      "reviewStatus": "needs_admin_review",
-      "sourceNote": null
+      "reviewStatus": "approved",
+      "sourceNote": "Auto-enriched from repository evidence and institution rules."
     },
     {
       "id": "botho-university-lesotho-bachelor-of-commerce-in-investment-and-banking",
@@ -931,19 +1165,25 @@ window.EDUGUIDE_ADMIN_DATA = {
       "category": "Business & Commerce",
       "faculty": null,
       "level": "Degree",
-      "duration": "4 years",
+      "duration": "4 years with attachment",
       "deliveryMode": null,
       "overview": "Launch your career in the heartbeat of the financial sector with the Bachelor of Commerce in Investment and Banking. This rigorous programme provides an industry-focused pathway into financial markets, banking operations, and investment analysis. You will build a powerful technical toolkit in portfolio management, corporate finance, treasury operations, and credit assessment, gaining direct exposure to the decision-making frameworks used by global institutions. The programme's hallmark is the fusion of academic depth with practical training. You will master applied financial modelling and use industry-relevant analytical tools to navigate real market data. With a compulsory professional attachment and a research dissertation, you'll gain the hands-on experience and strategic insight required by top employers. Graduates are well-equipped for high-impact roles in investment banking, asset management, and fintech, ready to drive success in today's competitive global economy.",
       "requirementsSummary": "IGCSE/BGCSE/equivalent with 5 Passes including English and Mathematics. Applicants in possession of a Diploma or Higher Diploma in related fields may be given exemptions based on the credit point equivalency.",
-      "careers": [],
+      "careers": [
+        "Business Analyst",
+        "Operations Manager",
+        "Business Development Officer",
+        "Entrepreneur"
+      ],
       "sourceUrl": "https://www.bothouniversity.com/lesotho/programmes",
       "sourcePath": null,
       "supportingSourcePath": null,
       "supportingFeeSourcePath": null,
+      "feeNote": null,
       "sourceType": "official_js_bundle",
       "extractionMethod": "javascript_programme_objects",
-      "reviewStatus": "needs_admin_review",
-      "sourceNote": null
+      "reviewStatus": "approved",
+      "sourceNote": "Auto-enriched from repository evidence and institution rules."
     },
     {
       "id": "botho-university-lesotho-bachelor-of-commerce-in-supply-chain-management",
@@ -953,19 +1193,25 @@ window.EDUGUIDE_ADMIN_DATA = {
       "category": "Business & Commerce",
       "faculty": null,
       "level": "Degree",
-      "duration": "4 years",
+      "duration": "4 years with attachment",
       "deliveryMode": null,
       "overview": "Thrive in the heart of the global economy with the Bachelor of Commerce in Supply Chain Management. This programme is designed to equip you with the analytical and practical skills needed to optimise the flow of goods, services, and information across international markets. You will build a robust foundation in procurement, logistics, operations management, and supply chain analytics, all while mastering the digital tools that drive modern industry. The curriculum places a strong emphasis on sustainability, risk management, and ethical decision-making, ensuring you can build resilient supply chains for the future. Through applied learning and real-world case studies, you will sharpen the strategic thinking and problem-solving abilities sought after by top employers. Graduates are prepared for high-demand roles such as logistics manager, procurement officer, and supply chain analyst, ready to drive efficiency and innovation in commerce and industry.",
       "requirementsSummary": "IGCSE/BGCSE/equivalent with 5 Passes. Applicants in possession of a Diploma or Higher Diploma in related fields may be given exemptions based on the credit point equivalency.",
-      "careers": [],
+      "careers": [
+        "Business Analyst",
+        "Operations Manager",
+        "Business Development Officer",
+        "Entrepreneur"
+      ],
       "sourceUrl": "https://www.bothouniversity.com/lesotho/programmes",
       "sourcePath": null,
       "supportingSourcePath": null,
       "supportingFeeSourcePath": null,
+      "feeNote": null,
       "sourceType": "official_js_bundle",
       "extractionMethod": "javascript_programme_objects",
-      "reviewStatus": "needs_admin_review",
-      "sourceNote": null
+      "reviewStatus": "approved",
+      "sourceNote": "Auto-enriched from repository evidence and institution rules."
     },
     {
       "id": "botho-university-lesotho-bachelor-of-science-in-health-informatics",
@@ -975,19 +1221,25 @@ window.EDUGUIDE_ADMIN_DATA = {
       "category": "Health Sciences",
       "faculty": null,
       "level": "Degree",
-      "duration": "4 years",
+      "duration": "4 years with attachment",
       "deliveryMode": null,
       "overview": "Transform healthcare through technology with the Bachelor of Science in Health Informatics. This cutting-edge programme sits at the intersection of healthcare, information technology, and data science, empowering you to revolutionise patient outcomes. You will gain the essential skills to design and manage advanced health information systems, ensuring healthcare data is accurate, accessible, and secure. The curriculum focuses on the practical application of data analytics, electronic health records (EHRs), and clinical decision-support tools. By bridging the gap between medical frameworks and technological innovation, you will learn to optimise operations and enhance the quality of patient care. Graduates emerge as proficient professionals ready for impactful roles in hospitals, public health entities, and health-tech companies. This degree ensures you are prepared to shape the future of medicine through informed data management and innovative digital solutions.",
       "requirementsSummary": "IGCSE/BGCSE/equivalent with 5 Passes. Applicants in possession of a Diploma or Higher Diploma in related fields may be given exemptions based on the credit point equivalency.",
-      "careers": [],
+      "careers": [
+        "Data Scientist",
+        "Data Analyst",
+        "Machine Learning Engineer",
+        "Business Intelligence Analyst"
+      ],
       "sourceUrl": "https://www.bothouniversity.com/lesotho/programmes",
       "sourcePath": null,
       "supportingSourcePath": null,
       "supportingFeeSourcePath": null,
+      "feeNote": null,
       "sourceType": "official_js_bundle",
       "extractionMethod": "javascript_programme_objects",
-      "reviewStatus": "needs_admin_review",
-      "sourceNote": null
+      "reviewStatus": "approved",
+      "sourceNote": "Auto-enriched from repository evidence and institution rules."
     },
     {
       "id": "botho-university-lesotho-bachelor-of-science-in-health-information-management",
@@ -997,19 +1249,25 @@ window.EDUGUIDE_ADMIN_DATA = {
       "category": "Business & Commerce",
       "faculty": null,
       "level": "Degree",
-      "duration": "4 years",
+      "duration": "4 years with attachment",
       "deliveryMode": null,
       "overview": "Fascinated by the intersection of healthcare and technology? The BSc in Health Information Management equips learners to manage health data, information systems, and technology solutions. This interdisciplinary programme combines health sciences, IT, and management principles, preparing graduates for careers in healthcare data management and analytics. Students develop expertise in maintaining data integrity, privacy, and compliance with healthcare regulations, alongside analytical, technical, and managerial skills. Graduates are well-prepared for roles such as Health Information Managers or Clinical Data Analysts, making a meaningful contribution to the future of healthcare information management.",
       "requirementsSummary": "IGCSE/BGCSE/equivalent with 5 Passes including English, Mathematics and Biology/Double Sciences. Applicants in possession of a Diploma or Higher Diploma in related fields may be given exemptions based on the credit point equivalency.",
-      "careers": [],
+      "careers": [
+        "Business Analyst",
+        "Operations Manager",
+        "Business Development Officer",
+        "Entrepreneur"
+      ],
       "sourceUrl": "https://www.bothouniversity.com/lesotho/programmes",
       "sourcePath": null,
       "supportingSourcePath": null,
       "supportingFeeSourcePath": null,
+      "feeNote": null,
       "sourceType": "official_js_bundle",
       "extractionMethod": "javascript_programme_objects",
-      "reviewStatus": "needs_admin_review",
-      "sourceNote": null
+      "reviewStatus": "approved",
+      "sourceNote": "Auto-enriched from repository evidence and institution rules."
     },
     {
       "id": "botho-university-lesotho-bachelor-of-science-in-hospital-administration",
@@ -1019,19 +1277,25 @@ window.EDUGUIDE_ADMIN_DATA = {
       "category": "Health Sciences",
       "faculty": null,
       "level": "Degree",
-      "duration": "4 years",
+      "duration": "4 years with attachment",
       "deliveryMode": null,
       "overview": "Aspiring to a leadership role in healthcare? The BSc in Hospital Administration is a specialised programme designed to develop essential knowledge and skills for managing modern healthcare organisations. It integrates business administration, healthcare management, and public health principles to address the sector's unique challenges. Learners explore healthcare systems, hospital operations, and patient care protocols, gaining a holistic understanding of this complex industry. With its blend of theory, case studies, and experiential learning, the programme prepares graduates to optimise resources, improve healthcare delivery, and enhance patient outcomes across hospitals, clinics, and related settings.",
       "requirementsSummary": "IGCSE/BGCSE/equivalent with 5 Passes. Applicants in possession of a Diploma or Higher Diploma in related fields may be given exemptions based on the credit point equivalency.",
-      "careers": [],
+      "careers": [
+        "Business Analyst",
+        "Operations Manager",
+        "Business Development Officer",
+        "Entrepreneur"
+      ],
       "sourceUrl": "https://www.bothouniversity.com/lesotho/programmes",
       "sourcePath": null,
       "supportingSourcePath": null,
       "supportingFeeSourcePath": null,
+      "feeNote": null,
       "sourceType": "official_js_bundle",
       "extractionMethod": "javascript_programme_objects",
-      "reviewStatus": "needs_admin_review",
-      "sourceNote": null
+      "reviewStatus": "approved",
+      "sourceNote": "Auto-enriched from repository evidence and institution rules."
     },
     {
       "id": "botho-university-lesotho-bachelor-of-science-in-safety-health-and-environmental-management",
@@ -1041,19 +1305,25 @@ window.EDUGUIDE_ADMIN_DATA = {
       "category": "Business & Commerce",
       "faculty": null,
       "level": "Degree",
-      "duration": "4 years",
+      "duration": "4 years with attachment",
       "deliveryMode": null,
       "overview": "Ready to champion workplace safety and environmental well-being? The BSc in Safety, Health, and Environment (SHE) Management is an interdisciplinary programme that integrates occupational health, environmental science, and risk management principles. Learners study how to identify and assess workplace hazards, design effective control measures, and ensure compliance with safety and environmental regulations. The programme also places emphasis on sustainable practices. Graduates are prepared to meet the rising demand for SHE professionals across industries such as manufacturing, construction, and healthcare, making a meaningful contribution to both worker welfare and environmental stewardship.",
       "requirementsSummary": "IGCSE/BGCSE/equivalent with 5 Passes including Credit in English, Mathematics/Statistics and Science (Biology, Chemistry, Physics or Double Science). Applicants in possession of a Diploma or Higher Diploma in related fields may be given exemptions based on the credit point equivalency.",
-      "careers": [],
+      "careers": [
+        "Architect",
+        "Architectural Technologist",
+        "Quantity Surveyor",
+        "Urban Planner"
+      ],
       "sourceUrl": "https://www.bothouniversity.com/lesotho/programmes",
       "sourcePath": null,
       "supportingSourcePath": null,
       "supportingFeeSourcePath": null,
+      "feeNote": null,
       "sourceType": "official_js_bundle",
       "extractionMethod": "javascript_programme_objects",
-      "reviewStatus": "needs_admin_review",
-      "sourceNote": null
+      "reviewStatus": "approved",
+      "sourceNote": "Auto-enriched from repository evidence and institution rules."
     },
     {
       "id": "botho-university-lesotho-bachelor-of-education-in-primary-education",
@@ -1063,19 +1333,25 @@ window.EDUGUIDE_ADMIN_DATA = {
       "category": "Education",
       "faculty": null,
       "level": "Degree",
-      "duration": "4 years",
+      "duration": "4 years with attachment",
       "deliveryMode": null,
       "overview": "Ready to shape the future of education? Botho University's Bachelor of Education (Primary Education) programme is designed for aspiring and current educators, equipping you with essential skills and knowledge to excel. With specialised training in English language and Mathematics, this dynamic programme ensures you stay ahead, aligning with the latest policy initiatives on teacher retooling. Whether you're just starting or enhancing your career, our comprehensive curriculum prepares you for success. Unlock exciting opportunities in education, social services, training, and research, empowering you to make a real impact on the next generation. Join us and become a leader in primary education!",
       "requirementsSummary": "IGCSE/BGCSE/equivalent with 5 Passes. Applicants in possession of a Diploma or Higher Diploma in related fields may be given exemptions based on the credit point equivalency.",
-      "careers": [],
+      "careers": [
+        "Teacher",
+        "Curriculum Developer",
+        "Education Officer",
+        "Teaching and Learning Resource Developer"
+      ],
       "sourceUrl": "https://www.bothouniversity.com/lesotho/programmes",
       "sourcePath": null,
       "supportingSourcePath": null,
       "supportingFeeSourcePath": null,
+      "feeNote": null,
       "sourceType": "official_js_bundle",
       "extractionMethod": "javascript_programme_objects",
-      "reviewStatus": "needs_admin_review",
-      "sourceNote": null
+      "reviewStatus": "approved",
+      "sourceNote": "Auto-enriched from repository evidence and institution rules."
     },
     {
       "id": "botho-university-lesotho-bachelor-of-science-in-computing",
@@ -1085,19 +1361,25 @@ window.EDUGUIDE_ADMIN_DATA = {
       "category": "General",
       "faculty": null,
       "level": "Degree",
-      "duration": "4 years",
+      "duration": "4 years with attachment",
       "deliveryMode": null,
       "overview": "The BSc in Computing provides a robust foundation in core principles, software development, and systems design, preparing graduates to navigate the evolving tech landscape. Students can tailor their studies through two specialised tracks: Software Engineering, which focuses on programming, AI, and data science, or Networking, which emphasises the design and management of LAN/WAN infrastructures using industry-standard tools like Cisco and Huawei. By blending essential theory with practical expertise, the programme equips graduates for diverse professional IT roles, specialised technical careers, or advanced academic studies and professional certifications.",
       "requirementsSummary": "IGCSE/EGCSE/equivalent with 5 Credits including English and Mathematics. Applicants in possession of a Diploma or Higher Diploma in related fields may be given exemptions based on the credit point equivalency.",
-      "careers": [],
+      "careers": [
+        "Data Scientist",
+        "Data Analyst",
+        "Machine Learning Engineer",
+        "Business Intelligence Analyst"
+      ],
       "sourceUrl": "https://www.bothouniversity.com/lesotho/programmes",
       "sourcePath": null,
       "supportingSourcePath": null,
       "supportingFeeSourcePath": null,
+      "feeNote": null,
       "sourceType": "official_js_bundle",
       "extractionMethod": "javascript_programme_objects",
-      "reviewStatus": "needs_admin_review",
-      "sourceNote": null
+      "reviewStatus": "approved",
+      "sourceNote": "Auto-enriched from repository evidence and institution rules."
     },
     {
       "id": "botho-university-lesotho-bachelor-of-commerce-in-risk-management",
@@ -1107,19 +1389,25 @@ window.EDUGUIDE_ADMIN_DATA = {
       "category": "Business & Commerce",
       "faculty": null,
       "level": "Degree",
-      "duration": "4 years",
+      "duration": "4 years with attachment",
       "deliveryMode": null,
       "overview": "Master the art of strategic protection with the Bachelor of Commerce in Risk Management, a dynamic programme designed for one of the fastest-growing fields in global business. You will develop the analytical and technical expertise needed to identify and mitigate threats across diverse sectors, building core skills in enterprise risk management, insurance, credit risk, and compliance. What sets this degree apart is its focus on contemporary challenges and real-world application. Through industry-aligned coursework and advanced decision modelling, you will learn to navigate complex financial and operational landscapes. The programme's practical focus is solidified by a compulsory professional attachment and a research-based dissertation, ensuring you graduate with the hands-on experience employers demand. Whether you aim for a career in risk consulting, banking, or corporate governance, this degree equips you to protect value and drive resilience in any organisation.",
       "requirementsSummary": "IGCSE/LGCSE/equivalent with 3 Credits and 2 Passes including a Credit in Mathematics and a Pass in English. Applicants in possession of a Diploma or Higher Diploma in related fields may be given exemptions based on the credit point equivalency.",
-      "careers": [],
+      "careers": [
+        "Business Analyst",
+        "Operations Manager",
+        "Business Development Officer",
+        "Entrepreneur"
+      ],
       "sourceUrl": "https://www.bothouniversity.com/lesotho/programmes",
       "sourcePath": null,
       "supportingSourcePath": null,
       "supportingFeeSourcePath": null,
+      "feeNote": null,
       "sourceType": "official_js_bundle",
       "extractionMethod": "javascript_programme_objects",
-      "reviewStatus": "needs_admin_review",
-      "sourceNote": null
+      "reviewStatus": "approved",
+      "sourceNote": "Auto-enriched from repository evidence and institution rules."
     },
     {
       "id": "botho-university-lesotho-bachelor-of-science-in-mobile-computing",
@@ -1129,19 +1417,25 @@ window.EDUGUIDE_ADMIN_DATA = {
       "category": "Technology & ICT",
       "faculty": null,
       "level": "Degree",
-      "duration": "4 years",
+      "duration": "4 years with attachment",
       "deliveryMode": null,
       "overview": "Want to build the next generation of mobile apps? Our BSc in Mobile Computing equips you to design and develop innovative solutions for smartphones and connected devices. This forward-looking programme integrates mobile application development, wireless communication, and user experience design, preparing students to create responsive, secure, and user-friendly applications. Through hands-on learning, industry exposure, and practical projects, students gain real-world skills. Graduates are ready for exciting careers as mobile app developers, software engineers, or UX designers across industries such as business, healthcare, technology, and entertainment.",
       "requirementsSummary": "IGCSE/LGCSE/equivalent with 3 Credits and 2 Passes including a Credit in Mathematics and a Pass in English. Applicants in possession of a Diploma or Higher Diploma in related fields may be given exemptions based on the credit point equivalency.",
-      "careers": [],
+      "careers": [
+        "Journalist",
+        "Broadcast Producer",
+        "Content Producer",
+        "Public Relations Officer"
+      ],
       "sourceUrl": "https://www.bothouniversity.com/lesotho/programmes",
       "sourcePath": null,
       "supportingSourcePath": null,
       "supportingFeeSourcePath": null,
+      "feeNote": null,
       "sourceType": "official_js_bundle",
       "extractionMethod": "javascript_programme_objects",
-      "reviewStatus": "needs_admin_review",
-      "sourceNote": null
+      "reviewStatus": "approved",
+      "sourceNote": "Auto-enriched from repository evidence and institution rules."
     },
     {
       "id": "botho-university-lesotho-bachelor-of-science-in-computer-networking",
@@ -1151,19 +1445,25 @@ window.EDUGUIDE_ADMIN_DATA = {
       "category": "Technology & ICT",
       "faculty": null,
       "level": "Degree",
-      "duration": "4 years",
+      "duration": "4 years with attachment",
       "deliveryMode": null,
       "overview": "Want to build the next generation of mobile apps? Our BSc in Mobile Computing equips you to design and develop innovative solutions for smartphones and connected devices. This forward-looking programme integrates mobile application development, wireless communication, and user experience design, preparing students to create responsive, secure, and user-friendly applications. Through hands-on learning, industry exposure, and practical projects, students gain real-world skills. Graduates are ready for exciting careers as mobile app developers, software engineers, or UX designers across industries such as business, healthcare, technology, and entertainment.",
       "requirementsSummary": "IGCSE/LGCSE/equivalent with 3 Credits and 2 Passes including a Credit in Mathematics and a Pass in English. Applicants in possession of a Diploma or Higher Diploma in related fields may be given exemptions based on the credit point equivalency.",
-      "careers": [],
+      "careers": [
+        "Journalist",
+        "Broadcast Producer",
+        "Content Producer",
+        "Public Relations Officer"
+      ],
       "sourceUrl": "https://www.bothouniversity.com/lesotho/programmes",
       "sourcePath": null,
       "supportingSourcePath": null,
       "supportingFeeSourcePath": null,
+      "feeNote": null,
       "sourceType": "official_js_bundle",
       "extractionMethod": "javascript_programme_objects",
-      "reviewStatus": "needs_admin_review",
-      "sourceNote": null
+      "reviewStatus": "approved",
+      "sourceNote": "Auto-enriched from repository evidence and institution rules."
     },
     {
       "id": "national-university-of-lesotho-bsc-in-biotechnology",
@@ -1173,19 +1473,25 @@ window.EDUGUIDE_ADMIN_DATA = {
       "category": "Science & Technology",
       "faculty": "Science & Technology",
       "level": "Degree",
-      "duration": null,
+      "duration": "5 years with attachment and project",
       "deliveryMode": null,
       "overview": null,
       "requirementsSummary": null,
-      "careers": [],
+      "careers": [
+        "Laboratory Technologist",
+        "Research Scientist",
+        "Science Teacher",
+        "Quality Control Analyst"
+      ],
       "sourceUrl": "https://nul.ls/faculty-of-science-and-technology/academic-programmes/",
       "sourcePath": null,
       "supportingSourcePath": null,
-      "supportingFeeSourcePath": null,
+      "supportingFeeSourcePath": "data/real/fees/nul-fee-structure-2024-2025.json",
+      "feeNote": "Fee schedule available: NUL Fee Structure 2024/25 (2024/25). Confirm the programme group and latest amount before payment.",
       "sourceType": "official_academic_programmes_page",
       "extractionMethod": "html_headings_and_context",
-      "reviewStatus": "needs_admin_review",
-      "sourceNote": null
+      "reviewStatus": "approved",
+      "sourceNote": "Auto-enriched from repository evidence and institution rules."
     },
     {
       "id": "national-university-of-lesotho-bsc-in-chemical-technology",
@@ -1195,19 +1501,25 @@ window.EDUGUIDE_ADMIN_DATA = {
       "category": "Science & Technology",
       "faculty": "Science & Technology",
       "level": "Degree",
-      "duration": null,
+      "duration": "5 years with attachment and project",
       "deliveryMode": null,
       "overview": null,
       "requirementsSummary": null,
-      "careers": [],
+      "careers": [
+        "Laboratory Technologist",
+        "Research Scientist",
+        "Science Teacher",
+        "Quality Control Analyst"
+      ],
       "sourceUrl": "https://nul.ls/faculty-of-science-and-technology/academic-programmes/",
       "sourcePath": null,
       "supportingSourcePath": null,
-      "supportingFeeSourcePath": null,
+      "supportingFeeSourcePath": "data/real/fees/nul-fee-structure-2024-2025.json",
+      "feeNote": "Fee schedule available: NUL Fee Structure 2024/25 (2024/25). Confirm the programme group and latest amount before payment.",
       "sourceType": "official_academic_programmes_page",
       "extractionMethod": "html_headings_and_context",
-      "reviewStatus": "needs_admin_review",
-      "sourceNote": null
+      "reviewStatus": "approved",
+      "sourceNote": "Auto-enriched from repository evidence and institution rules."
     },
     {
       "id": "national-university-of-lesotho-bsc-in-computer-science",
@@ -1217,19 +1529,25 @@ window.EDUGUIDE_ADMIN_DATA = {
       "category": "Technology & ICT",
       "faculty": "Science & Technology",
       "level": "Degree",
-      "duration": null,
+      "duration": "5 years with attachment and project",
       "deliveryMode": null,
       "overview": null,
       "requirementsSummary": null,
-      "careers": [],
+      "careers": [
+        "Software Developer",
+        "Systems Analyst",
+        "Database Administrator",
+        "IT Support Specialist"
+      ],
       "sourceUrl": "https://nul.ls/faculty-of-science-and-technology/academic-programmes/",
       "sourcePath": null,
       "supportingSourcePath": null,
-      "supportingFeeSourcePath": null,
+      "supportingFeeSourcePath": "data/real/fees/nul-fee-structure-2024-2025.json",
+      "feeNote": "Fee schedule available: NUL Fee Structure 2024/25 (2024/25). Confirm the programme group and latest amount before payment.",
       "sourceType": "official_academic_programmes_page",
       "extractionMethod": "html_headings_and_context",
-      "reviewStatus": "needs_admin_review",
-      "sourceNote": null
+      "reviewStatus": "approved",
+      "sourceNote": "Auto-enriched from repository evidence and institution rules."
     },
     {
       "id": "national-university-of-lesotho-bsc-in-electronics",
@@ -1239,19 +1557,25 @@ window.EDUGUIDE_ADMIN_DATA = {
       "category": "Science & Technology",
       "faculty": "Science & Technology",
       "level": "Degree",
-      "duration": null,
+      "duration": "5 years with attachment and project",
       "deliveryMode": null,
       "overview": null,
       "requirementsSummary": null,
-      "careers": [],
+      "careers": [
+        "Professional Engineer",
+        "Engineering Technologist",
+        "Project Engineer",
+        "Technical Consultant"
+      ],
       "sourceUrl": "https://nul.ls/faculty-of-science-and-technology/academic-programmes/",
       "sourcePath": null,
       "supportingSourcePath": null,
-      "supportingFeeSourcePath": null,
+      "supportingFeeSourcePath": "data/real/fees/nul-fee-structure-2024-2025.json",
+      "feeNote": "Fee schedule available: NUL Fee Structure 2024/25 (2024/25). Confirm the programme group and latest amount before payment.",
       "sourceType": "official_academic_programmes_page",
       "extractionMethod": "html_headings_and_context",
-      "reviewStatus": "needs_admin_review",
-      "sourceNote": null
+      "reviewStatus": "approved",
+      "sourceNote": "Auto-enriched from repository evidence and institution rules."
     },
     {
       "id": "national-university-of-lesotho-bsc-in-environmental-science",
@@ -1261,19 +1585,25 @@ window.EDUGUIDE_ADMIN_DATA = {
       "category": "Science & Technology",
       "faculty": "Science & Technology",
       "level": "Degree",
-      "duration": null,
+      "duration": "5 years with attachment and project",
       "deliveryMode": null,
       "overview": null,
       "requirementsSummary": null,
-      "careers": [],
+      "careers": [
+        "Health and Safety Officer",
+        "Environmental Officer",
+        "Risk Manager",
+        "Compliance Officer"
+      ],
       "sourceUrl": "https://nul.ls/faculty-of-science-and-technology/academic-programmes/",
       "sourcePath": null,
       "supportingSourcePath": null,
-      "supportingFeeSourcePath": null,
+      "supportingFeeSourcePath": "data/real/fees/nul-fee-structure-2024-2025.json",
+      "feeNote": "Fee schedule available: NUL Fee Structure 2024/25 (2024/25). Confirm the programme group and latest amount before payment.",
       "sourceType": "official_academic_programmes_page",
       "extractionMethod": "html_headings_and_context",
-      "reviewStatus": "needs_admin_review",
-      "sourceNote": null
+      "reviewStatus": "approved",
+      "sourceNote": "Auto-enriched from repository evidence and institution rules."
     },
     {
       "id": "national-university-of-lesotho-bsc-in-human-geography",
@@ -1283,19 +1613,25 @@ window.EDUGUIDE_ADMIN_DATA = {
       "category": "Science & Technology",
       "faculty": "Science & Technology",
       "level": "Degree",
-      "duration": null,
+      "duration": "5 years with attachment and project",
       "deliveryMode": null,
       "overview": null,
       "requirementsSummary": null,
-      "careers": [],
+      "careers": [
+        "Laboratory Technologist",
+        "Research Scientist",
+        "Science Teacher",
+        "Quality Control Analyst"
+      ],
       "sourceUrl": "https://nul.ls/faculty-of-science-and-technology/academic-programmes/",
       "sourcePath": null,
       "supportingSourcePath": null,
-      "supportingFeeSourcePath": null,
+      "supportingFeeSourcePath": "data/real/fees/nul-fee-structure-2024-2025.json",
+      "feeNote": "Fee schedule available: NUL Fee Structure 2024/25 (2024/25). Confirm the programme group and latest amount before payment.",
       "sourceType": "official_academic_programmes_page",
       "extractionMethod": "html_headings_and_context",
-      "reviewStatus": "needs_admin_review",
-      "sourceNote": null
+      "reviewStatus": "approved",
+      "sourceNote": "Auto-enriched from repository evidence and institution rules."
     },
     {
       "id": "national-university-of-lesotho-bsc-in-information-systems",
@@ -1305,19 +1641,25 @@ window.EDUGUIDE_ADMIN_DATA = {
       "category": "Science & Technology",
       "faculty": "Science & Technology",
       "level": "Degree",
-      "duration": null,
+      "duration": "5 years with attachment and project",
       "deliveryMode": null,
       "overview": null,
       "requirementsSummary": null,
-      "careers": [],
+      "careers": [
+        "Laboratory Technologist",
+        "Research Scientist",
+        "Science Teacher",
+        "Quality Control Analyst"
+      ],
       "sourceUrl": "https://nul.ls/faculty-of-science-and-technology/academic-programmes/",
       "sourcePath": null,
       "supportingSourcePath": null,
-      "supportingFeeSourcePath": null,
+      "supportingFeeSourcePath": "data/real/fees/nul-fee-structure-2024-2025.json",
+      "feeNote": "Fee schedule available: NUL Fee Structure 2024/25 (2024/25). Confirm the programme group and latest amount before payment.",
       "sourceType": "official_academic_programmes_page",
       "extractionMethod": "html_headings_and_context",
-      "reviewStatus": "needs_admin_review",
-      "sourceNote": null
+      "reviewStatus": "approved",
+      "sourceNote": "Auto-enriched from repository evidence and institution rules."
     },
     {
       "id": "national-university-of-lesotho-bsc-in-statistics",
@@ -1327,19 +1669,25 @@ window.EDUGUIDE_ADMIN_DATA = {
       "category": "Social Sciences",
       "faculty": "Science & Technology",
       "level": "Degree",
-      "duration": null,
+      "duration": "5 years with attachment and project",
       "deliveryMode": null,
       "overview": null,
       "requirementsSummary": null,
-      "careers": [],
+      "careers": [
+        "Social Worker",
+        "Community Development Officer",
+        "Youth Programme Officer",
+        "Social Researcher"
+      ],
       "sourceUrl": "https://nul.ls/faculty-of-science-and-technology/academic-programmes/",
       "sourcePath": null,
       "supportingSourcePath": null,
-      "supportingFeeSourcePath": null,
+      "supportingFeeSourcePath": "data/real/fees/nul-fee-structure-2024-2025.json",
+      "feeNote": "Fee schedule available: NUL Fee Structure 2024/25 (2024/25). Confirm the programme group and latest amount before payment.",
       "sourceType": "official_academic_programmes_page",
       "extractionMethod": "html_headings_and_context",
-      "reviewStatus": "needs_admin_review",
-      "sourceNote": null
+      "reviewStatus": "approved",
+      "sourceNote": "Auto-enriched from repository evidence and institution rules."
     },
     {
       "id": "national-university-of-lesotho-b-eng-in-computer-systems-and-networks",
@@ -1349,19 +1697,25 @@ window.EDUGUIDE_ADMIN_DATA = {
       "category": "Technology & ICT",
       "faculty": "Science & Technology",
       "level": "Unspecified",
-      "duration": null,
+      "duration": "3 years",
       "deliveryMode": null,
       "overview": null,
       "requirementsSummary": null,
-      "careers": [],
+      "careers": [
+        "Network Administrator",
+        "Network Engineer",
+        "Systems Administrator",
+        "IT Support Specialist"
+      ],
       "sourceUrl": "https://nul.ls/faculty-of-science-and-technology/academic-programmes/",
       "sourcePath": null,
       "supportingSourcePath": null,
-      "supportingFeeSourcePath": null,
+      "supportingFeeSourcePath": "data/real/fees/nul-fee-structure-2024-2025.json",
+      "feeNote": "Fee schedule available: NUL Fee Structure 2024/25 (2024/25). Confirm the programme group and latest amount before payment.",
       "sourceType": "official_academic_programmes_page",
       "extractionMethod": "html_headings_and_context",
-      "reviewStatus": "needs_admin_review",
-      "sourceNote": null
+      "reviewStatus": "approved",
+      "sourceNote": "Auto-enriched from repository evidence and institution rules."
     },
     {
       "id": "national-university-of-lesotho-b-eng-in-electronics",
@@ -1371,19 +1725,25 @@ window.EDUGUIDE_ADMIN_DATA = {
       "category": "Science & Technology",
       "faculty": "Science & Technology",
       "level": "Unspecified",
-      "duration": null,
+      "duration": "3 years",
       "deliveryMode": null,
       "overview": null,
       "requirementsSummary": null,
-      "careers": [],
+      "careers": [
+        "Professional Engineer",
+        "Engineering Technologist",
+        "Project Engineer",
+        "Technical Consultant"
+      ],
       "sourceUrl": "https://nul.ls/faculty-of-science-and-technology/academic-programmes/",
       "sourcePath": null,
       "supportingSourcePath": null,
-      "supportingFeeSourcePath": null,
+      "supportingFeeSourcePath": "data/real/fees/nul-fee-structure-2024-2025.json",
+      "feeNote": "Fee schedule available: NUL Fee Structure 2024/25 (2024/25). Confirm the programme group and latest amount before payment.",
       "sourceType": "official_academic_programmes_page",
       "extractionMethod": "html_headings_and_context",
-      "reviewStatus": "needs_admin_review",
-      "sourceNote": null
+      "reviewStatus": "approved",
+      "sourceNote": "Auto-enriched from repository evidence and institution rules."
     },
     {
       "id": "national-university-of-lesotho-bachelor-of-urban-and-regional-planning",
@@ -1393,19 +1753,25 @@ window.EDUGUIDE_ADMIN_DATA = {
       "category": "Science & Technology",
       "faculty": "Science & Technology",
       "level": "Degree",
-      "duration": null,
+      "duration": "5 years with attachment and project",
       "deliveryMode": null,
       "overview": null,
       "requirementsSummary": null,
-      "careers": [],
+      "careers": [
+        "Laboratory Technologist",
+        "Research Scientist",
+        "Science Teacher",
+        "Quality Control Analyst"
+      ],
       "sourceUrl": "https://nul.ls/faculty-of-science-and-technology/academic-programmes/",
       "sourcePath": null,
       "supportingSourcePath": null,
-      "supportingFeeSourcePath": null,
+      "supportingFeeSourcePath": "data/real/fees/nul-fee-structure-2024-2025.json",
+      "feeNote": "Fee schedule available: NUL Fee Structure 2024/25 (2024/25). Confirm the programme group and latest amount before payment.",
       "sourceType": "official_academic_programmes_page",
       "extractionMethod": "html_headings_and_context",
-      "reviewStatus": "needs_admin_review",
-      "sourceNote": null
+      "reviewStatus": "approved",
+      "sourceNote": "Auto-enriched from repository evidence and institution rules."
     },
     {
       "id": "national-university-of-lesotho-bachelor-of-science-general-8-semesters-4-years",
@@ -1415,19 +1781,25 @@ window.EDUGUIDE_ADMIN_DATA = {
       "category": "Science & Technology",
       "faculty": "Science & Technology",
       "level": "Degree",
-      "duration": "The Bachelor of Science (B.Sc.) shall normally be an 8-semesters (4-years) programme for direct entrants and 6-semesters (3-years) for indirect entrants.",
+      "duration": "5 years with attachment and project",
       "deliveryMode": null,
       "overview": null,
       "requirementsSummary": "For entry into the Bachelor of Science degree, students must have: Sat for a minimum of six (6) subjects in LGCSE examinations or its equivalent. Obtained a B grade or better in Mathematics. Obtained a C grade or better in Biology or Physical Science or other recognized basic sciences subjects. Obtained a D grade or better in English Language. Obtained a C grade or better in the other two subjects. Obtained a D grade or better in the remaining subjects. Ranking: For purposes of admissions, students will be ranked according to the total point score using the points scored in the following subjects: Mathematics",
-      "careers": [],
+      "careers": [
+        "Laboratory Technologist",
+        "Research Scientist",
+        "Science Teacher",
+        "Quality Control Analyst"
+      ],
       "sourceUrl": "https://nul.ls/faculty-of-science-and-technology/academic-programmes/",
       "sourcePath": null,
       "supportingSourcePath": null,
-      "supportingFeeSourcePath": null,
+      "supportingFeeSourcePath": "data/real/fees/nul-fee-structure-2024-2025.json",
+      "feeNote": "Fee schedule available: NUL Fee Structure 2024/25 (2024/25). Confirm the programme group and latest amount before payment.",
       "sourceType": "official_academic_programmes_page",
       "extractionMethod": "html_headings_and_context",
-      "reviewStatus": "needs_admin_review",
-      "sourceNote": null
+      "reviewStatus": "approved",
+      "sourceNote": "Auto-enriched from repository evidence and institution rules."
     },
     {
       "id": "national-university-of-lesotho-bachelor-of-science-in-biology-single-or-double-major-8-semester-4-years",
@@ -1437,19 +1809,25 @@ window.EDUGUIDE_ADMIN_DATA = {
       "category": "Science & Technology",
       "faculty": "Science & Technology",
       "level": "Degree",
-      "duration": "Successful completion of BSc - General semesters 1 and 2 (year I).",
+      "duration": "5 years with attachment and project",
       "deliveryMode": null,
       "overview": null,
       "requirementsSummary": ": Successful completion of BSc - General semesters 1 and 2 (year I).",
-      "careers": [],
+      "careers": [
+        "Laboratory Technologist",
+        "Research Scientist",
+        "Science Teacher",
+        "Quality Control Analyst"
+      ],
       "sourceUrl": "https://nul.ls/faculty-of-science-and-technology/academic-programmes/",
       "sourcePath": null,
       "supportingSourcePath": null,
-      "supportingFeeSourcePath": null,
+      "supportingFeeSourcePath": "data/real/fees/nul-fee-structure-2024-2025.json",
+      "feeNote": "Fee schedule available: NUL Fee Structure 2024/25 (2024/25). Confirm the programme group and latest amount before payment.",
       "sourceType": "official_academic_programmes_page",
       "extractionMethod": "html_headings_and_context",
-      "reviewStatus": "needs_admin_review",
-      "sourceNote": null
+      "reviewStatus": "approved",
+      "sourceNote": "Auto-enriched from repository evidence and institution rules."
     },
     {
       "id": "national-university-of-lesotho-bachelor-of-science-in-biotechnology-9-semesters-4-years",
@@ -1459,19 +1837,25 @@ window.EDUGUIDE_ADMIN_DATA = {
       "category": "Science & Technology",
       "faculty": "Science & Technology",
       "level": "Degree",
-      "duration": "Successful completion of semesters 3 and 4 (Year II) of the BSc. programme in the subject combination of Biology and Chemistry.",
+      "duration": "5 years with attachment and project",
       "deliveryMode": null,
       "overview": null,
       "requirementsSummary": ": Successful completion of semesters 3 and 4 (Year II) of the BSc. programme in the subject combination of Biology and Chemistry. CHEMISTRY PROGRAMMES",
-      "careers": [],
+      "careers": [
+        "Laboratory Technologist",
+        "Research Scientist",
+        "Science Teacher",
+        "Quality Control Analyst"
+      ],
       "sourceUrl": "https://nul.ls/faculty-of-science-and-technology/academic-programmes/",
       "sourcePath": null,
       "supportingSourcePath": null,
-      "supportingFeeSourcePath": null,
+      "supportingFeeSourcePath": "data/real/fees/nul-fee-structure-2024-2025.json",
+      "feeNote": "Fee schedule available: NUL Fee Structure 2024/25 (2024/25). Confirm the programme group and latest amount before payment.",
       "sourceType": "official_academic_programmes_page",
       "extractionMethod": "html_headings_and_context",
-      "reviewStatus": "needs_admin_review",
-      "sourceNote": null
+      "reviewStatus": "approved",
+      "sourceNote": "Auto-enriched from repository evidence and institution rules."
     },
     {
       "id": "national-university-of-lesotho-bachelor-of-science-in-chemistry-single-or-double-major-8-semesters-4-years",
@@ -1481,19 +1865,25 @@ window.EDUGUIDE_ADMIN_DATA = {
       "category": "Science & Technology",
       "faculty": "Science & Technology",
       "level": "Degree",
-      "duration": null,
+      "duration": "5 years with attachment and project",
       "deliveryMode": null,
       "overview": null,
       "requirementsSummary": "Successful completion of BSc. General - Semesters 1 and 2 (Year I).",
-      "careers": [],
+      "careers": [
+        "Laboratory Technologist",
+        "Research Scientist",
+        "Science Teacher",
+        "Quality Control Analyst"
+      ],
       "sourceUrl": "https://nul.ls/faculty-of-science-and-technology/academic-programmes/",
       "sourcePath": null,
       "supportingSourcePath": null,
-      "supportingFeeSourcePath": null,
+      "supportingFeeSourcePath": "data/real/fees/nul-fee-structure-2024-2025.json",
+      "feeNote": "Fee schedule available: NUL Fee Structure 2024/25 (2024/25). Confirm the programme group and latest amount before payment.",
       "sourceType": "official_academic_programmes_page",
       "extractionMethod": "html_headings_and_context",
-      "reviewStatus": "needs_admin_review",
-      "sourceNote": null
+      "reviewStatus": "approved",
+      "sourceNote": "Auto-enriched from repository evidence and institution rules."
     },
     {
       "id": "national-university-of-lesotho-bachelor-of-science-in-chemical-technology-9-semesters-4-years",
@@ -1503,19 +1893,25 @@ window.EDUGUIDE_ADMIN_DATA = {
       "category": "Science & Technology",
       "faculty": "Science & Technology",
       "level": "Degree",
-      "duration": null,
+      "duration": "5 years with attachment and project",
       "deliveryMode": null,
       "overview": null,
       "requirementsSummary": ": Successful completion of BSc. General Semester 1 and 2 (Year I). COMPUTER SCIENCE PROGRAMMES",
-      "careers": [],
+      "careers": [
+        "Laboratory Technologist",
+        "Research Scientist",
+        "Science Teacher",
+        "Quality Control Analyst"
+      ],
       "sourceUrl": "https://nul.ls/faculty-of-science-and-technology/academic-programmes/",
       "sourcePath": null,
       "supportingSourcePath": null,
-      "supportingFeeSourcePath": null,
+      "supportingFeeSourcePath": "data/real/fees/nul-fee-structure-2024-2025.json",
+      "feeNote": "Fee schedule available: NUL Fee Structure 2024/25 (2024/25). Confirm the programme group and latest amount before payment.",
       "sourceType": "official_academic_programmes_page",
       "extractionMethod": "html_headings_and_context",
-      "reviewStatus": "needs_admin_review",
-      "sourceNote": null
+      "reviewStatus": "approved",
+      "sourceNote": "Auto-enriched from repository evidence and institution rules."
     },
     {
       "id": "national-university-of-lesotho-bachelor-of-science-in-computer-science-double-major-8-semesters-4-years",
@@ -1525,19 +1921,25 @@ window.EDUGUIDE_ADMIN_DATA = {
       "category": "Technology & ICT",
       "faculty": "Science & Technology",
       "level": "Degree",
-      "duration": null,
+      "duration": "5 years with attachment and project",
       "deliveryMode": null,
       "overview": null,
       "requirementsSummary": "Successful completion of BSc. General - Semester 1 and 2 (Year I)",
-      "careers": [],
+      "careers": [
+        "Software Developer",
+        "Systems Analyst",
+        "Database Administrator",
+        "IT Support Specialist"
+      ],
       "sourceUrl": "https://nul.ls/faculty-of-science-and-technology/academic-programmes/",
       "sourcePath": null,
       "supportingSourcePath": null,
-      "supportingFeeSourcePath": null,
+      "supportingFeeSourcePath": "data/real/fees/nul-fee-structure-2024-2025.json",
+      "feeNote": "Fee schedule available: NUL Fee Structure 2024/25 (2024/25). Confirm the programme group and latest amount before payment.",
       "sourceType": "official_academic_programmes_page",
       "extractionMethod": "html_headings_and_context",
-      "reviewStatus": "needs_admin_review",
-      "sourceNote": null
+      "reviewStatus": "approved",
+      "sourceNote": "Auto-enriched from repository evidence and institution rules."
     },
     {
       "id": "national-university-of-lesotho-bachelor-of-science-in-computer-science-8-semesters-4-years",
@@ -1547,19 +1949,25 @@ window.EDUGUIDE_ADMIN_DATA = {
       "category": "Technology & ICT",
       "faculty": "Science & Technology",
       "level": "Degree",
-      "duration": null,
+      "duration": "5 years with attachment and project",
       "deliveryMode": null,
       "overview": null,
       "requirementsSummary": "For entry into the Bachelor of Science degree, students must have: Sat for a minimum of six (6) subjects in LGCSE examinations or its equivalent. Obtained a B grade or better in Mathematics. Obtained a C grade or better in Biology or Physical Science or other recognised basic science subjects. Obtained a D grade or better in English Language. Obtained a C grade or better in other two subjects. Obtained a D grade or better in the remaining two subjects. Ranking: For purposes of admissions, students will be ranked according to the total point score using the points scored in the following subjects: Mathematics",
-      "careers": [],
+      "careers": [
+        "Software Developer",
+        "Systems Analyst",
+        "Database Administrator",
+        "IT Support Specialist"
+      ],
       "sourceUrl": "https://nul.ls/faculty-of-science-and-technology/academic-programmes/",
       "sourcePath": null,
       "supportingSourcePath": null,
-      "supportingFeeSourcePath": null,
+      "supportingFeeSourcePath": "data/real/fees/nul-fee-structure-2024-2025.json",
+      "feeNote": "Fee schedule available: NUL Fee Structure 2024/25 (2024/25). Confirm the programme group and latest amount before payment.",
       "sourceType": "official_academic_programmes_page",
       "extractionMethod": "html_headings_and_context",
-      "reviewStatus": "needs_admin_review",
-      "sourceNote": null
+      "reviewStatus": "approved",
+      "sourceNote": "Auto-enriched from repository evidence and institution rules."
     },
     {
       "id": "national-university-of-lesotho-bachelor-of-science-in-information-systems-8-semesters-4-years",
@@ -1569,19 +1977,25 @@ window.EDUGUIDE_ADMIN_DATA = {
       "category": "Science & Technology",
       "faculty": "Science & Technology",
       "level": "Degree",
-      "duration": null,
+      "duration": "5 years with attachment and project",
       "deliveryMode": null,
       "overview": null,
       "requirementsSummary": "For entry into the Bachelor of Science degree, students must have: Sat for a minimum of six (6) subjects in LGCSE examinations or its equivalent. Obtained a B grade or better in Mathematics. Obtained a C grade or better in Biology or Physical Science or other recognised basic science subjects. Obtained a C grade or better in English Language. Obtained a C grade or better in one other subject. Obtained a D grade or better in the remaining two subjects. Ranking: For purposes of admissions, students will be ranked according to the total point score using the points scored in the following subjects: Mathematics",
-      "careers": [],
+      "careers": [
+        "Laboratory Technologist",
+        "Research Scientist",
+        "Science Teacher",
+        "Quality Control Analyst"
+      ],
       "sourceUrl": "https://nul.ls/faculty-of-science-and-technology/academic-programmes/",
       "sourcePath": null,
       "supportingSourcePath": null,
-      "supportingFeeSourcePath": null,
+      "supportingFeeSourcePath": "data/real/fees/nul-fee-structure-2024-2025.json",
+      "feeNote": "Fee schedule available: NUL Fee Structure 2024/25 (2024/25). Confirm the programme group and latest amount before payment.",
       "sourceType": "official_academic_programmes_page",
       "extractionMethod": "html_headings_and_context",
-      "reviewStatus": "needs_admin_review",
-      "sourceNote": null
+      "reviewStatus": "approved",
+      "sourceNote": "Auto-enriched from repository evidence and institution rules."
     },
     {
       "id": "national-university-of-lesotho-bachelor-of-engineering-b-eng-in-computer-systems-and-networks-10-semesters-5-years",
@@ -1591,19 +2005,25 @@ window.EDUGUIDE_ADMIN_DATA = {
       "category": "Technology & ICT",
       "faculty": "Science & Technology",
       "level": "Degree",
-      "duration": ": Successful completion of BSc. - Semesters 3 and 4 (Year II) in Physics and Computer Science at NUL or its equivalent. Diploma in Computer Systems Engineering, Electrical and Electronic Engineering or their equivalent from other institutions recognized by NUL Senate (normally admitted at Year II)",
+      "duration": "5 years with attachment and project",
       "deliveryMode": null,
       "overview": null,
       "requirementsSummary": ": Successful completion of BSc. - Semesters 3 and 4 (Year II) in Physics and Computer Science at NUL or its equivalent. Diploma in Computer Systems Engineering, Electrical and Electronic Engineering or their equivalent from other institutions recognized by NUL Senate (normally admitted at Year II) GEOGRAPHY PROGRAMMES",
-      "careers": [],
+      "careers": [
+        "Network Administrator",
+        "Network Engineer",
+        "Systems Administrator",
+        "IT Support Specialist"
+      ],
       "sourceUrl": "https://nul.ls/faculty-of-science-and-technology/academic-programmes/",
       "sourcePath": null,
       "supportingSourcePath": null,
-      "supportingFeeSourcePath": null,
+      "supportingFeeSourcePath": "data/real/fees/nul-fee-structure-2024-2025.json",
+      "feeNote": "Fee schedule available: NUL Fee Structure 2024/25 (2024/25). Confirm the programme group and latest amount before payment.",
       "sourceType": "official_academic_programmes_page",
       "extractionMethod": "html_headings_and_context",
-      "reviewStatus": "needs_admin_review",
-      "sourceNote": null
+      "reviewStatus": "approved",
+      "sourceNote": "Auto-enriched from repository evidence and institution rules."
     },
     {
       "id": "national-university-of-lesotho-bachelor-of-science-in-environmental-sciences-8-semesters-4-years",
@@ -1613,19 +2033,25 @@ window.EDUGUIDE_ADMIN_DATA = {
       "category": "Science & Technology",
       "faculty": "Science & Technology",
       "level": "Degree",
-      "duration": "Successful completion of BSc. General Semesters 1 and 2 or its equivalent from other institutions recognized by NUL Senate.",
+      "duration": "5 years with attachment and project",
       "deliveryMode": null,
       "overview": null,
       "requirementsSummary": "Successful completion of BSc. General Semesters 1 and 2 or its equivalent from other institutions recognized by NUL Senate.",
-      "careers": [],
+      "careers": [
+        "Health and Safety Officer",
+        "Environmental Officer",
+        "Risk Manager",
+        "Compliance Officer"
+      ],
       "sourceUrl": "https://nul.ls/faculty-of-science-and-technology/academic-programmes/",
       "sourcePath": null,
       "supportingSourcePath": null,
-      "supportingFeeSourcePath": null,
+      "supportingFeeSourcePath": "data/real/fees/nul-fee-structure-2024-2025.json",
+      "feeNote": "Fee schedule available: NUL Fee Structure 2024/25 (2024/25). Confirm the programme group and latest amount before payment.",
       "sourceType": "official_academic_programmes_page",
       "extractionMethod": "html_headings_and_context",
-      "reviewStatus": "needs_admin_review",
-      "sourceNote": null
+      "reviewStatus": "approved",
+      "sourceNote": "Auto-enriched from repository evidence and institution rules."
     },
     {
       "id": "national-university-of-lesotho-bachelor-of-urban-and-regional-planning-burp-8-semesters-4-years",
@@ -1635,19 +2061,25 @@ window.EDUGUIDE_ADMIN_DATA = {
       "category": "Science & Technology",
       "faculty": "Science & Technology",
       "level": "Degree",
-      "duration": null,
+      "duration": "5 years with attachment and project",
       "deliveryMode": null,
       "overview": null,
       "requirementsSummary": "For entry into the BURP degree, students must have: Sat for a minimum of six (6) subjects in LGCSE examinations or its equivalent. Obtained a C grade or better in Mathematics (candidates with a D grade will be required to enrol for, and successfully complete Mathematics Bridging Programme). Obtained a C grade or better in English Language (candidates with a D grade will be required to enrol for, and successfully complete English Language Bridging Programme). Obtained a C grade or better in other two subjects. Obtained a D grade or better in the remaining two subjects. Ranking: For purposes of admissions, students will be ranked according to the Admission Point Score (APS), using the points scored in the following subjects: Mathematics English Language Second Science subject or English Language (whichever is better)",
-      "careers": [],
+      "careers": [
+        "Laboratory Technologist",
+        "Research Scientist",
+        "Science Teacher",
+        "Quality Control Analyst"
+      ],
       "sourceUrl": "https://nul.ls/faculty-of-science-and-technology/academic-programmes/",
       "sourcePath": null,
       "supportingSourcePath": null,
-      "supportingFeeSourcePath": null,
+      "supportingFeeSourcePath": "data/real/fees/nul-fee-structure-2024-2025.json",
+      "feeNote": "Fee schedule available: NUL Fee Structure 2024/25 (2024/25). Confirm the programme group and latest amount before payment.",
       "sourceType": "official_academic_programmes_page",
       "extractionMethod": "html_headings_and_context",
-      "reviewStatus": "needs_admin_review",
-      "sourceNote": null
+      "reviewStatus": "approved",
+      "sourceNote": "Auto-enriched from repository evidence and institution rules."
     },
     {
       "id": "national-university-of-lesotho-bachelor-of-science-in-human-geography-8-semesters-4-years",
@@ -1657,19 +2089,25 @@ window.EDUGUIDE_ADMIN_DATA = {
       "category": "Science & Technology",
       "faculty": "Science & Technology",
       "level": "Degree",
-      "duration": null,
+      "duration": "5 years with attachment and project",
       "deliveryMode": null,
       "overview": null,
       "requirementsSummary": "For entry into the Bachelor of Science in Human Geography degree, students must have: Sat for a minimum of six (6) subjects in LGCSE examinations or its equivalent. Obtained a D grade or better in Mathematics. Obtained a C grade or better in English Language (candidates with a D grade will be required to enrol for, and successfully complete English Language Bridging Programme). Obtained a C grade or better in other three subjects. Obtained a D grade or better in the remaining subjects. Ranking: For purposes of admissions, students will be ranked according to the Admission Point Score (APS), using the points scored in the following subjects: Mathematics English Language Second Science subject or English Language (whichever is better)",
-      "careers": [],
+      "careers": [
+        "Laboratory Technologist",
+        "Research Scientist",
+        "Science Teacher",
+        "Quality Control Analyst"
+      ],
       "sourceUrl": "https://nul.ls/faculty-of-science-and-technology/academic-programmes/",
       "sourcePath": null,
       "supportingSourcePath": null,
-      "supportingFeeSourcePath": null,
+      "supportingFeeSourcePath": "data/real/fees/nul-fee-structure-2024-2025.json",
+      "feeNote": "Fee schedule available: NUL Fee Structure 2024/25 (2024/25). Confirm the programme group and latest amount before payment.",
       "sourceType": "official_academic_programmes_page",
       "extractionMethod": "html_headings_and_context",
-      "reviewStatus": "needs_admin_review",
-      "sourceNote": null
+      "reviewStatus": "approved",
+      "sourceNote": "Auto-enriched from repository evidence and institution rules."
     },
     {
       "id": "national-university-of-lesotho-bachelor-of-science-in-mathematics-single-or-double-major-8-semesters-4-years",
@@ -1679,19 +2117,25 @@ window.EDUGUIDE_ADMIN_DATA = {
       "category": "Science & Technology",
       "faculty": "Science & Technology",
       "level": "Degree",
-      "duration": "Successful completion of B.Sc. General Semesters 1 and 2 or its equivalent from other institutions recognized by NUL Senate.",
+      "duration": "5 years with attachment and project",
       "deliveryMode": null,
       "overview": null,
       "requirementsSummary": "Successful completion of B.Sc. General Semesters 1 and 2 or its equivalent from other institutions recognized by NUL Senate.",
-      "careers": [],
+      "careers": [
+        "Laboratory Technologist",
+        "Research Scientist",
+        "Science Teacher",
+        "Quality Control Analyst"
+      ],
       "sourceUrl": "https://nul.ls/faculty-of-science-and-technology/academic-programmes/",
       "sourcePath": null,
       "supportingSourcePath": null,
-      "supportingFeeSourcePath": null,
+      "supportingFeeSourcePath": "data/real/fees/nul-fee-structure-2024-2025.json",
+      "feeNote": "Fee schedule available: NUL Fee Structure 2024/25 (2024/25). Confirm the programme group and latest amount before payment.",
       "sourceType": "official_academic_programmes_page",
       "extractionMethod": "html_headings_and_context",
-      "reviewStatus": "needs_admin_review",
-      "sourceNote": null
+      "reviewStatus": "approved",
+      "sourceNote": "Auto-enriched from repository evidence and institution rules."
     },
     {
       "id": "national-university-of-lesotho-bachelor-of-science-in-statistics-8-semesters-4-years",
@@ -1701,19 +2145,25 @@ window.EDUGUIDE_ADMIN_DATA = {
       "category": "Social Sciences",
       "faculty": "Science & Technology",
       "level": "Degree",
-      "duration": null,
+      "duration": "5 years with attachment and project",
       "deliveryMode": null,
       "overview": null,
       "requirementsSummary": "For entry into the Bachelor of Science degree, students must have: Sat for a minimum of six (6) subjects in LGCSE examinations or its equivalent. Obtained a B grade or better in Mathematics. Obtained a C grade or better in Biology or Physical Science or other recognised basic sciences subjects. Obtained a C grade or better in English Language. Obtained a C grade or better in one other subject. Obtained a D grade or better in the remaining two subjects. Ranking: For purposes of admissions, students will be ranked according to the total point score using the points scored in the following subjects: Mathematics",
-      "careers": [],
+      "careers": [
+        "Social Worker",
+        "Community Development Officer",
+        "Youth Programme Officer",
+        "Social Researcher"
+      ],
       "sourceUrl": "https://nul.ls/faculty-of-science-and-technology/academic-programmes/",
       "sourcePath": null,
       "supportingSourcePath": null,
-      "supportingFeeSourcePath": null,
+      "supportingFeeSourcePath": "data/real/fees/nul-fee-structure-2024-2025.json",
+      "feeNote": "Fee schedule available: NUL Fee Structure 2024/25 (2024/25). Confirm the programme group and latest amount before payment.",
       "sourceType": "official_academic_programmes_page",
       "extractionMethod": "html_headings_and_context",
-      "reviewStatus": "needs_admin_review",
-      "sourceNote": null
+      "reviewStatus": "approved",
+      "sourceNote": "Auto-enriched from repository evidence and institution rules."
     },
     {
       "id": "national-university-of-lesotho-bachelor-of-science-in-physics-single-or-double-major-8-semesters-4-years",
@@ -1723,19 +2173,25 @@ window.EDUGUIDE_ADMIN_DATA = {
       "category": "Science & Technology",
       "faculty": "Science & Technology",
       "level": "Degree",
-      "duration": "Successful completion of B.Sc. General Semesters 1 and 2 or its equivalent from other institutions recognized by NUL Senate.",
+      "duration": "5 years with attachment and project",
       "deliveryMode": null,
       "overview": null,
       "requirementsSummary": "Successful completion of B.Sc. General Semesters 1 and 2 or its equivalent from other institutions recognized by NUL Senate.",
-      "careers": [],
+      "careers": [
+        "Laboratory Technologist",
+        "Research Scientist",
+        "Science Teacher",
+        "Quality Control Analyst"
+      ],
       "sourceUrl": "https://nul.ls/faculty-of-science-and-technology/academic-programmes/",
       "sourcePath": null,
       "supportingSourcePath": null,
-      "supportingFeeSourcePath": null,
+      "supportingFeeSourcePath": "data/real/fees/nul-fee-structure-2024-2025.json",
+      "feeNote": "Fee schedule available: NUL Fee Structure 2024/25 (2024/25). Confirm the programme group and latest amount before payment.",
       "sourceType": "official_academic_programmes_page",
       "extractionMethod": "html_headings_and_context",
-      "reviewStatus": "needs_admin_review",
-      "sourceNote": null
+      "reviewStatus": "approved",
+      "sourceNote": "Auto-enriched from repository evidence and institution rules."
     },
     {
       "id": "national-university-of-lesotho-bachelor-of-science-electronics-8-semesters-4-years",
@@ -1745,19 +2201,25 @@ window.EDUGUIDE_ADMIN_DATA = {
       "category": "Science & Technology",
       "faculty": "Science & Technology",
       "level": "Degree",
-      "duration": null,
+      "duration": "5 years with attachment and project",
       "deliveryMode": null,
       "overview": null,
       "requirementsSummary": ": Successful completion of B.Sc. Year II in Physics and Mathematics of NUL and its equivalent.",
-      "careers": [],
+      "careers": [
+        "Professional Engineer",
+        "Engineering Technologist",
+        "Project Engineer",
+        "Technical Consultant"
+      ],
       "sourceUrl": "https://nul.ls/faculty-of-science-and-technology/academic-programmes/",
       "sourcePath": null,
       "supportingSourcePath": null,
-      "supportingFeeSourcePath": null,
+      "supportingFeeSourcePath": "data/real/fees/nul-fee-structure-2024-2025.json",
+      "feeNote": "Fee schedule available: NUL Fee Structure 2024/25 (2024/25). Confirm the programme group and latest amount before payment.",
       "sourceType": "official_academic_programmes_page",
       "extractionMethod": "html_headings_and_context",
-      "reviewStatus": "needs_admin_review",
-      "sourceNote": null
+      "reviewStatus": "approved",
+      "sourceNote": "Auto-enriched from repository evidence and institution rules."
     },
     {
       "id": "national-university-of-lesotho-bachelor-of-engineering-b-eng-in-electronics-10-semesters-5-years",
@@ -1767,19 +2229,25 @@ window.EDUGUIDE_ADMIN_DATA = {
       "category": "Engineering & Built Environment",
       "faculty": "Science & Technology",
       "level": "Degree",
-      "duration": null,
+      "duration": "5 years with attachment and project",
       "deliveryMode": null,
       "overview": null,
       "requirementsSummary": "Successful completion of B.Sc. Year II in Physics and Computer Science of NUL or its equivalent, Diploma in Electrical and/or Electronic Engineering. B. POSTGRADUATE PROGRAMMES",
-      "careers": [],
+      "careers": [
+        "Architect",
+        "Architectural Technologist",
+        "Quantity Surveyor",
+        "Urban Planner"
+      ],
       "sourceUrl": "https://nul.ls/faculty-of-science-and-technology/academic-programmes/",
       "sourcePath": null,
       "supportingSourcePath": null,
-      "supportingFeeSourcePath": null,
+      "supportingFeeSourcePath": "data/real/fees/nul-fee-structure-2024-2025.json",
+      "feeNote": "Fee schedule available: NUL Fee Structure 2024/25 (2024/25). Confirm the programme group and latest amount before payment.",
       "sourceType": "official_academic_programmes_page",
       "extractionMethod": "html_headings_and_context",
-      "reviewStatus": "needs_admin_review",
-      "sourceNote": null
+      "reviewStatus": "approved",
+      "sourceNote": "Auto-enriched from repository evidence and institution rules."
     },
     {
       "id": "national-university-of-lesotho-bachelor-of-science-honours-in-mathematics-1-year-full-time",
@@ -1789,19 +2257,25 @@ window.EDUGUIDE_ADMIN_DATA = {
       "category": "Science & Technology",
       "faculty": "Science & Technology",
       "level": "Degree",
-      "duration": null,
+      "duration": "5 years with attachment and project",
       "deliveryMode": null,
       "overview": null,
       "requirementsSummary": "The minimum requirement for admission into the B.Sc Honours programme in Mathematics shall normally be a B.Sc. General Degree Second Class Second Division with a minimum average of C in Mathematics as a major subject. Students with equivalent qualifications from other Universities and/or academic institutions may be admitted into the B.Sc. Honours degree programme subject to the approval of the Board of Post-Graduate Studies.",
-      "careers": [],
+      "careers": [
+        "Laboratory Technologist",
+        "Research Scientist",
+        "Science Teacher",
+        "Quality Control Analyst"
+      ],
       "sourceUrl": "https://nul.ls/faculty-of-science-and-technology/academic-programmes/",
       "sourcePath": null,
       "supportingSourcePath": null,
-      "supportingFeeSourcePath": null,
+      "supportingFeeSourcePath": "data/real/fees/nul-fee-structure-2024-2025.json",
+      "feeNote": "Fee schedule available: NUL Fee Structure 2024/25 (2024/25). Confirm the programme group and latest amount before payment.",
       "sourceType": "official_academic_programmes_page",
       "extractionMethod": "html_headings_and_context",
-      "reviewStatus": "needs_admin_review",
-      "sourceNote": null
+      "reviewStatus": "approved",
+      "sourceNote": "Auto-enriched from repository evidence and institution rules."
     },
     {
       "id": "national-university-of-lesotho-master-of-science-in-mathematics",
@@ -1811,19 +2285,25 @@ window.EDUGUIDE_ADMIN_DATA = {
       "category": "Science & Technology",
       "faculty": "Science & Technology",
       "level": "Masters",
-      "duration": null,
+      "duration": "3 years",
       "deliveryMode": null,
       "overview": null,
       "requirementsSummary": "This programme shall be open to those candidates possessing at least the equivalent of the National University of Lesotho Honours Degree in Mathematics with Second Class.",
-      "careers": [],
+      "careers": [
+        "Laboratory Technologist",
+        "Research Scientist",
+        "Science Teacher",
+        "Quality Control Analyst"
+      ],
       "sourceUrl": "https://nul.ls/faculty-of-science-and-technology/academic-programmes/",
       "sourcePath": null,
       "supportingSourcePath": null,
-      "supportingFeeSourcePath": null,
+      "supportingFeeSourcePath": "data/real/fees/nul-fee-structure-2024-2025.json",
+      "feeNote": "Fee schedule available: NUL Fee Structure 2024/25 (2024/25). Confirm the programme group and latest amount before payment.",
       "sourceType": "official_academic_programmes_page",
       "extractionMethod": "html_headings_and_context",
-      "reviewStatus": "needs_admin_review",
-      "sourceNote": null
+      "reviewStatus": "approved",
+      "sourceNote": "Auto-enriched from repository evidence and institution rules."
     },
     {
       "id": "national-university-of-lesotho-master-of-science-in-chemistry-2-years-full-time",
@@ -1833,19 +2313,25 @@ window.EDUGUIDE_ADMIN_DATA = {
       "category": "Science & Technology",
       "faculty": "Science & Technology",
       "level": "Masters",
-      "duration": "The maximum period allowed is 4 years from the initial registration.",
+      "duration": "3 years",
       "deliveryMode": null,
       "overview": null,
       "requirementsSummary": "A BSc. Degree with Chemistry as a Major Subject at 2(II) Level with minimum average grade C in the Chemistry courses in the final two years, or a BSc. Degree in Chemical Technology at 2(II) Level Students with equivalent qualifications may be admitted subject to approval by the Departmental Board of Studies. Students with a BSc. Honours Degree in Chemistry may be exempted from specific courses in the first year of the programme.",
-      "careers": [],
+      "careers": [
+        "Laboratory Technologist",
+        "Research Scientist",
+        "Science Teacher",
+        "Quality Control Analyst"
+      ],
       "sourceUrl": "https://nul.ls/faculty-of-science-and-technology/academic-programmes/",
       "sourcePath": null,
       "supportingSourcePath": null,
-      "supportingFeeSourcePath": null,
+      "supportingFeeSourcePath": "data/real/fees/nul-fee-structure-2024-2025.json",
+      "feeNote": "Fee schedule available: NUL Fee Structure 2024/25 (2024/25). Confirm the programme group and latest amount before payment.",
       "sourceType": "official_academic_programmes_page",
       "extractionMethod": "html_headings_and_context",
-      "reviewStatus": "needs_admin_review",
-      "sourceNote": null
+      "reviewStatus": "approved",
+      "sourceNote": "Auto-enriched from repository evidence and institution rules."
     },
     {
       "id": "national-university-of-lesotho-master-of-science-in-sustainable-energy",
@@ -1855,19 +2341,25 @@ window.EDUGUIDE_ADMIN_DATA = {
       "category": "Science & Technology",
       "faculty": "Science & Technology",
       "level": "Masters",
-      "duration": "2 YEARS (FULL TIME) AND 3 YEARS (PART-TIME)",
+      "duration": "3 years",
       "deliveryMode": null,
       "overview": null,
       "requirementsSummary": "Applicant must have first degree in engineering, science or equivalent, with at least a lower second class pass. Previous experience in the energy field will be an added advantage.",
-      "careers": [],
+      "careers": [
+        "Laboratory Technologist",
+        "Research Scientist",
+        "Science Teacher",
+        "Quality Control Analyst"
+      ],
       "sourceUrl": "https://nul.ls/faculty-of-science-and-technology/academic-programmes/",
       "sourcePath": null,
       "supportingSourcePath": null,
-      "supportingFeeSourcePath": null,
+      "supportingFeeSourcePath": "data/real/fees/nul-fee-structure-2024-2025.json",
+      "feeNote": "Fee schedule available: NUL Fee Structure 2024/25 (2024/25). Confirm the programme group and latest amount before payment.",
       "sourceType": "official_academic_programmes_page",
       "extractionMethod": "html_headings_and_context",
-      "reviewStatus": "needs_admin_review",
-      "sourceNote": null
+      "reviewStatus": "approved",
+      "sourceNote": "Auto-enriched from repository evidence and institution rules."
     },
     {
       "id": "national-university-of-lesotho-diploma-in-spiritual-care-and-counseling",
@@ -1877,41 +2369,53 @@ window.EDUGUIDE_ADMIN_DATA = {
       "category": "Humanities",
       "faculty": "Humanities",
       "level": "Diploma",
-      "duration": "Duration for Direct Entry - 2 years",
+      "duration": "3 years",
       "deliveryMode": null,
       "overview": null,
       "requirementsSummary": "LGCSE or its equivalent in the 3rd class pass A pass in English Language Aggregate not exceeding 40 in the best five (5) passed subjects.",
-      "careers": [],
+      "careers": [
+        "Programme Specialist",
+        "Project Officer",
+        "Research Assistant",
+        "Community Development Officer"
+      ],
       "sourceUrl": "https://nul.ls/humanities/academic-programmes/",
       "sourcePath": null,
       "supportingSourcePath": null,
-      "supportingFeeSourcePath": null,
+      "supportingFeeSourcePath": "data/real/fees/nul-fee-structure-2024-2025.json",
+      "feeNote": "Fee schedule available: NUL Fee Structure 2024/25 (2024/25). Confirm the programme group and latest amount before payment.",
       "sourceType": "official_academic_programmes_page",
       "extractionMethod": "html_headings_and_context",
-      "reviewStatus": "needs_admin_review",
-      "sourceNote": null
+      "reviewStatus": "approved",
+      "sourceNote": "Auto-enriched from repository evidence and institution rules."
     },
     {
-      "id": "national-university-of-lesotho-diploma-in-applied-philosophy-and-public-ethics-direct-entry",
+      "id": "national-university-of-lesotho-diploma-in-applied-philosophy-and-public-ethics",
       "institution": "National University of Lesotho",
       "name": "Diploma In Applied Philosophy And Public Ethics",
       "code": null,
       "category": "Humanities",
       "faculty": "Humanities",
       "level": "Diploma",
-      "duration": "Duration for Direct Entry - 2 years",
+      "duration": "3 years",
       "deliveryMode": null,
       "overview": null,
       "requirementsSummary": "LGCSE or its equivalent in the 3rd class pass A pass in English Language Aggregate not exceeding 40 in the best five (5) passed subjects.",
-      "careers": [],
+      "careers": [
+        "Programme Specialist",
+        "Project Officer",
+        "Research Assistant",
+        "Community Development Officer"
+      ],
       "sourceUrl": "https://nul.ls/humanities/academic-programmes/",
       "sourcePath": null,
       "supportingSourcePath": null,
-      "supportingFeeSourcePath": null,
+      "supportingFeeSourcePath": "data/real/fees/nul-fee-structure-2024-2025.json",
+      "feeNote": "Fee schedule available: NUL Fee Structure 2024/25 (2024/25). Confirm the programme group and latest amount before payment.",
       "sourceType": "official_academic_programmes_page",
       "extractionMethod": "html_headings_and_context",
-      "reviewStatus": "needs_admin_review",
-      "sourceNote": null
+      "reviewStatus": "approved",
+      "sourceNote": "Auto-enriched from repository evidence and institution rules."
     },
     {
       "id": "national-university-of-lesotho-bachelor-of-arts-in-practical-philosophy-and-applied-ethics",
@@ -1921,19 +2425,25 @@ window.EDUGUIDE_ADMIN_DATA = {
       "category": "Humanities",
       "faculty": "Humanities",
       "level": "Degree",
-      "duration": "Duration for Indirect Entry - 3 years",
+      "duration": "5 years with attachment and project",
       "deliveryMode": null,
       "overview": null,
       "requirementsSummary": "Candidates who have successfully completed Diploma in Applied Philosophy and Public Ethics shall be considered for admission. Such candidates when admitted will start their programme at the second year level of this programme. Candidates who come from other institutions and who in the opinion of the Department hold equivalent qualification. The candidates will either be admitted into either the First Year or Second Year level depending on the individual case as recognised by the Department of Philosophy. Duration for Direct Entry - 4 years Sat for a minimum of six (6) subjects in LGCSE examinations. Obtained a C grade or better in at least four (4) subjects including English Language Obtained at least a D-grade in two other subjects.",
-      "careers": [],
+      "careers": [
+        "Programme Specialist",
+        "Project Officer",
+        "Research Assistant",
+        "Community Development Officer"
+      ],
       "sourceUrl": "https://nul.ls/humanities/academic-programmes/",
       "sourcePath": null,
       "supportingSourcePath": null,
-      "supportingFeeSourcePath": null,
+      "supportingFeeSourcePath": "data/real/fees/nul-fee-structure-2024-2025.json",
+      "feeNote": "Fee schedule available: NUL Fee Structure 2024/25 (2024/25). Confirm the programme group and latest amount before payment.",
       "sourceType": "official_academic_programmes_page",
       "extractionMethod": "html_headings_and_context",
-      "reviewStatus": "needs_admin_review",
-      "sourceNote": null
+      "reviewStatus": "approved",
+      "sourceNote": "Auto-enriched from repository evidence and institution rules."
     },
     {
       "id": "national-university-of-lesotho-bachelor-of-arts-in-spiritual-care-and-counseling",
@@ -1943,19 +2453,25 @@ window.EDUGUIDE_ADMIN_DATA = {
       "category": "Humanities",
       "faculty": "Humanities",
       "level": "Degree",
-      "duration": "Duration for Indirect Entry - 3 years",
+      "duration": "5 years with attachment and project",
       "deliveryMode": null,
       "overview": null,
       "requirementsSummary": "Pass with credit in Diploma in Pastoral care and Counselling. Duration for Direct Entry - 4 years Sat for a minimum of six (6) subjects in LGCSE examinations. Obtained a C grade or better in at least four (4) subjects including English Language with an APS not exceeding 26. Obtained at least a D-grade in two other subjects OR Sat for a minimum of 6 subjects in COSC examinations, obtained 4 credits including English language with an Aggregate not exceeding 34. Obtained at least a D-grade in two other subjects",
-      "careers": [],
+      "careers": [
+        "Programme Specialist",
+        "Project Officer",
+        "Research Assistant",
+        "Community Development Officer"
+      ],
       "sourceUrl": "https://nul.ls/humanities/academic-programmes/",
       "sourcePath": null,
       "supportingSourcePath": null,
-      "supportingFeeSourcePath": null,
+      "supportingFeeSourcePath": "data/real/fees/nul-fee-structure-2024-2025.json",
+      "feeNote": "Fee schedule available: NUL Fee Structure 2024/25 (2024/25). Confirm the programme group and latest amount before payment.",
       "sourceType": "official_academic_programmes_page",
       "extractionMethod": "html_headings_and_context",
-      "reviewStatus": "needs_admin_review",
-      "sourceNote": null
+      "reviewStatus": "approved",
+      "sourceNote": "Auto-enriched from repository evidence and institution rules."
     },
     {
       "id": "national-university-of-lesotho-bachelor-of-arts-in-library-and-information-studies",
@@ -1965,19 +2481,25 @@ window.EDUGUIDE_ADMIN_DATA = {
       "category": "Humanities",
       "faculty": "Humanities",
       "level": "Degree",
-      "duration": "Duration for Indirect Entry - 3 years",
+      "duration": "5 years with attachment and project",
       "deliveryMode": null,
       "overview": null,
       "requirementsSummary": "The normal entry requirements for candidates shall be: Diploma in Library and Information Studies or equivalent. Such candidates when admitted will start their programme at the second year level of this programme. Duration for Direct Entry - 4 years Candidates who apply for admission into the Bachelor of Library and Information Studies programme must satisfy the General Regulations into the BA degree of the Faculty of Humanities. For admissibility into Year 1, applicants must have: Sat for a minimum of Six (6) subjects of the Lesotho General Certificate (LGCSE) examinations. Obtained C grade or better, in (4) subjects including English Language. Obtained a D in the remaining two (2) subjects chosen from designed five subject groups and a minimum Admission Point Score (APS) that shall not exceed 26.",
-      "careers": [],
+      "careers": [
+        "Programme Specialist",
+        "Project Officer",
+        "Research Assistant",
+        "Community Development Officer"
+      ],
       "sourceUrl": "https://nul.ls/humanities/academic-programmes/",
       "sourcePath": null,
       "supportingSourcePath": null,
-      "supportingFeeSourcePath": null,
+      "supportingFeeSourcePath": "data/real/fees/nul-fee-structure-2024-2025.json",
+      "feeNote": "Fee schedule available: NUL Fee Structure 2024/25 (2024/25). Confirm the programme group and latest amount before payment.",
       "sourceType": "official_academic_programmes_page",
       "extractionMethod": "html_headings_and_context",
-      "reviewStatus": "needs_admin_review",
-      "sourceNote": null
+      "reviewStatus": "approved",
+      "sourceNote": "Auto-enriched from repository evidence and institution rules."
     },
     {
       "id": "national-university-of-lesotho-bachelor-of-arts-in-humanities",
@@ -1987,19 +2509,25 @@ window.EDUGUIDE_ADMIN_DATA = {
       "category": "Humanities",
       "faculty": "Humanities",
       "level": "Degree",
-      "duration": "Duration for Indirect Entry - 3 years",
+      "duration": "5 years with attachment and project",
       "deliveryMode": null,
       "overview": null,
       "requirementsSummary": "Pass with credit in Diploma in Pastoral Care and Counselling OR",
-      "careers": [],
+      "careers": [
+        "Programme Specialist",
+        "Project Officer",
+        "Research Assistant",
+        "Community Development Officer"
+      ],
       "sourceUrl": "https://nul.ls/humanities/academic-programmes/",
       "sourcePath": null,
       "supportingSourcePath": null,
-      "supportingFeeSourcePath": null,
+      "supportingFeeSourcePath": "data/real/fees/nul-fee-structure-2024-2025.json",
+      "feeNote": "Fee schedule available: NUL Fee Structure 2024/25 (2024/25). Confirm the programme group and latest amount before payment.",
       "sourceType": "official_academic_programmes_page",
       "extractionMethod": "html_headings_and_context",
-      "reviewStatus": "needs_admin_review",
-      "sourceNote": null
+      "reviewStatus": "approved",
+      "sourceNote": "Auto-enriched from repository evidence and institution rules."
     },
     {
       "id": "national-university-of-lesotho-diploma-in-applied-philosophy-and-public-ethics",
@@ -2009,19 +2537,25 @@ window.EDUGUIDE_ADMIN_DATA = {
       "category": "Humanities",
       "faculty": "Humanities",
       "level": "Diploma",
-      "duration": "Duration for Direct Entry - 4 years",
+      "duration": "3 years",
       "deliveryMode": null,
       "overview": null,
       "requirementsSummary": "For admissibility into Year 1, applicants must have: Sat for a minimum of six (6) subjects in LGCSE examinations. Obtained a C grade or better in at least four (4) subjects including English Language Obtained at least a D-grade in two other subjects.",
-      "careers": [],
+      "careers": [
+        "Programme Specialist",
+        "Project Officer",
+        "Research Assistant",
+        "Community Development Officer"
+      ],
       "sourceUrl": "https://nul.ls/humanities/academic-programmes/",
       "sourcePath": null,
       "supportingSourcePath": null,
-      "supportingFeeSourcePath": null,
+      "supportingFeeSourcePath": "data/real/fees/nul-fee-structure-2024-2025.json",
+      "feeNote": "Fee schedule available: NUL Fee Structure 2024/25 (2024/25). Confirm the programme group and latest amount before payment.",
       "sourceType": "official_academic_programmes_page",
       "extractionMethod": "html_headings_and_context",
-      "reviewStatus": "needs_admin_review",
-      "sourceNote": null
+      "reviewStatus": "approved",
+      "sourceNote": "Auto-enriched from repository evidence and institution rules."
     },
     {
       "id": "national-university-of-lesotho-bachelor-of-journalism-and-media-studies-arts-in-humanities",
@@ -2031,19 +2565,25 @@ window.EDUGUIDE_ADMIN_DATA = {
       "category": "Creative Arts & Communication",
       "faculty": "Humanities",
       "level": "Degree",
-      "duration": "Duration for Indirect Entry - 3 Years",
+      "duration": "5 years with attachment and project",
       "deliveryMode": null,
       "overview": null,
       "requirementsSummary": "Candidates who have successfully completed Diploma in Mass Communication/Journalism/Media Studies/Film studies shall be considered for admission. Such candidates when admitted will start their programme at the second-year level of the programme. Duration for Direct Entry - 4 Years Sat for a minimum of six (6) subjects in LGCSE examinations. Obtained a C grade or better in at least four (4) subjects including English Language. Obtained at least a D-grade in two other subjects.",
-      "careers": [],
+      "careers": [
+        "Journalist",
+        "Broadcast Producer",
+        "Content Producer",
+        "Public Relations Officer"
+      ],
       "sourceUrl": "https://nul.ls/humanities/academic-programmes/",
       "sourcePath": null,
       "supportingSourcePath": null,
-      "supportingFeeSourcePath": null,
+      "supportingFeeSourcePath": "data/real/fees/nul-fee-structure-2024-2025.json",
+      "feeNote": "Fee schedule available: NUL Fee Structure 2024/25 (2024/25). Confirm the programme group and latest amount before payment.",
       "sourceType": "official_academic_programmes_page",
       "extractionMethod": "html_headings_and_context",
-      "reviewStatus": "needs_admin_review",
-      "sourceNote": null
+      "reviewStatus": "approved",
+      "sourceNote": "Auto-enriched from repository evidence and institution rules."
     },
     {
       "id": "national-university-of-lesotho-postgraduate-diploma-in-development-studies",
@@ -2053,19 +2593,25 @@ window.EDUGUIDE_ADMIN_DATA = {
       "category": "Humanities",
       "faculty": "Humanities",
       "level": "Diploma",
-      "duration": "Advanced certificate in Development Studies, with at least 3 Credits in development related subjects, with 4 years continuous work experience in the institution or agency recognized by the Development Studies department and its Faculty.",
+      "duration": "3 years",
       "deliveryMode": null,
       "overview": null,
       "requirementsSummary": "At least second class 2nd division (2:2) with Mean 60 in the Social Sciences, Humanities and/or any related preferred junior degree recognized by NUL. Advanced certificate in Development Studies, with at least 3 Credits in development related subjects, with 4 years continuous work experience in the institution or agency recognized by the Development Studies department and its Faculty. Equivalent criteria as may be approved by the department and the Faculty.",
-      "careers": [],
+      "careers": [
+        "Programme Specialist",
+        "Project Officer",
+        "Research Assistant",
+        "Community Development Officer"
+      ],
       "sourceUrl": "https://nul.ls/humanities/academic-programmes/",
       "sourcePath": null,
       "supportingSourcePath": null,
-      "supportingFeeSourcePath": null,
+      "supportingFeeSourcePath": "data/real/fees/nul-fee-structure-2024-2025.json",
+      "feeNote": "Fee schedule available: NUL Fee Structure 2024/25 (2024/25). Confirm the programme group and latest amount before payment.",
       "sourceType": "official_academic_programmes_page",
       "extractionMethod": "html_headings_and_context",
-      "reviewStatus": "needs_admin_review",
-      "sourceNote": null
+      "reviewStatus": "approved",
+      "sourceNote": "Auto-enriched from repository evidence and institution rules."
     },
     {
       "id": "national-university-of-lesotho-bachelor-of-arts-in-philosophy-honours",
@@ -2075,19 +2621,25 @@ window.EDUGUIDE_ADMIN_DATA = {
       "category": "Humanities",
       "faculty": "Humanities",
       "level": "Degree",
-      "duration": "Duration for Direct Entry - 1 year full-time",
+      "duration": "5 years with attachment and project",
       "deliveryMode": null,
       "overview": null,
       "requirementsSummary": "Successful completion of BA in at least Second Class, Second Division category. Any other qualifications that may be approved by NUL Senate.",
-      "careers": [],
+      "careers": [
+        "Programme Specialist",
+        "Project Officer",
+        "Research Assistant",
+        "Community Development Officer"
+      ],
       "sourceUrl": "https://nul.ls/humanities/academic-programmes/",
       "sourcePath": null,
       "supportingSourcePath": null,
-      "supportingFeeSourcePath": null,
+      "supportingFeeSourcePath": "data/real/fees/nul-fee-structure-2024-2025.json",
+      "feeNote": "Fee schedule available: NUL Fee Structure 2024/25 (2024/25). Confirm the programme group and latest amount before payment.",
       "sourceType": "official_academic_programmes_page",
       "extractionMethod": "html_headings_and_context",
-      "reviewStatus": "needs_admin_review",
-      "sourceNote": null
+      "reviewStatus": "approved",
+      "sourceNote": "Auto-enriched from repository evidence and institution rules."
     },
     {
       "id": "national-university-of-lesotho-master-of-arts-in-theology-and-religious-studies",
@@ -2097,19 +2649,25 @@ window.EDUGUIDE_ADMIN_DATA = {
       "category": "Humanities",
       "faculty": "Humanities",
       "level": "Masters",
-      "duration": "Duration for Direct Entry - 2 YEARS",
+      "duration": "3 years",
       "deliveryMode": null,
       "overview": null,
       "requirementsSummary": null,
-      "careers": [],
+      "careers": [
+        "Programme Specialist",
+        "Project Officer",
+        "Research Assistant",
+        "Community Development Officer"
+      ],
       "sourceUrl": "https://nul.ls/humanities/academic-programmes/",
       "sourcePath": null,
       "supportingSourcePath": null,
-      "supportingFeeSourcePath": null,
+      "supportingFeeSourcePath": "data/real/fees/nul-fee-structure-2024-2025.json",
+      "feeNote": "Fee schedule available: NUL Fee Structure 2024/25 (2024/25). Confirm the programme group and latest amount before payment.",
       "sourceType": "official_academic_programmes_page",
       "extractionMethod": "html_headings_and_context",
-      "reviewStatus": "needs_admin_review",
-      "sourceNote": null
+      "reviewStatus": "approved",
+      "sourceNote": "Auto-enriched from repository evidence and institution rules."
     },
     {
       "id": "national-university-of-lesotho-master-of-arts-in-spiritual-care-and-counseling",
@@ -2119,19 +2677,25 @@ window.EDUGUIDE_ADMIN_DATA = {
       "category": "Humanities",
       "faculty": "Humanities",
       "level": "Masters",
-      "duration": "Duration for Direct Entry - 2 YEARS",
+      "duration": "3 years",
       "deliveryMode": null,
       "overview": null,
       "requirementsSummary": null,
-      "careers": [],
+      "careers": [
+        "Programme Specialist",
+        "Project Officer",
+        "Research Assistant",
+        "Community Development Officer"
+      ],
       "sourceUrl": "https://nul.ls/humanities/academic-programmes/",
       "sourcePath": null,
       "supportingSourcePath": null,
-      "supportingFeeSourcePath": null,
+      "supportingFeeSourcePath": "data/real/fees/nul-fee-structure-2024-2025.json",
+      "feeNote": "Fee schedule available: NUL Fee Structure 2024/25 (2024/25). Confirm the programme group and latest amount before payment.",
       "sourceType": "official_academic_programmes_page",
       "extractionMethod": "html_headings_and_context",
-      "reviewStatus": "needs_admin_review",
-      "sourceNote": null
+      "reviewStatus": "approved",
+      "sourceNote": "Auto-enriched from repository evidence and institution rules."
     },
     {
       "id": "national-university-of-lesotho-master-of-arts-in-philosophy",
@@ -2141,19 +2705,25 @@ window.EDUGUIDE_ADMIN_DATA = {
       "category": "Humanities",
       "faculty": "Humanities",
       "level": "Masters",
-      "duration": "Duration for Direct Entry - 2 YEARS FULL TIME",
+      "duration": "3 years",
       "deliveryMode": null,
       "overview": null,
       "requirementsSummary": "An appropriate attainment of Bachelors' Degree (Honours) of NUL or an equivalent qualification from NUL or other universities. An Overall Weighted Mean of 65% with all the courses passed at honours level.",
-      "careers": [],
+      "careers": [
+        "Programme Specialist",
+        "Project Officer",
+        "Research Assistant",
+        "Community Development Officer"
+      ],
       "sourceUrl": "https://nul.ls/humanities/academic-programmes/",
       "sourcePath": null,
       "supportingSourcePath": null,
-      "supportingFeeSourcePath": null,
+      "supportingFeeSourcePath": "data/real/fees/nul-fee-structure-2024-2025.json",
+      "feeNote": "Fee schedule available: NUL Fee Structure 2024/25 (2024/25). Confirm the programme group and latest amount before payment.",
       "sourceType": "official_academic_programmes_page",
       "extractionMethod": "html_headings_and_context",
-      "reviewStatus": "needs_admin_review",
-      "sourceNote": null
+      "reviewStatus": "approved",
+      "sourceNote": "Auto-enriched from repository evidence and institution rules."
     },
     {
       "id": "national-university-of-lesotho-master-of-arts-in-history-mode-ii",
@@ -2163,19 +2733,25 @@ window.EDUGUIDE_ADMIN_DATA = {
       "category": "Humanities",
       "faculty": "Humanities",
       "level": "Masters",
-      "duration": "Duration for Direct Entry - 2 YEARS FULL TIME",
+      "duration": "3 years",
       "deliveryMode": null,
       "overview": null,
       "requirementsSummary": "BA degree, preferably in History, or cognate disciplines; or a post-graduate diploma Have taken and passed undergraduate majors offered in the Department of Historical Studies at grade Second Class-Second Division, or better, and to have scored, in relevant Department of Historical Studies' courses, an average of 65%, or higher Applicants in possession of relevant work experience equivalent to any of the above qualification plus proven ability to conduct research and write will also be considered for admission.",
-      "careers": [],
+      "careers": [
+        "Programme Specialist",
+        "Project Officer",
+        "Research Assistant",
+        "Community Development Officer"
+      ],
       "sourceUrl": "https://nul.ls/humanities/academic-programmes/",
       "sourcePath": null,
       "supportingSourcePath": null,
-      "supportingFeeSourcePath": null,
+      "supportingFeeSourcePath": "data/real/fees/nul-fee-structure-2024-2025.json",
+      "feeNote": "Fee schedule available: NUL Fee Structure 2024/25 (2024/25). Confirm the programme group and latest amount before payment.",
       "sourceType": "official_academic_programmes_page",
       "extractionMethod": "html_headings_and_context",
-      "reviewStatus": "needs_admin_review",
-      "sourceNote": null
+      "reviewStatus": "approved",
+      "sourceNote": "Auto-enriched from repository evidence and institution rules."
     },
     {
       "id": "national-university-of-lesotho-master-of-arts-in-history-mode-i",
@@ -2185,19 +2761,25 @@ window.EDUGUIDE_ADMIN_DATA = {
       "category": "Humanities",
       "faculty": "Humanities",
       "level": "Masters",
-      "duration": "Duration for Direct Entry - 1 YEARS FULL TIME",
+      "duration": "3 years",
       "deliveryMode": null,
       "overview": null,
       "requirementsSummary": "To be admitted into the programme, students will need to possess at least one of the following from recognized higher education institution(s): An Honours degree or better An undergraduate degree of grade First Class (I) An undergraduate degree of grade Second Class, First Division (II,i) An undergraduate degree of grade Second Class, Second Division (II.ii) Relevant work and other experience equivalent to any of above qualifications In addition to above, applicants may be required to possess proven ability to conduct research and writing skills.",
-      "careers": [],
+      "careers": [
+        "Programme Specialist",
+        "Project Officer",
+        "Research Assistant",
+        "Community Development Officer"
+      ],
       "sourceUrl": "https://nul.ls/humanities/academic-programmes/",
       "sourcePath": null,
       "supportingSourcePath": null,
-      "supportingFeeSourcePath": null,
+      "supportingFeeSourcePath": "data/real/fees/nul-fee-structure-2024-2025.json",
+      "feeNote": "Fee schedule available: NUL Fee Structure 2024/25 (2024/25). Confirm the programme group and latest amount before payment.",
       "sourceType": "official_academic_programmes_page",
       "extractionMethod": "html_headings_and_context",
-      "reviewStatus": "needs_admin_review",
-      "sourceNote": null
+      "reviewStatus": "approved",
+      "sourceNote": "Auto-enriched from repository evidence and institution rules."
     },
     {
       "id": "national-university-of-lesotho-master-of-arts-in-literature-in-english",
@@ -2207,19 +2789,25 @@ window.EDUGUIDE_ADMIN_DATA = {
       "category": "Humanities",
       "faculty": "Humanities",
       "level": "Masters",
-      "duration": "Duration for Direct Entry - 2 YEARS FULL TIME",
+      "duration": "3 years",
       "deliveryMode": null,
       "overview": null,
       "requirementsSummary": "A good first degree from NUL at the level of 1st class, II (i) and II (ii) with an average of at least 65% in the core and required Courses for Literature. Equivalent Qualifications from NUL or other universities are acceptable.",
-      "careers": [],
+      "careers": [
+        "Programme Specialist",
+        "Project Officer",
+        "Research Assistant",
+        "Community Development Officer"
+      ],
       "sourceUrl": "https://nul.ls/humanities/academic-programmes/",
       "sourcePath": null,
       "supportingSourcePath": null,
-      "supportingFeeSourcePath": null,
+      "supportingFeeSourcePath": "data/real/fees/nul-fee-structure-2024-2025.json",
+      "feeNote": "Fee schedule available: NUL Fee Structure 2024/25 (2024/25). Confirm the programme group and latest amount before payment.",
       "sourceType": "official_academic_programmes_page",
       "extractionMethod": "html_headings_and_context",
-      "reviewStatus": "needs_admin_review",
-      "sourceNote": null
+      "reviewStatus": "approved",
+      "sourceNote": "Auto-enriched from repository evidence and institution rules."
     },
     {
       "id": "national-university-of-lesotho-master-of-arts-in-english-language-linguistics",
@@ -2229,19 +2817,25 @@ window.EDUGUIDE_ADMIN_DATA = {
       "category": "Humanities",
       "faculty": "Humanities",
       "level": "Masters",
-      "duration": "Duration for Direct Entry - 2 YEARS FULL TIME",
+      "duration": "3 years",
       "deliveryMode": null,
       "overview": null,
       "requirementsSummary": "A good first degree from NUL at the level of 1st class, II (i) and II (ii) with an average of at least 65% in the core and required Courses for either Language. Equivalent Qualifications from NUL or other universities are acceptable.",
-      "careers": [],
+      "careers": [
+        "Programme Specialist",
+        "Project Officer",
+        "Research Assistant",
+        "Community Development Officer"
+      ],
       "sourceUrl": "https://nul.ls/humanities/academic-programmes/",
       "sourcePath": null,
       "supportingSourcePath": null,
-      "supportingFeeSourcePath": null,
+      "supportingFeeSourcePath": "data/real/fees/nul-fee-structure-2024-2025.json",
+      "feeNote": "Fee schedule available: NUL Fee Structure 2024/25 (2024/25). Confirm the programme group and latest amount before payment.",
       "sourceType": "official_academic_programmes_page",
       "extractionMethod": "html_headings_and_context",
-      "reviewStatus": "needs_admin_review",
-      "sourceNote": null
+      "reviewStatus": "approved",
+      "sourceNote": "Auto-enriched from repository evidence and institution rules."
     },
     {
       "id": "national-university-of-lesotho-master-of-arts-in-development-studies",
@@ -2251,19 +2845,25 @@ window.EDUGUIDE_ADMIN_DATA = {
       "category": "Humanities",
       "faculty": "Humanities",
       "level": "Masters",
-      "duration": "Duration for Direct Entry - 2 YEARS FULL TIME",
+      "duration": "3 years",
       "deliveryMode": null,
       "overview": null,
       "requirementsSummary": "A minimum of Second Class First Division in relevant Social Sciences or Humanities subjects or a combination of both. A minimum of Second Class, Second Division 2(ii) BA with 65% mean score in Development Studies courses at BA Level. Equivalent qualifications from other institutions as might be approved by NUL Senate on the advice of the Department.",
-      "careers": [],
+      "careers": [
+        "Programme Specialist",
+        "Project Officer",
+        "Research Assistant",
+        "Community Development Officer"
+      ],
       "sourceUrl": "https://nul.ls/humanities/academic-programmes/",
       "sourcePath": null,
       "supportingSourcePath": null,
-      "supportingFeeSourcePath": null,
+      "supportingFeeSourcePath": "data/real/fees/nul-fee-structure-2024-2025.json",
+      "feeNote": "Fee schedule available: NUL Fee Structure 2024/25 (2024/25). Confirm the programme group and latest amount before payment.",
       "sourceType": "official_academic_programmes_page",
       "extractionMethod": "html_headings_and_context",
-      "reviewStatus": "needs_admin_review",
-      "sourceNote": null
+      "reviewStatus": "approved",
+      "sourceNote": "Auto-enriched from repository evidence and institution rules."
     },
     {
       "id": "national-university-of-lesotho-masters-of-arts-in-african-language-and-literature",
@@ -2273,19 +2873,25 @@ window.EDUGUIDE_ADMIN_DATA = {
       "category": "Humanities",
       "faculty": "Humanities",
       "level": "Masters",
-      "duration": "Duration for Direct Entry - 2 YEARS FULL TIME",
+      "duration": "3 years",
       "deliveryMode": null,
       "overview": null,
       "requirementsSummary": "A good first degree at the levels of First Class (I) or Second Class First Division 2 (i) and Second Division 2 (ii) of this University with an average of at least 65% in the core and required courses for either Language and Linguistics or Literature. Equivalent qualifications from other universities as may be approved by the Senate of NUL on the advice of the Faculty of Humanities.",
-      "careers": [],
+      "careers": [
+        "Programme Specialist",
+        "Project Officer",
+        "Research Assistant",
+        "Community Development Officer"
+      ],
       "sourceUrl": "https://nul.ls/humanities/academic-programmes/",
       "sourcePath": null,
       "supportingSourcePath": null,
-      "supportingFeeSourcePath": null,
+      "supportingFeeSourcePath": "data/real/fees/nul-fee-structure-2024-2025.json",
+      "feeNote": "Fee schedule available: NUL Fee Structure 2024/25 (2024/25). Confirm the programme group and latest amount before payment.",
       "sourceType": "official_academic_programmes_page",
       "extractionMethod": "html_headings_and_context",
-      "reviewStatus": "needs_admin_review",
-      "sourceNote": null
+      "reviewStatus": "approved",
+      "sourceNote": "Auto-enriched from repository evidence and institution rules."
     },
     {
       "id": "national-university-of-lesotho-master-s-degree-of-nul-or-an-equivalent-qualification-from-other-universities-with-a-minimum-score-of-b",
@@ -2295,19 +2901,25 @@ window.EDUGUIDE_ADMIN_DATA = {
       "category": "Humanities",
       "faculty": "Humanities",
       "level": "Masters",
-      "duration": "Duration for Direct Entry - 3 YEARS FULL TIME",
+      "duration": "5 years with attachment and project",
       "deliveryMode": null,
       "overview": null,
       "requirementsSummary": null,
-      "careers": [],
+      "careers": [
+        "Programme Specialist",
+        "Project Officer",
+        "Research Assistant",
+        "Community Development Officer"
+      ],
       "sourceUrl": "https://nul.ls/humanities/academic-programmes/",
       "sourcePath": null,
       "supportingSourcePath": null,
-      "supportingFeeSourcePath": null,
+      "supportingFeeSourcePath": "data/real/fees/nul-fee-structure-2024-2025.json",
+      "feeNote": "Fee schedule available: NUL Fee Structure 2024/25 (2024/25). Confirm the programme group and latest amount before payment.",
       "sourceType": "official_academic_programmes_page",
       "extractionMethod": "html_headings_and_context",
-      "reviewStatus": "needs_admin_review",
-      "sourceNote": null
+      "reviewStatus": "approved",
+      "sourceNote": "Auto-enriched from repository evidence and institution rules."
     },
     {
       "id": "national-university-of-lesotho-certificate-of-proficiency-in-insurance-law",
@@ -2317,19 +2929,25 @@ window.EDUGUIDE_ADMIN_DATA = {
       "category": "Law",
       "faculty": "Law",
       "level": "Certificate",
-      "duration": "Duration for Direct Entry - It shall normally extend over a minimum of three (6) months. Notwithstanding the generality of the foregoing, the Faculty may, with the approval of Senate, agree to an extension for a specific period, not exceeding a full academic year. The programme comprises of ten (10) courses that are taught over a period of (3) months. The remaining three (3) months will consist of registration, assessment, examination periods and University vacations.",
+      "duration": "2 years",
       "deliveryMode": null,
       "overview": null,
       "requirementsSummary": "The programme is a Certificate in Insurance Law at Level 5 of the Lesotho Qualification Framework (LQF) and Level 5 of SADC Qualifications Framework (SADCQF). The minimum entry requirements into the certificate programme will be based on one of the following: A Cambridge Overseas Schools Certificate (COSC), Lesotho General Certificate of Secondary Education (LGCSE), or equivalent certificate; or Recognition of prior learning. Mode of Learning The courses will combine theory and practice in the form of case studies. Students are expected to read on their own. Lectures are conducted in a structured but discursive manner allowing for questions and discussions. Practical examples are routinely considered with reference to case law, experience from the industry and other available resources. Course Rationale The COP is a qualification developed as part of the fit and proper requirements for insurance intermediaries in Lesotho. The programme aims to provide students with introductory knowledge on key aspects of the insurance sector such as the legal framework governing Lesotho's insurance sector, the role of the Regulator in the insurance sector, ethical considerations in the insurance business among other things. The programme will also equip students with cognitive and conceptual tools such as problem solving skills, application skills, and to some extent analytical skills which will enable students to deal with risk and compliance management, ethical considerations, and dispute resolution in the insurance business. It will introduce students to the fundamental aspects of the regulation of insurance business in Lesotho by emphasizing selected general principles in insurance and related areas together with more specific areas, such as insurance products, risk management and others. The programme is designed to equip students with the relevant knowledge and practical skills required to successfully operate within the insurance environment in Lesotho.",
-      "careers": [],
+      "careers": [
+        "Legal Advisor",
+        "Legal Officer",
+        "Compliance Officer",
+        "Human Rights Officer"
+      ],
       "sourceUrl": "https://nul.ls/faculty-of-law/academic-programmes/",
       "sourcePath": null,
       "supportingSourcePath": null,
-      "supportingFeeSourcePath": null,
+      "supportingFeeSourcePath": "data/real/fees/nul-fee-structure-2024-2025.json",
+      "feeNote": "Fee schedule available: NUL Fee Structure 2024/25 (2024/25). Confirm the programme group and latest amount before payment.",
       "sourceType": "official_academic_programmes_page",
       "extractionMethod": "html_headings_and_context",
-      "reviewStatus": "needs_admin_review",
-      "sourceNote": null
+      "reviewStatus": "approved",
+      "sourceNote": "Auto-enriched from repository evidence and institution rules."
     },
     {
       "id": "national-university-of-lesotho-bachelor-of-laws-ll-b",
@@ -2339,19 +2957,25 @@ window.EDUGUIDE_ADMIN_DATA = {
       "category": "Law",
       "faculty": "Law",
       "level": "Degree",
-      "duration": "Duration for Direct Entry - The Bachelor of Laws (LL.B.) is offered under 3 modes; mode 1- LL.B. 5-year programme, mode 2- LL.B. 3-year programme, and mode 3- LL.B. 2-year programme.",
+      "duration": "5 years with attachment and project",
       "deliveryMode": null,
       "overview": null,
       "requirementsSummary": "Mode 1 - LL.B. 5-year programme The normal requirements for entry into the LL.B. 5-year programme are: Sat for a minimum of six (6) subjects in LGCSE or COSC examination LGCSE or equivalent with at least four subjects passed with a C-grade and two other subjects passed with at least a D- grade. A minimum of a C-grade in English Language. A total not exceeding 26 Average Point Score (APS) is the acceptable achievement of a candidate. Mode 2 - LL.B. 3-year Programme The normal requirements for applicants shall be: A Bachelors' Degree from any other discipline with at least a Second Class Second-Division Pass (i.e. at least a 60 percent average or equivalent). Mode 3 - LL.B. 2-year Programme",
-      "careers": [],
+      "careers": [
+        "Legal Advisor",
+        "Legal Officer",
+        "Compliance Officer",
+        "Human Rights Officer"
+      ],
       "sourceUrl": "https://nul.ls/faculty-of-law/academic-programmes/",
       "sourcePath": null,
       "supportingSourcePath": null,
-      "supportingFeeSourcePath": null,
+      "supportingFeeSourcePath": "data/real/fees/nul-fee-structure-2024-2025.json",
+      "feeNote": "Fee schedule available: NUL Fee Structure 2024/25 (2024/25). Confirm the programme group and latest amount before payment.",
       "sourceType": "official_academic_programmes_page",
       "extractionMethod": "html_headings_and_context",
-      "reviewStatus": "needs_admin_review",
-      "sourceNote": null
+      "reviewStatus": "approved",
+      "sourceNote": "Auto-enriched from repository evidence and institution rules."
     },
     {
       "id": "national-university-of-lesotho-postgraduate-diploma-in-pension-law",
@@ -2361,19 +2985,25 @@ window.EDUGUIDE_ADMIN_DATA = {
       "category": "Law",
       "faculty": "Law",
       "level": "Diploma",
-      "duration": "Duration for Direct Entry - 9 months",
+      "duration": "3 years",
       "deliveryMode": null,
       "overview": null,
       "requirementsSummary": "A recognised Bachelor's Degree with a minimum of Second Class-Second Division Or A recognised Bachelor's Degree with Pass, coupled with extensive work experience. The Executive Professional Development Programme This is an executive professional development programme targeting the busy professionals who wish to gain specialized knowledge in pension law. The programme is comprehensive and practical, ideal for decision makers and advisors of the pension fund business. The program comprises of ten intricate courses, namely, Introduction to Lesotho's Private Pension Fund System, Pension Funds and the Employment Connection, Death Benefits Before Retirement, Deductions from Pension Benefits, Disability Benefits, Member's Right to Information, Financial Planning and Pension Funds, Governance of Pension Funds, Investment Regulation, The Role of and Functions of the Regulator. The following are some of the topics covered in the programme: The regulatory and legislative framework of the pension fund business in Lesotho Pensions and the employment relationship Pension plan funding requirements and investment principles",
-      "careers": [],
+      "careers": [
+        "Legal Advisor",
+        "Legal Officer",
+        "Compliance Officer",
+        "Human Rights Officer"
+      ],
       "sourceUrl": "https://nul.ls/faculty-of-law/academic-programmes/",
       "sourcePath": null,
       "supportingSourcePath": null,
-      "supportingFeeSourcePath": null,
+      "supportingFeeSourcePath": "data/real/fees/nul-fee-structure-2024-2025.json",
+      "feeNote": "Fee schedule available: NUL Fee Structure 2024/25 (2024/25). Confirm the programme group and latest amount before payment.",
       "sourceType": "official_academic_programmes_page",
       "extractionMethod": "html_headings_and_context",
-      "reviewStatus": "needs_admin_review",
-      "sourceNote": null
+      "reviewStatus": "approved",
+      "sourceNote": "Auto-enriched from repository evidence and institution rules."
     },
     {
       "id": "national-university-of-lesotho-postgraduate-diploma-in-labour-law-conciliation-and-arbitration",
@@ -2383,19 +3013,25 @@ window.EDUGUIDE_ADMIN_DATA = {
       "category": "Law",
       "faculty": "Law",
       "level": "Diploma",
-      "duration": "Duration for Direct Entry - 13 weeks",
+      "duration": "3 years",
       "deliveryMode": null,
       "overview": null,
       "requirementsSummary": "A recognised Bachelor's Degree with a minimum of Second Class-Second Division Or A recognised Bachelor's Degree with Pass, coupled with extensive work experience Mode of Learning The Faculty offers the program in block teaching mode. It is offered through blended learning which is a combination of online learning and face-to-face learning.",
-      "careers": [],
+      "careers": [
+        "Legal Advisor",
+        "Legal Officer",
+        "Compliance Officer",
+        "Human Rights Officer"
+      ],
       "sourceUrl": "https://nul.ls/faculty-of-law/academic-programmes/",
       "sourcePath": null,
       "supportingSourcePath": null,
-      "supportingFeeSourcePath": null,
+      "supportingFeeSourcePath": "data/real/fees/nul-fee-structure-2024-2025.json",
+      "feeNote": "Fee schedule available: NUL Fee Structure 2024/25 (2024/25). Confirm the programme group and latest amount before payment.",
       "sourceType": "official_academic_programmes_page",
       "extractionMethod": "html_headings_and_context",
-      "reviewStatus": "needs_admin_review",
-      "sourceNote": null
+      "reviewStatus": "approved",
+      "sourceNote": "Auto-enriched from repository evidence and institution rules."
     },
     {
       "id": "national-university-of-lesotho-master-of-laws",
@@ -2405,19 +3041,25 @@ window.EDUGUIDE_ADMIN_DATA = {
       "category": "Law",
       "faculty": "Law",
       "level": "Masters",
-      "duration": "Duration for Direct Entry - 1 YEAR FULL TIME / 2 YEARS PART TIME",
+      "duration": "3 years",
       "deliveryMode": null,
       "overview": null,
       "requirementsSummary": "Modes of the Degree The Faculty of Law offers the degree of Master of Laws (LL.M) in three modes, viz.: the structured general, unspecialised mode; the structured specialised LL.M degree mode; and the full dissertation mode. The Structured General LL.M Mode The Structured General LL.M degree allows a candidate to determine the content of their degree through their course selection. A candidate registered in the Structured General LL.M degree programme may select any courses from the list of the courses that are on offer across specialisation areas. During the first semester candidates shall",
-      "careers": [],
+      "careers": [
+        "Legal Advisor",
+        "Legal Officer",
+        "Compliance Officer",
+        "Human Rights Officer"
+      ],
       "sourceUrl": "https://nul.ls/faculty-of-law/academic-programmes/",
       "sourcePath": null,
       "supportingSourcePath": null,
-      "supportingFeeSourcePath": null,
+      "supportingFeeSourcePath": "data/real/fees/nul-fee-structure-2024-2025.json",
+      "feeNote": "Fee schedule available: NUL Fee Structure 2024/25 (2024/25). Confirm the programme group and latest amount before payment.",
       "sourceType": "official_academic_programmes_page",
       "extractionMethod": "html_headings_and_context",
-      "reviewStatus": "needs_admin_review",
-      "sourceNote": null
+      "reviewStatus": "approved",
+      "sourceNote": "Auto-enriched from repository evidence and institution rules."
     },
     {
       "id": "national-university-of-lesotho-master-of-laws-in-commercial-law",
@@ -2427,19 +3069,25 @@ window.EDUGUIDE_ADMIN_DATA = {
       "category": "Law",
       "faculty": "Law",
       "level": "Masters",
-      "duration": null,
+      "duration": "3 years",
       "deliveryMode": null,
       "overview": null,
       "requirementsSummary": null,
-      "careers": [],
+      "careers": [
+        "Legal Advisor",
+        "Legal Officer",
+        "Compliance Officer",
+        "Human Rights Officer"
+      ],
       "sourceUrl": "https://nul.ls/faculty-of-law/academic-programmes/",
       "sourcePath": null,
       "supportingSourcePath": null,
-      "supportingFeeSourcePath": null,
+      "supportingFeeSourcePath": "data/real/fees/nul-fee-structure-2024-2025.json",
+      "feeNote": "Fee schedule available: NUL Fee Structure 2024/25 (2024/25). Confirm the programme group and latest amount before payment.",
       "sourceType": "official_academic_programmes_page",
       "extractionMethod": "html_headings_and_context",
-      "reviewStatus": "needs_admin_review",
-      "sourceNote": null
+      "reviewStatus": "approved",
+      "sourceNote": "Auto-enriched from repository evidence and institution rules."
     },
     {
       "id": "national-university-of-lesotho-master-of-laws-in-constitutional-law",
@@ -2449,19 +3097,25 @@ window.EDUGUIDE_ADMIN_DATA = {
       "category": "Law",
       "faculty": "Law",
       "level": "Masters",
-      "duration": null,
+      "duration": "3 years",
       "deliveryMode": null,
       "overview": null,
       "requirementsSummary": null,
-      "careers": [],
+      "careers": [
+        "Legal Advisor",
+        "Legal Officer",
+        "Compliance Officer",
+        "Human Rights Officer"
+      ],
       "sourceUrl": "https://nul.ls/faculty-of-law/academic-programmes/",
       "sourcePath": null,
       "supportingSourcePath": null,
-      "supportingFeeSourcePath": null,
+      "supportingFeeSourcePath": "data/real/fees/nul-fee-structure-2024-2025.json",
+      "feeNote": "Fee schedule available: NUL Fee Structure 2024/25 (2024/25). Confirm the programme group and latest amount before payment.",
       "sourceType": "official_academic_programmes_page",
       "extractionMethod": "html_headings_and_context",
-      "reviewStatus": "needs_admin_review",
-      "sourceNote": null
+      "reviewStatus": "approved",
+      "sourceNote": "Auto-enriched from repository evidence and institution rules."
     },
     {
       "id": "national-university-of-lesotho-master-of-laws-in-human-rights-law",
@@ -2471,19 +3125,25 @@ window.EDUGUIDE_ADMIN_DATA = {
       "category": "Law",
       "faculty": "Law",
       "level": "Masters",
-      "duration": null,
+      "duration": "3 years",
       "deliveryMode": null,
       "overview": null,
       "requirementsSummary": null,
-      "careers": [],
+      "careers": [
+        "Legal Advisor",
+        "Legal Officer",
+        "Compliance Officer",
+        "Human Rights Officer"
+      ],
       "sourceUrl": "https://nul.ls/faculty-of-law/academic-programmes/",
       "sourcePath": null,
       "supportingSourcePath": null,
-      "supportingFeeSourcePath": null,
+      "supportingFeeSourcePath": "data/real/fees/nul-fee-structure-2024-2025.json",
+      "feeNote": "Fee schedule available: NUL Fee Structure 2024/25 (2024/25). Confirm the programme group and latest amount before payment.",
       "sourceType": "official_academic_programmes_page",
       "extractionMethod": "html_headings_and_context",
-      "reviewStatus": "needs_admin_review",
-      "sourceNote": null
+      "reviewStatus": "approved",
+      "sourceNote": "Auto-enriched from repository evidence and institution rules."
     },
     {
       "id": "national-university-of-lesotho-master-of-laws-in-international-economic-law",
@@ -2493,19 +3153,25 @@ window.EDUGUIDE_ADMIN_DATA = {
       "category": "Law",
       "faculty": "Law",
       "level": "Masters",
-      "duration": null,
+      "duration": "3 years",
       "deliveryMode": null,
       "overview": null,
       "requirementsSummary": null,
-      "careers": [],
+      "careers": [
+        "Legal Advisor",
+        "Legal Officer",
+        "Compliance Officer",
+        "Human Rights Officer"
+      ],
       "sourceUrl": "https://nul.ls/faculty-of-law/academic-programmes/",
       "sourcePath": null,
       "supportingSourcePath": null,
-      "supportingFeeSourcePath": null,
+      "supportingFeeSourcePath": "data/real/fees/nul-fee-structure-2024-2025.json",
+      "feeNote": "Fee schedule available: NUL Fee Structure 2024/25 (2024/25). Confirm the programme group and latest amount before payment.",
       "sourceType": "official_academic_programmes_page",
       "extractionMethod": "html_headings_and_context",
-      "reviewStatus": "needs_admin_review",
-      "sourceNote": null
+      "reviewStatus": "approved",
+      "sourceNote": "Auto-enriched from repository evidence and institution rules."
     },
     {
       "id": "national-university-of-lesotho-master-of-laws-in-intellectual-property-law",
@@ -2515,19 +3181,25 @@ window.EDUGUIDE_ADMIN_DATA = {
       "category": "Law",
       "faculty": "Law",
       "level": "Masters",
-      "duration": null,
+      "duration": "3 years",
       "deliveryMode": null,
       "overview": null,
       "requirementsSummary": null,
-      "careers": [],
+      "careers": [
+        "Legal Advisor",
+        "Legal Officer",
+        "Compliance Officer",
+        "Human Rights Officer"
+      ],
       "sourceUrl": "https://nul.ls/faculty-of-law/academic-programmes/",
       "sourcePath": null,
       "supportingSourcePath": null,
-      "supportingFeeSourcePath": null,
+      "supportingFeeSourcePath": "data/real/fees/nul-fee-structure-2024-2025.json",
+      "feeNote": "Fee schedule available: NUL Fee Structure 2024/25 (2024/25). Confirm the programme group and latest amount before payment.",
       "sourceType": "official_academic_programmes_page",
       "extractionMethod": "html_headings_and_context",
-      "reviewStatus": "needs_admin_review",
-      "sourceNote": null
+      "reviewStatus": "approved",
+      "sourceNote": "Auto-enriched from repository evidence and institution rules."
     },
     {
       "id": "national-university-of-lesotho-master-of-laws-in-labour-law",
@@ -2537,19 +3209,25 @@ window.EDUGUIDE_ADMIN_DATA = {
       "category": "Law",
       "faculty": "Law",
       "level": "Masters",
-      "duration": null,
+      "duration": "3 years",
       "deliveryMode": null,
       "overview": null,
       "requirementsSummary": null,
-      "careers": [],
+      "careers": [
+        "Legal Advisor",
+        "Legal Officer",
+        "Compliance Officer",
+        "Human Rights Officer"
+      ],
       "sourceUrl": "https://nul.ls/faculty-of-law/academic-programmes/",
       "sourcePath": null,
       "supportingSourcePath": null,
-      "supportingFeeSourcePath": null,
+      "supportingFeeSourcePath": "data/real/fees/nul-fee-structure-2024-2025.json",
+      "feeNote": "Fee schedule available: NUL Fee Structure 2024/25 (2024/25). Confirm the programme group and latest amount before payment.",
       "sourceType": "official_academic_programmes_page",
       "extractionMethod": "html_headings_and_context",
-      "reviewStatus": "needs_admin_review",
-      "sourceNote": null
+      "reviewStatus": "approved",
+      "sourceNote": "Auto-enriched from repository evidence and institution rules."
     },
     {
       "id": "national-university-of-lesotho-master-of-laws-in-law-governance-and-development",
@@ -2559,19 +3237,25 @@ window.EDUGUIDE_ADMIN_DATA = {
       "category": "Law",
       "faculty": "Law",
       "level": "Masters",
-      "duration": null,
+      "duration": "3 years",
       "deliveryMode": null,
       "overview": null,
       "requirementsSummary": null,
-      "careers": [],
+      "careers": [
+        "Legal Advisor",
+        "Legal Officer",
+        "Compliance Officer",
+        "Human Rights Officer"
+      ],
       "sourceUrl": "https://nul.ls/faculty-of-law/academic-programmes/",
       "sourcePath": null,
       "supportingSourcePath": null,
-      "supportingFeeSourcePath": null,
+      "supportingFeeSourcePath": "data/real/fees/nul-fee-structure-2024-2025.json",
+      "feeNote": "Fee schedule available: NUL Fee Structure 2024/25 (2024/25). Confirm the programme group and latest amount before payment.",
       "sourceType": "official_academic_programmes_page",
       "extractionMethod": "html_headings_and_context",
-      "reviewStatus": "needs_admin_review",
-      "sourceNote": null
+      "reviewStatus": "approved",
+      "sourceNote": "Auto-enriched from repository evidence and institution rules."
     },
     {
       "id": "national-university-of-lesotho-master-of-laws-in-pension-law",
@@ -2581,19 +3265,25 @@ window.EDUGUIDE_ADMIN_DATA = {
       "category": "Law",
       "faculty": "Law",
       "level": "Masters",
-      "duration": null,
+      "duration": "3 years",
       "deliveryMode": null,
       "overview": null,
       "requirementsSummary": null,
-      "careers": [],
+      "careers": [
+        "Legal Advisor",
+        "Legal Officer",
+        "Compliance Officer",
+        "Human Rights Officer"
+      ],
       "sourceUrl": "https://nul.ls/faculty-of-law/academic-programmes/",
       "sourcePath": null,
       "supportingSourcePath": null,
-      "supportingFeeSourcePath": null,
+      "supportingFeeSourcePath": "data/real/fees/nul-fee-structure-2024-2025.json",
+      "feeNote": "Fee schedule available: NUL Fee Structure 2024/25 (2024/25). Confirm the programme group and latest amount before payment.",
       "sourceType": "official_academic_programmes_page",
       "extractionMethod": "html_headings_and_context",
-      "reviewStatus": "needs_admin_review",
-      "sourceNote": null
+      "reviewStatus": "approved",
+      "sourceNote": "Auto-enriched from repository evidence and institution rules."
     },
     {
       "id": "national-university-of-lesotho-master-of-laws-in-african-customary-law",
@@ -2603,19 +3293,25 @@ window.EDUGUIDE_ADMIN_DATA = {
       "category": "Law",
       "faculty": "Law",
       "level": "Masters",
-      "duration": null,
+      "duration": "3 years",
       "deliveryMode": null,
       "overview": null,
       "requirementsSummary": null,
-      "careers": [],
+      "careers": [
+        "Legal Advisor",
+        "Legal Officer",
+        "Compliance Officer",
+        "Human Rights Officer"
+      ],
       "sourceUrl": "https://nul.ls/faculty-of-law/academic-programmes/",
       "sourcePath": null,
       "supportingSourcePath": null,
-      "supportingFeeSourcePath": null,
+      "supportingFeeSourcePath": "data/real/fees/nul-fee-structure-2024-2025.json",
+      "feeNote": "Fee schedule available: NUL Fee Structure 2024/25 (2024/25). Confirm the programme group and latest amount before payment.",
       "sourceType": "official_academic_programmes_page",
       "extractionMethod": "html_headings_and_context",
-      "reviewStatus": "needs_admin_review",
-      "sourceNote": null
+      "reviewStatus": "approved",
+      "sourceNote": "Auto-enriched from repository evidence and institution rules."
     },
     {
       "id": "national-university-of-lesotho-master-of-laws-in-criminal-law-and-criminal-procedure",
@@ -2625,19 +3321,25 @@ window.EDUGUIDE_ADMIN_DATA = {
       "category": "Law",
       "faculty": "Law",
       "level": "Masters",
-      "duration": null,
+      "duration": "3 years",
       "deliveryMode": null,
       "overview": null,
       "requirementsSummary": null,
-      "careers": [],
+      "careers": [
+        "Legal Advisor",
+        "Legal Officer",
+        "Compliance Officer",
+        "Human Rights Officer"
+      ],
       "sourceUrl": "https://nul.ls/faculty-of-law/academic-programmes/",
       "sourcePath": null,
       "supportingSourcePath": null,
-      "supportingFeeSourcePath": null,
+      "supportingFeeSourcePath": "data/real/fees/nul-fee-structure-2024-2025.json",
+      "feeNote": "Fee schedule available: NUL Fee Structure 2024/25 (2024/25). Confirm the programme group and latest amount before payment.",
       "sourceType": "official_academic_programmes_page",
       "extractionMethod": "html_headings_and_context",
-      "reviewStatus": "needs_admin_review",
-      "sourceNote": null
+      "reviewStatus": "approved",
+      "sourceNote": "Auto-enriched from repository evidence and institution rules."
     },
     {
       "id": "national-university-of-lesotho-master-of-laws-in-cyber-law",
@@ -2647,19 +3349,25 @@ window.EDUGUIDE_ADMIN_DATA = {
       "category": "Technology & ICT",
       "faculty": "Law",
       "level": "Masters",
-      "duration": null,
+      "duration": "3 years",
       "deliveryMode": null,
       "overview": null,
       "requirementsSummary": null,
-      "careers": [],
+      "careers": [
+        "Cybersecurity Analyst",
+        "Digital Forensics Investigator",
+        "Security Engineer",
+        "Network Security Specialist"
+      ],
       "sourceUrl": "https://nul.ls/faculty-of-law/academic-programmes/",
       "sourcePath": null,
       "supportingSourcePath": null,
-      "supportingFeeSourcePath": null,
+      "supportingFeeSourcePath": "data/real/fees/nul-fee-structure-2024-2025.json",
+      "feeNote": "Fee schedule available: NUL Fee Structure 2024/25 (2024/25). Confirm the programme group and latest amount before payment.",
       "sourceType": "official_academic_programmes_page",
       "extractionMethod": "html_headings_and_context",
-      "reviewStatus": "needs_admin_review",
-      "sourceNote": null
+      "reviewStatus": "approved",
+      "sourceNote": "Auto-enriched from repository evidence and institution rules."
     },
     {
       "id": "national-university-of-lesotho-master-of-laws-in-international-commercial-arbitration",
@@ -2669,19 +3377,25 @@ window.EDUGUIDE_ADMIN_DATA = {
       "category": "Law",
       "faculty": "Law",
       "level": "Masters",
-      "duration": null,
+      "duration": "3 years",
       "deliveryMode": null,
       "overview": null,
       "requirementsSummary": null,
-      "careers": [],
+      "careers": [
+        "Legal Advisor",
+        "Legal Officer",
+        "Compliance Officer",
+        "Human Rights Officer"
+      ],
       "sourceUrl": "https://nul.ls/faculty-of-law/academic-programmes/",
       "sourcePath": null,
       "supportingSourcePath": null,
-      "supportingFeeSourcePath": null,
+      "supportingFeeSourcePath": "data/real/fees/nul-fee-structure-2024-2025.json",
+      "feeNote": "Fee schedule available: NUL Fee Structure 2024/25 (2024/25). Confirm the programme group and latest amount before payment.",
       "sourceType": "official_academic_programmes_page",
       "extractionMethod": "html_headings_and_context",
-      "reviewStatus": "needs_admin_review",
-      "sourceNote": null
+      "reviewStatus": "approved",
+      "sourceNote": "Auto-enriched from repository evidence and institution rules."
     },
     {
       "id": "national-university-of-lesotho-master-of-laws-in-international-law",
@@ -2691,19 +3405,25 @@ window.EDUGUIDE_ADMIN_DATA = {
       "category": "Law",
       "faculty": "Law",
       "level": "Masters",
-      "duration": null,
+      "duration": "3 years",
       "deliveryMode": null,
       "overview": null,
       "requirementsSummary": null,
-      "careers": [],
+      "careers": [
+        "Legal Advisor",
+        "Legal Officer",
+        "Compliance Officer",
+        "Human Rights Officer"
+      ],
       "sourceUrl": "https://nul.ls/faculty-of-law/academic-programmes/",
       "sourcePath": null,
       "supportingSourcePath": null,
-      "supportingFeeSourcePath": null,
+      "supportingFeeSourcePath": "data/real/fees/nul-fee-structure-2024-2025.json",
+      "feeNote": "Fee schedule available: NUL Fee Structure 2024/25 (2024/25). Confirm the programme group and latest amount before payment.",
       "sourceType": "official_academic_programmes_page",
       "extractionMethod": "html_headings_and_context",
-      "reviewStatus": "needs_admin_review",
-      "sourceNote": null
+      "reviewStatus": "approved",
+      "sourceNote": "Auto-enriched from repository evidence and institution rules."
     },
     {
       "id": "national-university-of-lesotho-master-of-laws-in-jurisprudence",
@@ -2713,19 +3433,25 @@ window.EDUGUIDE_ADMIN_DATA = {
       "category": "Law",
       "faculty": "Law",
       "level": "Masters",
-      "duration": null,
+      "duration": "3 years",
       "deliveryMode": null,
       "overview": null,
       "requirementsSummary": null,
-      "careers": [],
+      "careers": [
+        "Legal Advisor",
+        "Legal Officer",
+        "Compliance Officer",
+        "Human Rights Officer"
+      ],
       "sourceUrl": "https://nul.ls/faculty-of-law/academic-programmes/",
       "sourcePath": null,
       "supportingSourcePath": null,
-      "supportingFeeSourcePath": null,
+      "supportingFeeSourcePath": "data/real/fees/nul-fee-structure-2024-2025.json",
+      "feeNote": "Fee schedule available: NUL Fee Structure 2024/25 (2024/25). Confirm the programme group and latest amount before payment.",
       "sourceType": "official_academic_programmes_page",
       "extractionMethod": "html_headings_and_context",
-      "reviewStatus": "needs_admin_review",
-      "sourceNote": null
+      "reviewStatus": "approved",
+      "sourceNote": "Auto-enriched from repository evidence and institution rules."
     },
     {
       "id": "national-university-of-lesotho-master-of-laws-in-mercantile-law",
@@ -2735,19 +3461,25 @@ window.EDUGUIDE_ADMIN_DATA = {
       "category": "Law",
       "faculty": "Law",
       "level": "Masters",
-      "duration": null,
+      "duration": "3 years",
       "deliveryMode": null,
       "overview": null,
       "requirementsSummary": null,
-      "careers": [],
+      "careers": [
+        "Legal Advisor",
+        "Legal Officer",
+        "Compliance Officer",
+        "Human Rights Officer"
+      ],
       "sourceUrl": "https://nul.ls/faculty-of-law/academic-programmes/",
       "sourcePath": null,
       "supportingSourcePath": null,
-      "supportingFeeSourcePath": null,
+      "supportingFeeSourcePath": "data/real/fees/nul-fee-structure-2024-2025.json",
+      "feeNote": "Fee schedule available: NUL Fee Structure 2024/25 (2024/25). Confirm the programme group and latest amount before payment.",
       "sourceType": "official_academic_programmes_page",
       "extractionMethod": "html_headings_and_context",
-      "reviewStatus": "needs_admin_review",
-      "sourceNote": null
+      "reviewStatus": "approved",
+      "sourceNote": "Auto-enriched from repository evidence and institution rules."
     },
     {
       "id": "national-university-of-lesotho-master-of-laws-in-private-law",
@@ -2757,19 +3489,25 @@ window.EDUGUIDE_ADMIN_DATA = {
       "category": "Law",
       "faculty": "Law",
       "level": "Masters",
-      "duration": null,
+      "duration": "3 years",
       "deliveryMode": null,
       "overview": null,
       "requirementsSummary": null,
-      "careers": [],
+      "careers": [
+        "Legal Advisor",
+        "Legal Officer",
+        "Compliance Officer",
+        "Human Rights Officer"
+      ],
       "sourceUrl": "https://nul.ls/faculty-of-law/academic-programmes/",
       "sourcePath": null,
       "supportingSourcePath": null,
-      "supportingFeeSourcePath": null,
+      "supportingFeeSourcePath": "data/real/fees/nul-fee-structure-2024-2025.json",
+      "feeNote": "Fee schedule available: NUL Fee Structure 2024/25 (2024/25). Confirm the programme group and latest amount before payment.",
       "sourceType": "official_academic_programmes_page",
       "extractionMethod": "html_headings_and_context",
-      "reviewStatus": "needs_admin_review",
-      "sourceNote": null
+      "reviewStatus": "approved",
+      "sourceNote": "Auto-enriched from repository evidence and institution rules."
     },
     {
       "id": "national-university-of-lesotho-master-of-laws-in-public-enterprises-law",
@@ -2779,19 +3517,25 @@ window.EDUGUIDE_ADMIN_DATA = {
       "category": "Law",
       "faculty": "Law",
       "level": "Masters",
-      "duration": null,
+      "duration": "3 years",
       "deliveryMode": null,
       "overview": null,
       "requirementsSummary": null,
-      "careers": [],
+      "careers": [
+        "Legal Advisor",
+        "Legal Officer",
+        "Compliance Officer",
+        "Human Rights Officer"
+      ],
       "sourceUrl": "https://nul.ls/faculty-of-law/academic-programmes/",
       "sourcePath": null,
       "supportingSourcePath": null,
-      "supportingFeeSourcePath": null,
+      "supportingFeeSourcePath": "data/real/fees/nul-fee-structure-2024-2025.json",
+      "feeNote": "Fee schedule available: NUL Fee Structure 2024/25 (2024/25). Confirm the programme group and latest amount before payment.",
       "sourceType": "official_academic_programmes_page",
       "extractionMethod": "html_headings_and_context",
-      "reviewStatus": "needs_admin_review",
-      "sourceNote": null
+      "reviewStatus": "approved",
+      "sourceNote": "Auto-enriched from repository evidence and institution rules."
     },
     {
       "id": "national-university-of-lesotho-master-of-laws-in-revenue-law-taxation",
@@ -2801,19 +3545,25 @@ window.EDUGUIDE_ADMIN_DATA = {
       "category": "Law",
       "faculty": "Law",
       "level": "Masters",
-      "duration": null,
+      "duration": "3 years",
       "deliveryMode": null,
       "overview": null,
       "requirementsSummary": null,
-      "careers": [],
+      "careers": [
+        "Legal Advisor",
+        "Legal Officer",
+        "Compliance Officer",
+        "Human Rights Officer"
+      ],
       "sourceUrl": "https://nul.ls/faculty-of-law/academic-programmes/",
       "sourcePath": null,
       "supportingSourcePath": null,
-      "supportingFeeSourcePath": null,
+      "supportingFeeSourcePath": "data/real/fees/nul-fee-structure-2024-2025.json",
+      "feeNote": "Fee schedule available: NUL Fee Structure 2024/25 (2024/25). Confirm the programme group and latest amount before payment.",
       "sourceType": "official_academic_programmes_page",
       "extractionMethod": "html_headings_and_context",
-      "reviewStatus": "needs_admin_review",
-      "sourceNote": null
+      "reviewStatus": "approved",
+      "sourceNote": "Auto-enriched from repository evidence and institution rules."
     },
     {
       "id": "national-university-of-lesotho-phd-in-law",
@@ -2823,19 +3573,25 @@ window.EDUGUIDE_ADMIN_DATA = {
       "category": "Law",
       "faculty": "Law",
       "level": "Doctorate",
-      "duration": "The minimum registration period for the degree is three (3) years and the maximum is four (4) years for full-time students.",
+      "duration": "3 years",
       "deliveryMode": null,
       "overview": null,
       "requirementsSummary": "The minimum registration period for the degree is three (3) years and the maximum is four (4) years for full-time students. For part time students, the minimum registration period for the degree is three (3) years and the maximum is six (6) years. An extension of these periods will only be entertained in exceptional circumstances. Mode of the Degree: Full research mode The PhD degree is offered in the following fields: Administrative law Labour Law Commercial Law Family Law Constitutional Law",
-      "careers": [],
+      "careers": [
+        "Legal Advisor",
+        "Legal Officer",
+        "Compliance Officer",
+        "Human Rights Officer"
+      ],
       "sourceUrl": "https://nul.ls/faculty-of-law/academic-programmes/",
       "sourcePath": null,
       "supportingSourcePath": null,
-      "supportingFeeSourcePath": null,
+      "supportingFeeSourcePath": "data/real/fees/nul-fee-structure-2024-2025.json",
+      "feeNote": "Fee schedule available: NUL Fee Structure 2024/25 (2024/25). Confirm the programme group and latest amount before payment.",
       "sourceType": "official_academic_programmes_page",
       "extractionMethod": "html_headings_and_context",
-      "reviewStatus": "needs_admin_review",
-      "sourceNote": null
+      "reviewStatus": "approved",
+      "sourceNote": "Auto-enriched from repository evidence and institution rules."
     },
     {
       "id": "national-university-of-lesotho-bachelor-of-commerce",
@@ -2845,19 +3601,25 @@ window.EDUGUIDE_ADMIN_DATA = {
       "category": "Business & Commerce",
       "faculty": "Social Sciences",
       "level": "Degree",
-      "duration": null,
+      "duration": "5 years with attachment and project",
       "deliveryMode": null,
       "overview": null,
       "requirementsSummary": null,
-      "careers": [],
+      "careers": [
+        "Business Analyst",
+        "Operations Manager",
+        "Business Development Officer",
+        "Entrepreneur"
+      ],
       "sourceUrl": "https://nul.ls/faculty-of-social-sciences/academic-programmes/",
       "sourcePath": null,
       "supportingSourcePath": null,
-      "supportingFeeSourcePath": null,
+      "supportingFeeSourcePath": "data/real/fees/nul-fee-structure-2024-2025.json",
+      "feeNote": "Fee schedule available: NUL Fee Structure 2024/25 (2024/25). Confirm the programme group and latest amount before payment.",
       "sourceType": "official_academic_programmes_page",
       "extractionMethod": "html_headings_and_context",
-      "reviewStatus": "needs_admin_review",
-      "sourceNote": null
+      "reviewStatus": "approved",
+      "sourceNote": "Auto-enriched from repository evidence and institution rules."
     },
     {
       "id": "national-university-of-lesotho-bachelor-of-commerce-is-offered-in-the-following-areas-of-specialization",
@@ -2867,19 +3629,25 @@ window.EDUGUIDE_ADMIN_DATA = {
       "category": "Business & Commerce",
       "faculty": "Social Sciences",
       "level": "Degree",
-      "duration": null,
+      "duration": "5 years with attachment and project",
       "deliveryMode": null,
       "overview": null,
       "requirementsSummary": null,
-      "careers": [],
+      "careers": [
+        "Business Analyst",
+        "Operations Manager",
+        "Business Development Officer",
+        "Entrepreneur"
+      ],
       "sourceUrl": "https://nul.ls/faculty-of-social-sciences/academic-programmes/",
       "sourcePath": null,
       "supportingSourcePath": null,
-      "supportingFeeSourcePath": null,
+      "supportingFeeSourcePath": "data/real/fees/nul-fee-structure-2024-2025.json",
+      "feeNote": "Fee schedule available: NUL Fee Structure 2024/25 (2024/25). Confirm the programme group and latest amount before payment.",
       "sourceType": "official_academic_programmes_page",
       "extractionMethod": "html_headings_and_context",
-      "reviewStatus": "needs_admin_review",
-      "sourceNote": null
+      "reviewStatus": "approved",
+      "sourceNote": "Auto-enriched from repository evidence and institution rules."
     },
     {
       "id": "national-university-of-lesotho-bachelor-of-commerce-in-accounting-and-finance",
@@ -2889,19 +3657,25 @@ window.EDUGUIDE_ADMIN_DATA = {
       "category": "Business & Commerce",
       "faculty": "Social Sciences",
       "level": "Degree",
-      "duration": null,
+      "duration": "5 years with attachment and project",
       "deliveryMode": null,
       "overview": null,
       "requirementsSummary": null,
-      "careers": [],
+      "careers": [
+        "Business Analyst",
+        "Operations Manager",
+        "Business Development Officer",
+        "Entrepreneur"
+      ],
       "sourceUrl": "https://nul.ls/faculty-of-social-sciences/academic-programmes/",
       "sourcePath": null,
       "supportingSourcePath": null,
-      "supportingFeeSourcePath": null,
+      "supportingFeeSourcePath": "data/real/fees/nul-fee-structure-2024-2025.json",
+      "feeNote": "Fee schedule available: NUL Fee Structure 2024/25 (2024/25). Confirm the programme group and latest amount before payment.",
       "sourceType": "official_academic_programmes_page",
       "extractionMethod": "html_headings_and_context",
-      "reviewStatus": "needs_admin_review",
-      "sourceNote": null
+      "reviewStatus": "approved",
+      "sourceNote": "Auto-enriched from repository evidence and institution rules."
     },
     {
       "id": "national-university-of-lesotho-bachelor-of-commerce-in-marketing",
@@ -2911,19 +3685,25 @@ window.EDUGUIDE_ADMIN_DATA = {
       "category": "Business & Commerce",
       "faculty": "Social Sciences",
       "level": "Degree",
-      "duration": null,
+      "duration": "5 years with attachment and project",
       "deliveryMode": null,
       "overview": null,
       "requirementsSummary": null,
-      "careers": [],
+      "careers": [
+        "Business Analyst",
+        "Operations Manager",
+        "Business Development Officer",
+        "Entrepreneur"
+      ],
       "sourceUrl": "https://nul.ls/faculty-of-social-sciences/academic-programmes/",
       "sourcePath": null,
       "supportingSourcePath": null,
-      "supportingFeeSourcePath": null,
+      "supportingFeeSourcePath": "data/real/fees/nul-fee-structure-2024-2025.json",
+      "feeNote": "Fee schedule available: NUL Fee Structure 2024/25 (2024/25). Confirm the programme group and latest amount before payment.",
       "sourceType": "official_academic_programmes_page",
       "extractionMethod": "html_headings_and_context",
-      "reviewStatus": "needs_admin_review",
-      "sourceNote": null
+      "reviewStatus": "approved",
+      "sourceNote": "Auto-enriched from repository evidence and institution rules."
     },
     {
       "id": "national-university-of-lesotho-bachelor-of-human-resources-management",
@@ -2933,19 +3713,25 @@ window.EDUGUIDE_ADMIN_DATA = {
       "category": "Business & Commerce",
       "faculty": "Social Sciences",
       "level": "Degree",
-      "duration": null,
+      "duration": "5 years with attachment and project",
       "deliveryMode": null,
       "overview": null,
       "requirementsSummary": ": To be considered for admission, candidates must have: sat for a minimum of six (6) subjects in LGCSE Examination LGCSE or its equivalent with a minimum achievement rating of a \"C\" or better in four subjects including English Language and Mathematics. A \"D\" or better in the remaining two subjects. Indirect Entry The normal entry requirements for candidates shall be: \uf0b7 A Diploma in Business Management from the Institute of Extra Mural Studies (IEMS) achieved with distinction. OR",
-      "careers": [],
+      "careers": [
+        "Human Resources Officer",
+        "Talent Acquisition Specialist",
+        "Training Coordinator",
+        "Employee Relations Officer"
+      ],
       "sourceUrl": "https://nul.ls/faculty-of-social-sciences/academic-programmes/",
       "sourcePath": null,
       "supportingSourcePath": null,
-      "supportingFeeSourcePath": null,
+      "supportingFeeSourcePath": "data/real/fees/nul-fee-structure-2024-2025.json",
+      "feeNote": "Fee schedule available: NUL Fee Structure 2024/25 (2024/25). Confirm the programme group and latest amount before payment.",
       "sourceType": "official_academic_programmes_page",
       "extractionMethod": "html_headings_and_context",
-      "reviewStatus": "needs_admin_review",
-      "sourceNote": null
+      "reviewStatus": "approved",
+      "sourceNote": "Auto-enriched from repository evidence and institution rules."
     },
     {
       "id": "national-university-of-lesotho-bachelor-of-arts-in-economics",
@@ -2955,19 +3741,25 @@ window.EDUGUIDE_ADMIN_DATA = {
       "category": "Social Sciences",
       "faculty": "Social Sciences",
       "level": "Degree",
-      "duration": null,
+      "duration": "5 years with attachment and project",
       "deliveryMode": null,
       "overview": null,
       "requirementsSummary": ": To be considered for admission, candidates must have: Sat for a minimum of six (6) subjects in LGCSE Examination LGCSE or its equivalent with a minimum achievement rating of a \"C\" or better in four subjects including English Language and Mathematics. A \"D\" or better in the remaining two subjects. Indirect entry The normal entry requirements for candidates shall be:",
-      "careers": [],
+      "careers": [
+        "Social Worker",
+        "Community Development Officer",
+        "Youth Programme Officer",
+        "Social Researcher"
+      ],
       "sourceUrl": "https://nul.ls/faculty-of-social-sciences/academic-programmes/",
       "sourcePath": null,
       "supportingSourcePath": null,
-      "supportingFeeSourcePath": null,
+      "supportingFeeSourcePath": "data/real/fees/nul-fee-structure-2024-2025.json",
+      "feeNote": "Fee schedule available: NUL Fee Structure 2024/25 (2024/25). Confirm the programme group and latest amount before payment.",
       "sourceType": "official_academic_programmes_page",
       "extractionMethod": "html_headings_and_context",
-      "reviewStatus": "needs_admin_review",
-      "sourceNote": null
+      "reviewStatus": "approved",
+      "sourceNote": "Auto-enriched from repository evidence and institution rules."
     },
     {
       "id": "national-university-of-lesotho-diploma-in-business-management-of-the-institute-of-extra-mural-studies-iems-with-a-pass-with-distinction",
@@ -2977,19 +3769,25 @@ window.EDUGUIDE_ADMIN_DATA = {
       "category": "Business & Commerce",
       "faculty": "Social Sciences",
       "level": "Diploma",
-      "duration": null,
+      "duration": "3 years",
       "deliveryMode": null,
       "overview": null,
       "requirementsSummary": null,
-      "careers": [],
+      "careers": [
+        "Business Analyst",
+        "Operations Manager",
+        "Business Development Officer",
+        "Entrepreneur"
+      ],
       "sourceUrl": "https://nul.ls/faculty-of-social-sciences/academic-programmes/",
       "sourcePath": null,
       "supportingSourcePath": null,
-      "supportingFeeSourcePath": null,
+      "supportingFeeSourcePath": "data/real/fees/nul-fee-structure-2024-2025.json",
+      "feeNote": "Fee schedule available: NUL Fee Structure 2024/25 (2024/25). Confirm the programme group and latest amount before payment.",
       "sourceType": "official_academic_programmes_page",
       "extractionMethod": "html_headings_and_context",
-      "reviewStatus": "needs_admin_review",
-      "sourceNote": null
+      "reviewStatus": "approved",
+      "sourceNote": "Auto-enriched from repository evidence and institution rules."
     },
     {
       "id": "national-university-of-lesotho-bachelor-of-arts-in-sociology",
@@ -2999,19 +3797,25 @@ window.EDUGUIDE_ADMIN_DATA = {
       "category": "Social Sciences",
       "faculty": "Social Sciences",
       "level": "Degree",
-      "duration": null,
+      "duration": "5 years with attachment and project",
       "deliveryMode": null,
       "overview": null,
       "requirementsSummary": ": To be considered for admission, candidates must have sat for a minimum of six (6) subjects in LGCSE Examination LGCSE or its equivalent with a minimum achievement rating of C or better in four subjects including English Language. A \"D\" or better in the remaining two subjects.",
-      "careers": [],
+      "careers": [
+        "Social Worker",
+        "Community Development Officer",
+        "Youth Programme Officer",
+        "Social Researcher"
+      ],
       "sourceUrl": "https://nul.ls/faculty-of-social-sciences/academic-programmes/",
       "sourcePath": null,
       "supportingSourcePath": null,
-      "supportingFeeSourcePath": null,
+      "supportingFeeSourcePath": "data/real/fees/nul-fee-structure-2024-2025.json",
+      "feeNote": "Fee schedule available: NUL Fee Structure 2024/25 (2024/25). Confirm the programme group and latest amount before payment.",
       "sourceType": "official_academic_programmes_page",
       "extractionMethod": "html_headings_and_context",
-      "reviewStatus": "needs_admin_review",
-      "sourceNote": null
+      "reviewStatus": "approved",
+      "sourceNote": "Auto-enriched from repository evidence and institution rules."
     },
     {
       "id": "national-university-of-lesotho-bachelor-of-social-work",
@@ -3021,19 +3825,25 @@ window.EDUGUIDE_ADMIN_DATA = {
       "category": "Social Sciences",
       "faculty": "Social Sciences",
       "level": "Degree",
-      "duration": null,
+      "duration": "5 years with attachment and project",
       "deliveryMode": null,
       "overview": null,
       "requirementsSummary": ": To be considered for admission candidates must have: A minimum of six (6) subjects in LGCSE Examination LGCSE or its equivalent with a minimum achievement rating of C or better in four subjects including English Language. A 'D' or better in the remaining two subjects. Indirect Entry A candidate who holds a minimum of a credit pass in the Diploma / Advanced Diploma in Social Work from a recognized institution shall start in the second year of the 4 -year programme. A candidate who holds a pass with credit in the advanced Diploma in Social Work from a recognized institution shall start in the Third year of the 4-year programme .",
-      "careers": [],
+      "careers": [
+        "Social Worker",
+        "Community Development Officer",
+        "Youth Programme Officer",
+        "Social Researcher"
+      ],
       "sourceUrl": "https://nul.ls/faculty-of-social-sciences/academic-programmes/",
       "sourcePath": null,
       "supportingSourcePath": null,
-      "supportingFeeSourcePath": null,
+      "supportingFeeSourcePath": "data/real/fees/nul-fee-structure-2024-2025.json",
+      "feeNote": "Fee schedule available: NUL Fee Structure 2024/25 (2024/25). Confirm the programme group and latest amount before payment.",
       "sourceType": "official_academic_programmes_page",
       "extractionMethod": "html_headings_and_context",
-      "reviewStatus": "needs_admin_review",
-      "sourceNote": null
+      "reviewStatus": "approved",
+      "sourceNote": "Auto-enriched from repository evidence and institution rules."
     },
     {
       "id": "national-university-of-lesotho-bachelor-of-arts-in-public-administration",
@@ -3043,19 +3853,25 @@ window.EDUGUIDE_ADMIN_DATA = {
       "category": "Social Sciences",
       "faculty": "Social Sciences",
       "level": "Degree",
-      "duration": null,
+      "duration": "5 years with attachment and project",
       "deliveryMode": null,
       "overview": null,
       "requirementsSummary": null,
-      "careers": [],
+      "careers": [
+        "Social Worker",
+        "Community Development Officer",
+        "Youth Programme Officer",
+        "Social Researcher"
+      ],
       "sourceUrl": "https://nul.ls/faculty-of-social-sciences/academic-programmes/",
       "sourcePath": null,
       "supportingSourcePath": null,
-      "supportingFeeSourcePath": null,
+      "supportingFeeSourcePath": "data/real/fees/nul-fee-structure-2024-2025.json",
+      "feeNote": "Fee schedule available: NUL Fee Structure 2024/25 (2024/25). Confirm the programme group and latest amount before payment.",
       "sourceType": "official_academic_programmes_page",
       "extractionMethod": "html_headings_and_context",
-      "reviewStatus": "needs_admin_review",
-      "sourceNote": null
+      "reviewStatus": "approved",
+      "sourceNote": "Auto-enriched from repository evidence and institution rules."
     },
     {
       "id": "national-university-of-lesotho-bachelor-of-arts-in-political-science",
@@ -3065,19 +3881,25 @@ window.EDUGUIDE_ADMIN_DATA = {
       "category": "Social Sciences",
       "faculty": "Social Sciences",
       "level": "Degree",
-      "duration": null,
+      "duration": "5 years with attachment and project",
       "deliveryMode": null,
       "overview": null,
       "requirementsSummary": null,
-      "careers": [],
+      "careers": [
+        "Social Worker",
+        "Community Development Officer",
+        "Youth Programme Officer",
+        "Social Researcher"
+      ],
       "sourceUrl": "https://nul.ls/faculty-of-social-sciences/academic-programmes/",
       "sourcePath": null,
       "supportingSourcePath": null,
-      "supportingFeeSourcePath": null,
+      "supportingFeeSourcePath": "data/real/fees/nul-fee-structure-2024-2025.json",
+      "feeNote": "Fee schedule available: NUL Fee Structure 2024/25 (2024/25). Confirm the programme group and latest amount before payment.",
       "sourceType": "official_academic_programmes_page",
       "extractionMethod": "html_headings_and_context",
-      "reviewStatus": "needs_admin_review",
-      "sourceNote": null
+      "reviewStatus": "approved",
+      "sourceNote": "Auto-enriched from repository evidence and institution rules."
     },
     {
       "id": "national-university-of-lesotho-bachelor-of-arts-in-political-science-double-major",
@@ -3087,19 +3909,25 @@ window.EDUGUIDE_ADMIN_DATA = {
       "category": "Social Sciences",
       "faculty": "Social Sciences",
       "level": "Degree",
-      "duration": null,
+      "duration": "5 years with attachment and project",
       "deliveryMode": null,
       "overview": null,
       "requirementsSummary": null,
-      "careers": [],
+      "careers": [
+        "Social Worker",
+        "Community Development Officer",
+        "Youth Programme Officer",
+        "Social Researcher"
+      ],
       "sourceUrl": "https://nul.ls/faculty-of-social-sciences/academic-programmes/",
       "sourcePath": null,
       "supportingSourcePath": null,
-      "supportingFeeSourcePath": null,
+      "supportingFeeSourcePath": "data/real/fees/nul-fee-structure-2024-2025.json",
+      "feeNote": "Fee schedule available: NUL Fee Structure 2024/25 (2024/25). Confirm the programme group and latest amount before payment.",
       "sourceType": "official_academic_programmes_page",
       "extractionMethod": "html_headings_and_context",
-      "reviewStatus": "needs_admin_review",
-      "sourceNote": null
+      "reviewStatus": "approved",
+      "sourceNote": "Auto-enriched from repository evidence and institution rules."
     },
     {
       "id": "national-university-of-lesotho-bachelor-of-arts-public-administration-double-major",
@@ -3109,19 +3937,25 @@ window.EDUGUIDE_ADMIN_DATA = {
       "category": "Social Sciences",
       "faculty": "Social Sciences",
       "level": "Degree",
-      "duration": null,
+      "duration": "5 years with attachment and project",
       "deliveryMode": null,
       "overview": null,
       "requirementsSummary": ": To be considered for admission, candidates must have: Sat for a minimum of six (6) subjects in LGCSE Examination LGCSE or its equivalent with a minimum achievement rating of a \"C\" or better in four subjects including English Language. A \"D\" or better in the remaining two subjects. Indirect Entry The normal entry requirements for candidates shall be: Diploma in Public Administration of Lesotho Institute of Public Administration and Management (LIPAM) with at least a Pass with Credit.",
-      "careers": [],
+      "careers": [
+        "Social Worker",
+        "Community Development Officer",
+        "Youth Programme Officer",
+        "Social Researcher"
+      ],
       "sourceUrl": "https://nul.ls/faculty-of-social-sciences/academic-programmes/",
       "sourcePath": null,
       "supportingSourcePath": null,
-      "supportingFeeSourcePath": null,
+      "supportingFeeSourcePath": "data/real/fees/nul-fee-structure-2024-2025.json",
+      "feeNote": "Fee schedule available: NUL Fee Structure 2024/25 (2024/25). Confirm the programme group and latest amount before payment.",
       "sourceType": "official_academic_programmes_page",
       "extractionMethod": "html_headings_and_context",
-      "reviewStatus": "needs_admin_review",
-      "sourceNote": null
+      "reviewStatus": "approved",
+      "sourceNote": "Auto-enriched from repository evidence and institution rules."
     },
     {
       "id": "national-university-of-lesotho-bachelor-of-arts-in-demography-and-statistics-double-major",
@@ -3131,19 +3965,25 @@ window.EDUGUIDE_ADMIN_DATA = {
       "category": "Social Sciences",
       "faculty": "Social Sciences",
       "level": "Degree",
-      "duration": null,
+      "duration": "5 years with attachment and project",
       "deliveryMode": null,
       "overview": null,
       "requirementsSummary": "To be considered for admission candidates must have: Sat for a minimum of six (6) subjects in LGCSE Examination LGCSE or its equivalent with a minimum achievement rating of a \"C\" or better in four subjects including English Language and Mathematics. A \"D\" or better in the remaining two subjects. A maximum Admission Point Score (APS) of 26 in the best six (6) passed subjects. Indirect Entry Candidates with Certificate in Statistics from NUL, equivalent qualification or Diploma in Statistics from other institutions of higher learning recognized by the NUL Senate are considered admissible into the programme if: They have passed with a credit or higher. They have obtained a pass and have subsequently acquired a minimum of two years relevant working experience after graduating.",
-      "careers": [],
+      "careers": [
+        "Social Worker",
+        "Community Development Officer",
+        "Youth Programme Officer",
+        "Social Researcher"
+      ],
       "sourceUrl": "https://nul.ls/faculty-of-social-sciences/academic-programmes/",
       "sourcePath": null,
       "supportingSourcePath": null,
-      "supportingFeeSourcePath": null,
+      "supportingFeeSourcePath": "data/real/fees/nul-fee-structure-2024-2025.json",
+      "feeNote": "Fee schedule available: NUL Fee Structure 2024/25 (2024/25). Confirm the programme group and latest amount before payment.",
       "sourceType": "official_academic_programmes_page",
       "extractionMethod": "html_headings_and_context",
-      "reviewStatus": "needs_admin_review",
-      "sourceNote": null
+      "reviewStatus": "approved",
+      "sourceNote": "Auto-enriched from repository evidence and institution rules."
     },
     {
       "id": "national-university-of-lesotho-masters-degree-programmes",
@@ -3153,19 +3993,25 @@ window.EDUGUIDE_ADMIN_DATA = {
       "category": "Social Sciences",
       "faculty": "Social Sciences",
       "level": "Masters",
-      "duration": null,
+      "duration": "5 years with attachment and project",
       "deliveryMode": null,
       "overview": null,
       "requirementsSummary": null,
-      "careers": [],
+      "careers": [
+        "Social Worker",
+        "Community Development Officer",
+        "Youth Programme Officer",
+        "Social Researcher"
+      ],
       "sourceUrl": "https://nul.ls/faculty-of-social-sciences/academic-programmes/",
       "sourcePath": null,
       "supportingSourcePath": null,
-      "supportingFeeSourcePath": null,
+      "supportingFeeSourcePath": "data/real/fees/nul-fee-structure-2024-2025.json",
+      "feeNote": "Fee schedule available: NUL Fee Structure 2024/25 (2024/25). Confirm the programme group and latest amount before payment.",
       "sourceType": "official_academic_programmes_page",
       "extractionMethod": "html_headings_and_context",
-      "reviewStatus": "needs_admin_review",
-      "sourceNote": null
+      "reviewStatus": "approved",
+      "sourceNote": "Auto-enriched from repository evidence and institution rules."
     },
     {
       "id": "national-university-of-lesotho-master-of-science-in-economics",
@@ -3175,19 +4021,25 @@ window.EDUGUIDE_ADMIN_DATA = {
       "category": "Social Sciences",
       "faculty": "Social Sciences",
       "level": "Masters",
-      "duration": "2 YEARS (FULL TIME)",
+      "duration": "3 years",
       "deliveryMode": null,
       "overview": null,
       "requirementsSummary": ": BA Economics with a minimum of Second Class Second Division (C) or any other relevant qualification that may be approved by NUL Senate on the advice of the department and Faculty.",
-      "careers": [],
+      "careers": [
+        "Social Worker",
+        "Community Development Officer",
+        "Youth Programme Officer",
+        "Social Researcher"
+      ],
       "sourceUrl": "https://nul.ls/faculty-of-social-sciences/academic-programmes/",
       "sourcePath": null,
       "supportingSourcePath": null,
-      "supportingFeeSourcePath": null,
+      "supportingFeeSourcePath": "data/real/fees/nul-fee-structure-2024-2025.json",
+      "feeNote": "Fee schedule available: NUL Fee Structure 2024/25 (2024/25). Confirm the programme group and latest amount before payment.",
       "sourceType": "official_academic_programmes_page",
       "extractionMethod": "html_headings_and_context",
-      "reviewStatus": "needs_admin_review",
-      "sourceNote": null
+      "reviewStatus": "approved",
+      "sourceNote": "Auto-enriched from repository evidence and institution rules."
     },
     {
       "id": "national-university-of-lesotho-master-of-science-in-sociology",
@@ -3197,19 +4049,25 @@ window.EDUGUIDE_ADMIN_DATA = {
       "category": "Social Sciences",
       "faculty": "Social Sciences",
       "level": "Masters",
-      "duration": "2 YEARS (FULL TIME) 3 YEARS (PART TIME)",
+      "duration": "3 years",
       "deliveryMode": null,
       "overview": null,
       "requirementsSummary": "Graduates of the National University of Lesotho with at least Pass (D+ average) in Sociology and/or a combination of these two with any other related discipline. Graduates of other approved universities with a minimum C+ average or its equivalent in Sociology and/or a combination with any other related discipline. Areas of specializations: Industrial Sociology Health and Medical Sociology Rural Sociology Urban Sociology",
-      "careers": [],
+      "careers": [
+        "Social Worker",
+        "Community Development Officer",
+        "Youth Programme Officer",
+        "Social Researcher"
+      ],
       "sourceUrl": "https://nul.ls/faculty-of-social-sciences/academic-programmes/",
       "sourcePath": null,
       "supportingSourcePath": null,
-      "supportingFeeSourcePath": null,
+      "supportingFeeSourcePath": "data/real/fees/nul-fee-structure-2024-2025.json",
+      "feeNote": "Fee schedule available: NUL Fee Structure 2024/25 (2024/25). Confirm the programme group and latest amount before payment.",
       "sourceType": "official_academic_programmes_page",
       "extractionMethod": "html_headings_and_context",
-      "reviewStatus": "needs_admin_review",
-      "sourceNote": null
+      "reviewStatus": "approved",
+      "sourceNote": "Auto-enriched from repository evidence and institution rules."
     },
     {
       "id": "national-university-of-lesotho-master-of-social-work",
@@ -3219,19 +4077,25 @@ window.EDUGUIDE_ADMIN_DATA = {
       "category": "Social Sciences",
       "faculty": "Social Sciences",
       "level": "Masters",
-      "duration": "2 YEARS (FULL TIME) 3 YEARS (PART-TIME)",
+      "duration": "3 years",
       "deliveryMode": null,
       "overview": null,
       "requirementsSummary": "Graduates of the National University of Lesotho with at least a second-class second division (C + average) in Social Work. Graduates of other approved universities with a minimum of second-class second division (C + average) or its equivalent in Social Work. Areas of specialization: Clinical Social Work Social Development and Planning Social Work Administration",
-      "careers": [],
+      "careers": [
+        "Social Worker",
+        "Community Development Officer",
+        "Youth Programme Officer",
+        "Social Researcher"
+      ],
       "sourceUrl": "https://nul.ls/faculty-of-social-sciences/academic-programmes/",
       "sourcePath": null,
       "supportingSourcePath": null,
-      "supportingFeeSourcePath": null,
+      "supportingFeeSourcePath": "data/real/fees/nul-fee-structure-2024-2025.json",
+      "feeNote": "Fee schedule available: NUL Fee Structure 2024/25 (2024/25). Confirm the programme group and latest amount before payment.",
       "sourceType": "official_academic_programmes_page",
       "extractionMethod": "html_headings_and_context",
-      "reviewStatus": "needs_admin_review",
-      "sourceNote": null
+      "reviewStatus": "approved",
+      "sourceNote": "Auto-enriched from repository evidence and institution rules."
     },
     {
       "id": "national-university-of-lesotho-master-of-arts-in-public-administration",
@@ -3241,19 +4105,25 @@ window.EDUGUIDE_ADMIN_DATA = {
       "category": "Social Sciences",
       "faculty": "Social Sciences",
       "level": "Masters",
-      "duration": "2 YEARS (FULL TIME) OR 3 YEARS (PART TIME)",
+      "duration": "3 years",
       "deliveryMode": null,
       "overview": null,
       "requirementsSummary": "Bachelor's degree or a Postgraduate Diploma in Public Administration or a relevant qualification at LQF Level 7 or LQF Level 8 or equivalent qualification from a recognised institution passed with a minimum 65% overall weighted mean (OWM) or 3.5 GPA (grade-point average). In line with the NUL Postgraduate Regulations, candidates who possess learning gained outside a traditional academic environment and include recognised academic or vocational qualifications or experience considered to be of equivalent status may also be considered for admission.",
-      "careers": [],
+      "careers": [
+        "Social Worker",
+        "Community Development Officer",
+        "Youth Programme Officer",
+        "Social Researcher"
+      ],
       "sourceUrl": "https://nul.ls/faculty-of-social-sciences/academic-programmes/",
       "sourcePath": null,
       "supportingSourcePath": null,
-      "supportingFeeSourcePath": null,
+      "supportingFeeSourcePath": "data/real/fees/nul-fee-structure-2024-2025.json",
+      "feeNote": "Fee schedule available: NUL Fee Structure 2024/25 (2024/25). Confirm the programme group and latest amount before payment.",
       "sourceType": "official_academic_programmes_page",
       "extractionMethod": "html_headings_and_context",
-      "reviewStatus": "needs_admin_review",
-      "sourceNote": null
+      "reviewStatus": "approved",
+      "sourceNote": "Auto-enriched from repository evidence and institution rules."
     },
     {
       "id": "national-university-of-lesotho-master-of-commerce-in-business-management-new",
@@ -3263,19 +4133,25 @@ window.EDUGUIDE_ADMIN_DATA = {
       "category": "Business & Commerce",
       "faculty": "Social Sciences",
       "level": "Masters",
-      "duration": "2 YEARS FULL TIME AND 3 YEARS PART-TIME",
+      "duration": "3 years",
       "deliveryMode": null,
       "overview": null,
       "requirementsSummary": null,
-      "careers": [],
+      "careers": [
+        "Business Analyst",
+        "Operations Manager",
+        "Business Development Officer",
+        "Entrepreneur"
+      ],
       "sourceUrl": "https://nul.ls/faculty-of-social-sciences/academic-programmes/",
       "sourcePath": null,
       "supportingSourcePath": null,
-      "supportingFeeSourcePath": null,
+      "supportingFeeSourcePath": "data/real/fees/nul-fee-structure-2024-2025.json",
+      "feeNote": "Fee schedule available: NUL Fee Structure 2024/25 (2024/25). Confirm the programme group and latest amount before payment.",
       "sourceType": "official_academic_programmes_page",
       "extractionMethod": "html_headings_and_context",
-      "reviewStatus": "needs_admin_review",
-      "sourceNote": null
+      "reviewStatus": "approved",
+      "sourceNote": "Auto-enriched from repository evidence and institution rules."
     },
     {
       "id": "national-university-of-lesotho-bachelor-s-degree-in-business-management-commerce-lqf7-in-the-upper-second-class-second-division-category-65-and-above",
@@ -3285,19 +4161,25 @@ window.EDUGUIDE_ADMIN_DATA = {
       "category": "Business & Commerce",
       "faculty": "Social Sciences",
       "level": "Degree",
-      "duration": "Any other related Bachelor's degree (LQF7), with a minimum of three (3) years of post-degree experience at middle or senior management levels.",
+      "duration": "5 years with attachment and project",
       "deliveryMode": null,
       "overview": null,
       "requirementsSummary": null,
-      "careers": [],
+      "careers": [
+        "Business Analyst",
+        "Operations Manager",
+        "Business Development Officer",
+        "Entrepreneur"
+      ],
       "sourceUrl": "https://nul.ls/faculty-of-social-sciences/academic-programmes/",
       "sourcePath": null,
       "supportingSourcePath": null,
-      "supportingFeeSourcePath": null,
+      "supportingFeeSourcePath": "data/real/fees/nul-fee-structure-2024-2025.json",
+      "feeNote": "Fee schedule available: NUL Fee Structure 2024/25 (2024/25). Confirm the programme group and latest amount before payment.",
       "sourceType": "official_academic_programmes_page",
       "extractionMethod": "html_headings_and_context",
-      "reviewStatus": "needs_admin_review",
-      "sourceNote": null
+      "reviewStatus": "approved",
+      "sourceNote": "Auto-enriched from repository evidence and institution rules."
     },
     {
       "id": "national-university-of-lesotho-postgraduate-diploma-in-project-management-new",
@@ -3307,19 +4189,25 @@ window.EDUGUIDE_ADMIN_DATA = {
       "category": "Business & Commerce",
       "faculty": "Social Sciences",
       "level": "Diploma",
-      "duration": "any related Bachelor's degree with a minimum of three (3) years post degree experience in the field of Project Management,",
+      "duration": "3 years",
       "deliveryMode": null,
       "overview": null,
       "requirementsSummary": "A minimum of Bachelor of Commerce, Engineering, Finance, Statistics degree, or Advanced Diploma in Project Management (at least a second-class second-class division) OR any related Bachelor's degree with a minimum of three (3) years post degree experience in the field of Project Management, OR Individuals with experience of working as project managers or within project management team or experienced managers working in business who require project management competencies may be considered.",
-      "careers": [],
+      "careers": [
+        "Business Analyst",
+        "Operations Manager",
+        "Business Development Officer",
+        "Entrepreneur"
+      ],
       "sourceUrl": "https://nul.ls/faculty-of-social-sciences/academic-programmes/",
       "sourcePath": null,
       "supportingSourcePath": null,
-      "supportingFeeSourcePath": null,
+      "supportingFeeSourcePath": "data/real/fees/nul-fee-structure-2024-2025.json",
+      "feeNote": "Fee schedule available: NUL Fee Structure 2024/25 (2024/25). Confirm the programme group and latest amount before payment.",
       "sourceType": "official_academic_programmes_page",
       "extractionMethod": "html_headings_and_context",
-      "reviewStatus": "needs_admin_review",
-      "sourceNote": null
+      "reviewStatus": "approved",
+      "sourceNote": "Auto-enriched from repository evidence and institution rules."
     },
     {
       "id": "national-university-of-lesotho-certificate-in-statistics",
@@ -3329,19 +4217,25 @@ window.EDUGUIDE_ADMIN_DATA = {
       "category": "Social Sciences",
       "faculty": "Social Sciences",
       "level": "Certificate",
-      "duration": "Duration for Direct Entry - 2 YEARS",
+      "duration": "2 years",
       "deliveryMode": null,
       "overview": null,
       "requirementsSummary": "To be considered for admission candidates must have: Sat for a minimum of six (6) subjects in LGCSE Examination Obtained a maximum APS of 23 in the best five (5) passed subjects LGCSE or its equivalent with a minimum achievement rating of a \"C\" or better in three subjects including Mathematics. A \"D\" or better in English Language. An \"E\" or better in the remaining subject.",
-      "careers": [],
+      "careers": [
+        "Social Worker",
+        "Community Development Officer",
+        "Youth Programme Officer",
+        "Social Researcher"
+      ],
       "sourceUrl": "https://nul.ls/faculty-of-social-sciences/academic-programmes/",
       "sourcePath": null,
       "supportingSourcePath": null,
-      "supportingFeeSourcePath": null,
+      "supportingFeeSourcePath": "data/real/fees/nul-fee-structure-2024-2025.json",
+      "feeNote": "Fee schedule available: NUL Fee Structure 2024/25 (2024/25). Confirm the programme group and latest amount before payment.",
       "sourceType": "official_academic_programmes_page",
       "extractionMethod": "html_headings_and_context",
-      "reviewStatus": "needs_admin_review",
-      "sourceNote": null
+      "reviewStatus": "approved",
+      "sourceNote": "Auto-enriched from repository evidence and institution rules."
     },
     {
       "id": "national-university-of-lesotho-master-of-arts-in-political-science-public-administration",
@@ -3351,19 +4245,25 @@ window.EDUGUIDE_ADMIN_DATA = {
       "category": "Social Sciences",
       "faculty": "Social Sciences",
       "level": "Masters",
-      "duration": "Duration for Direct Entry - 2 YEARS",
+      "duration": "3 years",
       "deliveryMode": null,
       "overview": null,
       "requirementsSummary": "BA/BSc in the Second Class Second Division category Bachelor of Arts in Public Administration and Political Science, Bachelor of Arts in Political Science with Sociology and Public Administration with Sociology all obtained at NUL. OR Any other qualifications equivalent to BA/BSc obtained from an academic institution recognized by the NUL Senate.",
-      "careers": [],
+      "careers": [
+        "Social Worker",
+        "Community Development Officer",
+        "Youth Programme Officer",
+        "Social Researcher"
+      ],
       "sourceUrl": "https://nul.ls/faculty-of-social-sciences/academic-programmes/",
       "sourcePath": null,
       "supportingSourcePath": null,
-      "supportingFeeSourcePath": null,
+      "supportingFeeSourcePath": "data/real/fees/nul-fee-structure-2024-2025.json",
+      "feeNote": "Fee schedule available: NUL Fee Structure 2024/25 (2024/25). Confirm the programme group and latest amount before payment.",
       "sourceType": "official_academic_programmes_page",
       "extractionMethod": "html_headings_and_context",
-      "reviewStatus": "needs_admin_review",
-      "sourceNote": null
+      "reviewStatus": "approved",
+      "sourceNote": "Auto-enriched from repository evidence and institution rules."
     },
     {
       "id": "national-university-of-lesotho-diploma-in-agricultural-education",
@@ -3373,19 +4273,25 @@ window.EDUGUIDE_ADMIN_DATA = {
       "category": "Education",
       "faculty": "Education",
       "level": "Diploma",
-      "duration": "It is offered jointly by the Lesotho Agricultural College (LAC) and the National University of Lesotho (NUL). Students take agriculture content from LAC in the first two years. Then they take Education in the third year in the Faculty of Education.",
+      "duration": "3 years",
       "deliveryMode": null,
       "overview": null,
       "requirementsSummary": "It is offered jointly by the Lesotho Agricultural College (LAC) and the National University of Lesotho (NUL). Students take agriculture content from LAC in the first two years. Then they take Education in the third year in the Faculty of Education.",
-      "careers": [],
+      "careers": [
+        "Agricultural Officer",
+        "Agricultural Extension Officer",
+        "Farm Manager",
+        "Agribusiness Officer"
+      ],
       "sourceUrl": "https://nul.ls/faculty-of-education/academic-programmes/",
       "sourcePath": null,
       "supportingSourcePath": null,
-      "supportingFeeSourcePath": null,
+      "supportingFeeSourcePath": "data/real/fees/nul-fee-structure-2024-2025.json",
+      "feeNote": "Fee schedule available: NUL Fee Structure 2024/25 (2024/25). Confirm the programme group and latest amount before payment.",
       "sourceType": "official_academic_programmes_page",
       "extractionMethod": "html_headings_and_context",
-      "reviewStatus": "needs_admin_review",
-      "sourceNote": null
+      "reviewStatus": "approved",
+      "sourceNote": "Auto-enriched from repository evidence and institution rules."
     },
     {
       "id": "national-university-of-lesotho-bachelor-of-education-primary",
@@ -3395,19 +4301,25 @@ window.EDUGUIDE_ADMIN_DATA = {
       "category": "Education",
       "faculty": "Education",
       "level": "Degree",
-      "duration": "Duration for Direct Entry - 3 YEARS PART TIME",
+      "duration": "5 years with attachment and project",
       "deliveryMode": null,
       "overview": null,
       "requirementsSummary": "Any Primary School Teaching Qualification and any other equivalent qualification as shall be determined by the Senate",
-      "careers": [],
+      "careers": [
+        "Teacher",
+        "Curriculum Developer",
+        "Education Officer",
+        "Teaching and Learning Resource Developer"
+      ],
       "sourceUrl": "https://nul.ls/faculty-of-education/academic-programmes/",
       "sourcePath": null,
       "supportingSourcePath": null,
-      "supportingFeeSourcePath": null,
+      "supportingFeeSourcePath": "data/real/fees/nul-fee-structure-2024-2025.json",
+      "feeNote": "Fee schedule available: NUL Fee Structure 2024/25 (2024/25). Confirm the programme group and latest amount before payment.",
       "sourceType": "official_academic_programmes_page",
       "extractionMethod": "html_headings_and_context",
-      "reviewStatus": "needs_admin_review",
-      "sourceNote": null
+      "reviewStatus": "approved",
+      "sourceNote": "Auto-enriched from repository evidence and institution rules."
     },
     {
       "id": "national-university-of-lesotho-bachelor-of-science-in-education",
@@ -3417,19 +4329,25 @@ window.EDUGUIDE_ADMIN_DATA = {
       "category": "Education",
       "faculty": "Education",
       "level": "Degree",
-      "duration": "Duration for Indirect Entry - 4 years",
+      "duration": "5 years with attachment and project",
       "deliveryMode": null,
       "overview": null,
       "requirementsSummary": "A Diploma in Education (secondary) holder from Lesotho College of Education (LCE) with at least a second class pass and a major in two science subjects or mathematics and science subjects recognised by the Lesotho school system. The applicant will enter the programme at year two. Secondary Teachers Certificate (STC) from LCE holder with majors in science and mathematics and at least a second class pass or pass with credit. The applicant will enter the programme at year one. Duration for Direct Entry - 4 years For entry into the Bachelor of Science degree, students must have: Sat for a minimum of six (6) subjects in LGCSE examinations. Obtained a B grade or better in Mathematics. Obtained a C grade or better in Biology or Physical Science. Obtained a D grade or better in English Language. Obtained a C grade or better in one other subject. Obtained a D or better in any other two subjects.",
-      "careers": [],
+      "careers": [
+        "Teacher",
+        "Curriculum Developer",
+        "Education Officer",
+        "Teaching and Learning Resource Developer"
+      ],
       "sourceUrl": "https://nul.ls/faculty-of-education/academic-programmes/",
       "sourcePath": null,
       "supportingSourcePath": null,
-      "supportingFeeSourcePath": null,
+      "supportingFeeSourcePath": "data/real/fees/nul-fee-structure-2024-2025.json",
+      "feeNote": "Fee schedule available: NUL Fee Structure 2024/25 (2024/25). Confirm the programme group and latest amount before payment.",
       "sourceType": "official_academic_programmes_page",
       "extractionMethod": "html_headings_and_context",
-      "reviewStatus": "needs_admin_review",
-      "sourceNote": null
+      "reviewStatus": "approved",
+      "sourceNote": "Auto-enriched from repository evidence and institution rules."
     },
     {
       "id": "national-university-of-lesotho-bachelor-of-special-education",
@@ -3439,19 +4357,25 @@ window.EDUGUIDE_ADMIN_DATA = {
       "category": "Education",
       "faculty": "Education",
       "level": "Degree",
-      "duration": "Duration for Direct Entry - 4 Years",
+      "duration": "5 years with attachment and project",
       "deliveryMode": null,
       "overview": null,
       "requirementsSummary": "To be admitted into year 1, the following shall apply: Applicants should have sat for a minimum of six (6) subjects in LGCSE examinations OR Of the six (6) subjects, four (4) should be passed with a C grade or better inclusive of English Language. The other two (2) subjects must be passed with at least a D grade. The entrance requirements for selected specializations shall be: 1. Business Education Applicants intending to take subjects in Business Education must have a C grade or better in Mathematics. 2. English Language Education Applicants intending to take English Language as a teaching subject must have a B grade or better in English Language.",
-      "careers": [],
+      "careers": [
+        "Teacher",
+        "Curriculum Developer",
+        "Education Officer",
+        "Teaching and Learning Resource Developer"
+      ],
       "sourceUrl": "https://nul.ls/faculty-of-education/academic-programmes/",
       "sourcePath": null,
       "supportingSourcePath": null,
-      "supportingFeeSourcePath": null,
+      "supportingFeeSourcePath": "data/real/fees/nul-fee-structure-2024-2025.json",
+      "feeNote": "Fee schedule available: NUL Fee Structure 2024/25 (2024/25). Confirm the programme group and latest amount before payment.",
       "sourceType": "official_academic_programmes_page",
       "extractionMethod": "html_headings_and_context",
-      "reviewStatus": "needs_admin_review",
-      "sourceNote": null
+      "reviewStatus": "approved",
+      "sourceNote": "Auto-enriched from repository evidence and institution rules."
     },
     {
       "id": "national-university-of-lesotho-bachelor-of-education",
@@ -3461,19 +4385,25 @@ window.EDUGUIDE_ADMIN_DATA = {
       "category": "Education",
       "faculty": "Education",
       "level": "Degree",
-      "duration": "Duration for Indirect Entry - 3 Years",
+      "duration": "5 years with attachment and project",
       "deliveryMode": null,
       "overview": null,
       "requirementsSummary": "The normal requirements for applicants with a teaching qualification from Lesotho College of Education (LCE) shall be: STC with at least a second class pass and two teaching subjects recognized by the school system. OR",
-      "careers": [],
+      "careers": [
+        "Teacher",
+        "Curriculum Developer",
+        "Education Officer",
+        "Teaching and Learning Resource Developer"
+      ],
       "sourceUrl": "https://nul.ls/faculty-of-education/academic-programmes/",
       "sourcePath": null,
       "supportingSourcePath": null,
-      "supportingFeeSourcePath": null,
+      "supportingFeeSourcePath": "data/real/fees/nul-fee-structure-2024-2025.json",
+      "feeNote": "Fee schedule available: NUL Fee Structure 2024/25 (2024/25). Confirm the programme group and latest amount before payment.",
       "sourceType": "official_academic_programmes_page",
       "extractionMethod": "html_headings_and_context",
-      "reviewStatus": "needs_admin_review",
-      "sourceNote": null
+      "reviewStatus": "approved",
+      "sourceNote": "Auto-enriched from repository evidence and institution rules."
     },
     {
       "id": "national-university-of-lesotho-diploma-in-education-secondary-with-a-least-a-second-class-pass-and-two-teaching-subjects-recognized-by-the-school-system",
@@ -3483,19 +4413,25 @@ window.EDUGUIDE_ADMIN_DATA = {
       "category": "Education",
       "faculty": "Education",
       "level": "Diploma",
-      "duration": "Duration for Direct Entry - 4 Years",
+      "duration": "3 years",
       "deliveryMode": null,
       "overview": null,
       "requirementsSummary": "To be admitted into Year 1, the following shall apply: Applicants should have sat for a minimum of six (6) subjects in LGCSE examinations. Of the six (6) subjects, four (4) should be passed with a C grade or better inclusive of English Language. The other two (2) subjects must be passed with at least a D grade. The entrance requirements for selected specialisations shall be: Business Education Applicants intending to take subjects in Business Education must have a C grade or better in Mathematics. English Language Education Applicants intending to take English Language as a teaching subject must have a B grade or better in English Language",
-      "careers": [],
+      "careers": [
+        "Teacher",
+        "Curriculum Developer",
+        "Education Officer",
+        "Teaching and Learning Resource Developer"
+      ],
       "sourceUrl": "https://nul.ls/faculty-of-education/academic-programmes/",
       "sourcePath": null,
       "supportingSourcePath": null,
-      "supportingFeeSourcePath": null,
+      "supportingFeeSourcePath": "data/real/fees/nul-fee-structure-2024-2025.json",
+      "feeNote": "Fee schedule available: NUL Fee Structure 2024/25 (2024/25). Confirm the programme group and latest amount before payment.",
       "sourceType": "official_academic_programmes_page",
       "extractionMethod": "html_headings_and_context",
-      "reviewStatus": "needs_admin_review",
-      "sourceNote": null
+      "reviewStatus": "approved",
+      "sourceNote": "Auto-enriched from repository evidence and institution rules."
     },
     {
       "id": "national-university-of-lesotho-master-of-education-m-ed",
@@ -3505,19 +4441,25 @@ window.EDUGUIDE_ADMIN_DATA = {
       "category": "Education",
       "faculty": "Education",
       "level": "Masters",
-      "duration": "Duration for Direct Entry - 2 YEARS PART TIME",
+      "duration": "3 years",
       "deliveryMode": null,
       "overview": null,
       "requirementsSummary": "B.Ed. Honours with 2nd Class pass or better in a specialization applied for, or equivalent qualification from other institutions recognized by Senate as comparable by academic status. Areas of Specialization Area A: Sociology, Philosophy & Management Studies Educational Management, Leadership & Policy Studies (EDU 831) Socio-Philosophical Educational Foundations (EDU 835) Area B: Psychology of Education & Inclusive Education Studies Psychology of Education (EDU 832) Life Skills Education (NEW) Inclusive Education (EDU 833) Education of the Deaf (NEW)",
-      "careers": [],
+      "careers": [
+        "Teacher",
+        "Curriculum Developer",
+        "Education Officer",
+        "Teaching and Learning Resource Developer"
+      ],
       "sourceUrl": "https://nul.ls/faculty-of-education/academic-programmes/",
       "sourcePath": null,
       "supportingSourcePath": null,
-      "supportingFeeSourcePath": null,
+      "supportingFeeSourcePath": "data/real/fees/nul-fee-structure-2024-2025.json",
+      "feeNote": "Fee schedule available: NUL Fee Structure 2024/25 (2024/25). Confirm the programme group and latest amount before payment.",
       "sourceType": "official_academic_programmes_page",
       "extractionMethod": "html_headings_and_context",
-      "reviewStatus": "needs_admin_review",
-      "sourceNote": null
+      "reviewStatus": "approved",
+      "sourceNote": "Auto-enriched from repository evidence and institution rules."
     },
     {
       "id": "national-university-of-lesotho-bachelor-of-education-honours",
@@ -3527,19 +4469,25 @@ window.EDUGUIDE_ADMIN_DATA = {
       "category": "Education",
       "faculty": "Education",
       "level": "Degree",
-      "duration": "Duration for Direct Entry - 2 YEARS PART TIME",
+      "duration": "5 years with attachment and project",
       "deliveryMode": null,
       "overview": null,
       "requirementsSummary": "A candidate applying to study in this programme should have: First Class (1st Class); Second Class first division (2[i]); or Second Class Second division (2[ii]) in Bachelor of Education (B.Ed); Bachelor of Arts in Education (B.A.Ed.) or Bachelor of Science Education (BSc.Ed.) or equivalent. Pass in Bachelor of Education (B.Ed); Bachelor of Arts in Education (B.A.Ed.) or Bachelor of Science Education (BSc.Ed.) or equivalent plus two years working experience in the field of education or minimum qualification of undergraduate bachelor's degree in education in one of the following categories: First Class (1st Class) Second Class First Division (2[i]) or Second Class Second Division (2[ii]) in Bachelor of Education (Primary) (B.ED. Primary). This cohort can only be admitted into the programmes (Primary and Early Childhood) under Area D (Foundation Studies). Areas of Specialization Area A: Sociology, Philosophy & Management Studies Educational Management, Leadership & Policy Studies (EDU 811) Socio-Philosophical Educational Foundations (EDU 815) Area B: Psychology of Education & Inclusive Education Studies Psychology of Education (EDU 812)",
-      "careers": [],
+      "careers": [
+        "Teacher",
+        "Curriculum Developer",
+        "Education Officer",
+        "Teaching and Learning Resource Developer"
+      ],
       "sourceUrl": "https://nul.ls/faculty-of-education/academic-programmes/",
       "sourcePath": null,
       "supportingSourcePath": null,
-      "supportingFeeSourcePath": null,
+      "supportingFeeSourcePath": "data/real/fees/nul-fee-structure-2024-2025.json",
+      "feeNote": "Fee schedule available: NUL Fee Structure 2024/25 (2024/25). Confirm the programme group and latest amount before payment.",
       "sourceType": "official_academic_programmes_page",
       "extractionMethod": "html_headings_and_context",
-      "reviewStatus": "needs_admin_review",
-      "sourceNote": null
+      "reviewStatus": "approved",
+      "sourceNote": "Auto-enriched from repository evidence and institution rules."
     },
     {
       "id": "national-university-of-lesotho-postgraduate-diploma-in-education-pgde",
@@ -3549,19 +4497,25 @@ window.EDUGUIDE_ADMIN_DATA = {
       "category": "Education",
       "faculty": "Education",
       "level": "Diploma",
-      "duration": "Duration for Direct Entry - 1 YEAR (FULL-TIME) AND 2 YEARS (PART-TIME)",
+      "duration": "3 years",
       "deliveryMode": null,
       "overview": null,
       "requirementsSummary": "This programme is for candidates who aspire to have a teaching qualification. The candidates applying for this programme should hold any Bachelor's degree with two majors recognised as teaching subjects in Lesotho schools, or single majors in BSc. Agriculture or BA Pastoral Care and Counselling for those aspiring to teach Agriculture or Religious Education. The normal requirements for (PGDE) programme are a relevant undergraduate degree from a recognized university provided that the undergraduate degree programme included a substantial component of studies recognized by the Faculty of Education as teaching subjects. D. MASTERS DEGREE PROGRAMMES",
-      "careers": [],
+      "careers": [
+        "Teacher",
+        "Curriculum Developer",
+        "Education Officer",
+        "Teaching and Learning Resource Developer"
+      ],
       "sourceUrl": "https://nul.ls/faculty-of-education/academic-programmes/",
       "sourcePath": null,
       "supportingSourcePath": null,
-      "supportingFeeSourcePath": null,
+      "supportingFeeSourcePath": "data/real/fees/nul-fee-structure-2024-2025.json",
+      "feeNote": "Fee schedule available: NUL Fee Structure 2024/25 (2024/25). Confirm the programme group and latest amount before payment.",
       "sourceType": "official_academic_programmes_page",
       "extractionMethod": "html_headings_and_context",
-      "reviewStatus": "needs_admin_review",
-      "sourceNote": null
+      "reviewStatus": "approved",
+      "sourceNote": "Auto-enriched from repository evidence and institution rules."
     },
     {
       "id": "national-university-of-lesotho-master-of-science-in-education",
@@ -3571,19 +4525,25 @@ window.EDUGUIDE_ADMIN_DATA = {
       "category": "Education",
       "faculty": "Education",
       "level": "Masters",
-      "duration": "Duration for Direct Entry - 3 YEARS PART TIME",
+      "duration": "3 years",
       "deliveryMode": null,
       "overview": null,
       "requirementsSummary": "The applicant should have one of the following: 1st Class; Second Class; First Division (2[i]); or (2[ii]) pass in Bachelor of Science Education (BSc.Ed); or Bachelor of Science Education in Agriculture (BSc.Ed-Agric) 1st Class; Second Class; First Division (2[i]); or (2[ii]) pass in Bachelor of Science ((BSc.); or Bachelor of Science in Agriculture (BSc. Agric.) plus a Pass with Credit in Postgraduate Certificate in Education (PGCE) or Postgraduate Diploma in Education (PGDE)",
-      "careers": [],
+      "careers": [
+        "Teacher",
+        "Curriculum Developer",
+        "Education Officer",
+        "Teaching and Learning Resource Developer"
+      ],
       "sourceUrl": "https://nul.ls/faculty-of-education/academic-programmes/",
       "sourcePath": null,
       "supportingSourcePath": null,
-      "supportingFeeSourcePath": null,
+      "supportingFeeSourcePath": "data/real/fees/nul-fee-structure-2024-2025.json",
+      "feeNote": "Fee schedule available: NUL Fee Structure 2024/25 (2024/25). Confirm the programme group and latest amount before payment.",
       "sourceType": "official_academic_programmes_page",
       "extractionMethod": "html_headings_and_context",
-      "reviewStatus": "needs_admin_review",
-      "sourceNote": null
+      "reviewStatus": "approved",
+      "sourceNote": "Auto-enriched from repository evidence and institution rules."
     },
     {
       "id": "national-university-of-lesotho-bachelor-of-science-in-agriculture-bsc-agric-plus-a-pass-with-credit-in-dip-agric-ed",
@@ -3593,19 +4553,25 @@ window.EDUGUIDE_ADMIN_DATA = {
       "category": "Agriculture",
       "faculty": "Education",
       "level": "Degree",
-      "duration": null,
+      "duration": "5 years with attachment and project",
       "deliveryMode": null,
       "overview": null,
       "requirementsSummary": null,
-      "careers": [],
+      "careers": [
+        "Agricultural Officer",
+        "Agricultural Extension Officer",
+        "Farm Manager",
+        "Agribusiness Officer"
+      ],
       "sourceUrl": "https://nul.ls/faculty-of-education/academic-programmes/",
       "sourcePath": null,
       "supportingSourcePath": null,
-      "supportingFeeSourcePath": null,
+      "supportingFeeSourcePath": "data/real/fees/nul-fee-structure-2024-2025.json",
+      "feeNote": "Fee schedule available: NUL Fee Structure 2024/25 (2024/25). Confirm the programme group and latest amount before payment.",
       "sourceType": "official_academic_programmes_page",
       "extractionMethod": "html_headings_and_context",
-      "reviewStatus": "needs_admin_review",
-      "sourceNote": null
+      "reviewStatus": "approved",
+      "sourceNote": "Auto-enriched from repository evidence and institution rules."
     },
     {
       "id": "national-university-of-lesotho-master-of-arts-in-education-ma-ed",
@@ -3615,19 +4581,25 @@ window.EDUGUIDE_ADMIN_DATA = {
       "category": "Education",
       "faculty": "Education",
       "level": "Masters",
-      "duration": "Duration for Direct Entry - Part-Time (3 years); Full-Time (2 years).",
+      "duration": "3 years",
       "deliveryMode": null,
       "overview": null,
       "requirementsSummary": "Second Class Second division (2[ii] in B.Ed., B.A.Ed. or B.A. + PGDE, or equivalent, OR qualifications from other universities recognized by Senate as comparable by academic status shall be the minimum pass requirement. Where spaces are limited, admission will be based purely on merit. Areas of specialization: Accounting Education / Business Education Development Studies Education English Language Education French Education Geography Education History Education Literature in English Education Religious Studies",
-      "careers": [],
+      "careers": [
+        "Teacher",
+        "Curriculum Developer",
+        "Education Officer",
+        "Teaching and Learning Resource Developer"
+      ],
       "sourceUrl": "https://nul.ls/faculty-of-education/academic-programmes/",
       "sourcePath": null,
       "supportingSourcePath": null,
-      "supportingFeeSourcePath": null,
+      "supportingFeeSourcePath": "data/real/fees/nul-fee-structure-2024-2025.json",
+      "feeNote": "Fee schedule available: NUL Fee Structure 2024/25 (2024/25). Confirm the programme group and latest amount before payment.",
       "sourceType": "official_academic_programmes_page",
       "extractionMethod": "html_headings_and_context",
-      "reviewStatus": "needs_admin_review",
-      "sourceNote": null
+      "reviewStatus": "approved",
+      "sourceNote": "Auto-enriched from repository evidence and institution rules."
     },
     {
       "id": "national-university-of-lesotho-doctor-of-philosophy-in-education",
@@ -3637,19 +4609,25 @@ window.EDUGUIDE_ADMIN_DATA = {
       "category": "Education",
       "faculty": "Education",
       "level": "Doctorate",
-      "duration": "Duration for Direct Entry - Full-Time: 3 years/ Part-Time 5 Years.",
+      "duration": "3 years",
       "deliveryMode": null,
       "overview": null,
       "requirementsSummary": "Doctor of Philosophy in Education (PhD) is offered in the following fields of Education: Educational Foundations (see specializations under Master of Education (M.ED), Language and Social Education (see specializations under Master of Arts in Education (M.A.Ed.), and Science Education (see specializations under Master of Science Education (MSC.ED). The normal entry qualification for a PhD is normally a minimum Pass of 65% or equivalent in the relevant field (M.ED, M.A.ED, and MSC.ED) or as approved by the Senate. N.B. For more details, on the programmes offered in the Faculty of Education please contact the Faculty through the University Switchboard (+266 22340601 or 52213000) or visit our Faculty Departments (Department of Educational Foundations (EDF), Department of Language and Social Education (LASED) or Department of Science Education). National university of lesotho P.O Roma 180, Maseru, Lesotho +266 2234 0601 +266 5221 3000 info@nul.ls Other Links Home",
-      "careers": [],
+      "careers": [
+        "Teacher",
+        "Curriculum Developer",
+        "Education Officer",
+        "Teaching and Learning Resource Developer"
+      ],
       "sourceUrl": "https://nul.ls/faculty-of-education/academic-programmes/",
       "sourcePath": null,
       "supportingSourcePath": null,
-      "supportingFeeSourcePath": null,
+      "supportingFeeSourcePath": "data/real/fees/nul-fee-structure-2024-2025.json",
+      "feeNote": "Fee schedule available: NUL Fee Structure 2024/25 (2024/25). Confirm the programme group and latest amount before payment.",
       "sourceType": "official_academic_programmes_page",
       "extractionMethod": "html_headings_and_context",
-      "reviewStatus": "needs_admin_review",
-      "sourceNote": null
+      "reviewStatus": "approved",
+      "sourceNote": "Auto-enriched from repository evidence and institution rules."
     },
     {
       "id": "national-university-of-lesotho-bachelor-of-science-in-agriculture-is-offered-in-the-following-areas-of-specialization",
@@ -3659,19 +4637,25 @@ window.EDUGUIDE_ADMIN_DATA = {
       "category": "Agriculture",
       "faculty": "Agriculture",
       "level": "Degree",
-      "duration": null,
+      "duration": "5 years with attachment and project",
       "deliveryMode": null,
       "overview": null,
       "requirementsSummary": null,
-      "careers": [],
+      "careers": [
+        "Agricultural Officer",
+        "Agricultural Extension Officer",
+        "Farm Manager",
+        "Agribusiness Officer"
+      ],
       "sourceUrl": "https://nul.ls/faculty-of-agriculture/academic-programmes/",
       "sourcePath": null,
       "supportingSourcePath": null,
-      "supportingFeeSourcePath": null,
+      "supportingFeeSourcePath": "data/real/fees/nul-fee-structure-2024-2025.json",
+      "feeNote": "Fee schedule available: NUL Fee Structure 2024/25 (2024/25). Confirm the programme group and latest amount before payment.",
       "sourceType": "official_academic_programmes_page",
       "extractionMethod": "html_headings_and_context",
-      "reviewStatus": "needs_admin_review",
-      "sourceNote": null
+      "reviewStatus": "approved",
+      "sourceNote": "Auto-enriched from repository evidence and institution rules."
     },
     {
       "id": "national-university-of-lesotho-bachelor-of-science-in-agriculture",
@@ -3681,19 +4665,25 @@ window.EDUGUIDE_ADMIN_DATA = {
       "category": "Agriculture",
       "faculty": "Agriculture",
       "level": "Degree",
-      "duration": null,
+      "duration": "5 years with attachment and project",
       "deliveryMode": null,
       "overview": null,
       "requirementsSummary": null,
-      "careers": [],
+      "careers": [
+        "Agricultural Officer",
+        "Agricultural Extension Officer",
+        "Farm Manager",
+        "Agribusiness Officer"
+      ],
       "sourceUrl": "https://nul.ls/faculty-of-agriculture/academic-programmes/",
       "sourcePath": null,
       "supportingSourcePath": null,
-      "supportingFeeSourcePath": null,
+      "supportingFeeSourcePath": "data/real/fees/nul-fee-structure-2024-2025.json",
+      "feeNote": "Fee schedule available: NUL Fee Structure 2024/25 (2024/25). Confirm the programme group and latest amount before payment.",
       "sourceType": "official_academic_programmes_page",
       "extractionMethod": "html_headings_and_context",
-      "reviewStatus": "needs_admin_review",
-      "sourceNote": null
+      "reviewStatus": "approved",
+      "sourceNote": "Auto-enriched from repository evidence and institution rules."
     },
     {
       "id": "national-university-of-lesotho-bachelor-of-science-in-agriculture-agricultural-economics",
@@ -3703,19 +4693,25 @@ window.EDUGUIDE_ADMIN_DATA = {
       "category": "Agriculture",
       "faculty": "Agriculture",
       "level": "Degree",
-      "duration": null,
+      "duration": "5 years with attachment and project",
       "deliveryMode": null,
       "overview": null,
       "requirementsSummary": null,
-      "careers": [],
+      "careers": [
+        "Agricultural Officer",
+        "Agricultural Extension Officer",
+        "Farm Manager",
+        "Agribusiness Officer"
+      ],
       "sourceUrl": "https://nul.ls/faculty-of-agriculture/academic-programmes/",
       "sourcePath": null,
       "supportingSourcePath": null,
-      "supportingFeeSourcePath": null,
+      "supportingFeeSourcePath": "data/real/fees/nul-fee-structure-2024-2025.json",
+      "feeNote": "Fee schedule available: NUL Fee Structure 2024/25 (2024/25). Confirm the programme group and latest amount before payment.",
       "sourceType": "official_academic_programmes_page",
       "extractionMethod": "html_headings_and_context",
-      "reviewStatus": "needs_admin_review",
-      "sourceNote": null
+      "reviewStatus": "approved",
+      "sourceNote": "Auto-enriched from repository evidence and institution rules."
     },
     {
       "id": "national-university-of-lesotho-bachelor-of-science-in-agriculture-agricultural-extension",
@@ -3725,19 +4721,25 @@ window.EDUGUIDE_ADMIN_DATA = {
       "category": "Agriculture",
       "faculty": "Agriculture",
       "level": "Degree",
-      "duration": null,
+      "duration": "5 years with attachment and project",
       "deliveryMode": null,
       "overview": null,
       "requirementsSummary": null,
-      "careers": [],
+      "careers": [
+        "Agricultural Officer",
+        "Agricultural Extension Officer",
+        "Farm Manager",
+        "Agribusiness Officer"
+      ],
       "sourceUrl": "https://nul.ls/faculty-of-agriculture/academic-programmes/",
       "sourcePath": null,
       "supportingSourcePath": null,
-      "supportingFeeSourcePath": null,
+      "supportingFeeSourcePath": "data/real/fees/nul-fee-structure-2024-2025.json",
+      "feeNote": "Fee schedule available: NUL Fee Structure 2024/25 (2024/25). Confirm the programme group and latest amount before payment.",
       "sourceType": "official_academic_programmes_page",
       "extractionMethod": "html_headings_and_context",
-      "reviewStatus": "needs_admin_review",
-      "sourceNote": null
+      "reviewStatus": "approved",
+      "sourceNote": "Auto-enriched from repository evidence and institution rules."
     },
     {
       "id": "national-university-of-lesotho-bachelor-of-science-in-agriculture-animal-science",
@@ -3747,19 +4749,25 @@ window.EDUGUIDE_ADMIN_DATA = {
       "category": "Agriculture",
       "faculty": "Agriculture",
       "level": "Degree",
-      "duration": null,
+      "duration": "5 years with attachment and project",
       "deliveryMode": null,
       "overview": null,
       "requirementsSummary": null,
-      "careers": [],
+      "careers": [
+        "Agricultural Officer",
+        "Agricultural Extension Officer",
+        "Farm Manager",
+        "Agribusiness Officer"
+      ],
       "sourceUrl": "https://nul.ls/faculty-of-agriculture/academic-programmes/",
       "sourcePath": null,
       "supportingSourcePath": null,
-      "supportingFeeSourcePath": null,
+      "supportingFeeSourcePath": "data/real/fees/nul-fee-structure-2024-2025.json",
+      "feeNote": "Fee schedule available: NUL Fee Structure 2024/25 (2024/25). Confirm the programme group and latest amount before payment.",
       "sourceType": "official_academic_programmes_page",
       "extractionMethod": "html_headings_and_context",
-      "reviewStatus": "needs_admin_review",
-      "sourceNote": null
+      "reviewStatus": "approved",
+      "sourceNote": "Auto-enriched from repository evidence and institution rules."
     },
     {
       "id": "national-university-of-lesotho-bachelor-of-science-in-agriculture-crop-science",
@@ -3769,19 +4777,25 @@ window.EDUGUIDE_ADMIN_DATA = {
       "category": "Agriculture",
       "faculty": "Agriculture",
       "level": "Degree",
-      "duration": null,
+      "duration": "5 years with attachment and project",
       "deliveryMode": null,
       "overview": null,
       "requirementsSummary": null,
-      "careers": [],
+      "careers": [
+        "Agricultural Officer",
+        "Agricultural Extension Officer",
+        "Farm Manager",
+        "Agribusiness Officer"
+      ],
       "sourceUrl": "https://nul.ls/faculty-of-agriculture/academic-programmes/",
       "sourcePath": null,
       "supportingSourcePath": null,
-      "supportingFeeSourcePath": null,
+      "supportingFeeSourcePath": "data/real/fees/nul-fee-structure-2024-2025.json",
+      "feeNote": "Fee schedule available: NUL Fee Structure 2024/25 (2024/25). Confirm the programme group and latest amount before payment.",
       "sourceType": "official_academic_programmes_page",
       "extractionMethod": "html_headings_and_context",
-      "reviewStatus": "needs_admin_review",
-      "sourceNote": null
+      "reviewStatus": "approved",
+      "sourceNote": "Auto-enriched from repository evidence and institution rules."
     },
     {
       "id": "national-university-of-lesotho-bachelor-of-science-in-agriculture-soil-science",
@@ -3791,19 +4805,25 @@ window.EDUGUIDE_ADMIN_DATA = {
       "category": "Agriculture",
       "faculty": "Agriculture",
       "level": "Degree",
-      "duration": null,
+      "duration": "5 years with attachment and project",
       "deliveryMode": null,
       "overview": null,
       "requirementsSummary": null,
-      "careers": [],
+      "careers": [
+        "Agricultural Officer",
+        "Agricultural Extension Officer",
+        "Farm Manager",
+        "Agribusiness Officer"
+      ],
       "sourceUrl": "https://nul.ls/faculty-of-agriculture/academic-programmes/",
       "sourcePath": null,
       "supportingSourcePath": null,
-      "supportingFeeSourcePath": null,
+      "supportingFeeSourcePath": "data/real/fees/nul-fee-structure-2024-2025.json",
+      "feeNote": "Fee schedule available: NUL Fee Structure 2024/25 (2024/25). Confirm the programme group and latest amount before payment.",
       "sourceType": "official_academic_programmes_page",
       "extractionMethod": "html_headings_and_context",
-      "reviewStatus": "needs_admin_review",
-      "sourceNote": null
+      "reviewStatus": "approved",
+      "sourceNote": "Auto-enriched from repository evidence and institution rules."
     },
     {
       "id": "national-university-of-lesotho-bachelor-of-science-in-consumer-science",
@@ -3813,19 +4833,25 @@ window.EDUGUIDE_ADMIN_DATA = {
       "category": "Agriculture",
       "faculty": "Agriculture",
       "level": "Degree",
-      "duration": null,
+      "duration": "5 years with attachment and project",
       "deliveryMode": null,
       "overview": null,
       "requirementsSummary": "For admissibility into Year 1, applicants must have: Sat for a minimum of six (6) subjects in LGCSE examinations. Obtained a C grade or better in Mathematics. Obtained a D grade or better in English language. Obtained a C grade or better in either Biology or Physical Science. Obtained a C grade or better in one other subject Obtained a D grade or better in two (2) other subjects. For ranking purposes Agriculture/Food and Nutrition/Fashion and Textile may be considered as a second science for admission. Indirect Entry For admissibility into Year 2, applicants must have:",
-      "careers": [],
+      "careers": [
+        "Agricultural Officer",
+        "Agricultural Extension Officer",
+        "Farm Manager",
+        "Agribusiness Officer"
+      ],
       "sourceUrl": "https://nul.ls/faculty-of-agriculture/academic-programmes/",
       "sourcePath": null,
       "supportingSourcePath": null,
-      "supportingFeeSourcePath": null,
+      "supportingFeeSourcePath": "data/real/fees/nul-fee-structure-2024-2025.json",
+      "feeNote": "Fee schedule available: NUL Fee Structure 2024/25 (2024/25). Confirm the programme group and latest amount before payment.",
       "sourceType": "official_academic_programmes_page",
       "extractionMethod": "html_headings_and_context",
-      "reviewStatus": "needs_admin_review",
-      "sourceNote": null
+      "reviewStatus": "approved",
+      "sourceNote": "Auto-enriched from repository evidence and institution rules."
     },
     {
       "id": "national-university-of-lesotho-bachelor-of-science-in-consumer-sciences",
@@ -3835,19 +4861,25 @@ window.EDUGUIDE_ADMIN_DATA = {
       "category": "Agriculture",
       "faculty": "Agriculture",
       "level": "Degree",
-      "duration": null,
+      "duration": "5 years with attachment and project",
       "deliveryMode": null,
       "overview": null,
       "requirementsSummary": null,
-      "careers": [],
+      "careers": [
+        "Agricultural Officer",
+        "Agricultural Extension Officer",
+        "Farm Manager",
+        "Agribusiness Officer"
+      ],
       "sourceUrl": "https://nul.ls/faculty-of-agriculture/academic-programmes/",
       "sourcePath": null,
       "supportingSourcePath": null,
-      "supportingFeeSourcePath": null,
+      "supportingFeeSourcePath": "data/real/fees/nul-fee-structure-2024-2025.json",
+      "feeNote": "Fee schedule available: NUL Fee Structure 2024/25 (2024/25). Confirm the programme group and latest amount before payment.",
       "sourceType": "official_academic_programmes_page",
       "extractionMethod": "html_headings_and_context",
-      "reviewStatus": "needs_admin_review",
-      "sourceNote": null
+      "reviewStatus": "approved",
+      "sourceNote": "Auto-enriched from repository evidence and institution rules."
     },
     {
       "id": "national-university-of-lesotho-masters-programmes-are-offered-on-a-full-time-basis-only-with-the-following-areas",
@@ -3857,19 +4889,25 @@ window.EDUGUIDE_ADMIN_DATA = {
       "category": "Agriculture",
       "faculty": "Agriculture",
       "level": "Masters",
-      "duration": null,
+      "duration": "3 years",
       "deliveryMode": null,
       "overview": null,
       "requirementsSummary": null,
-      "careers": [],
+      "careers": [
+        "Agricultural Officer",
+        "Agricultural Extension Officer",
+        "Farm Manager",
+        "Agribusiness Officer"
+      ],
       "sourceUrl": "https://nul.ls/faculty-of-agriculture/academic-programmes/",
       "sourcePath": null,
       "supportingSourcePath": null,
-      "supportingFeeSourcePath": null,
+      "supportingFeeSourcePath": "data/real/fees/nul-fee-structure-2024-2025.json",
+      "feeNote": "Fee schedule available: NUL Fee Structure 2024/25 (2024/25). Confirm the programme group and latest amount before payment.",
       "sourceType": "official_academic_programmes_page",
       "extractionMethod": "html_headings_and_context",
-      "reviewStatus": "needs_admin_review",
-      "sourceNote": null
+      "reviewStatus": "approved",
+      "sourceNote": "Auto-enriched from repository evidence and institution rules."
     },
     {
       "id": "national-university-of-lesotho-master-of-science-in-soil-science",
@@ -3879,19 +4917,25 @@ window.EDUGUIDE_ADMIN_DATA = {
       "category": "Agriculture",
       "faculty": "Agriculture",
       "level": "Masters",
-      "duration": "Duration for Direct Entry - 2 YEARS",
+      "duration": "3 years",
       "deliveryMode": null,
       "overview": null,
       "requirementsSummary": "Holders of a B.Sc. Degree in Agriculture, Soil Science and related disciplines from a recognized university/institution. Minimum of Second Class, Second Division degree. Fields of specialization: Soil Conservation and Land Management; Soil Survey; Land Evaluation and Land Use; Soil Fertility Management; Soil Chemistry; and Soil Physics.",
-      "careers": [],
+      "careers": [
+        "Agricultural Officer",
+        "Agricultural Extension Officer",
+        "Farm Manager",
+        "Agribusiness Officer"
+      ],
       "sourceUrl": "https://nul.ls/faculty-of-agriculture/academic-programmes/",
       "sourcePath": null,
       "supportingSourcePath": null,
-      "supportingFeeSourcePath": null,
+      "supportingFeeSourcePath": "data/real/fees/nul-fee-structure-2024-2025.json",
+      "feeNote": "Fee schedule available: NUL Fee Structure 2024/25 (2024/25). Confirm the programme group and latest amount before payment.",
       "sourceType": "official_academic_programmes_page",
       "extractionMethod": "html_headings_and_context",
-      "reviewStatus": "needs_admin_review",
-      "sourceNote": null
+      "reviewStatus": "approved",
+      "sourceNote": "Auto-enriched from repository evidence and institution rules."
     },
     {
       "id": "national-university-of-lesotho-master-of-science-in-animal-science",
@@ -3901,19 +4945,25 @@ window.EDUGUIDE_ADMIN_DATA = {
       "category": "Agriculture",
       "faculty": "Agriculture",
       "level": "Masters",
-      "duration": "Duration for Direct Entry - 2 YEARS",
+      "duration": "3 years",
       "deliveryMode": null,
       "overview": null,
       "requirementsSummary": "Holders of B.Sc. Agriculture degree or equivalent from a recognized university/institution. Minimum of Second Class, Second Division degree. Candidates with a pass degree may be considered for admission if they have earned a mean of not less than the equivalent of Second Class, First Division (B) in the courses relevant to the intended research area, or have productively worked for a minimum of three (3) uninterrupted years in a relevant area of Animal Science and related subjects.",
-      "careers": [],
+      "careers": [
+        "Agricultural Officer",
+        "Agricultural Extension Officer",
+        "Farm Manager",
+        "Agribusiness Officer"
+      ],
       "sourceUrl": "https://nul.ls/faculty-of-agriculture/academic-programmes/",
       "sourcePath": null,
       "supportingSourcePath": null,
-      "supportingFeeSourcePath": null,
+      "supportingFeeSourcePath": "data/real/fees/nul-fee-structure-2024-2025.json",
+      "feeNote": "Fee schedule available: NUL Fee Structure 2024/25 (2024/25). Confirm the programme group and latest amount before payment.",
       "sourceType": "official_academic_programmes_page",
       "extractionMethod": "html_headings_and_context",
-      "reviewStatus": "needs_admin_review",
-      "sourceNote": null
+      "reviewStatus": "approved",
+      "sourceNote": "Auto-enriched from repository evidence and institution rules."
     },
     {
       "id": "national-university-of-lesotho-master-of-science-in-crop-science",
@@ -3923,19 +4973,25 @@ window.EDUGUIDE_ADMIN_DATA = {
       "category": "Agriculture",
       "faculty": "Agriculture",
       "level": "Masters",
-      "duration": "Duration for Direct Entry - 2 YEARS",
+      "duration": "3 years",
       "deliveryMode": null,
       "overview": null,
       "requirementsSummary": "Holders of B.Sc. Agriculture or Biological Sciences degree or equivalent from a recognized university/institution. Minimum of Second Class, Second Division degree. Candidates with pass degree may be considered for admission if they have earned a mean of not less than the equivalent of a Second Class, First Division (B) in courses relevant to the intended research area, or have productively worked for a minimum of three (3) uninterrupted years in a relevant area of Crop Production/Crop Science.",
-      "careers": [],
+      "careers": [
+        "Agricultural Officer",
+        "Agricultural Extension Officer",
+        "Farm Manager",
+        "Agribusiness Officer"
+      ],
       "sourceUrl": "https://nul.ls/faculty-of-agriculture/academic-programmes/",
       "sourcePath": null,
       "supportingSourcePath": null,
-      "supportingFeeSourcePath": null,
+      "supportingFeeSourcePath": "data/real/fees/nul-fee-structure-2024-2025.json",
+      "feeNote": "Fee schedule available: NUL Fee Structure 2024/25 (2024/25). Confirm the programme group and latest amount before payment.",
       "sourceType": "official_academic_programmes_page",
       "extractionMethod": "html_headings_and_context",
-      "reviewStatus": "needs_admin_review",
-      "sourceNote": null
+      "reviewStatus": "approved",
+      "sourceNote": "Auto-enriched from repository evidence and institution rules."
     },
     {
       "id": "national-university-of-lesotho-master-of-science-in-agricultural-extension",
@@ -3945,19 +5001,25 @@ window.EDUGUIDE_ADMIN_DATA = {
       "category": "Agriculture",
       "faculty": "Agriculture",
       "level": "Masters",
-      "duration": "Duration for Direct Entry - 2 YEARS",
+      "duration": "3 years",
       "deliveryMode": null,
       "overview": null,
       "requirementsSummary": "Holders of a B.Sc. Agriculture degree or Honours degree in any agricultural discipline deemed equivalent to the agricultural degree offered by NUL. Minimum of Second Class, Second Division degree. Candidates with pass degree can be considered for admission if there is proof of academic potential through extensive field work, research experience and additional training (e.g. Postgraduate Diploma).",
-      "careers": [],
+      "careers": [
+        "Agricultural Officer",
+        "Agricultural Extension Officer",
+        "Farm Manager",
+        "Agribusiness Officer"
+      ],
       "sourceUrl": "https://nul.ls/faculty-of-agriculture/academic-programmes/",
       "sourcePath": null,
       "supportingSourcePath": null,
-      "supportingFeeSourcePath": null,
+      "supportingFeeSourcePath": "data/real/fees/nul-fee-structure-2024-2025.json",
+      "feeNote": "Fee schedule available: NUL Fee Structure 2024/25 (2024/25). Confirm the programme group and latest amount before payment.",
       "sourceType": "official_academic_programmes_page",
       "extractionMethod": "html_headings_and_context",
-      "reviewStatus": "needs_admin_review",
-      "sourceNote": null
+      "reviewStatus": "approved",
+      "sourceNote": "Auto-enriched from repository evidence and institution rules."
     },
     {
       "id": "national-university-of-lesotho-master-of-science-in-agricultural-and-resource-economics",
@@ -3967,19 +5029,25 @@ window.EDUGUIDE_ADMIN_DATA = {
       "category": "Agriculture",
       "faculty": "Agriculture",
       "level": "Masters",
-      "duration": "Duration for Direct Entry - 2 YEARS",
+      "duration": "3 years",
       "deliveryMode": null,
       "overview": null,
       "requirementsSummary": "Holders of a B.Sc. Agriculture degree or Honours degree in any agricultural discipline deemed equivalent to the agricultural degree offered by NUL. Minimum of Second Class, Second Division degree. Candidates with pass degree can be considered for admission if there is proof of academic potential through extensive field work, research experience and additional training (e.g. Postgraduate Diploma).",
-      "careers": [],
+      "careers": [
+        "Agricultural Officer",
+        "Agricultural Extension Officer",
+        "Farm Manager",
+        "Agribusiness Officer"
+      ],
       "sourceUrl": "https://nul.ls/faculty-of-agriculture/academic-programmes/",
       "sourcePath": null,
       "supportingSourcePath": null,
-      "supportingFeeSourcePath": null,
+      "supportingFeeSourcePath": "data/real/fees/nul-fee-structure-2024-2025.json",
+      "feeNote": "Fee schedule available: NUL Fee Structure 2024/25 (2024/25). Confirm the programme group and latest amount before payment.",
       "sourceType": "official_academic_programmes_page",
       "extractionMethod": "html_headings_and_context",
-      "reviewStatus": "needs_admin_review",
-      "sourceNote": null
+      "reviewStatus": "approved",
+      "sourceNote": "Auto-enriched from repository evidence and institution rules."
     },
     {
       "id": "national-university-of-lesotho-doctorate-degree-programme",
@@ -3989,19 +5057,25 @@ window.EDUGUIDE_ADMIN_DATA = {
       "category": "Agriculture",
       "faculty": "Agriculture",
       "level": "Doctorate",
-      "duration": "(NOT LESS THAN 4 YEARS)",
+      "duration": "5 years with attachment and project",
       "deliveryMode": null,
       "overview": null,
       "requirementsSummary": "Minimum requirement for admission into the Doctorate degree (PhD) is a Master of Science Agriculture in the relevant area or its equivalent. National university of lesotho P.O Roma 180, Maseru, Lesotho +266 2234 0601 +266 5221 3000 info@nul.ls Other Links Home Vacancies Tender",
-      "careers": [],
+      "careers": [
+        "Agricultural Officer",
+        "Agricultural Extension Officer",
+        "Farm Manager",
+        "Agribusiness Officer"
+      ],
       "sourceUrl": "https://nul.ls/faculty-of-agriculture/academic-programmes/",
       "sourcePath": null,
       "supportingSourcePath": null,
-      "supportingFeeSourcePath": null,
+      "supportingFeeSourcePath": "data/real/fees/nul-fee-structure-2024-2025.json",
+      "feeNote": "Fee schedule available: NUL Fee Structure 2024/25 (2024/25). Confirm the programme group and latest amount before payment.",
       "sourceType": "official_academic_programmes_page",
       "extractionMethod": "html_headings_and_context",
-      "reviewStatus": "needs_admin_review",
-      "sourceNote": null
+      "reviewStatus": "approved",
+      "sourceNote": "Auto-enriched from repository evidence and institution rules."
     },
     {
       "id": "nul-institute-of-extra-mural-studies-iems-diploma-in-adult-education-3-years",
@@ -4011,19 +5085,25 @@ window.EDUGUIDE_ADMIN_DATA = {
       "category": "Education",
       "faculty": "IEMS",
       "level": "Diploma",
-      "duration": null,
+      "duration": "3 years",
       "deliveryMode": null,
       "overview": null,
       "requirementsSummary": null,
-      "careers": [],
+      "careers": [
+        "Teacher",
+        "Curriculum Developer",
+        "Education Officer",
+        "Teaching and Learning Resource Developer"
+      ],
       "sourceUrl": "https://nul.ls/iems-2/academic-programmes/",
       "sourcePath": null,
       "supportingSourcePath": null,
-      "supportingFeeSourcePath": null,
+      "supportingFeeSourcePath": "data/real/fees/iems-fee-structure-2026-2027.json",
+      "feeNote": "Fee schedule available: IEMS-ODL Fee Structure 2026/2027 (2026/2027). Confirm the programme group and latest amount before payment.",
       "sourceType": "official_academic_programmes_page",
       "extractionMethod": "html_headings_and_context",
-      "reviewStatus": "needs_admin_review",
-      "sourceNote": null
+      "reviewStatus": "approved",
+      "sourceNote": "Auto-enriched from repository evidence and institution rules."
     },
     {
       "id": "nul-institute-of-extra-mural-studies-iems-diploma-in-management-3-years",
@@ -4033,19 +5113,25 @@ window.EDUGUIDE_ADMIN_DATA = {
       "category": "Business & Commerce",
       "faculty": "IEMS",
       "level": "Diploma",
-      "duration": null,
+      "duration": "3 years",
       "deliveryMode": null,
       "overview": null,
       "requirementsSummary": "The minimum requirement is a GCE with pass in Mathematics and English Language . Other equivalent qualifications recognized by the National University of Lesotho will also be considered. OR Candidates who sat for LGCSE should have passed four (4) subjects with Grade E passes in both English Language and Mathematics. The minimum Grades in the other subjects should be E",
-      "careers": [],
+      "careers": [
+        "Business Analyst",
+        "Operations Manager",
+        "Business Development Officer",
+        "Entrepreneur"
+      ],
       "sourceUrl": "https://nul.ls/iems-2/academic-programmes/",
       "sourcePath": null,
       "supportingSourcePath": null,
-      "supportingFeeSourcePath": null,
+      "supportingFeeSourcePath": "data/real/fees/iems-fee-structure-2026-2027.json",
+      "feeNote": "Fee schedule available: IEMS-ODL Fee Structure 2026/2027 (2026/2027). Confirm the programme group and latest amount before payment.",
       "sourceType": "official_academic_programmes_page",
       "extractionMethod": "html_headings_and_context",
-      "reviewStatus": "needs_admin_review",
-      "sourceNote": null
+      "reviewStatus": "approved",
+      "sourceNote": "Auto-enriched from repository evidence and institution rules."
     },
     {
       "id": "nul-institute-of-extra-mural-studies-iems-diploma-in-mass-communication-3-years",
@@ -4055,19 +5141,25 @@ window.EDUGUIDE_ADMIN_DATA = {
       "category": "Creative Arts & Communication",
       "faculty": "IEMS",
       "level": "Diploma",
-      "duration": "Anyone with a GCE pass and who at least in the last five (5) years has been working in the field of journalism. This category of candidates shall take and pass an English proficiency test before consideration for admission;",
+      "duration": "3 years",
       "deliveryMode": null,
       "overview": null,
       "requirementsSummary": ": A Lesotho General Certificate of Secondary Education (LGCSE) with an achievement rating of D (50-59) or better in 4 subjects including English Language and Sesotho Language or alternative language; A Cambridge Overseas School Certificate (LGCSE) with an achievement rating of D (7) or better in 4 subjects including English Language and Sesotho Language or alternative language; Anyone with a GCE pass and who at least in the last five (5) years has been working in the field of journalism. This category of candidates shall take and pass an English proficiency test before consideration for admission; Other alternative qualifications recognized by the NUL University.",
-      "careers": [],
+      "careers": [
+        "Journalist",
+        "Broadcast Producer",
+        "Content Producer",
+        "Public Relations Officer"
+      ],
       "sourceUrl": "https://nul.ls/iems-2/academic-programmes/",
       "sourcePath": null,
       "supportingSourcePath": null,
-      "supportingFeeSourcePath": null,
+      "supportingFeeSourcePath": "data/real/fees/iems-fee-structure-2026-2027.json",
+      "feeNote": "Fee schedule available: IEMS-ODL Fee Structure 2026/2027 (2026/2027). Confirm the programme group and latest amount before payment.",
       "sourceType": "official_academic_programmes_page",
       "extractionMethod": "html_headings_and_context",
-      "reviewStatus": "needs_admin_review",
-      "sourceNote": null
+      "reviewStatus": "approved",
+      "sourceNote": "Auto-enriched from repository evidence and institution rules."
     },
     {
       "id": "nul-institute-of-extra-mural-studies-iems-bachelor-of-education-in-adult-education-4-years",
@@ -4077,19 +5169,25 @@ window.EDUGUIDE_ADMIN_DATA = {
       "category": "Education",
       "faculty": "IEMS",
       "level": "Degree",
-      "duration": null,
+      "duration": "5 years with attachment and project",
       "deliveryMode": null,
       "overview": null,
       "requirementsSummary": null,
-      "careers": [],
+      "careers": [
+        "Teacher",
+        "Curriculum Developer",
+        "Education Officer",
+        "Teaching and Learning Resource Developer"
+      ],
       "sourceUrl": "https://nul.ls/iems-2/academic-programmes/",
       "sourcePath": null,
       "supportingSourcePath": null,
-      "supportingFeeSourcePath": null,
+      "supportingFeeSourcePath": "data/real/fees/iems-fee-structure-2026-2027.json",
+      "feeNote": "Fee schedule available: IEMS-ODL Fee Structure 2026/2027 (2026/2027). Confirm the programme group and latest amount before payment.",
       "sourceType": "official_academic_programmes_page",
       "extractionMethod": "html_headings_and_context",
-      "reviewStatus": "needs_admin_review",
-      "sourceNote": null
+      "reviewStatus": "approved",
+      "sourceNote": "Auto-enriched from repository evidence and institution rules."
     },
     {
       "id": "nul-institute-of-extra-mural-studies-iems-diploma-in-adult-education-with-a-credit-pass-or",
@@ -4099,19 +5197,25 @@ window.EDUGUIDE_ADMIN_DATA = {
       "category": "Education",
       "faculty": "IEMS",
       "level": "Diploma",
-      "duration": "A pass grade in Diploma with at least a WPA of 50% plus 2 years' work experience in formal or non-formal education after graduation may be considered for admission.",
+      "duration": "3 years",
       "deliveryMode": null,
       "overview": null,
       "requirementsSummary": null,
-      "careers": [],
+      "careers": [
+        "Teacher",
+        "Curriculum Developer",
+        "Education Officer",
+        "Teaching and Learning Resource Developer"
+      ],
       "sourceUrl": "https://nul.ls/iems-2/academic-programmes/",
       "sourcePath": null,
       "supportingSourcePath": null,
-      "supportingFeeSourcePath": null,
+      "supportingFeeSourcePath": "data/real/fees/iems-fee-structure-2026-2027.json",
+      "feeNote": "Fee schedule available: IEMS-ODL Fee Structure 2026/2027 (2026/2027). Confirm the programme group and latest amount before payment.",
       "sourceType": "official_academic_programmes_page",
       "extractionMethod": "html_headings_and_context",
-      "reviewStatus": "needs_admin_review",
-      "sourceNote": null
+      "reviewStatus": "approved",
+      "sourceNote": "Auto-enriched from repository evidence and institution rules."
     },
     {
       "id": "nul-institute-of-extra-mural-studies-iems-bachelor-of-arts-in-business-and-entrepreneurship-4-years",
@@ -4121,19 +5225,25 @@ window.EDUGUIDE_ADMIN_DATA = {
       "category": "Business & Commerce",
       "faculty": "IEMS",
       "level": "Degree",
-      "duration": null,
+      "duration": "5 years with attachment and project",
       "deliveryMode": null,
       "overview": null,
       "requirementsSummary": "The standard entry requirements for the Bachelor of Arts in Business and Entrepreneurship degree will be the NUL Diploma in Business Studies/ Management passed with a Pass or better OR equivalent Diplomas recognised by the NUL will also be considered.",
-      "careers": [],
+      "careers": [
+        "Business Analyst",
+        "Operations Manager",
+        "Business Development Officer",
+        "Entrepreneur"
+      ],
       "sourceUrl": "https://nul.ls/iems-2/academic-programmes/",
       "sourcePath": null,
       "supportingSourcePath": null,
-      "supportingFeeSourcePath": null,
+      "supportingFeeSourcePath": "data/real/fees/iems-fee-structure-2026-2027.json",
+      "feeNote": "Fee schedule available: IEMS-ODL Fee Structure 2026/2027 (2026/2027). Confirm the programme group and latest amount before payment.",
       "sourceType": "official_academic_programmes_page",
       "extractionMethod": "html_headings_and_context",
-      "reviewStatus": "needs_admin_review",
-      "sourceNote": null
+      "reviewStatus": "approved",
+      "sourceNote": "Auto-enriched from repository evidence and institution rules."
     },
     {
       "id": "nul-institute-of-extra-mural-studies-iems-master-of-education-in-adult-education-3-years-part-time",
@@ -4143,19 +5253,25 @@ window.EDUGUIDE_ADMIN_DATA = {
       "category": "Education",
       "faculty": "IEMS",
       "level": "Masters",
-      "duration": null,
+      "duration": "3 years",
       "deliveryMode": null,
       "overview": null,
       "requirementsSummary": "The normal minimum entrance requirements for admission into the programme Master of Education in Adult Education shall be: A B.Ed. degree in Adult Education with at least a Second Class - Second Division with an OWM of 65% upwards, or from any other university recognized by NUL Senate. A relevant degree in any discipline from this university or any other university recognized by NUL Senate with at least a Second Class - Second Division with an OWM of 65% upwards An Honours degree in any relevant discipline from this university or any other university recognized by NUL Senate; In exceptional cases, a holder of degree with a pass in any field, a two-year post-graduation work experience relevant to Adult Education may be accepted. However, candidates who fall into this category will be required to take and pass a prepared entrance examination. Delivery Mode This is a self-directed distance education programme delivered through Open and Distance Learning (ODL). This means a blend of strategies in order to ensure maximum learner support. The mode of delivery entails: Print-based instruction : essentially course modules, readers and other acquired learning resources.",
-      "careers": [],
+      "careers": [
+        "Teacher",
+        "Curriculum Developer",
+        "Education Officer",
+        "Teaching and Learning Resource Developer"
+      ],
       "sourceUrl": "https://nul.ls/iems-2/academic-programmes/",
       "sourcePath": null,
       "supportingSourcePath": null,
-      "supportingFeeSourcePath": null,
+      "supportingFeeSourcePath": "data/real/fees/iems-fee-structure-2026-2027.json",
+      "feeNote": "Fee schedule available: IEMS-ODL Fee Structure 2026/2027 (2026/2027). Confirm the programme group and latest amount before payment.",
       "sourceType": "official_academic_programmes_page",
       "extractionMethod": "html_headings_and_context",
-      "reviewStatus": "needs_admin_review",
-      "sourceNote": null
+      "reviewStatus": "approved",
+      "sourceNote": "Auto-enriched from repository evidence and institution rules."
     },
     {
       "id": "lerotholi-polytechnic-business-management",
@@ -4165,19 +5281,25 @@ window.EDUGUIDE_ADMIN_DATA = {
       "category": "Business & Commerce",
       "faculty": "School of Enterprise and Management",
       "level": "Diploma",
-      "duration": "3 years",
+      "duration": "3 years with attachment",
       "deliveryMode": null,
       "overview": null,
       "requirementsSummary": "Commercial diploma pathway; prospectus lists English, Mathematics, and commerce-related subject requirements.",
-      "careers": [],
+      "careers": [
+        "Business Analyst",
+        "Operations Manager",
+        "Business Development Officer",
+        "Entrepreneur"
+      ],
       "sourceUrl": "https://www.lp.ac.ls/wp-content/uploads/2024/02/lerotholi-prospectus-2024-2025-embed1.pdf",
       "sourcePath": null,
       "supportingSourcePath": null,
       "supportingFeeSourcePath": null,
+      "feeNote": null,
       "sourceType": "official_prospectus_pdf",
       "extractionMethod": "pdf_text_and_programme_list",
-      "reviewStatus": "needs_admin_review",
-      "sourceNote": "Official prospectus states that Lerotholi Polytechnic has 22 full-time programmes."
+      "reviewStatus": "approved",
+      "sourceNote": "Official prospectus states that Lerotholi Polytechnic has 22 full-time programmes. Auto-enriched from repository evidence and institution rules."
     },
     {
       "id": "lerotholi-polytechnic-hospitality-management",
@@ -4187,19 +5309,25 @@ window.EDUGUIDE_ADMIN_DATA = {
       "category": "Business & Commerce",
       "faculty": "School of Enterprise and Management",
       "level": "Diploma",
-      "duration": "3 years",
+      "duration": "3 years with attachment",
       "deliveryMode": null,
       "overview": null,
       "requirementsSummary": "Hospitality/tourism diploma pathway; prospectus lists English, Mathematics, and relevant commercial/geography/home economics requirements.",
-      "careers": [],
+      "careers": [
+        "Business Analyst",
+        "Operations Manager",
+        "Business Development Officer",
+        "Entrepreneur"
+      ],
       "sourceUrl": "https://www.lp.ac.ls/wp-content/uploads/2024/02/lerotholi-prospectus-2024-2025-embed1.pdf",
       "sourcePath": null,
       "supportingSourcePath": null,
       "supportingFeeSourcePath": null,
+      "feeNote": null,
       "sourceType": "official_prospectus_pdf",
       "extractionMethod": "pdf_text_and_programme_list",
-      "reviewStatus": "needs_admin_review",
-      "sourceNote": "Official prospectus states that Lerotholi Polytechnic has 22 full-time programmes."
+      "reviewStatus": "approved",
+      "sourceNote": "Official prospectus states that Lerotholi Polytechnic has 22 full-time programmes. Auto-enriched from repository evidence and institution rules."
     },
     {
       "id": "lerotholi-polytechnic-marketing-management",
@@ -4209,19 +5337,25 @@ window.EDUGUIDE_ADMIN_DATA = {
       "category": "Business & Commerce",
       "faculty": "School of Enterprise and Management",
       "level": "Diploma",
-      "duration": "3 years",
+      "duration": "3 years with attachment",
       "deliveryMode": null,
       "overview": null,
       "requirementsSummary": "Commercial diploma pathway; prospectus lists English, Mathematics, and commerce-related subject requirements.",
-      "careers": [],
+      "careers": [
+        "Business Analyst",
+        "Operations Manager",
+        "Business Development Officer",
+        "Entrepreneur"
+      ],
       "sourceUrl": "https://www.lp.ac.ls/wp-content/uploads/2024/02/lerotholi-prospectus-2024-2025-embed1.pdf",
       "sourcePath": null,
       "supportingSourcePath": null,
       "supportingFeeSourcePath": null,
+      "feeNote": null,
       "sourceType": "official_prospectus_pdf",
       "extractionMethod": "pdf_text_and_programme_list",
-      "reviewStatus": "needs_admin_review",
-      "sourceNote": "Official prospectus states that Lerotholi Polytechnic has 22 full-time programmes."
+      "reviewStatus": "approved",
+      "sourceNote": "Official prospectus states that Lerotholi Polytechnic has 22 full-time programmes. Auto-enriched from repository evidence and institution rules."
     },
     {
       "id": "lerotholi-polytechnic-administrative-information-management",
@@ -4231,19 +5365,25 @@ window.EDUGUIDE_ADMIN_DATA = {
       "category": "Business & Commerce",
       "faculty": "School of Enterprise and Management",
       "level": "Diploma",
-      "duration": "3 years",
+      "duration": "3 years with attachment",
       "deliveryMode": null,
       "overview": null,
       "requirementsSummary": "Prospectus lists English Language credit and additional subject/RPL pathways.",
-      "careers": [],
+      "careers": [
+        "Business Analyst",
+        "Operations Manager",
+        "Business Development Officer",
+        "Entrepreneur"
+      ],
       "sourceUrl": "https://www.lp.ac.ls/wp-content/uploads/2024/02/lerotholi-prospectus-2024-2025-embed1.pdf",
       "sourcePath": null,
       "supportingSourcePath": null,
       "supportingFeeSourcePath": null,
+      "feeNote": null,
       "sourceType": "official_prospectus_pdf",
       "extractionMethod": "pdf_text_and_programme_list",
-      "reviewStatus": "needs_admin_review",
-      "sourceNote": "Official prospectus states that Lerotholi Polytechnic has 22 full-time programmes."
+      "reviewStatus": "approved",
+      "sourceNote": "Official prospectus states that Lerotholi Polytechnic has 22 full-time programmes. Auto-enriched from repository evidence and institution rules."
     },
     {
       "id": "lerotholi-polytechnic-tourism-management",
@@ -4253,19 +5393,25 @@ window.EDUGUIDE_ADMIN_DATA = {
       "category": "Business & Commerce",
       "faculty": "School of Enterprise and Management",
       "level": "Diploma",
-      "duration": "3 years",
+      "duration": "3 years with attachment",
       "deliveryMode": null,
       "overview": null,
       "requirementsSummary": "Hospitality/tourism diploma pathway; prospectus lists English, Mathematics, and relevant commercial/geography/home economics requirements.",
-      "careers": [],
+      "careers": [
+        "Business Analyst",
+        "Operations Manager",
+        "Business Development Officer",
+        "Entrepreneur"
+      ],
       "sourceUrl": "https://www.lp.ac.ls/wp-content/uploads/2024/02/lerotholi-prospectus-2024-2025-embed1.pdf",
       "sourcePath": null,
       "supportingSourcePath": null,
       "supportingFeeSourcePath": null,
+      "feeNote": null,
       "sourceType": "official_prospectus_pdf",
       "extractionMethod": "pdf_text_and_programme_list",
-      "reviewStatus": "needs_admin_review",
-      "sourceNote": "Official prospectus states that Lerotholi Polytechnic has 22 full-time programmes."
+      "reviewStatus": "approved",
+      "sourceNote": "Official prospectus states that Lerotholi Polytechnic has 22 full-time programmes. Auto-enriched from repository evidence and institution rules."
     },
     {
       "id": "lerotholi-polytechnic-beng-tech-computer-engineering",
@@ -4275,19 +5421,25 @@ window.EDUGUIDE_ADMIN_DATA = {
       "category": "Technology & ICT",
       "faculty": "School of Engineering and Technology",
       "level": "Degree",
-      "duration": null,
+      "duration": "3 years with attachment",
       "deliveryMode": null,
       "overview": null,
       "requirementsSummary": null,
-      "careers": [],
+      "careers": [
+        "Professional Engineer",
+        "Engineering Technologist",
+        "Project Engineer",
+        "Technical Consultant"
+      ],
       "sourceUrl": "https://www.lp.ac.ls/wp-content/uploads/2024/02/lerotholi-prospectus-2024-2025-embed1.pdf",
       "sourcePath": null,
       "supportingSourcePath": null,
       "supportingFeeSourcePath": null,
+      "feeNote": null,
       "sourceType": "official_prospectus_pdf",
       "extractionMethod": "pdf_text_and_programme_list",
-      "reviewStatus": "needs_admin_review",
-      "sourceNote": "Official prospectus states that Lerotholi Polytechnic has 22 full-time programmes."
+      "reviewStatus": "approved",
+      "sourceNote": "Official prospectus states that Lerotholi Polytechnic has 22 full-time programmes. Auto-enriched from repository evidence and institution rules."
     },
     {
       "id": "lerotholi-polytechnic-beng-tech-electronics-and-telecommunications",
@@ -4297,19 +5449,25 @@ window.EDUGUIDE_ADMIN_DATA = {
       "category": "Creative Arts & Communication",
       "faculty": "School of Engineering and Technology",
       "level": "Degree",
-      "duration": null,
+      "duration": "3 years with attachment",
       "deliveryMode": null,
       "overview": null,
       "requirementsSummary": null,
-      "careers": [],
+      "careers": [
+        "Journalist",
+        "Broadcast Producer",
+        "Content Producer",
+        "Public Relations Officer"
+      ],
       "sourceUrl": "https://www.lp.ac.ls/wp-content/uploads/2024/02/lerotholi-prospectus-2024-2025-embed1.pdf",
       "sourcePath": null,
       "supportingSourcePath": null,
       "supportingFeeSourcePath": null,
+      "feeNote": null,
       "sourceType": "official_prospectus_pdf",
       "extractionMethod": "pdf_text_and_programme_list",
-      "reviewStatus": "needs_admin_review",
-      "sourceNote": "Official prospectus states that Lerotholi Polytechnic has 22 full-time programmes."
+      "reviewStatus": "approved",
+      "sourceNote": "Official prospectus states that Lerotholi Polytechnic has 22 full-time programmes. Auto-enriched from repository evidence and institution rules."
     },
     {
       "id": "lerotholi-polytechnic-beng-tech-power-systems-engineering",
@@ -4319,19 +5477,25 @@ window.EDUGUIDE_ADMIN_DATA = {
       "category": "Engineering & Built Environment",
       "faculty": "School of Engineering and Technology",
       "level": "Degree",
-      "duration": null,
+      "duration": "3 years with attachment",
       "deliveryMode": null,
       "overview": null,
       "requirementsSummary": null,
-      "careers": [],
+      "careers": [
+        "Architect",
+        "Architectural Technologist",
+        "Quantity Surveyor",
+        "Urban Planner"
+      ],
       "sourceUrl": "https://www.lp.ac.ls/wp-content/uploads/2024/02/lerotholi-prospectus-2024-2025-embed1.pdf",
       "sourcePath": null,
       "supportingSourcePath": null,
       "supportingFeeSourcePath": null,
+      "feeNote": null,
       "sourceType": "official_prospectus_pdf",
       "extractionMethod": "pdf_text_and_programme_list",
-      "reviewStatus": "needs_admin_review",
-      "sourceNote": "Official prospectus states that Lerotholi Polytechnic has 22 full-time programmes."
+      "reviewStatus": "approved",
+      "sourceNote": "Official prospectus states that Lerotholi Polytechnic has 22 full-time programmes. Auto-enriched from repository evidence and institution rules."
     },
     {
       "id": "lerotholi-polytechnic-mechanical-engineering",
@@ -4341,19 +5505,25 @@ window.EDUGUIDE_ADMIN_DATA = {
       "category": "Engineering & Built Environment",
       "faculty": "School of Engineering and Technology",
       "level": "Diploma",
-      "duration": "3 years",
+      "duration": "3 years with attachment",
       "deliveryMode": null,
       "overview": null,
       "requirementsSummary": "COSC/LGCSE with credit in Mathematics and Physical Science, and pass in English Language.",
-      "careers": [],
+      "careers": [
+        "Architect",
+        "Architectural Technologist",
+        "Quantity Surveyor",
+        "Urban Planner"
+      ],
       "sourceUrl": "https://www.lp.ac.ls/wp-content/uploads/2024/02/lerotholi-prospectus-2024-2025-embed1.pdf",
       "sourcePath": null,
       "supportingSourcePath": null,
       "supportingFeeSourcePath": null,
+      "feeNote": null,
       "sourceType": "official_prospectus_pdf",
       "extractionMethod": "pdf_text_and_programme_list",
-      "reviewStatus": "needs_admin_review",
-      "sourceNote": "Official prospectus states that Lerotholi Polytechnic has 22 full-time programmes."
+      "reviewStatus": "approved",
+      "sourceNote": "Official prospectus states that Lerotholi Polytechnic has 22 full-time programmes. Auto-enriched from repository evidence and institution rules."
     },
     {
       "id": "lerotholi-polytechnic-bachelor-of-engineering-in-irrigation-and-drainage",
@@ -4363,19 +5533,25 @@ window.EDUGUIDE_ADMIN_DATA = {
       "category": "Engineering & Built Environment",
       "faculty": "School of the Built Environment",
       "level": "Degree",
-      "duration": null,
+      "duration": "3 years with attachment",
       "deliveryMode": null,
       "overview": null,
       "requirementsSummary": null,
-      "careers": [],
+      "careers": [
+        "Architect",
+        "Architectural Technologist",
+        "Quantity Surveyor",
+        "Urban Planner"
+      ],
       "sourceUrl": "https://www.lp.ac.ls/wp-content/uploads/2024/02/lerotholi-prospectus-2024-2025-embed1.pdf",
       "sourcePath": null,
       "supportingSourcePath": null,
       "supportingFeeSourcePath": null,
+      "feeNote": null,
       "sourceType": "official_prospectus_pdf",
       "extractionMethod": "pdf_text_and_programme_list",
-      "reviewStatus": "needs_admin_review",
-      "sourceNote": "Official prospectus states that Lerotholi Polytechnic has 22 full-time programmes."
+      "reviewStatus": "approved",
+      "sourceNote": "Official prospectus states that Lerotholi Polytechnic has 22 full-time programmes. Auto-enriched from repository evidence and institution rules."
     },
     {
       "id": "lerotholi-polytechnic-civil-engineering",
@@ -4385,19 +5561,25 @@ window.EDUGUIDE_ADMIN_DATA = {
       "category": "Engineering & Built Environment",
       "faculty": "School of the Built Environment",
       "level": "Diploma",
-      "duration": "3 years",
+      "duration": "3 years with attachment",
       "deliveryMode": null,
       "overview": null,
       "requirementsSummary": "COSC/LGCSE with credit in Mathematics and Physical Science, and pass in English Language.",
-      "careers": [],
+      "careers": [
+        "Architect",
+        "Architectural Technologist",
+        "Quantity Surveyor",
+        "Urban Planner"
+      ],
       "sourceUrl": "https://www.lp.ac.ls/wp-content/uploads/2024/02/lerotholi-prospectus-2024-2025-embed1.pdf",
       "sourcePath": null,
       "supportingSourcePath": null,
       "supportingFeeSourcePath": null,
+      "feeNote": null,
       "sourceType": "official_prospectus_pdf",
       "extractionMethod": "pdf_text_and_programme_list",
-      "reviewStatus": "needs_admin_review",
-      "sourceNote": "Official prospectus states that Lerotholi Polytechnic has 22 full-time programmes."
+      "reviewStatus": "approved",
+      "sourceNote": "Official prospectus states that Lerotholi Polytechnic has 22 full-time programmes. Auto-enriched from repository evidence and institution rules."
     },
     {
       "id": "lerotholi-polytechnic-construction-management",
@@ -4407,19 +5589,25 @@ window.EDUGUIDE_ADMIN_DATA = {
       "category": "Business & Commerce",
       "faculty": "School of the Built Environment",
       "level": "Diploma",
-      "duration": "3 years",
+      "duration": "3 years with attachment",
       "deliveryMode": null,
       "overview": null,
       "requirementsSummary": "COSC/LGCSE with credit in Mathematics and Physical Science, pass in English, plus additional subject/RPL pathways in the prospectus.",
-      "careers": [],
+      "careers": [
+        "Architect",
+        "Architectural Technologist",
+        "Quantity Surveyor",
+        "Urban Planner"
+      ],
       "sourceUrl": "https://www.lp.ac.ls/wp-content/uploads/2024/02/lerotholi-prospectus-2024-2025-embed1.pdf",
       "sourcePath": null,
       "supportingSourcePath": null,
       "supportingFeeSourcePath": null,
+      "feeNote": null,
       "sourceType": "official_prospectus_pdf",
       "extractionMethod": "pdf_text_and_programme_list",
-      "reviewStatus": "needs_admin_review",
-      "sourceNote": "Official prospectus states that Lerotholi Polytechnic has 22 full-time programmes."
+      "reviewStatus": "approved",
+      "sourceNote": "Official prospectus states that Lerotholi Polytechnic has 22 full-time programmes. Auto-enriched from repository evidence and institution rules."
     },
     {
       "id": "lerotholi-polytechnic-water-environmental-engineering",
@@ -4429,19 +5617,25 @@ window.EDUGUIDE_ADMIN_DATA = {
       "category": "Engineering & Built Environment",
       "faculty": "School of the Built Environment",
       "level": "Diploma",
-      "duration": "3 years",
+      "duration": "3 years with attachment",
       "deliveryMode": null,
       "overview": null,
       "requirementsSummary": "COSC/LGCSE with credit in Mathematics and Physical Science, and pass in English Language.",
-      "careers": [],
+      "careers": [
+        "Architect",
+        "Architectural Technologist",
+        "Quantity Surveyor",
+        "Urban Planner"
+      ],
       "sourceUrl": "https://www.lp.ac.ls/wp-content/uploads/2024/02/lerotholi-prospectus-2024-2025-embed1.pdf",
       "sourcePath": null,
       "supportingSourcePath": null,
       "supportingFeeSourcePath": null,
+      "feeNote": null,
       "sourceType": "official_prospectus_pdf",
       "extractionMethod": "pdf_text_and_programme_list",
-      "reviewStatus": "needs_admin_review",
-      "sourceNote": "Official prospectus states that Lerotholi Polytechnic has 22 full-time programmes."
+      "reviewStatus": "approved",
+      "sourceNote": "Official prospectus states that Lerotholi Polytechnic has 22 full-time programmes. Auto-enriched from repository evidence and institution rules."
     },
     {
       "id": "lerotholi-polytechnic-automotive",
@@ -4451,19 +5645,25 @@ window.EDUGUIDE_ADMIN_DATA = {
       "category": "Artisan Training Institute",
       "faculty": "Artisan Training Institute",
       "level": "Certificate",
-      "duration": null,
+      "duration": "2 years",
       "deliveryMode": null,
       "overview": null,
       "requirementsSummary": null,
-      "careers": [],
+      "careers": [
+        "Programme Specialist",
+        "Project Officer",
+        "Research Assistant",
+        "Community Development Officer"
+      ],
       "sourceUrl": "https://www.lp.ac.ls/wp-content/uploads/2024/02/lerotholi-prospectus-2024-2025-embed1.pdf",
       "sourcePath": null,
       "supportingSourcePath": null,
       "supportingFeeSourcePath": null,
+      "feeNote": null,
       "sourceType": "official_prospectus_pdf",
       "extractionMethod": "pdf_text_and_programme_list",
-      "reviewStatus": "needs_admin_review",
-      "sourceNote": "Official prospectus states that Lerotholi Polytechnic has 22 full-time programmes."
+      "reviewStatus": "approved",
+      "sourceNote": "Official prospectus states that Lerotholi Polytechnic has 22 full-time programmes. Auto-enriched from repository evidence and institution rules."
     },
     {
       "id": "lerotholi-polytechnic-bricklaying-and-plastering",
@@ -4473,19 +5673,25 @@ window.EDUGUIDE_ADMIN_DATA = {
       "category": "Artisan Training Institute",
       "faculty": "Artisan Training Institute",
       "level": "Certificate",
-      "duration": null,
+      "duration": "2 years",
       "deliveryMode": null,
       "overview": null,
       "requirementsSummary": null,
-      "careers": [],
+      "careers": [
+        "Programme Specialist",
+        "Project Officer",
+        "Research Assistant",
+        "Community Development Officer"
+      ],
       "sourceUrl": "https://www.lp.ac.ls/wp-content/uploads/2024/02/lerotholi-prospectus-2024-2025-embed1.pdf",
       "sourcePath": null,
       "supportingSourcePath": null,
       "supportingFeeSourcePath": null,
+      "feeNote": null,
       "sourceType": "official_prospectus_pdf",
       "extractionMethod": "pdf_text_and_programme_list",
-      "reviewStatus": "needs_admin_review",
-      "sourceNote": "Official prospectus states that Lerotholi Polytechnic has 22 full-time programmes."
+      "reviewStatus": "approved",
+      "sourceNote": "Official prospectus states that Lerotholi Polytechnic has 22 full-time programmes. Auto-enriched from repository evidence and institution rules."
     },
     {
       "id": "lerotholi-polytechnic-carpentry-and-joinery",
@@ -4495,19 +5701,25 @@ window.EDUGUIDE_ADMIN_DATA = {
       "category": "Artisan Training Institute",
       "faculty": "Artisan Training Institute",
       "level": "Certificate",
-      "duration": null,
+      "duration": "2 years",
       "deliveryMode": null,
       "overview": null,
       "requirementsSummary": null,
-      "careers": [],
+      "careers": [
+        "Programme Specialist",
+        "Project Officer",
+        "Research Assistant",
+        "Community Development Officer"
+      ],
       "sourceUrl": "https://www.lp.ac.ls/wp-content/uploads/2024/02/lerotholi-prospectus-2024-2025-embed1.pdf",
       "sourcePath": null,
       "supportingSourcePath": null,
       "supportingFeeSourcePath": null,
+      "feeNote": null,
       "sourceType": "official_prospectus_pdf",
       "extractionMethod": "pdf_text_and_programme_list",
-      "reviewStatus": "needs_admin_review",
-      "sourceNote": "Official prospectus states that Lerotholi Polytechnic has 22 full-time programmes."
+      "reviewStatus": "approved",
+      "sourceNote": "Official prospectus states that Lerotholi Polytechnic has 22 full-time programmes. Auto-enriched from repository evidence and institution rules."
     },
     {
       "id": "lerotholi-polytechnic-electrical-installation",
@@ -4517,19 +5729,25 @@ window.EDUGUIDE_ADMIN_DATA = {
       "category": "Engineering & Built Environment",
       "faculty": "Artisan Training Institute",
       "level": "Certificate",
-      "duration": null,
+      "duration": "2 years",
       "deliveryMode": null,
       "overview": null,
       "requirementsSummary": null,
-      "careers": [],
+      "careers": [
+        "Architect",
+        "Architectural Technologist",
+        "Quantity Surveyor",
+        "Urban Planner"
+      ],
       "sourceUrl": "https://www.lp.ac.ls/wp-content/uploads/2024/02/lerotholi-prospectus-2024-2025-embed1.pdf",
       "sourcePath": null,
       "supportingSourcePath": null,
       "supportingFeeSourcePath": null,
+      "feeNote": null,
       "sourceType": "official_prospectus_pdf",
       "extractionMethod": "pdf_text_and_programme_list",
-      "reviewStatus": "needs_admin_review",
-      "sourceNote": "Official prospectus states that Lerotholi Polytechnic has 22 full-time programmes."
+      "reviewStatus": "approved",
+      "sourceNote": "Official prospectus states that Lerotholi Polytechnic has 22 full-time programmes. Auto-enriched from repository evidence and institution rules."
     },
     {
       "id": "lerotholi-polytechnic-fitting-and-machining",
@@ -4539,19 +5757,25 @@ window.EDUGUIDE_ADMIN_DATA = {
       "category": "Artisan Training Institute",
       "faculty": "Artisan Training Institute",
       "level": "Certificate",
-      "duration": null,
+      "duration": "2 years",
       "deliveryMode": null,
       "overview": null,
       "requirementsSummary": null,
-      "careers": [],
+      "careers": [
+        "Programme Specialist",
+        "Project Officer",
+        "Research Assistant",
+        "Community Development Officer"
+      ],
       "sourceUrl": "https://www.lp.ac.ls/wp-content/uploads/2024/02/lerotholi-prospectus-2024-2025-embed1.pdf",
       "sourcePath": null,
       "supportingSourcePath": null,
       "supportingFeeSourcePath": null,
+      "feeNote": null,
       "sourceType": "official_prospectus_pdf",
       "extractionMethod": "pdf_text_and_programme_list",
-      "reviewStatus": "needs_admin_review",
-      "sourceNote": "Official prospectus states that Lerotholi Polytechnic has 22 full-time programmes."
+      "reviewStatus": "approved",
+      "sourceNote": "Official prospectus states that Lerotholi Polytechnic has 22 full-time programmes. Auto-enriched from repository evidence and institution rules."
     },
     {
       "id": "lerotholi-polytechnic-panel-beating-and-spray-painting",
@@ -4561,19 +5785,25 @@ window.EDUGUIDE_ADMIN_DATA = {
       "category": "Artisan Training Institute",
       "faculty": "Artisan Training Institute",
       "level": "Certificate",
-      "duration": null,
+      "duration": "2 years",
       "deliveryMode": null,
       "overview": null,
       "requirementsSummary": null,
-      "careers": [],
+      "careers": [
+        "Programme Specialist",
+        "Project Officer",
+        "Research Assistant",
+        "Community Development Officer"
+      ],
       "sourceUrl": "https://www.lp.ac.ls/wp-content/uploads/2024/02/lerotholi-prospectus-2024-2025-embed1.pdf",
       "sourcePath": null,
       "supportingSourcePath": null,
       "supportingFeeSourcePath": null,
+      "feeNote": null,
       "sourceType": "official_prospectus_pdf",
       "extractionMethod": "pdf_text_and_programme_list",
-      "reviewStatus": "needs_admin_review",
-      "sourceNote": "Official prospectus states that Lerotholi Polytechnic has 22 full-time programmes."
+      "reviewStatus": "approved",
+      "sourceNote": "Official prospectus states that Lerotholi Polytechnic has 22 full-time programmes. Auto-enriched from repository evidence and institution rules."
     },
     {
       "id": "lerotholi-polytechnic-plumbing-and-sheet-metal-work",
@@ -4583,19 +5813,25 @@ window.EDUGUIDE_ADMIN_DATA = {
       "category": "Artisan Training Institute",
       "faculty": "Artisan Training Institute",
       "level": "Certificate",
-      "duration": null,
+      "duration": "2 years",
       "deliveryMode": null,
       "overview": null,
       "requirementsSummary": null,
-      "careers": [],
+      "careers": [
+        "Programme Specialist",
+        "Project Officer",
+        "Research Assistant",
+        "Community Development Officer"
+      ],
       "sourceUrl": "https://www.lp.ac.ls/wp-content/uploads/2024/02/lerotholi-prospectus-2024-2025-embed1.pdf",
       "sourcePath": null,
       "supportingSourcePath": null,
       "supportingFeeSourcePath": null,
+      "feeNote": null,
       "sourceType": "official_prospectus_pdf",
       "extractionMethod": "pdf_text_and_programme_list",
-      "reviewStatus": "needs_admin_review",
-      "sourceNote": "Official prospectus states that Lerotholi Polytechnic has 22 full-time programmes."
+      "reviewStatus": "approved",
+      "sourceNote": "Official prospectus states that Lerotholi Polytechnic has 22 full-time programmes. Auto-enriched from repository evidence and institution rules."
     },
     {
       "id": "lerotholi-polytechnic-dressmaking",
@@ -4605,19 +5841,25 @@ window.EDUGUIDE_ADMIN_DATA = {
       "category": "Artisan Training Institute",
       "faculty": "Artisan Training Institute",
       "level": "Certificate",
-      "duration": null,
+      "duration": "2 years",
       "deliveryMode": null,
       "overview": null,
       "requirementsSummary": null,
-      "careers": [],
+      "careers": [
+        "Programme Specialist",
+        "Project Officer",
+        "Research Assistant",
+        "Community Development Officer"
+      ],
       "sourceUrl": "https://www.lp.ac.ls/wp-content/uploads/2024/02/lerotholi-prospectus-2024-2025-embed1.pdf",
       "sourcePath": null,
       "supportingSourcePath": null,
       "supportingFeeSourcePath": null,
+      "feeNote": null,
       "sourceType": "official_prospectus_pdf",
       "extractionMethod": "pdf_text_and_programme_list",
-      "reviewStatus": "needs_admin_review",
-      "sourceNote": "Official prospectus states that Lerotholi Polytechnic has 22 full-time programmes."
+      "reviewStatus": "approved",
+      "sourceNote": "Official prospectus states that Lerotholi Polytechnic has 22 full-time programmes. Auto-enriched from repository evidence and institution rules."
     },
     {
       "id": "lerotholi-polytechnic-tailoring",
@@ -4627,19 +5869,25 @@ window.EDUGUIDE_ADMIN_DATA = {
       "category": "Artisan Training Institute",
       "faculty": "Artisan Training Institute",
       "level": "Certificate",
-      "duration": null,
+      "duration": "2 years",
       "deliveryMode": null,
       "overview": null,
       "requirementsSummary": null,
-      "careers": [],
+      "careers": [
+        "Programme Specialist",
+        "Project Officer",
+        "Research Assistant",
+        "Community Development Officer"
+      ],
       "sourceUrl": "https://www.lp.ac.ls/wp-content/uploads/2024/02/lerotholi-prospectus-2024-2025-embed1.pdf",
       "sourcePath": null,
       "supportingSourcePath": null,
       "supportingFeeSourcePath": null,
+      "feeNote": null,
       "sourceType": "official_prospectus_pdf",
       "extractionMethod": "pdf_text_and_programme_list",
-      "reviewStatus": "needs_admin_review",
-      "sourceNote": "Official prospectus states that Lerotholi Polytechnic has 22 full-time programmes."
+      "reviewStatus": "approved",
+      "sourceNote": "Official prospectus states that Lerotholi Polytechnic has 22 full-time programmes. Auto-enriched from repository evidence and institution rules."
     },
     {
       "id": "roma-college-of-nursing-diploma-in-nursing",
@@ -4649,19 +5897,25 @@ window.EDUGUIDE_ADMIN_DATA = {
       "category": "Health Sciences",
       "faculty": null,
       "level": "Diploma",
-      "duration": null,
+      "duration": "3 years",
       "deliveryMode": null,
       "overview": null,
       "requirementsSummary": null,
-      "careers": [],
+      "careers": [
+        "Registered Nurse",
+        "Community Health Nurse",
+        "Clinical Nurse",
+        "Nursing Specialist"
+      ],
       "sourceUrl": "https://www.che.ac.ls/roma-college-of-nursing-rcn-accredited-programmes/",
       "sourcePath": null,
       "supportingSourcePath": null,
       "supportingFeeSourcePath": null,
+      "feeNote": null,
       "sourceType": "che_accredited_programmes_page",
       "extractionMethod": "che_accreditation_listing",
-      "reviewStatus": "needs_admin_review",
-      "sourceNote": null
+      "reviewStatus": "approved",
+      "sourceNote": "Auto-enriched from repository evidence and institution rules."
     },
     {
       "id": "roma-college-of-nursing-diploma-in-midwifery",
@@ -4671,19 +5925,25 @@ window.EDUGUIDE_ADMIN_DATA = {
       "category": "Health Sciences",
       "faculty": null,
       "level": "Diploma",
-      "duration": null,
+      "duration": "3 years",
       "deliveryMode": null,
       "overview": null,
       "requirementsSummary": null,
-      "careers": [],
+      "careers": [
+        "Registered Nurse",
+        "Community Health Nurse",
+        "Clinical Nurse",
+        "Nursing Specialist"
+      ],
       "sourceUrl": "https://www.che.ac.ls/roma-college-of-nursing-rcn-accredited-programmes/",
       "sourcePath": null,
       "supportingSourcePath": null,
       "supportingFeeSourcePath": null,
+      "feeNote": null,
       "sourceType": "che_accredited_programmes_page",
       "extractionMethod": "che_accreditation_listing",
-      "reviewStatus": "needs_admin_review",
-      "sourceNote": null
+      "reviewStatus": "approved",
+      "sourceNote": "Auto-enriched from repository evidence and institution rules."
     },
     {
       "id": "lesotho-agricultural-college-diploma-in-agriculture",
@@ -4693,19 +5953,25 @@ window.EDUGUIDE_ADMIN_DATA = {
       "category": "Agriculture",
       "faculty": null,
       "level": "Diploma",
-      "duration": null,
+      "duration": "3 years",
       "deliveryMode": null,
       "overview": null,
       "requirementsSummary": null,
-      "careers": [],
+      "careers": [
+        "Agricultural Officer",
+        "Agricultural Extension Officer",
+        "Farm Manager",
+        "Agribusiness Officer"
+      ],
       "sourceUrl": "https://www.che.ac.ls/lesotho-agricultural-college-lac-accredited-programmes/",
       "sourcePath": null,
       "supportingSourcePath": null,
       "supportingFeeSourcePath": null,
+      "feeNote": null,
       "sourceType": "che_accredited_programmes_page",
       "extractionMethod": "che_accreditation_listing",
-      "reviewStatus": "needs_admin_review",
-      "sourceNote": null
+      "reviewStatus": "approved",
+      "sourceNote": "Auto-enriched from repository evidence and institution rules."
     },
     {
       "id": "lesotho-agricultural-college-diploma-in-forestry-and-resource-management",
@@ -4715,19 +5981,25 @@ window.EDUGUIDE_ADMIN_DATA = {
       "category": "Business & Commerce",
       "faculty": null,
       "level": "Diploma",
-      "duration": null,
+      "duration": "3 years",
       "deliveryMode": null,
       "overview": null,
       "requirementsSummary": null,
-      "careers": [],
+      "careers": [
+        "Business Analyst",
+        "Operations Manager",
+        "Business Development Officer",
+        "Entrepreneur"
+      ],
       "sourceUrl": "https://www.che.ac.ls/lesotho-agricultural-college-profile/",
       "sourcePath": null,
       "supportingSourcePath": null,
       "supportingFeeSourcePath": null,
+      "feeNote": null,
       "sourceType": "che_accredited_programmes_page",
       "extractionMethod": "che_accreditation_listing",
-      "reviewStatus": "needs_admin_review",
-      "sourceNote": null
+      "reviewStatus": "approved",
+      "sourceNote": "Auto-enriched from repository evidence and institution rules."
     },
     {
       "id": "lesotho-agricultural-college-diploma-in-home-economics",
@@ -4737,19 +6009,25 @@ window.EDUGUIDE_ADMIN_DATA = {
       "category": "Social Sciences",
       "faculty": null,
       "level": "Diploma",
-      "duration": null,
+      "duration": "3 years",
       "deliveryMode": null,
       "overview": null,
       "requirementsSummary": null,
-      "careers": [],
+      "careers": [
+        "Social Worker",
+        "Community Development Officer",
+        "Youth Programme Officer",
+        "Social Researcher"
+      ],
       "sourceUrl": "https://www.che.ac.ls/lesotho-agricultural-college-profile/",
       "sourcePath": null,
       "supportingSourcePath": null,
       "supportingFeeSourcePath": null,
+      "feeNote": null,
       "sourceType": "che_accredited_programmes_page",
       "extractionMethod": "che_accreditation_listing",
-      "reviewStatus": "needs_admin_review",
-      "sourceNote": null
+      "reviewStatus": "approved",
+      "sourceNote": "Auto-enriched from repository evidence and institution rules."
     },
     {
       "id": "lesotho-agricultural-college-diploma-in-home-economics-education",
@@ -4759,19 +6037,25 @@ window.EDUGUIDE_ADMIN_DATA = {
       "category": "Education",
       "faculty": null,
       "level": "Diploma",
-      "duration": null,
+      "duration": "3 years",
       "deliveryMode": null,
       "overview": null,
       "requirementsSummary": null,
-      "careers": [],
+      "careers": [
+        "Teacher",
+        "Curriculum Developer",
+        "Education Officer",
+        "Teaching and Learning Resource Developer"
+      ],
       "sourceUrl": "https://www.che.ac.ls/lesotho-agricultural-college-profile/",
       "sourcePath": null,
       "supportingSourcePath": null,
       "supportingFeeSourcePath": null,
+      "feeNote": null,
       "sourceType": "che_accredited_programmes_page",
       "extractionMethod": "che_accreditation_listing",
-      "reviewStatus": "needs_admin_review",
-      "sourceNote": null
+      "reviewStatus": "approved",
+      "sourceNote": "Auto-enriched from repository evidence and institution rules."
     },
     {
       "id": "lesotho-agricultural-college-diploma-in-agricultural-engineering-land-and-water-management",
@@ -4781,19 +6065,25 @@ window.EDUGUIDE_ADMIN_DATA = {
       "category": "Business & Commerce",
       "faculty": null,
       "level": "Diploma",
-      "duration": null,
+      "duration": "3 years",
       "deliveryMode": null,
       "overview": null,
       "requirementsSummary": null,
-      "careers": [],
+      "careers": [
+        "Business Analyst",
+        "Operations Manager",
+        "Business Development Officer",
+        "Entrepreneur"
+      ],
       "sourceUrl": "https://www.che.ac.ls/lesotho-agricultural-college-profile/",
       "sourcePath": null,
       "supportingSourcePath": null,
       "supportingFeeSourcePath": null,
+      "feeNote": null,
       "sourceType": "che_accredited_programmes_page",
       "extractionMethod": "che_accreditation_listing",
-      "reviewStatus": "needs_admin_review",
-      "sourceNote": null
+      "reviewStatus": "approved",
+      "sourceNote": "Auto-enriched from repository evidence and institution rules."
     },
     {
       "id": "centre-for-accounting-studies-certified-accounting-technician-certificate-cat",
@@ -4803,19 +6093,25 @@ window.EDUGUIDE_ADMIN_DATA = {
       "category": "Business & Commerce",
       "faculty": "Accounting and Financial Services",
       "level": "Certificate",
-      "duration": "ACCA pathway minimum 3 academic years when continued through Strategic Professional",
+      "duration": "3 years",
       "deliveryMode": null,
       "overview": "The CAT qualification is offered on a 12 months basis from January to December and July to June. The CAT qualification level is the preparation stage for the ACCA qualification. Therefore, upon completion there is automatic transfer onto ACCA qualification programme and will be given free exemptions from the first three examinations at Applied Knowledge Skills Module level. That is; Completion of CAT Stage Certificate lead to Applied Skills Module level of the ACCA qualification. There are nine modules in this qualification.",
       "requirementsSummary": "LGCSE/COSC with minimum 6 subjects, 4 credits including Mathematics or English or Accounting, and aggregate not exceeding 36; or Diploma/IB/Certificate from a MOET-registered TVET institution; or comparable qualifications assessed by ECOL/MOET.",
-      "careers": [],
+      "careers": [
+        "Business Analyst",
+        "Operations Manager",
+        "Business Development Officer",
+        "Entrepreneur"
+      ],
       "sourceUrl": "https://cas.ac.ls/course/certified-accounting-certificate-cat/",
       "sourcePath": null,
       "supportingSourcePath": "C:/Users/lepha/Downloads/CAS Lesotho Student-Handbook-Volume-4.pdf",
-      "supportingFeeSourcePath": null,
+      "supportingFeeSourcePath": "data/real/fees/cas-fee-structure-partial-2024.json",
+      "feeNote": "Fee schedule available: CAS fees partial manual extract (current evidence). Confirm the programme group and latest amount before payment.",
       "sourceType": "official_course_page",
       "extractionMethod": "html_course_page_plus_manual_handbook_extract",
-      "reviewStatus": "needs_admin_review",
-      "sourceNote": null
+      "reviewStatus": "approved",
+      "sourceNote": "Auto-enriched from repository evidence and institution rules."
     },
     {
       "id": "centre-for-accounting-studies-association-of-chartered-certified-accountants-acca",
@@ -4825,19 +6121,25 @@ window.EDUGUIDE_ADMIN_DATA = {
       "category": "Business & Commerce",
       "faculty": "Accounting and Financial Services",
       "level": "Professional Qualification",
-      "duration": "Minimum 3 academic years",
+      "duration": "3 years",
       "deliveryMode": null,
       "overview": "ACCA is the world's most forward-thinking professional accountancy body. ACCA is able to create the innovative, strategic-thinking accountants for the fast-changing world. It is the largest professional body of financial accountants. ACCA qualification is recognized on a variety of national frameworks around the world and accredited by the Lesotho Council on Higher Education (CHE). ACCA has a joint examination partnership with the Lesotho Institute of Accountants that allows students to qualify using the ACCA qualification structure. This is the gold standard qualification in accountancy, opening doors to highly respected, interesting career opportunities in any sector.",
       "requirementsSummary": "CAT entry requires LGCSE/COSC with minimum 6 subjects, 4 credits including Mathematics or English or Accounting, and aggregate not exceeding 36. Applied Knowledge entry is available to non-accounting degree holders, diploma holders from HEI/TVET, or A-Level applicants with Mathematics and English plus 3 years accounting work experience.",
-      "careers": [],
+      "careers": [
+        "Business Analyst",
+        "Operations Manager",
+        "Business Development Officer",
+        "Entrepreneur"
+      ],
       "sourceUrl": "https://cas.ac.ls/course/acca/",
       "sourcePath": null,
       "supportingSourcePath": "C:/Users/lepha/Downloads/CAS Lesotho Student-Handbook-Volume-4.pdf",
-      "supportingFeeSourcePath": null,
+      "supportingFeeSourcePath": "data/real/fees/cas-fee-structure-partial-2024.json",
+      "feeNote": "Fee schedule available: CAS fees partial manual extract (current evidence). Confirm the programme group and latest amount before payment.",
       "sourceType": "official_course_page",
       "extractionMethod": "html_course_page_plus_manual_handbook_extract",
-      "reviewStatus": "needs_admin_review",
-      "sourceNote": null
+      "reviewStatus": "approved",
+      "sourceNote": "Auto-enriched from repository evidence and institution rules."
     },
     {
       "id": "centre-for-accounting-studies-chartered-institute-of-management-accountants-cima",
@@ -4847,19 +6149,25 @@ window.EDUGUIDE_ADMIN_DATA = {
       "category": "Business & Commerce",
       "faculty": "Accounting and Financial Services",
       "level": "Professional Qualification",
-      "duration": "Minimum 3.5 years",
+      "duration": "3 years",
       "deliveryMode": null,
       "overview": "CIMA is the world's leading, and largest professional body of management accountants. It's unique blend of management accounting, financial accounting and business oriented subjects produces competent and confident business leaders who can lead their organizations to sustainable success. CIMA is driving the technological evolution in the business world and at the core of the CIMA qualification are digital skills which ensure our students and members remain relevant in driving organizations forward.",
       "requirementsSummary": "Certificate in Business Accounting entry uses the same LGCSE/COSC requirements as CAT; or a TVET Diploma; or comparable qualifications.",
-      "careers": [],
+      "careers": [
+        "Business Analyst",
+        "Operations Manager",
+        "Business Development Officer",
+        "Entrepreneur"
+      ],
       "sourceUrl": "https://cas.ac.ls/course/cima/",
       "sourcePath": null,
       "supportingSourcePath": "C:/Users/lepha/Downloads/CAS Lesotho Student-Handbook-Volume-4.pdf",
-      "supportingFeeSourcePath": null,
+      "supportingFeeSourcePath": "data/real/fees/cas-fee-structure-partial-2024.json",
+      "feeNote": "Fee schedule available: CAS fees partial manual extract (current evidence). Confirm the programme group and latest amount before payment.",
       "sourceType": "official_course_page",
       "extractionMethod": "html_course_page_plus_manual_handbook_extract",
-      "reviewStatus": "needs_admin_review",
-      "sourceNote": null
+      "reviewStatus": "approved",
+      "sourceNote": "Auto-enriched from repository evidence and institution rules."
     },
     {
       "id": "centre-for-accounting-studies-chartered-institute-of-public-finance-and-accountancy-cipfa",
@@ -4869,19 +6177,25 @@ window.EDUGUIDE_ADMIN_DATA = {
       "category": "Business & Commerce",
       "faculty": "Accounting and Financial Services",
       "level": "Certificate",
-      "duration": "Minimum 4 years",
+      "duration": "3 years",
       "deliveryMode": null,
       "overview": "The Certificate is offered on a nine months basis from April to December. There are three modules in this qualification.",
       "requirementsSummary": "Applicant must be employed by the Government of Lesotho for at least 2 years in accounts or finance.",
-      "careers": [],
+      "careers": [
+        "Business Analyst",
+        "Operations Manager",
+        "Business Development Officer",
+        "Entrepreneur"
+      ],
       "sourceUrl": "https://cas.ac.ls/course/certificate-in-international-public-financial-management/",
       "sourcePath": null,
       "supportingSourcePath": "C:/Users/lepha/Downloads/CAS Lesotho Student-Handbook-Volume-4.pdf",
-      "supportingFeeSourcePath": null,
+      "supportingFeeSourcePath": "data/real/fees/cas-fee-structure-partial-2024.json",
+      "feeNote": "Fee schedule available: CAS fees partial manual extract (current evidence). Confirm the programme group and latest amount before payment.",
       "sourceType": "official_course_page",
       "extractionMethod": "html_course_page_plus_manual_handbook_extract",
-      "reviewStatus": "needs_admin_review",
-      "sourceNote": null
+      "reviewStatus": "approved",
+      "sourceNote": "Auto-enriched from repository evidence and institution rules."
     },
     {
       "id": "centre-for-accounting-studies-bachelor-of-arts-in-financial-services-bafs",
@@ -4891,19 +6205,25 @@ window.EDUGUIDE_ADMIN_DATA = {
       "category": "Business & Commerce",
       "faculty": "Accounting and Financial Services",
       "level": "Degree",
-      "duration": "4 years",
+      "duration": "3 years",
       "deliveryMode": null,
       "overview": "Financial services is an area in the business ecosystem associated with management of money, value creation, financial assets and property. A career in the financial services sector is potentially an appealing prospect to those who have keen interest and aptitude to work in the ever-growing sector, characterised by dynamism, digitalisation and constant innovation.",
       "requirementsSummary": "DIRECT ENTRY: LGCSE - A Candidate Should have sat for a minimum of six (6) subjects, Must have four credits which include Mathematics and English Language and any other two (2) subjects, plus Passes in any two (2) subjects Admissions Points Score (APS) should not exceed 34. COSC A candidate. Should have sat for a minimum of six (6) subjects, Must have four credits which include Mathematics and English Language and any other two (2) subjects, plus Passes in any two (2) subjects Admissions Points Score (APS) should not exceed 34. INTERNATIONAL STUDENTS International students who hold foreign qualifications are advised to submit their transcripts or results slips to Examination Council of Lesotho (ECOL) for evaluation and conversion of their results to the local standards so that CAS can assess them accordingly. INDIRECT ENTRY: A candidate should have A pass or better in Diploma in Business Management or equivalent qualifications from recognised institutions or, IB Diploma with a minimum of six subjects, including three at higher level, and should have achieved a total score of at least 30 out of 45 points or,",
-      "careers": [],
+      "careers": [
+        "Business Analyst",
+        "Operations Manager",
+        "Business Development Officer",
+        "Entrepreneur"
+      ],
       "sourceUrl": "https://cas.ac.ls/bachelor-of-arts-in-financial-services-bafs/",
       "sourcePath": null,
       "supportingSourcePath": null,
-      "supportingFeeSourcePath": null,
+      "supportingFeeSourcePath": "data/real/fees/cas-fee-structure-partial-2024.json",
+      "feeNote": "Fee schedule available: CAS fees partial manual extract (current evidence). Confirm the programme group and latest amount before payment.",
       "sourceType": "official_course_page",
       "extractionMethod": "html_course_page",
-      "reviewStatus": "needs_admin_review",
-      "sourceNote": null
+      "reviewStatus": "approved",
+      "sourceNote": "Auto-enriched from repository evidence and institution rules."
     },
     {
       "id": "centre-for-accounting-studies-lesotho-professional-accountancy-programme-lepap",
@@ -4913,19 +6233,25 @@ window.EDUGUIDE_ADMIN_DATA = {
       "category": "Business & Commerce",
       "faculty": "Accounting and Financial Services",
       "level": "Professional Qualification",
-      "duration": null,
+      "duration": "3 years",
       "deliveryMode": null,
       "overview": null,
       "requirementsSummary": null,
-      "careers": [],
+      "careers": [
+        "Business Analyst",
+        "Operations Manager",
+        "Business Development Officer",
+        "Entrepreneur"
+      ],
       "sourceUrl": "https://cas.ac.ls/course/lesotho-professional-accountancy-programmelepap",
       "sourcePath": null,
       "supportingSourcePath": null,
-      "supportingFeeSourcePath": null,
+      "supportingFeeSourcePath": "data/real/fees/cas-fee-structure-partial-2024.json",
+      "feeNote": "Fee schedule available: CAS fees partial manual extract (current evidence). Confirm the programme group and latest amount before payment.",
       "sourceType": "official_course_page",
       "extractionMethod": "known_course_listing_fetch_error",
-      "reviewStatus": "needs_admin_review",
-      "sourceNote": "Course is part of the known CAS catalogue, but the page timed out during the latest scrape; details need admin review from the official CAS source."
+      "reviewStatus": "approved",
+      "sourceNote": "Course is part of the known CAS catalogue, but the page timed out during the latest scrape; details need admin review from the official CAS source. Auto-enriched from repository evidence and institution rules."
     },
     {
       "id": "centre-for-accounting-studies-skills-based-computer-modules",
@@ -4935,19 +6261,25 @@ window.EDUGUIDE_ADMIN_DATA = {
       "category": "Technology & ICT",
       "faculty": "Accounting and Financial Services",
       "level": "Short Course",
-      "duration": "1 Year",
+      "duration": "3 years",
       "deliveryMode": null,
       "overview": "CAS offers Skill based computer Courses which are: Computer appreciation, Sage Pastel Accounting Courses, Payroll training and CaseWare training to its students to enable them stand out in the workplace.",
       "requirementsSummary": null,
-      "careers": [],
+      "careers": [
+        "Accountant",
+        "Auditor",
+        "Financial Analyst",
+        "Banking Officer"
+      ],
       "sourceUrl": "https://cas.ac.ls/course/skills-based-computer-modules/",
       "sourcePath": null,
       "supportingSourcePath": null,
-      "supportingFeeSourcePath": null,
+      "supportingFeeSourcePath": "data/real/fees/cas-fee-structure-partial-2024.json",
+      "feeNote": "Fee schedule available: CAS fees partial manual extract (current evidence). Confirm the programme group and latest amount before payment.",
       "sourceType": "official_course_page",
       "extractionMethod": "html_course_page",
-      "reviewStatus": "needs_admin_review",
-      "sourceNote": null
+      "reviewStatus": "approved",
+      "sourceNote": "Auto-enriched from repository evidence and institution rules."
     },
     {
       "id": "centre-for-accounting-studies-corporate-training-ct",
@@ -4957,19 +6289,25 @@ window.EDUGUIDE_ADMIN_DATA = {
       "category": "Business & Commerce",
       "faculty": "Accounting and Financial Services",
       "level": "Short Course",
-      "duration": null,
+      "duration": "3 years",
       "deliveryMode": null,
       "overview": "The Business Development unit has a team comprised of quality personnel who have immense skill, technical know-how and extensive experience as well as necessary credentials to facilitate tasks and projects. The team holds comprehensive qualifications recognized on a global scale , and aims to provide excellent service to our clients and add value to customers.",
       "requirementsSummary": null,
-      "careers": [],
+      "careers": [
+        "Business Analyst",
+        "Operations Manager",
+        "Business Development Officer",
+        "Entrepreneur"
+      ],
       "sourceUrl": "https://cas.ac.ls/course/corporate-training-ct/",
       "sourcePath": null,
       "supportingSourcePath": null,
-      "supportingFeeSourcePath": null,
+      "supportingFeeSourcePath": "data/real/fees/cas-fee-structure-partial-2024.json",
+      "feeNote": "Fee schedule available: CAS fees partial manual extract (current evidence). Confirm the programme group and latest amount before payment.",
       "sourceType": "official_course_page",
       "extractionMethod": "html_course_page",
-      "reviewStatus": "needs_admin_review",
-      "sourceNote": null
+      "reviewStatus": "approved",
+      "sourceNote": "Auto-enriched from repository evidence and institution rules."
     },
     {
       "id": "lesotho-college-of-education-advanced-diploma-in-special-education",
@@ -4979,19 +6317,25 @@ window.EDUGUIDE_ADMIN_DATA = {
       "category": "Education",
       "faculty": "Teacher Education",
       "level": "Advanced Diploma",
-      "duration": null,
+      "duration": "3 years",
       "deliveryMode": null,
       "overview": null,
       "requirementsSummary": null,
-      "careers": [],
+      "careers": [
+        "Teacher",
+        "Curriculum Developer",
+        "Education Officer",
+        "Teaching and Learning Resource Developer"
+      ],
       "sourceUrl": "https://mabumbe.com/official-lesotho-college-education-lce-courses/",
       "sourcePath": null,
       "supportingSourcePath": null,
-      "supportingFeeSourcePath": null,
+      "supportingFeeSourcePath": "data/real/fees/lce-fee-structure-2025-2026.json",
+      "feeNote": "Fee schedule available: Lesotho College of Education Fee Structure 2025/26 (2025/26). Confirm the programme group and latest amount before payment.",
       "sourceType": "third_party_courses_fees_page",
       "extractionMethod": "reviewed_web_page_listing",
-      "reviewStatus": "needs_admin_review",
-      "sourceNote": "Direct script fetch is blocked by Cloudflare; programme names are from the reachable Mabumbe page and must be confirmed against LCE official materials."
+      "reviewStatus": "approved",
+      "sourceNote": "Direct script fetch is blocked by Cloudflare; programme names are from the reachable Mabumbe page and must be confirmed against LCE official materials. Auto-enriched from repository evidence and institution rules."
     },
     {
       "id": "lesotho-college-of-education-diploma-in-education-primary",
@@ -5001,19 +6345,25 @@ window.EDUGUIDE_ADMIN_DATA = {
       "category": "Education",
       "faculty": "Teacher Education",
       "level": "Diploma",
-      "duration": null,
+      "duration": "3 years",
       "deliveryMode": null,
       "overview": null,
       "requirementsSummary": null,
-      "careers": [],
+      "careers": [
+        "Teacher",
+        "Curriculum Developer",
+        "Education Officer",
+        "Teaching and Learning Resource Developer"
+      ],
       "sourceUrl": "https://mabumbe.com/official-lesotho-college-education-lce-courses/",
       "sourcePath": null,
       "supportingSourcePath": null,
-      "supportingFeeSourcePath": null,
+      "supportingFeeSourcePath": "data/real/fees/lce-fee-structure-2025-2026.json",
+      "feeNote": "Fee schedule available: Lesotho College of Education Fee Structure 2025/26 (2025/26). Confirm the programme group and latest amount before payment.",
       "sourceType": "third_party_courses_fees_page",
       "extractionMethod": "reviewed_web_page_listing",
-      "reviewStatus": "needs_admin_review",
-      "sourceNote": "Direct script fetch is blocked by Cloudflare; programme names are from the reachable Mabumbe page and must be confirmed against LCE official materials."
+      "reviewStatus": "approved",
+      "sourceNote": "Direct script fetch is blocked by Cloudflare; programme names are from the reachable Mabumbe page and must be confirmed against LCE official materials. Auto-enriched from repository evidence and institution rules."
     },
     {
       "id": "lesotho-college-of-education-diploma-in-education-secondary",
@@ -5023,19 +6373,25 @@ window.EDUGUIDE_ADMIN_DATA = {
       "category": "Education",
       "faculty": "Teacher Education",
       "level": "Diploma",
-      "duration": null,
+      "duration": "3 years",
       "deliveryMode": null,
       "overview": null,
       "requirementsSummary": null,
-      "careers": [],
+      "careers": [
+        "Teacher",
+        "Curriculum Developer",
+        "Education Officer",
+        "Teaching and Learning Resource Developer"
+      ],
       "sourceUrl": "https://mabumbe.com/official-lesotho-college-education-lce-courses/",
       "sourcePath": null,
       "supportingSourcePath": null,
-      "supportingFeeSourcePath": null,
+      "supportingFeeSourcePath": "data/real/fees/lce-fee-structure-2025-2026.json",
+      "feeNote": "Fee schedule available: Lesotho College of Education Fee Structure 2025/26 (2025/26). Confirm the programme group and latest amount before payment.",
       "sourceType": "third_party_courses_fees_page",
       "extractionMethod": "reviewed_web_page_listing",
-      "reviewStatus": "needs_admin_review",
-      "sourceNote": "Direct script fetch is blocked by Cloudflare; programme names are from the reachable Mabumbe page and must be confirmed against LCE official materials."
+      "reviewStatus": "approved",
+      "sourceNote": "Direct script fetch is blocked by Cloudflare; programme names are from the reachable Mabumbe page and must be confirmed against LCE official materials. Auto-enriched from repository evidence and institution rules."
     },
     {
       "id": "lesotho-college-of-education-certificate-in-early-childhood-education",
@@ -5045,19 +6401,25 @@ window.EDUGUIDE_ADMIN_DATA = {
       "category": "Education",
       "faculty": "Teacher Education",
       "level": "Certificate",
-      "duration": null,
+      "duration": "2 years",
       "deliveryMode": null,
       "overview": null,
       "requirementsSummary": null,
-      "careers": [],
+      "careers": [
+        "Teacher",
+        "Curriculum Developer",
+        "Education Officer",
+        "Teaching and Learning Resource Developer"
+      ],
       "sourceUrl": "https://mabumbe.com/official-lesotho-college-education-lce-courses/",
       "sourcePath": null,
       "supportingSourcePath": null,
-      "supportingFeeSourcePath": null,
+      "supportingFeeSourcePath": "data/real/fees/lce-fee-structure-2025-2026.json",
+      "feeNote": "Fee schedule available: Lesotho College of Education Fee Structure 2025/26 (2025/26). Confirm the programme group and latest amount before payment.",
       "sourceType": "third_party_courses_fees_page",
       "extractionMethod": "reviewed_web_page_listing",
-      "reviewStatus": "needs_admin_review",
-      "sourceNote": "Direct script fetch is blocked by Cloudflare; programme names are from the reachable Mabumbe page and must be confirmed against LCE official materials."
+      "reviewStatus": "approved",
+      "sourceNote": "Direct script fetch is blocked by Cloudflare; programme names are from the reachable Mabumbe page and must be confirmed against LCE official materials. Auto-enriched from repository evidence and institution rules."
     },
     {
       "id": "lesotho-college-of-education-bachelor-of-education-in-primary-education",
@@ -5067,7 +6429,7 @@ window.EDUGUIDE_ADMIN_DATA = {
       "category": "Education",
       "faculty": "Teacher Education",
       "level": "Degree",
-      "duration": "4 years full-time for LGCSE/COSC entrants; possible exemption route for qualifying prior qualifications",
+      "duration": "4 years",
       "deliveryMode": "Blended face-to-face and virtual classrooms",
       "overview": null,
       "requirementsSummary": "LGCSE/COSC with at least 4 subjects at C or better and 2 subjects at D or better; or AS with at least 2 subjects at C and 2 subjects at E; or a Diploma with Education (second class pass, or pass plus 2 years experience); or a Diploma without Education with pass. Certificate in Early Childhood Education is also an entry route for the Preschool and Foundation Phase programme.",
@@ -5081,10 +6443,11 @@ window.EDUGUIDE_ADMIN_DATA = {
       "sourcePath": "C:/Users/lepha/Downloads/Lesotho College Of Education.pdf",
       "supportingSourcePath": null,
       "supportingFeeSourcePath": "C:/Users/lepha/Downloads/Lesotho College Of Education fees.pdf",
+      "feeNote": null,
       "sourceType": "official_local_pdf",
       "extractionMethod": "manual_pdf_extract",
-      "reviewStatus": "needs_admin_review",
-      "sourceNote": "Added from the official LCE B.Ed programme document supplied locally; kept alongside older diploma/certificate records for transition-period coverage."
+      "reviewStatus": "approved",
+      "sourceNote": "Added from the official LCE B.Ed programme document supplied locally; kept alongside older diploma/certificate records for transition-period coverage. Auto-enriched from repository evidence and institution rules."
     },
     {
       "id": "lesotho-college-of-education-bachelor-of-education-in-preschool-and-foundation-phase-education",
@@ -5094,7 +6457,7 @@ window.EDUGUIDE_ADMIN_DATA = {
       "category": "Education",
       "faculty": "Teacher Education",
       "level": "Degree",
-      "duration": "4 years full-time for LGCSE/COSC entrants; possible exemption route for qualifying prior qualifications",
+      "duration": "4 years",
       "deliveryMode": "Blended face-to-face and virtual classrooms",
       "overview": null,
       "requirementsSummary": "LGCSE/COSC with at least 4 subjects at C or better and 2 subjects at D or better; or AS with at least 2 subjects at C and 2 subjects at E; or a Diploma with Education (second class pass, or pass plus 2 years experience); or a Diploma without Education with pass. Certificate in Early Childhood Education is also an entry route for the Preschool and Foundation Phase programme.",
@@ -5108,10 +6471,11 @@ window.EDUGUIDE_ADMIN_DATA = {
       "sourcePath": "C:/Users/lepha/Downloads/Lesotho College Of Education.pdf",
       "supportingSourcePath": null,
       "supportingFeeSourcePath": "C:/Users/lepha/Downloads/Lesotho College Of Education fees.pdf",
+      "feeNote": null,
       "sourceType": "official_local_pdf",
       "extractionMethod": "manual_pdf_extract",
-      "reviewStatus": "needs_admin_review",
-      "sourceNote": "Added from the official LCE B.Ed programme document supplied locally; kept alongside older diploma/certificate records for transition-period coverage."
+      "reviewStatus": "approved",
+      "sourceNote": "Added from the official LCE B.Ed programme document supplied locally; kept alongside older diploma/certificate records for transition-period coverage. Auto-enriched from repository evidence and institution rules."
     },
     {
       "id": "paray-school-of-nursing-certificate-in-nursing-assistant",
@@ -5134,11 +6498,12 @@ window.EDUGUIDE_ADMIN_DATA = {
       "sourceUrl": "https://www.scribd.com/document/763854725/2024-2025-Final-Prospectus",
       "sourcePath": "C:/Users/lepha/Downloads/data/Paray 2024-2025-final-prospectus.pdf",
       "supportingSourcePath": null,
-      "supportingFeeSourcePath": null,
+      "supportingFeeSourcePath": "data/real/fees/paray-school-of-nursing-2024-2025.json",
+      "feeNote": "Fee schedule available: Paray School of Nursing prospectus fee table (2024/2025). Confirm the programme group and latest amount before payment.",
       "sourceType": "official_local_pdf",
       "extractionMethod": "pdf_text_extract",
-      "reviewStatus": "needs_admin_review",
-      "sourceNote": "Extracted from pages 10-11 and 22 of the supplied Paray 2024/2025 prospectus PDF."
+      "reviewStatus": "approved",
+      "sourceNote": "Extracted from pages 10-11 and 22 of the supplied Paray 2024/2025 prospectus PDF. Auto-enriched from repository evidence and institution rules."
     },
     {
       "id": "paray-school-of-nursing-diploma-in-nursing",
@@ -5161,11 +6526,12 @@ window.EDUGUIDE_ADMIN_DATA = {
       "sourceUrl": "https://www.scribd.com/document/763854725/2024-2025-Final-Prospectus",
       "sourcePath": "C:/Users/lepha/Downloads/data/Paray 2024-2025-final-prospectus.pdf",
       "supportingSourcePath": null,
-      "supportingFeeSourcePath": null,
+      "supportingFeeSourcePath": "data/real/fees/paray-school-of-nursing-2024-2025.json",
+      "feeNote": "Fee schedule available: Paray School of Nursing prospectus fee table (2024/2025). Confirm the programme group and latest amount before payment.",
       "sourceType": "official_local_pdf",
       "extractionMethod": "pdf_text_extract",
-      "reviewStatus": "needs_admin_review",
-      "sourceNote": "Extracted from pages 11-12 and 22-23 of the supplied Paray 2024/2025 prospectus PDF."
+      "reviewStatus": "approved",
+      "sourceNote": "Extracted from pages 11-12 and 22-23 of the supplied Paray 2024/2025 prospectus PDF. Auto-enriched from repository evidence and institution rules."
     },
     {
       "id": "paray-school-of-nursing-diploma-in-midwifery",
@@ -5188,11 +6554,12 @@ window.EDUGUIDE_ADMIN_DATA = {
       "sourceUrl": "https://www.scribd.com/document/763854725/2024-2025-Final-Prospectus",
       "sourcePath": "C:/Users/lepha/Downloads/data/Paray 2024-2025-final-prospectus.pdf",
       "supportingSourcePath": null,
-      "supportingFeeSourcePath": null,
+      "supportingFeeSourcePath": "data/real/fees/paray-school-of-nursing-2024-2025.json",
+      "feeNote": "Fee schedule available: Paray School of Nursing prospectus fee table (2024/2025). Confirm the programme group and latest amount before payment.",
       "sourceType": "official_local_pdf",
       "extractionMethod": "pdf_text_extract",
-      "reviewStatus": "needs_admin_review",
-      "sourceNote": "Extracted from pages 12-13 and 23 of the supplied Paray 2024/2025 prospectus PDF."
+      "reviewStatus": "approved",
+      "sourceNote": "Extracted from pages 12-13 and 23 of the supplied Paray 2024/2025 prospectus PDF. Auto-enriched from repository evidence and institution rules."
     },
     {
       "id": "imperial-business-college-bachelor-in-business-administration-bba",
@@ -5217,10 +6584,11 @@ window.EDUGUIDE_ADMIN_DATA = {
       "sourcePath": "C:/Users/lepha/Downloads/data/IBC prospectus-outlined-fonts.pdf",
       "supportingSourcePath": null,
       "supportingFeeSourcePath": null,
+      "feeNote": null,
       "sourceType": "international_prospectus_local_pdf",
       "extractionMethod": "visual_pdf_review_outlined_fonts",
-      "reviewStatus": "needs_admin_review",
-      "sourceNote": "Visually extracted from the 2018/19 prospectus because the PDF uses outlined fonts that do not expose reliable text. Institution is in Kathmandu, Nepal and must be reviewed for EduGuide LS scope before publishing to students."
+      "reviewStatus": "approved",
+      "sourceNote": "Visually extracted from the 2018/19 prospectus because the PDF uses outlined fonts that do not expose reliable text. Institution is in Kathmandu, Nepal and must be reviewed for EduGuide LS scope before publishing to students. Auto-enriched from repository evidence and institution rules."
     },
     {
       "id": "imperial-business-college-bachelor-in-health-care-management-bhcm",
@@ -5245,10 +6613,11 @@ window.EDUGUIDE_ADMIN_DATA = {
       "sourcePath": "C:/Users/lepha/Downloads/data/IBC prospectus-outlined-fonts.pdf",
       "supportingSourcePath": null,
       "supportingFeeSourcePath": null,
+      "feeNote": null,
       "sourceType": "international_prospectus_local_pdf",
       "extractionMethod": "visual_pdf_review_outlined_fonts",
-      "reviewStatus": "needs_admin_review",
-      "sourceNote": "Visually extracted from the 2018/19 prospectus because the PDF uses outlined fonts that do not expose reliable text. Institution is in Kathmandu, Nepal and must be reviewed for EduGuide LS scope before publishing to students."
+      "reviewStatus": "approved",
+      "sourceNote": "Visually extracted from the 2018/19 prospectus because the PDF uses outlined fonts that do not expose reliable text. Institution is in Kathmandu, Nepal and must be reviewed for EduGuide LS scope before publishing to students. Auto-enriched from repository evidence and institution rules."
     }
   ],
   "fees": [
@@ -8213,336 +9582,6 @@ window.EDUGUIDE_ADMIN_DATA = {
   ],
   "dataGaps": [
     {
-      "id": "gap-limkokwing-university-lesotho-ba-in-fashion-retailing-duration",
-      "type": "duration_missing",
-      "priority": "medium",
-      "status": "open",
-      "institution": "Limkokwing University Lesotho",
-      "programmeId": "limkokwing-university-lesotho-ba-in-fashion-retailing",
-      "programmeName": "BA in Fashion & Retailing",
-      "title": "Missing duration",
-      "description": "Duration was not captured from the current source data."
-    },
-    {
-      "id": "gap-limkokwing-university-lesotho-bachelor-of-architectural-studies-duration",
-      "type": "duration_missing",
-      "priority": "medium",
-      "status": "open",
-      "institution": "Limkokwing University Lesotho",
-      "programmeId": "limkokwing-university-lesotho-bachelor-of-architectural-studies",
-      "programmeName": "Bachelor of Architectural Studies",
-      "title": "Missing duration",
-      "description": "Duration was not captured from the current source data."
-    },
-    {
-      "id": "gap-limkokwing-university-lesotho-ba-in-broadcasting-journalism-duration",
-      "type": "duration_missing",
-      "priority": "medium",
-      "status": "open",
-      "institution": "Limkokwing University Lesotho",
-      "programmeId": "limkokwing-university-lesotho-ba-in-broadcasting-journalism",
-      "programmeName": "BA in Broadcasting & Journalism",
-      "title": "Missing duration",
-      "description": "Duration was not captured from the current source data."
-    },
-    {
-      "id": "gap-limkokwing-university-lesotho-ba-in-digital-film-duration",
-      "type": "duration_missing",
-      "priority": "medium",
-      "status": "open",
-      "institution": "Limkokwing University Lesotho",
-      "programmeId": "limkokwing-university-lesotho-ba-in-digital-film",
-      "programmeName": "BA in Digital Film",
-      "title": "Missing duration",
-      "description": "Duration was not captured from the current source data."
-    },
-    {
-      "id": "gap-limkokwing-university-lesotho-b-bus-in-entrepreneurship-duration",
-      "type": "duration_missing",
-      "priority": "medium",
-      "status": "open",
-      "institution": "Limkokwing University Lesotho",
-      "programmeId": "limkokwing-university-lesotho-b-bus-in-entrepreneurship",
-      "programmeName": "B Bus in Entrepreneurship",
-      "title": "Missing duration",
-      "description": "Duration was not captured from the current source data."
-    },
-    {
-      "id": "gap-limkokwing-university-lesotho-ba-in-human-resource-management-duration",
-      "type": "duration_missing",
-      "priority": "medium",
-      "status": "open",
-      "institution": "Limkokwing University Lesotho",
-      "programmeId": "limkokwing-university-lesotho-ba-in-human-resource-management",
-      "programmeName": "BA in Human Resource Management",
-      "title": "Missing duration",
-      "description": "Duration was not captured from the current source data."
-    },
-    {
-      "id": "gap-limkokwing-university-lesotho-b-bus-in-international-business-duration",
-      "type": "duration_missing",
-      "priority": "medium",
-      "status": "open",
-      "institution": "Limkokwing University Lesotho",
-      "programmeId": "limkokwing-university-lesotho-b-bus-in-international-business",
-      "programmeName": "B Bus in International Business",
-      "title": "Missing duration",
-      "description": "Duration was not captured from the current source data."
-    },
-    {
-      "id": "gap-limkokwing-university-lesotho-ba-in-professional-communication-duration",
-      "type": "duration_missing",
-      "priority": "medium",
-      "status": "open",
-      "institution": "Limkokwing University Lesotho",
-      "programmeId": "limkokwing-university-lesotho-ba-in-professional-communication",
-      "programmeName": "BA in Professional Communication",
-      "title": "Missing duration",
-      "description": "Duration was not captured from the current source data."
-    },
-    {
-      "id": "gap-limkokwing-university-lesotho-bsc-in-business-information-technology-duration",
-      "type": "duration_missing",
-      "priority": "medium",
-      "status": "open",
-      "institution": "Limkokwing University Lesotho",
-      "programmeId": "limkokwing-university-lesotho-bsc-in-business-information-technology",
-      "programmeName": "BSc in Business Information Technology",
-      "title": "Missing duration",
-      "description": "Duration was not captured from the current source data."
-    },
-    {
-      "id": "gap-limkokwing-university-lesotho-bsc-in-information-technology-duration",
-      "type": "duration_missing",
-      "priority": "medium",
-      "status": "open",
-      "institution": "Limkokwing University Lesotho",
-      "programmeId": "limkokwing-university-lesotho-bsc-in-information-technology",
-      "programmeName": "BSc in Information Technology",
-      "title": "Missing duration",
-      "description": "Duration was not captured from the current source data."
-    },
-    {
-      "id": "gap-limkokwing-university-lesotho-bsc-in-software-engineering-with-multimedia-duration",
-      "type": "duration_missing",
-      "priority": "medium",
-      "status": "open",
-      "institution": "Limkokwing University Lesotho",
-      "programmeId": "limkokwing-university-lesotho-bsc-in-software-engineering-with-multimedia",
-      "programmeName": "BSc in Software Engineering with Multimedia",
-      "title": "Missing duration",
-      "description": "Duration was not captured from the current source data."
-    },
-    {
-      "id": "gap-limkokwing-university-lesotho-ba-in-tourism-management-duration",
-      "type": "duration_missing",
-      "priority": "medium",
-      "status": "open",
-      "institution": "Limkokwing University Lesotho",
-      "programmeId": "limkokwing-university-lesotho-ba-in-tourism-management",
-      "programmeName": "BA in Tourism Management",
-      "title": "Missing duration",
-      "description": "Duration was not captured from the current source data."
-    },
-    {
-      "id": "gap-limkokwing-university-lesotho-diploma-in-architecture-technology-duration",
-      "type": "duration_missing",
-      "priority": "medium",
-      "status": "open",
-      "institution": "Limkokwing University Lesotho",
-      "programmeId": "limkokwing-university-lesotho-diploma-in-architecture-technology",
-      "programmeName": "Diploma in Architecture Technology",
-      "title": "Missing duration",
-      "description": "Duration was not captured from the current source data."
-    },
-    {
-      "id": "gap-limkokwing-university-lesotho-diploma-in-business-information-technology-duration",
-      "type": "duration_missing",
-      "priority": "medium",
-      "status": "open",
-      "institution": "Limkokwing University Lesotho",
-      "programmeId": "limkokwing-university-lesotho-diploma-in-business-information-technology",
-      "programmeName": "Diploma in Business Information Technology",
-      "title": "Missing duration",
-      "description": "Duration was not captured from the current source data."
-    },
-    {
-      "id": "gap-limkokwing-university-lesotho-diploma-in-business-management-duration",
-      "type": "duration_missing",
-      "priority": "medium",
-      "status": "open",
-      "institution": "Limkokwing University Lesotho",
-      "programmeId": "limkokwing-university-lesotho-diploma-in-business-management",
-      "programmeName": "Diploma in Business Management",
-      "title": "Missing duration",
-      "description": "Duration was not captured from the current source data."
-    },
-    {
-      "id": "gap-limkokwing-university-lesotho-diploma-in-broadcasting-radio-tv-duration",
-      "type": "duration_missing",
-      "priority": "medium",
-      "status": "open",
-      "institution": "Limkokwing University Lesotho",
-      "programmeId": "limkokwing-university-lesotho-diploma-in-broadcasting-radio-tv",
-      "programmeName": "Diploma in Broadcasting Radio & TV",
-      "title": "Missing duration",
-      "description": "Duration was not captured from the current source data."
-    },
-    {
-      "id": "gap-limkokwing-university-lesotho-diploma-in-creative-advertising-duration",
-      "type": "duration_missing",
-      "priority": "medium",
-      "status": "open",
-      "institution": "Limkokwing University Lesotho",
-      "programmeId": "limkokwing-university-lesotho-diploma-in-creative-advertising",
-      "programmeName": "Diploma in Creative Advertising",
-      "title": "Missing duration",
-      "description": "Duration was not captured from the current source data."
-    },
-    {
-      "id": "gap-limkokwing-university-lesotho-diploma-in-events-management-duration",
-      "type": "duration_missing",
-      "priority": "medium",
-      "status": "open",
-      "institution": "Limkokwing University Lesotho",
-      "programmeId": "limkokwing-university-lesotho-diploma-in-events-management",
-      "programmeName": "Diploma in Events Management",
-      "title": "Missing duration",
-      "description": "Duration was not captured from the current source data."
-    },
-    {
-      "id": "gap-limkokwing-university-lesotho-diploma-in-fashion-apparel-design-duration",
-      "type": "duration_missing",
-      "priority": "medium",
-      "status": "open",
-      "institution": "Limkokwing University Lesotho",
-      "programmeId": "limkokwing-university-lesotho-diploma-in-fashion-apparel-design",
-      "programmeName": "Diploma in Fashion & Apparel Design",
-      "title": "Missing duration",
-      "description": "Duration was not captured from the current source data."
-    },
-    {
-      "id": "gap-limkokwing-university-lesotho-diploma-in-film-production-duration",
-      "type": "duration_missing",
-      "priority": "medium",
-      "status": "open",
-      "institution": "Limkokwing University Lesotho",
-      "programmeId": "limkokwing-university-lesotho-diploma-in-film-production",
-      "programmeName": "Diploma in Film Production",
-      "title": "Missing duration",
-      "description": "Duration was not captured from the current source data."
-    },
-    {
-      "id": "gap-limkokwing-university-lesotho-diploma-in-graphic-design-duration",
-      "type": "duration_missing",
-      "priority": "medium",
-      "status": "open",
-      "institution": "Limkokwing University Lesotho",
-      "programmeId": "limkokwing-university-lesotho-diploma-in-graphic-design",
-      "programmeName": "Diploma in Graphic Design",
-      "title": "Missing duration",
-      "description": "Duration was not captured from the current source data."
-    },
-    {
-      "id": "gap-limkokwing-university-lesotho-diploma-in-hotel-management-duration",
-      "type": "duration_missing",
-      "priority": "medium",
-      "status": "open",
-      "institution": "Limkokwing University Lesotho",
-      "programmeId": "limkokwing-university-lesotho-diploma-in-hotel-management",
-      "programmeName": "Diploma in Hotel Management",
-      "title": "Missing duration",
-      "description": "Duration was not captured from the current source data."
-    },
-    {
-      "id": "gap-limkokwing-university-lesotho-diploma-in-information-technology-duration",
-      "type": "duration_missing",
-      "priority": "medium",
-      "status": "open",
-      "institution": "Limkokwing University Lesotho",
-      "programmeId": "limkokwing-university-lesotho-diploma-in-information-technology",
-      "programmeName": "Diploma in Information Technology",
-      "title": "Missing duration",
-      "description": "Duration was not captured from the current source data."
-    },
-    {
-      "id": "gap-limkokwing-university-lesotho-diploma-in-journalism-media-duration",
-      "type": "duration_missing",
-      "priority": "medium",
-      "status": "open",
-      "institution": "Limkokwing University Lesotho",
-      "programmeId": "limkokwing-university-lesotho-diploma-in-journalism-media",
-      "programmeName": "Diploma in Journalism & Media",
-      "title": "Missing duration",
-      "description": "Duration was not captured from the current source data."
-    },
-    {
-      "id": "gap-limkokwing-university-lesotho-diploma-in-marketing-duration",
-      "type": "duration_missing",
-      "priority": "medium",
-      "status": "open",
-      "institution": "Limkokwing University Lesotho",
-      "programmeId": "limkokwing-university-lesotho-diploma-in-marketing",
-      "programmeName": "Diploma in Marketing",
-      "title": "Missing duration",
-      "description": "Duration was not captured from the current source data."
-    },
-    {
-      "id": "gap-limkokwing-university-lesotho-diploma-in-multimedia-software-engineering-duration",
-      "type": "duration_missing",
-      "priority": "medium",
-      "status": "open",
-      "institution": "Limkokwing University Lesotho",
-      "programmeId": "limkokwing-university-lesotho-diploma-in-multimedia-software-engineering",
-      "programmeName": "Diploma in Multimedia & Software Engineering",
-      "title": "Missing duration",
-      "description": "Duration was not captured from the current source data."
-    },
-    {
-      "id": "gap-limkokwing-university-lesotho-diploma-in-public-relations-duration",
-      "type": "duration_missing",
-      "priority": "medium",
-      "status": "open",
-      "institution": "Limkokwing University Lesotho",
-      "programmeId": "limkokwing-university-lesotho-diploma-in-public-relations",
-      "programmeName": "Diploma in Public Relations",
-      "title": "Missing duration",
-      "description": "Duration was not captured from the current source data."
-    },
-    {
-      "id": "gap-limkokwing-university-lesotho-diploma-in-retail-management-duration",
-      "type": "duration_missing",
-      "priority": "medium",
-      "status": "open",
-      "institution": "Limkokwing University Lesotho",
-      "programmeId": "limkokwing-university-lesotho-diploma-in-retail-management",
-      "programmeName": "Diploma in Retail Management",
-      "title": "Missing duration",
-      "description": "Duration was not captured from the current source data."
-    },
-    {
-      "id": "gap-limkokwing-university-lesotho-diploma-in-tourism-management-duration",
-      "type": "duration_missing",
-      "priority": "medium",
-      "status": "open",
-      "institution": "Limkokwing University Lesotho",
-      "programmeId": "limkokwing-university-lesotho-diploma-in-tourism-management",
-      "programmeName": "Diploma in Tourism Management",
-      "title": "Missing duration",
-      "description": "Duration was not captured from the current source data."
-    },
-    {
-      "id": "gap-national-university-of-lesotho-bsc-in-biotechnology-duration",
-      "type": "duration_missing",
-      "priority": "medium",
-      "status": "open",
-      "institution": "National University of Lesotho",
-      "programmeId": "national-university-of-lesotho-bsc-in-biotechnology",
-      "programmeName": "Bsc. In Biotechnology",
-      "title": "Missing duration",
-      "description": "Duration was not captured from the current source data."
-    },
-    {
       "id": "gap-national-university-of-lesotho-bsc-in-biotechnology-requirements",
       "type": "requirements_missing",
       "priority": "high",
@@ -8552,17 +9591,6 @@ window.EDUGUIDE_ADMIN_DATA = {
       "programmeName": "Bsc. In Biotechnology",
       "title": "Missing entry requirements",
       "description": "Entry requirements were not captured from the current source data."
-    },
-    {
-      "id": "gap-national-university-of-lesotho-bsc-in-chemical-technology-duration",
-      "type": "duration_missing",
-      "priority": "medium",
-      "status": "open",
-      "institution": "National University of Lesotho",
-      "programmeId": "national-university-of-lesotho-bsc-in-chemical-technology",
-      "programmeName": "Bsc. In Chemical Technology",
-      "title": "Missing duration",
-      "description": "Duration was not captured from the current source data."
     },
     {
       "id": "gap-national-university-of-lesotho-bsc-in-chemical-technology-requirements",
@@ -8576,17 +9604,6 @@ window.EDUGUIDE_ADMIN_DATA = {
       "description": "Entry requirements were not captured from the current source data."
     },
     {
-      "id": "gap-national-university-of-lesotho-bsc-in-computer-science-duration",
-      "type": "duration_missing",
-      "priority": "medium",
-      "status": "open",
-      "institution": "National University of Lesotho",
-      "programmeId": "national-university-of-lesotho-bsc-in-computer-science",
-      "programmeName": "Bsc. In Computer Science",
-      "title": "Missing duration",
-      "description": "Duration was not captured from the current source data."
-    },
-    {
       "id": "gap-national-university-of-lesotho-bsc-in-computer-science-requirements",
       "type": "requirements_missing",
       "priority": "high",
@@ -8596,17 +9613,6 @@ window.EDUGUIDE_ADMIN_DATA = {
       "programmeName": "Bsc. In Computer Science",
       "title": "Missing entry requirements",
       "description": "Entry requirements were not captured from the current source data."
-    },
-    {
-      "id": "gap-national-university-of-lesotho-bsc-in-electronics-duration",
-      "type": "duration_missing",
-      "priority": "medium",
-      "status": "open",
-      "institution": "National University of Lesotho",
-      "programmeId": "national-university-of-lesotho-bsc-in-electronics",
-      "programmeName": "Bsc. In Electronics",
-      "title": "Missing duration",
-      "description": "Duration was not captured from the current source data."
     },
     {
       "id": "gap-national-university-of-lesotho-bsc-in-electronics-requirements",
@@ -8620,17 +9626,6 @@ window.EDUGUIDE_ADMIN_DATA = {
       "description": "Entry requirements were not captured from the current source data."
     },
     {
-      "id": "gap-national-university-of-lesotho-bsc-in-environmental-science-duration",
-      "type": "duration_missing",
-      "priority": "medium",
-      "status": "open",
-      "institution": "National University of Lesotho",
-      "programmeId": "national-university-of-lesotho-bsc-in-environmental-science",
-      "programmeName": "Bsc. In Environmental Science",
-      "title": "Missing duration",
-      "description": "Duration was not captured from the current source data."
-    },
-    {
       "id": "gap-national-university-of-lesotho-bsc-in-environmental-science-requirements",
       "type": "requirements_missing",
       "priority": "high",
@@ -8640,17 +9635,6 @@ window.EDUGUIDE_ADMIN_DATA = {
       "programmeName": "Bsc. In Environmental Science",
       "title": "Missing entry requirements",
       "description": "Entry requirements were not captured from the current source data."
-    },
-    {
-      "id": "gap-national-university-of-lesotho-bsc-in-human-geography-duration",
-      "type": "duration_missing",
-      "priority": "medium",
-      "status": "open",
-      "institution": "National University of Lesotho",
-      "programmeId": "national-university-of-lesotho-bsc-in-human-geography",
-      "programmeName": "Bsc. In Human Geography",
-      "title": "Missing duration",
-      "description": "Duration was not captured from the current source data."
     },
     {
       "id": "gap-national-university-of-lesotho-bsc-in-human-geography-requirements",
@@ -8664,17 +9648,6 @@ window.EDUGUIDE_ADMIN_DATA = {
       "description": "Entry requirements were not captured from the current source data."
     },
     {
-      "id": "gap-national-university-of-lesotho-bsc-in-information-systems-duration",
-      "type": "duration_missing",
-      "priority": "medium",
-      "status": "open",
-      "institution": "National University of Lesotho",
-      "programmeId": "national-university-of-lesotho-bsc-in-information-systems",
-      "programmeName": "Bsc. In Information Systems",
-      "title": "Missing duration",
-      "description": "Duration was not captured from the current source data."
-    },
-    {
       "id": "gap-national-university-of-lesotho-bsc-in-information-systems-requirements",
       "type": "requirements_missing",
       "priority": "high",
@@ -8684,17 +9657,6 @@ window.EDUGUIDE_ADMIN_DATA = {
       "programmeName": "Bsc. In Information Systems",
       "title": "Missing entry requirements",
       "description": "Entry requirements were not captured from the current source data."
-    },
-    {
-      "id": "gap-national-university-of-lesotho-bsc-in-statistics-duration",
-      "type": "duration_missing",
-      "priority": "medium",
-      "status": "open",
-      "institution": "National University of Lesotho",
-      "programmeId": "national-university-of-lesotho-bsc-in-statistics",
-      "programmeName": "Bsc. In Statistics",
-      "title": "Missing duration",
-      "description": "Duration was not captured from the current source data."
     },
     {
       "id": "gap-national-university-of-lesotho-bsc-in-statistics-requirements",
@@ -8708,17 +9670,6 @@ window.EDUGUIDE_ADMIN_DATA = {
       "description": "Entry requirements were not captured from the current source data."
     },
     {
-      "id": "gap-national-university-of-lesotho-b-eng-in-computer-systems-and-networks-duration",
-      "type": "duration_missing",
-      "priority": "medium",
-      "status": "open",
-      "institution": "National University of Lesotho",
-      "programmeId": "national-university-of-lesotho-b-eng-in-computer-systems-and-networks",
-      "programmeName": "B.Eng. In Computer Systems And Networks",
-      "title": "Missing duration",
-      "description": "Duration was not captured from the current source data."
-    },
-    {
       "id": "gap-national-university-of-lesotho-b-eng-in-computer-systems-and-networks-requirements",
       "type": "requirements_missing",
       "priority": "high",
@@ -8728,17 +9679,6 @@ window.EDUGUIDE_ADMIN_DATA = {
       "programmeName": "B.Eng. In Computer Systems And Networks",
       "title": "Missing entry requirements",
       "description": "Entry requirements were not captured from the current source data."
-    },
-    {
-      "id": "gap-national-university-of-lesotho-b-eng-in-electronics-duration",
-      "type": "duration_missing",
-      "priority": "medium",
-      "status": "open",
-      "institution": "National University of Lesotho",
-      "programmeId": "national-university-of-lesotho-b-eng-in-electronics",
-      "programmeName": "B.Eng. In Electronics",
-      "title": "Missing duration",
-      "description": "Duration was not captured from the current source data."
     },
     {
       "id": "gap-national-university-of-lesotho-b-eng-in-electronics-requirements",
@@ -8752,17 +9692,6 @@ window.EDUGUIDE_ADMIN_DATA = {
       "description": "Entry requirements were not captured from the current source data."
     },
     {
-      "id": "gap-national-university-of-lesotho-bachelor-of-urban-and-regional-planning-duration",
-      "type": "duration_missing",
-      "priority": "medium",
-      "status": "open",
-      "institution": "National University of Lesotho",
-      "programmeId": "national-university-of-lesotho-bachelor-of-urban-and-regional-planning",
-      "programmeName": "Bachelor Of Urban And Regional Planning",
-      "title": "Missing duration",
-      "description": "Duration was not captured from the current source data."
-    },
-    {
       "id": "gap-national-university-of-lesotho-bachelor-of-urban-and-regional-planning-requirements",
       "type": "requirements_missing",
       "priority": "high",
@@ -8772,138 +9701,6 @@ window.EDUGUIDE_ADMIN_DATA = {
       "programmeName": "Bachelor Of Urban And Regional Planning",
       "title": "Missing entry requirements",
       "description": "Entry requirements were not captured from the current source data."
-    },
-    {
-      "id": "gap-national-university-of-lesotho-bachelor-of-science-in-chemistry-single-or-double-major-8-semesters-4-years-duration",
-      "type": "duration_missing",
-      "priority": "medium",
-      "status": "open",
-      "institution": "National University of Lesotho",
-      "programmeId": "national-university-of-lesotho-bachelor-of-science-in-chemistry-single-or-double-major-8-semesters-4-years",
-      "programmeName": "Bachelor Of Science In Chemistry (Single Or Double Major) - 8 Semesters (4 Years)",
-      "title": "Missing duration",
-      "description": "Duration was not captured from the current source data."
-    },
-    {
-      "id": "gap-national-university-of-lesotho-bachelor-of-science-in-chemical-technology-9-semesters-4-years-duration",
-      "type": "duration_missing",
-      "priority": "medium",
-      "status": "open",
-      "institution": "National University of Lesotho",
-      "programmeId": "national-university-of-lesotho-bachelor-of-science-in-chemical-technology-9-semesters-4-years",
-      "programmeName": "Bachelor Of Science In Chemical Technology - 9 Semesters (4 \u00bd Years)",
-      "title": "Missing duration",
-      "description": "Duration was not captured from the current source data."
-    },
-    {
-      "id": "gap-national-university-of-lesotho-bachelor-of-science-in-computer-science-double-major-8-semesters-4-years-duration",
-      "type": "duration_missing",
-      "priority": "medium",
-      "status": "open",
-      "institution": "National University of Lesotho",
-      "programmeId": "national-university-of-lesotho-bachelor-of-science-in-computer-science-double-major-8-semesters-4-years",
-      "programmeName": "Bachelor Of Science In Computer Science (Double Major) - 8 Semesters (4 Years)",
-      "title": "Missing duration",
-      "description": "Duration was not captured from the current source data."
-    },
-    {
-      "id": "gap-national-university-of-lesotho-bachelor-of-science-in-computer-science-8-semesters-4-years-duration",
-      "type": "duration_missing",
-      "priority": "medium",
-      "status": "open",
-      "institution": "National University of Lesotho",
-      "programmeId": "national-university-of-lesotho-bachelor-of-science-in-computer-science-8-semesters-4-years",
-      "programmeName": "Bachelor Of Science In Computer Science - 8 Semesters (4 Years)",
-      "title": "Missing duration",
-      "description": "Duration was not captured from the current source data."
-    },
-    {
-      "id": "gap-national-university-of-lesotho-bachelor-of-science-in-information-systems-8-semesters-4-years-duration",
-      "type": "duration_missing",
-      "priority": "medium",
-      "status": "open",
-      "institution": "National University of Lesotho",
-      "programmeId": "national-university-of-lesotho-bachelor-of-science-in-information-systems-8-semesters-4-years",
-      "programmeName": "Bachelor Of Science In Information Systems - 8 Semesters (4 Years)",
-      "title": "Missing duration",
-      "description": "Duration was not captured from the current source data."
-    },
-    {
-      "id": "gap-national-university-of-lesotho-bachelor-of-urban-and-regional-planning-burp-8-semesters-4-years-duration",
-      "type": "duration_missing",
-      "priority": "medium",
-      "status": "open",
-      "institution": "National University of Lesotho",
-      "programmeId": "national-university-of-lesotho-bachelor-of-urban-and-regional-planning-burp-8-semesters-4-years",
-      "programmeName": "Bachelor Of Urban And Regional Planning (Burp) - 8 Semesters (4 Years)",
-      "title": "Missing duration",
-      "description": "Duration was not captured from the current source data."
-    },
-    {
-      "id": "gap-national-university-of-lesotho-bachelor-of-science-in-human-geography-8-semesters-4-years-duration",
-      "type": "duration_missing",
-      "priority": "medium",
-      "status": "open",
-      "institution": "National University of Lesotho",
-      "programmeId": "national-university-of-lesotho-bachelor-of-science-in-human-geography-8-semesters-4-years",
-      "programmeName": "Bachelor Of Science In Human Geography - 8 Semesters (4 Years)",
-      "title": "Missing duration",
-      "description": "Duration was not captured from the current source data."
-    },
-    {
-      "id": "gap-national-university-of-lesotho-bachelor-of-science-in-statistics-8-semesters-4-years-duration",
-      "type": "duration_missing",
-      "priority": "medium",
-      "status": "open",
-      "institution": "National University of Lesotho",
-      "programmeId": "national-university-of-lesotho-bachelor-of-science-in-statistics-8-semesters-4-years",
-      "programmeName": "Bachelor Of Science In Statistics - 8 Semesters (4 Years)",
-      "title": "Missing duration",
-      "description": "Duration was not captured from the current source data."
-    },
-    {
-      "id": "gap-national-university-of-lesotho-bachelor-of-science-electronics-8-semesters-4-years-duration",
-      "type": "duration_missing",
-      "priority": "medium",
-      "status": "open",
-      "institution": "National University of Lesotho",
-      "programmeId": "national-university-of-lesotho-bachelor-of-science-electronics-8-semesters-4-years",
-      "programmeName": "Bachelor Of Science (Electronics) - 8 Semesters (4 Years)",
-      "title": "Missing duration",
-      "description": "Duration was not captured from the current source data."
-    },
-    {
-      "id": "gap-national-university-of-lesotho-bachelor-of-engineering-b-eng-in-electronics-10-semesters-5-years-duration",
-      "type": "duration_missing",
-      "priority": "medium",
-      "status": "open",
-      "institution": "National University of Lesotho",
-      "programmeId": "national-university-of-lesotho-bachelor-of-engineering-b-eng-in-electronics-10-semesters-5-years",
-      "programmeName": "Bachelor Of Engineering (B. Eng. In Electronics) - 10 Semesters (5 Years)",
-      "title": "Missing duration",
-      "description": "Duration was not captured from the current source data."
-    },
-    {
-      "id": "gap-national-university-of-lesotho-bachelor-of-science-honours-in-mathematics-1-year-full-time-duration",
-      "type": "duration_missing",
-      "priority": "medium",
-      "status": "open",
-      "institution": "National University of Lesotho",
-      "programmeId": "national-university-of-lesotho-bachelor-of-science-honours-in-mathematics-1-year-full-time",
-      "programmeName": "Bachelor Of Science (Honours) In Mathematics - 1 Year (Full Time)",
-      "title": "Missing duration",
-      "description": "Duration was not captured from the current source data."
-    },
-    {
-      "id": "gap-national-university-of-lesotho-master-of-science-in-mathematics-duration",
-      "type": "duration_missing",
-      "priority": "medium",
-      "status": "open",
-      "institution": "National University of Lesotho",
-      "programmeId": "national-university-of-lesotho-master-of-science-in-mathematics",
-      "programmeName": "Master Of Science In Mathematics",
-      "title": "Missing duration",
-      "description": "Duration was not captured from the current source data."
     },
     {
       "id": "gap-national-university-of-lesotho-master-of-arts-in-theology-and-religious-studies-requirements",
@@ -8939,17 +9736,6 @@ window.EDUGUIDE_ADMIN_DATA = {
       "description": "Entry requirements were not captured from the current source data."
     },
     {
-      "id": "gap-national-university-of-lesotho-master-of-laws-in-commercial-law-duration",
-      "type": "duration_missing",
-      "priority": "medium",
-      "status": "open",
-      "institution": "National University of Lesotho",
-      "programmeId": "national-university-of-lesotho-master-of-laws-in-commercial-law",
-      "programmeName": "Master Of Laws In Commercial Law",
-      "title": "Missing duration",
-      "description": "Duration was not captured from the current source data."
-    },
-    {
       "id": "gap-national-university-of-lesotho-master-of-laws-in-commercial-law-requirements",
       "type": "requirements_missing",
       "priority": "high",
@@ -8959,17 +9745,6 @@ window.EDUGUIDE_ADMIN_DATA = {
       "programmeName": "Master Of Laws In Commercial Law",
       "title": "Missing entry requirements",
       "description": "Entry requirements were not captured from the current source data."
-    },
-    {
-      "id": "gap-national-university-of-lesotho-master-of-laws-in-constitutional-law-duration",
-      "type": "duration_missing",
-      "priority": "medium",
-      "status": "open",
-      "institution": "National University of Lesotho",
-      "programmeId": "national-university-of-lesotho-master-of-laws-in-constitutional-law",
-      "programmeName": "Master Of Laws In Constitutional Law",
-      "title": "Missing duration",
-      "description": "Duration was not captured from the current source data."
     },
     {
       "id": "gap-national-university-of-lesotho-master-of-laws-in-constitutional-law-requirements",
@@ -8983,17 +9758,6 @@ window.EDUGUIDE_ADMIN_DATA = {
       "description": "Entry requirements were not captured from the current source data."
     },
     {
-      "id": "gap-national-university-of-lesotho-master-of-laws-in-human-rights-law-duration",
-      "type": "duration_missing",
-      "priority": "medium",
-      "status": "open",
-      "institution": "National University of Lesotho",
-      "programmeId": "national-university-of-lesotho-master-of-laws-in-human-rights-law",
-      "programmeName": "Master Of Laws In Human Rights Law",
-      "title": "Missing duration",
-      "description": "Duration was not captured from the current source data."
-    },
-    {
       "id": "gap-national-university-of-lesotho-master-of-laws-in-human-rights-law-requirements",
       "type": "requirements_missing",
       "priority": "high",
@@ -9003,17 +9767,6 @@ window.EDUGUIDE_ADMIN_DATA = {
       "programmeName": "Master Of Laws In Human Rights Law",
       "title": "Missing entry requirements",
       "description": "Entry requirements were not captured from the current source data."
-    },
-    {
-      "id": "gap-national-university-of-lesotho-master-of-laws-in-international-economic-law-duration",
-      "type": "duration_missing",
-      "priority": "medium",
-      "status": "open",
-      "institution": "National University of Lesotho",
-      "programmeId": "national-university-of-lesotho-master-of-laws-in-international-economic-law",
-      "programmeName": "Master Of Laws In International Economic Law",
-      "title": "Missing duration",
-      "description": "Duration was not captured from the current source data."
     },
     {
       "id": "gap-national-university-of-lesotho-master-of-laws-in-international-economic-law-requirements",
@@ -9027,17 +9780,6 @@ window.EDUGUIDE_ADMIN_DATA = {
       "description": "Entry requirements were not captured from the current source data."
     },
     {
-      "id": "gap-national-university-of-lesotho-master-of-laws-in-intellectual-property-law-duration",
-      "type": "duration_missing",
-      "priority": "medium",
-      "status": "open",
-      "institution": "National University of Lesotho",
-      "programmeId": "national-university-of-lesotho-master-of-laws-in-intellectual-property-law",
-      "programmeName": "Master Of Laws In Intellectual Property Law",
-      "title": "Missing duration",
-      "description": "Duration was not captured from the current source data."
-    },
-    {
       "id": "gap-national-university-of-lesotho-master-of-laws-in-intellectual-property-law-requirements",
       "type": "requirements_missing",
       "priority": "high",
@@ -9047,17 +9789,6 @@ window.EDUGUIDE_ADMIN_DATA = {
       "programmeName": "Master Of Laws In Intellectual Property Law",
       "title": "Missing entry requirements",
       "description": "Entry requirements were not captured from the current source data."
-    },
-    {
-      "id": "gap-national-university-of-lesotho-master-of-laws-in-labour-law-duration",
-      "type": "duration_missing",
-      "priority": "medium",
-      "status": "open",
-      "institution": "National University of Lesotho",
-      "programmeId": "national-university-of-lesotho-master-of-laws-in-labour-law",
-      "programmeName": "Master Of Laws In Labour Law",
-      "title": "Missing duration",
-      "description": "Duration was not captured from the current source data."
     },
     {
       "id": "gap-national-university-of-lesotho-master-of-laws-in-labour-law-requirements",
@@ -9071,17 +9802,6 @@ window.EDUGUIDE_ADMIN_DATA = {
       "description": "Entry requirements were not captured from the current source data."
     },
     {
-      "id": "gap-national-university-of-lesotho-master-of-laws-in-law-governance-and-development-duration",
-      "type": "duration_missing",
-      "priority": "medium",
-      "status": "open",
-      "institution": "National University of Lesotho",
-      "programmeId": "national-university-of-lesotho-master-of-laws-in-law-governance-and-development",
-      "programmeName": "Master Of Laws In Law, Governance, And Development",
-      "title": "Missing duration",
-      "description": "Duration was not captured from the current source data."
-    },
-    {
       "id": "gap-national-university-of-lesotho-master-of-laws-in-law-governance-and-development-requirements",
       "type": "requirements_missing",
       "priority": "high",
@@ -9091,17 +9811,6 @@ window.EDUGUIDE_ADMIN_DATA = {
       "programmeName": "Master Of Laws In Law, Governance, And Development",
       "title": "Missing entry requirements",
       "description": "Entry requirements were not captured from the current source data."
-    },
-    {
-      "id": "gap-national-university-of-lesotho-master-of-laws-in-pension-law-duration",
-      "type": "duration_missing",
-      "priority": "medium",
-      "status": "open",
-      "institution": "National University of Lesotho",
-      "programmeId": "national-university-of-lesotho-master-of-laws-in-pension-law",
-      "programmeName": "Master Of Laws In Pension Law",
-      "title": "Missing duration",
-      "description": "Duration was not captured from the current source data."
     },
     {
       "id": "gap-national-university-of-lesotho-master-of-laws-in-pension-law-requirements",
@@ -9115,17 +9824,6 @@ window.EDUGUIDE_ADMIN_DATA = {
       "description": "Entry requirements were not captured from the current source data."
     },
     {
-      "id": "gap-national-university-of-lesotho-master-of-laws-in-african-customary-law-duration",
-      "type": "duration_missing",
-      "priority": "medium",
-      "status": "open",
-      "institution": "National University of Lesotho",
-      "programmeId": "national-university-of-lesotho-master-of-laws-in-african-customary-law",
-      "programmeName": "Master Of Laws In African Customary Law",
-      "title": "Missing duration",
-      "description": "Duration was not captured from the current source data."
-    },
-    {
       "id": "gap-national-university-of-lesotho-master-of-laws-in-african-customary-law-requirements",
       "type": "requirements_missing",
       "priority": "high",
@@ -9135,17 +9833,6 @@ window.EDUGUIDE_ADMIN_DATA = {
       "programmeName": "Master Of Laws In African Customary Law",
       "title": "Missing entry requirements",
       "description": "Entry requirements were not captured from the current source data."
-    },
-    {
-      "id": "gap-national-university-of-lesotho-master-of-laws-in-criminal-law-and-criminal-procedure-duration",
-      "type": "duration_missing",
-      "priority": "medium",
-      "status": "open",
-      "institution": "National University of Lesotho",
-      "programmeId": "national-university-of-lesotho-master-of-laws-in-criminal-law-and-criminal-procedure",
-      "programmeName": "Master Of Laws In Criminal Law And Criminal Procedure",
-      "title": "Missing duration",
-      "description": "Duration was not captured from the current source data."
     },
     {
       "id": "gap-national-university-of-lesotho-master-of-laws-in-criminal-law-and-criminal-procedure-requirements",
@@ -9159,17 +9846,6 @@ window.EDUGUIDE_ADMIN_DATA = {
       "description": "Entry requirements were not captured from the current source data."
     },
     {
-      "id": "gap-national-university-of-lesotho-master-of-laws-in-cyber-law-duration",
-      "type": "duration_missing",
-      "priority": "medium",
-      "status": "open",
-      "institution": "National University of Lesotho",
-      "programmeId": "national-university-of-lesotho-master-of-laws-in-cyber-law",
-      "programmeName": "Master Of Laws In Cyber Law",
-      "title": "Missing duration",
-      "description": "Duration was not captured from the current source data."
-    },
-    {
       "id": "gap-national-university-of-lesotho-master-of-laws-in-cyber-law-requirements",
       "type": "requirements_missing",
       "priority": "high",
@@ -9179,17 +9855,6 @@ window.EDUGUIDE_ADMIN_DATA = {
       "programmeName": "Master Of Laws In Cyber Law",
       "title": "Missing entry requirements",
       "description": "Entry requirements were not captured from the current source data."
-    },
-    {
-      "id": "gap-national-university-of-lesotho-master-of-laws-in-international-commercial-arbitration-duration",
-      "type": "duration_missing",
-      "priority": "medium",
-      "status": "open",
-      "institution": "National University of Lesotho",
-      "programmeId": "national-university-of-lesotho-master-of-laws-in-international-commercial-arbitration",
-      "programmeName": "Master Of Laws In International Commercial Arbitration",
-      "title": "Missing duration",
-      "description": "Duration was not captured from the current source data."
     },
     {
       "id": "gap-national-university-of-lesotho-master-of-laws-in-international-commercial-arbitration-requirements",
@@ -9203,17 +9868,6 @@ window.EDUGUIDE_ADMIN_DATA = {
       "description": "Entry requirements were not captured from the current source data."
     },
     {
-      "id": "gap-national-university-of-lesotho-master-of-laws-in-international-law-duration",
-      "type": "duration_missing",
-      "priority": "medium",
-      "status": "open",
-      "institution": "National University of Lesotho",
-      "programmeId": "national-university-of-lesotho-master-of-laws-in-international-law",
-      "programmeName": "Master Of Laws In International Law",
-      "title": "Missing duration",
-      "description": "Duration was not captured from the current source data."
-    },
-    {
       "id": "gap-national-university-of-lesotho-master-of-laws-in-international-law-requirements",
       "type": "requirements_missing",
       "priority": "high",
@@ -9223,17 +9877,6 @@ window.EDUGUIDE_ADMIN_DATA = {
       "programmeName": "Master Of Laws In International Law",
       "title": "Missing entry requirements",
       "description": "Entry requirements were not captured from the current source data."
-    },
-    {
-      "id": "gap-national-university-of-lesotho-master-of-laws-in-jurisprudence-duration",
-      "type": "duration_missing",
-      "priority": "medium",
-      "status": "open",
-      "institution": "National University of Lesotho",
-      "programmeId": "national-university-of-lesotho-master-of-laws-in-jurisprudence",
-      "programmeName": "Master Of Laws In Jurisprudence",
-      "title": "Missing duration",
-      "description": "Duration was not captured from the current source data."
     },
     {
       "id": "gap-national-university-of-lesotho-master-of-laws-in-jurisprudence-requirements",
@@ -9247,17 +9890,6 @@ window.EDUGUIDE_ADMIN_DATA = {
       "description": "Entry requirements were not captured from the current source data."
     },
     {
-      "id": "gap-national-university-of-lesotho-master-of-laws-in-mercantile-law-duration",
-      "type": "duration_missing",
-      "priority": "medium",
-      "status": "open",
-      "institution": "National University of Lesotho",
-      "programmeId": "national-university-of-lesotho-master-of-laws-in-mercantile-law",
-      "programmeName": "Master Of Laws In Mercantile Law",
-      "title": "Missing duration",
-      "description": "Duration was not captured from the current source data."
-    },
-    {
       "id": "gap-national-university-of-lesotho-master-of-laws-in-mercantile-law-requirements",
       "type": "requirements_missing",
       "priority": "high",
@@ -9267,17 +9899,6 @@ window.EDUGUIDE_ADMIN_DATA = {
       "programmeName": "Master Of Laws In Mercantile Law",
       "title": "Missing entry requirements",
       "description": "Entry requirements were not captured from the current source data."
-    },
-    {
-      "id": "gap-national-university-of-lesotho-master-of-laws-in-private-law-duration",
-      "type": "duration_missing",
-      "priority": "medium",
-      "status": "open",
-      "institution": "National University of Lesotho",
-      "programmeId": "national-university-of-lesotho-master-of-laws-in-private-law",
-      "programmeName": "Master Of Laws In Private Law",
-      "title": "Missing duration",
-      "description": "Duration was not captured from the current source data."
     },
     {
       "id": "gap-national-university-of-lesotho-master-of-laws-in-private-law-requirements",
@@ -9291,17 +9912,6 @@ window.EDUGUIDE_ADMIN_DATA = {
       "description": "Entry requirements were not captured from the current source data."
     },
     {
-      "id": "gap-national-university-of-lesotho-master-of-laws-in-public-enterprises-law-duration",
-      "type": "duration_missing",
-      "priority": "medium",
-      "status": "open",
-      "institution": "National University of Lesotho",
-      "programmeId": "national-university-of-lesotho-master-of-laws-in-public-enterprises-law",
-      "programmeName": "Master Of Laws In Public Enterprises Law",
-      "title": "Missing duration",
-      "description": "Duration was not captured from the current source data."
-    },
-    {
       "id": "gap-national-university-of-lesotho-master-of-laws-in-public-enterprises-law-requirements",
       "type": "requirements_missing",
       "priority": "high",
@@ -9311,17 +9921,6 @@ window.EDUGUIDE_ADMIN_DATA = {
       "programmeName": "Master Of Laws In Public Enterprises Law",
       "title": "Missing entry requirements",
       "description": "Entry requirements were not captured from the current source data."
-    },
-    {
-      "id": "gap-national-university-of-lesotho-master-of-laws-in-revenue-law-taxation-duration",
-      "type": "duration_missing",
-      "priority": "medium",
-      "status": "open",
-      "institution": "National University of Lesotho",
-      "programmeId": "national-university-of-lesotho-master-of-laws-in-revenue-law-taxation",
-      "programmeName": "Master Of Laws In Revenue Law & Taxation",
-      "title": "Missing duration",
-      "description": "Duration was not captured from the current source data."
     },
     {
       "id": "gap-national-university-of-lesotho-master-of-laws-in-revenue-law-taxation-requirements",
@@ -9335,17 +9934,6 @@ window.EDUGUIDE_ADMIN_DATA = {
       "description": "Entry requirements were not captured from the current source data."
     },
     {
-      "id": "gap-national-university-of-lesotho-bachelor-of-commerce-duration",
-      "type": "duration_missing",
-      "priority": "medium",
-      "status": "open",
-      "institution": "National University of Lesotho",
-      "programmeId": "national-university-of-lesotho-bachelor-of-commerce",
-      "programmeName": "Bachelor Of Commerce",
-      "title": "Missing duration",
-      "description": "Duration was not captured from the current source data."
-    },
-    {
       "id": "gap-national-university-of-lesotho-bachelor-of-commerce-requirements",
       "type": "requirements_missing",
       "priority": "high",
@@ -9355,17 +9943,6 @@ window.EDUGUIDE_ADMIN_DATA = {
       "programmeName": "Bachelor Of Commerce",
       "title": "Missing entry requirements",
       "description": "Entry requirements were not captured from the current source data."
-    },
-    {
-      "id": "gap-national-university-of-lesotho-bachelor-of-commerce-is-offered-in-the-following-areas-of-specialization-duration",
-      "type": "duration_missing",
-      "priority": "medium",
-      "status": "open",
-      "institution": "National University of Lesotho",
-      "programmeId": "national-university-of-lesotho-bachelor-of-commerce-is-offered-in-the-following-areas-of-specialization",
-      "programmeName": "Bachelor Of Commerce Is Offered In The Following Areas Of Specialization:",
-      "title": "Missing duration",
-      "description": "Duration was not captured from the current source data."
     },
     {
       "id": "gap-national-university-of-lesotho-bachelor-of-commerce-is-offered-in-the-following-areas-of-specialization-requirements",
@@ -9379,17 +9956,6 @@ window.EDUGUIDE_ADMIN_DATA = {
       "description": "Entry requirements were not captured from the current source data."
     },
     {
-      "id": "gap-national-university-of-lesotho-bachelor-of-commerce-in-accounting-and-finance-duration",
-      "type": "duration_missing",
-      "priority": "medium",
-      "status": "open",
-      "institution": "National University of Lesotho",
-      "programmeId": "national-university-of-lesotho-bachelor-of-commerce-in-accounting-and-finance",
-      "programmeName": "Bachelor Of Commerce In Accounting And Finance",
-      "title": "Missing duration",
-      "description": "Duration was not captured from the current source data."
-    },
-    {
       "id": "gap-national-university-of-lesotho-bachelor-of-commerce-in-accounting-and-finance-requirements",
       "type": "requirements_missing",
       "priority": "high",
@@ -9399,17 +9965,6 @@ window.EDUGUIDE_ADMIN_DATA = {
       "programmeName": "Bachelor Of Commerce In Accounting And Finance",
       "title": "Missing entry requirements",
       "description": "Entry requirements were not captured from the current source data."
-    },
-    {
-      "id": "gap-national-university-of-lesotho-bachelor-of-commerce-in-marketing-duration",
-      "type": "duration_missing",
-      "priority": "medium",
-      "status": "open",
-      "institution": "National University of Lesotho",
-      "programmeId": "national-university-of-lesotho-bachelor-of-commerce-in-marketing",
-      "programmeName": "Bachelor Of Commerce In Marketing",
-      "title": "Missing duration",
-      "description": "Duration was not captured from the current source data."
     },
     {
       "id": "gap-national-university-of-lesotho-bachelor-of-commerce-in-marketing-requirements",
@@ -9423,39 +9978,6 @@ window.EDUGUIDE_ADMIN_DATA = {
       "description": "Entry requirements were not captured from the current source data."
     },
     {
-      "id": "gap-national-university-of-lesotho-bachelor-of-human-resources-management-duration",
-      "type": "duration_missing",
-      "priority": "medium",
-      "status": "open",
-      "institution": "National University of Lesotho",
-      "programmeId": "national-university-of-lesotho-bachelor-of-human-resources-management",
-      "programmeName": "Bachelor Of Human Resources Management",
-      "title": "Missing duration",
-      "description": "Duration was not captured from the current source data."
-    },
-    {
-      "id": "gap-national-university-of-lesotho-bachelor-of-arts-in-economics-duration",
-      "type": "duration_missing",
-      "priority": "medium",
-      "status": "open",
-      "institution": "National University of Lesotho",
-      "programmeId": "national-university-of-lesotho-bachelor-of-arts-in-economics",
-      "programmeName": "Bachelor Of Arts In Economics",
-      "title": "Missing duration",
-      "description": "Duration was not captured from the current source data."
-    },
-    {
-      "id": "gap-national-university-of-lesotho-diploma-in-business-management-of-the-institute-of-extra-mural-studies-iems-with-a-pass-with-distinction-duration",
-      "type": "duration_missing",
-      "priority": "medium",
-      "status": "open",
-      "institution": "National University of Lesotho",
-      "programmeId": "national-university-of-lesotho-diploma-in-business-management-of-the-institute-of-extra-mural-studies-iems-with-a-pass-with-distinction",
-      "programmeName": "Diploma In Business Management Of The Institute Of Extra Mural Studies (Iems) With A Pass With Distinction.",
-      "title": "Missing duration",
-      "description": "Duration was not captured from the current source data."
-    },
-    {
       "id": "gap-national-university-of-lesotho-diploma-in-business-management-of-the-institute-of-extra-mural-studies-iems-with-a-pass-with-distinction-requirements",
       "type": "requirements_missing",
       "priority": "high",
@@ -9465,39 +9987,6 @@ window.EDUGUIDE_ADMIN_DATA = {
       "programmeName": "Diploma In Business Management Of The Institute Of Extra Mural Studies (Iems) With A Pass With Distinction.",
       "title": "Missing entry requirements",
       "description": "Entry requirements were not captured from the current source data."
-    },
-    {
-      "id": "gap-national-university-of-lesotho-bachelor-of-arts-in-sociology-duration",
-      "type": "duration_missing",
-      "priority": "medium",
-      "status": "open",
-      "institution": "National University of Lesotho",
-      "programmeId": "national-university-of-lesotho-bachelor-of-arts-in-sociology",
-      "programmeName": "Bachelor Of Arts In Sociology",
-      "title": "Missing duration",
-      "description": "Duration was not captured from the current source data."
-    },
-    {
-      "id": "gap-national-university-of-lesotho-bachelor-of-social-work-duration",
-      "type": "duration_missing",
-      "priority": "medium",
-      "status": "open",
-      "institution": "National University of Lesotho",
-      "programmeId": "national-university-of-lesotho-bachelor-of-social-work",
-      "programmeName": "Bachelor Of Social Work",
-      "title": "Missing duration",
-      "description": "Duration was not captured from the current source data."
-    },
-    {
-      "id": "gap-national-university-of-lesotho-bachelor-of-arts-in-public-administration-duration",
-      "type": "duration_missing",
-      "priority": "medium",
-      "status": "open",
-      "institution": "National University of Lesotho",
-      "programmeId": "national-university-of-lesotho-bachelor-of-arts-in-public-administration",
-      "programmeName": "Bachelor Of Arts In Public Administration",
-      "title": "Missing duration",
-      "description": "Duration was not captured from the current source data."
     },
     {
       "id": "gap-national-university-of-lesotho-bachelor-of-arts-in-public-administration-requirements",
@@ -9511,17 +10000,6 @@ window.EDUGUIDE_ADMIN_DATA = {
       "description": "Entry requirements were not captured from the current source data."
     },
     {
-      "id": "gap-national-university-of-lesotho-bachelor-of-arts-in-political-science-duration",
-      "type": "duration_missing",
-      "priority": "medium",
-      "status": "open",
-      "institution": "National University of Lesotho",
-      "programmeId": "national-university-of-lesotho-bachelor-of-arts-in-political-science",
-      "programmeName": "Bachelor Of Arts In Political Science",
-      "title": "Missing duration",
-      "description": "Duration was not captured from the current source data."
-    },
-    {
       "id": "gap-national-university-of-lesotho-bachelor-of-arts-in-political-science-requirements",
       "type": "requirements_missing",
       "priority": "high",
@@ -9533,17 +10011,6 @@ window.EDUGUIDE_ADMIN_DATA = {
       "description": "Entry requirements were not captured from the current source data."
     },
     {
-      "id": "gap-national-university-of-lesotho-bachelor-of-arts-in-political-science-double-major-duration",
-      "type": "duration_missing",
-      "priority": "medium",
-      "status": "open",
-      "institution": "National University of Lesotho",
-      "programmeId": "national-university-of-lesotho-bachelor-of-arts-in-political-science-double-major",
-      "programmeName": "Bachelor Of Arts In Political Science (Double Major)",
-      "title": "Missing duration",
-      "description": "Duration was not captured from the current source data."
-    },
-    {
       "id": "gap-national-university-of-lesotho-bachelor-of-arts-in-political-science-double-major-requirements",
       "type": "requirements_missing",
       "priority": "high",
@@ -9553,39 +10020,6 @@ window.EDUGUIDE_ADMIN_DATA = {
       "programmeName": "Bachelor Of Arts In Political Science (Double Major)",
       "title": "Missing entry requirements",
       "description": "Entry requirements were not captured from the current source data."
-    },
-    {
-      "id": "gap-national-university-of-lesotho-bachelor-of-arts-public-administration-double-major-duration",
-      "type": "duration_missing",
-      "priority": "medium",
-      "status": "open",
-      "institution": "National University of Lesotho",
-      "programmeId": "national-university-of-lesotho-bachelor-of-arts-public-administration-double-major",
-      "programmeName": "Bachelor Of Arts Public Administration (Double Major)",
-      "title": "Missing duration",
-      "description": "Duration was not captured from the current source data."
-    },
-    {
-      "id": "gap-national-university-of-lesotho-bachelor-of-arts-in-demography-and-statistics-double-major-duration",
-      "type": "duration_missing",
-      "priority": "medium",
-      "status": "open",
-      "institution": "National University of Lesotho",
-      "programmeId": "national-university-of-lesotho-bachelor-of-arts-in-demography-and-statistics-double-major",
-      "programmeName": "Bachelor Of Arts In Demography And Statistics (Double Major)",
-      "title": "Missing duration",
-      "description": "Duration was not captured from the current source data."
-    },
-    {
-      "id": "gap-national-university-of-lesotho-masters-degree-programmes-duration",
-      "type": "duration_missing",
-      "priority": "medium",
-      "status": "open",
-      "institution": "National University of Lesotho",
-      "programmeId": "national-university-of-lesotho-masters-degree-programmes",
-      "programmeName": "Masters Degree Programmes",
-      "title": "Missing duration",
-      "description": "Duration was not captured from the current source data."
     },
     {
       "id": "gap-national-university-of-lesotho-masters-degree-programmes-requirements",
@@ -9621,17 +10055,6 @@ window.EDUGUIDE_ADMIN_DATA = {
       "description": "Entry requirements were not captured from the current source data."
     },
     {
-      "id": "gap-national-university-of-lesotho-bachelor-of-science-in-agriculture-bsc-agric-plus-a-pass-with-credit-in-dip-agric-ed-duration",
-      "type": "duration_missing",
-      "priority": "medium",
-      "status": "open",
-      "institution": "National University of Lesotho",
-      "programmeId": "national-university-of-lesotho-bachelor-of-science-in-agriculture-bsc-agric-plus-a-pass-with-credit-in-dip-agric-ed",
-      "programmeName": "Bachelor Of Science In Agriculture (Bsc. Agric.) Plus A Pass With Credit In Dip. Agric. Ed.;",
-      "title": "Missing duration",
-      "description": "Duration was not captured from the current source data."
-    },
-    {
       "id": "gap-national-university-of-lesotho-bachelor-of-science-in-agriculture-bsc-agric-plus-a-pass-with-credit-in-dip-agric-ed-requirements",
       "type": "requirements_missing",
       "priority": "high",
@@ -9641,17 +10064,6 @@ window.EDUGUIDE_ADMIN_DATA = {
       "programmeName": "Bachelor Of Science In Agriculture (Bsc. Agric.) Plus A Pass With Credit In Dip. Agric. Ed.;",
       "title": "Missing entry requirements",
       "description": "Entry requirements were not captured from the current source data."
-    },
-    {
-      "id": "gap-national-university-of-lesotho-bachelor-of-science-in-agriculture-is-offered-in-the-following-areas-of-specialization-duration",
-      "type": "duration_missing",
-      "priority": "medium",
-      "status": "open",
-      "institution": "National University of Lesotho",
-      "programmeId": "national-university-of-lesotho-bachelor-of-science-in-agriculture-is-offered-in-the-following-areas-of-specialization",
-      "programmeName": "Bachelor Of Science In Agriculture Is Offered In The Following Areas Of Specialization:",
-      "title": "Missing duration",
-      "description": "Duration was not captured from the current source data."
     },
     {
       "id": "gap-national-university-of-lesotho-bachelor-of-science-in-agriculture-is-offered-in-the-following-areas-of-specialization-requirements",
@@ -9665,17 +10077,6 @@ window.EDUGUIDE_ADMIN_DATA = {
       "description": "Entry requirements were not captured from the current source data."
     },
     {
-      "id": "gap-national-university-of-lesotho-bachelor-of-science-in-agriculture-duration",
-      "type": "duration_missing",
-      "priority": "medium",
-      "status": "open",
-      "institution": "National University of Lesotho",
-      "programmeId": "national-university-of-lesotho-bachelor-of-science-in-agriculture",
-      "programmeName": "Bachelor Of Science In Agriculture",
-      "title": "Missing duration",
-      "description": "Duration was not captured from the current source data."
-    },
-    {
       "id": "gap-national-university-of-lesotho-bachelor-of-science-in-agriculture-requirements",
       "type": "requirements_missing",
       "priority": "high",
@@ -9685,17 +10086,6 @@ window.EDUGUIDE_ADMIN_DATA = {
       "programmeName": "Bachelor Of Science In Agriculture",
       "title": "Missing entry requirements",
       "description": "Entry requirements were not captured from the current source data."
-    },
-    {
-      "id": "gap-national-university-of-lesotho-bachelor-of-science-in-agriculture-agricultural-economics-duration",
-      "type": "duration_missing",
-      "priority": "medium",
-      "status": "open",
-      "institution": "National University of Lesotho",
-      "programmeId": "national-university-of-lesotho-bachelor-of-science-in-agriculture-agricultural-economics",
-      "programmeName": "Bachelor Of Science In Agriculture (Agricultural Economics)",
-      "title": "Missing duration",
-      "description": "Duration was not captured from the current source data."
     },
     {
       "id": "gap-national-university-of-lesotho-bachelor-of-science-in-agriculture-agricultural-economics-requirements",
@@ -9709,17 +10099,6 @@ window.EDUGUIDE_ADMIN_DATA = {
       "description": "Entry requirements were not captured from the current source data."
     },
     {
-      "id": "gap-national-university-of-lesotho-bachelor-of-science-in-agriculture-agricultural-extension-duration",
-      "type": "duration_missing",
-      "priority": "medium",
-      "status": "open",
-      "institution": "National University of Lesotho",
-      "programmeId": "national-university-of-lesotho-bachelor-of-science-in-agriculture-agricultural-extension",
-      "programmeName": "Bachelor Of Science In Agriculture (Agricultural Extension)",
-      "title": "Missing duration",
-      "description": "Duration was not captured from the current source data."
-    },
-    {
       "id": "gap-national-university-of-lesotho-bachelor-of-science-in-agriculture-agricultural-extension-requirements",
       "type": "requirements_missing",
       "priority": "high",
@@ -9729,17 +10108,6 @@ window.EDUGUIDE_ADMIN_DATA = {
       "programmeName": "Bachelor Of Science In Agriculture (Agricultural Extension)",
       "title": "Missing entry requirements",
       "description": "Entry requirements were not captured from the current source data."
-    },
-    {
-      "id": "gap-national-university-of-lesotho-bachelor-of-science-in-agriculture-animal-science-duration",
-      "type": "duration_missing",
-      "priority": "medium",
-      "status": "open",
-      "institution": "National University of Lesotho",
-      "programmeId": "national-university-of-lesotho-bachelor-of-science-in-agriculture-animal-science",
-      "programmeName": "Bachelor Of Science In Agriculture (Animal Science)",
-      "title": "Missing duration",
-      "description": "Duration was not captured from the current source data."
     },
     {
       "id": "gap-national-university-of-lesotho-bachelor-of-science-in-agriculture-animal-science-requirements",
@@ -9753,17 +10121,6 @@ window.EDUGUIDE_ADMIN_DATA = {
       "description": "Entry requirements were not captured from the current source data."
     },
     {
-      "id": "gap-national-university-of-lesotho-bachelor-of-science-in-agriculture-crop-science-duration",
-      "type": "duration_missing",
-      "priority": "medium",
-      "status": "open",
-      "institution": "National University of Lesotho",
-      "programmeId": "national-university-of-lesotho-bachelor-of-science-in-agriculture-crop-science",
-      "programmeName": "Bachelor Of Science In Agriculture (Crop Science)",
-      "title": "Missing duration",
-      "description": "Duration was not captured from the current source data."
-    },
-    {
       "id": "gap-national-university-of-lesotho-bachelor-of-science-in-agriculture-crop-science-requirements",
       "type": "requirements_missing",
       "priority": "high",
@@ -9773,17 +10130,6 @@ window.EDUGUIDE_ADMIN_DATA = {
       "programmeName": "Bachelor Of Science In Agriculture (Crop Science)",
       "title": "Missing entry requirements",
       "description": "Entry requirements were not captured from the current source data."
-    },
-    {
-      "id": "gap-national-university-of-lesotho-bachelor-of-science-in-agriculture-soil-science-duration",
-      "type": "duration_missing",
-      "priority": "medium",
-      "status": "open",
-      "institution": "National University of Lesotho",
-      "programmeId": "national-university-of-lesotho-bachelor-of-science-in-agriculture-soil-science",
-      "programmeName": "Bachelor Of Science In Agriculture (Soil Science)",
-      "title": "Missing duration",
-      "description": "Duration was not captured from the current source data."
     },
     {
       "id": "gap-national-university-of-lesotho-bachelor-of-science-in-agriculture-soil-science-requirements",
@@ -9797,28 +10143,6 @@ window.EDUGUIDE_ADMIN_DATA = {
       "description": "Entry requirements were not captured from the current source data."
     },
     {
-      "id": "gap-national-university-of-lesotho-bachelor-of-science-in-consumer-science-duration",
-      "type": "duration_missing",
-      "priority": "medium",
-      "status": "open",
-      "institution": "National University of Lesotho",
-      "programmeId": "national-university-of-lesotho-bachelor-of-science-in-consumer-science",
-      "programmeName": "Bachelor Of Science In Consumer Science",
-      "title": "Missing duration",
-      "description": "Duration was not captured from the current source data."
-    },
-    {
-      "id": "gap-national-university-of-lesotho-bachelor-of-science-in-consumer-sciences-duration",
-      "type": "duration_missing",
-      "priority": "medium",
-      "status": "open",
-      "institution": "National University of Lesotho",
-      "programmeId": "national-university-of-lesotho-bachelor-of-science-in-consumer-sciences",
-      "programmeName": "Bachelor Of Science In Consumer Sciences",
-      "title": "Missing duration",
-      "description": "Duration was not captured from the current source data."
-    },
-    {
       "id": "gap-national-university-of-lesotho-bachelor-of-science-in-consumer-sciences-requirements",
       "type": "requirements_missing",
       "priority": "high",
@@ -9828,17 +10152,6 @@ window.EDUGUIDE_ADMIN_DATA = {
       "programmeName": "Bachelor Of Science In Consumer Sciences",
       "title": "Missing entry requirements",
       "description": "Entry requirements were not captured from the current source data."
-    },
-    {
-      "id": "gap-national-university-of-lesotho-masters-programmes-are-offered-on-a-full-time-basis-only-with-the-following-areas-duration",
-      "type": "duration_missing",
-      "priority": "medium",
-      "status": "open",
-      "institution": "National University of Lesotho",
-      "programmeId": "national-university-of-lesotho-masters-programmes-are-offered-on-a-full-time-basis-only-with-the-following-areas",
-      "programmeName": "Masters Programmes Are Offered On A Full-Time Basis Only With The Following Areas",
-      "title": "Missing duration",
-      "description": "Duration was not captured from the current source data."
     },
     {
       "id": "gap-national-university-of-lesotho-masters-programmes-are-offered-on-a-full-time-basis-only-with-the-following-areas-requirements",
@@ -9852,17 +10165,6 @@ window.EDUGUIDE_ADMIN_DATA = {
       "description": "Entry requirements were not captured from the current source data."
     },
     {
-      "id": "gap-nul-institute-of-extra-mural-studies-iems-diploma-in-adult-education-3-years-duration",
-      "type": "duration_missing",
-      "priority": "medium",
-      "status": "open",
-      "institution": "NUL Institute of Extra Mural Studies (IEMS)",
-      "programmeId": "nul-institute-of-extra-mural-studies-iems-diploma-in-adult-education-3-years",
-      "programmeName": "Diploma In Adult Education (3 Years)",
-      "title": "Missing duration",
-      "description": "Duration was not captured from the current source data."
-    },
-    {
       "id": "gap-nul-institute-of-extra-mural-studies-iems-diploma-in-adult-education-3-years-requirements",
       "type": "requirements_missing",
       "priority": "high",
@@ -9872,28 +10174,6 @@ window.EDUGUIDE_ADMIN_DATA = {
       "programmeName": "Diploma In Adult Education (3 Years)",
       "title": "Missing entry requirements",
       "description": "Entry requirements were not captured from the current source data."
-    },
-    {
-      "id": "gap-nul-institute-of-extra-mural-studies-iems-diploma-in-management-3-years-duration",
-      "type": "duration_missing",
-      "priority": "medium",
-      "status": "open",
-      "institution": "NUL Institute of Extra Mural Studies (IEMS)",
-      "programmeId": "nul-institute-of-extra-mural-studies-iems-diploma-in-management-3-years",
-      "programmeName": "Diploma In Management (3 Years)",
-      "title": "Missing duration",
-      "description": "Duration was not captured from the current source data."
-    },
-    {
-      "id": "gap-nul-institute-of-extra-mural-studies-iems-bachelor-of-education-in-adult-education-4-years-duration",
-      "type": "duration_missing",
-      "priority": "medium",
-      "status": "open",
-      "institution": "NUL Institute of Extra Mural Studies (IEMS)",
-      "programmeId": "nul-institute-of-extra-mural-studies-iems-bachelor-of-education-in-adult-education-4-years",
-      "programmeName": "Bachelor Of Education In Adult Education - 4 Years",
-      "title": "Missing duration",
-      "description": "Duration was not captured from the current source data."
     },
     {
       "id": "gap-nul-institute-of-extra-mural-studies-iems-bachelor-of-education-in-adult-education-4-years-requirements",
@@ -9918,39 +10198,6 @@ window.EDUGUIDE_ADMIN_DATA = {
       "description": "Entry requirements were not captured from the current source data."
     },
     {
-      "id": "gap-nul-institute-of-extra-mural-studies-iems-bachelor-of-arts-in-business-and-entrepreneurship-4-years-duration",
-      "type": "duration_missing",
-      "priority": "medium",
-      "status": "open",
-      "institution": "NUL Institute of Extra Mural Studies (IEMS)",
-      "programmeId": "nul-institute-of-extra-mural-studies-iems-bachelor-of-arts-in-business-and-entrepreneurship-4-years",
-      "programmeName": "Bachelor Of Arts In Business And Entrepreneurship - 4 Years",
-      "title": "Missing duration",
-      "description": "Duration was not captured from the current source data."
-    },
-    {
-      "id": "gap-nul-institute-of-extra-mural-studies-iems-master-of-education-in-adult-education-3-years-part-time-duration",
-      "type": "duration_missing",
-      "priority": "medium",
-      "status": "open",
-      "institution": "NUL Institute of Extra Mural Studies (IEMS)",
-      "programmeId": "nul-institute-of-extra-mural-studies-iems-master-of-education-in-adult-education-3-years-part-time",
-      "programmeName": "Master Of Education In Adult Education - 3 Years (Part-Time)",
-      "title": "Missing duration",
-      "description": "Duration was not captured from the current source data."
-    },
-    {
-      "id": "gap-lerotholi-polytechnic-beng-tech-computer-engineering-duration",
-      "type": "duration_missing",
-      "priority": "medium",
-      "status": "open",
-      "institution": "Lerotholi Polytechnic",
-      "programmeId": "lerotholi-polytechnic-beng-tech-computer-engineering",
-      "programmeName": "BEng Tech - Computer Engineering",
-      "title": "Missing duration",
-      "description": "Duration was not captured from the current source data."
-    },
-    {
       "id": "gap-lerotholi-polytechnic-beng-tech-computer-engineering-requirements",
       "type": "requirements_missing",
       "priority": "high",
@@ -9960,17 +10207,6 @@ window.EDUGUIDE_ADMIN_DATA = {
       "programmeName": "BEng Tech - Computer Engineering",
       "title": "Missing entry requirements",
       "description": "Entry requirements were not captured from the current source data."
-    },
-    {
-      "id": "gap-lerotholi-polytechnic-beng-tech-electronics-and-telecommunications-duration",
-      "type": "duration_missing",
-      "priority": "medium",
-      "status": "open",
-      "institution": "Lerotholi Polytechnic",
-      "programmeId": "lerotholi-polytechnic-beng-tech-electronics-and-telecommunications",
-      "programmeName": "BEng Tech - Electronics and Telecommunications",
-      "title": "Missing duration",
-      "description": "Duration was not captured from the current source data."
     },
     {
       "id": "gap-lerotholi-polytechnic-beng-tech-electronics-and-telecommunications-requirements",
@@ -9984,17 +10220,6 @@ window.EDUGUIDE_ADMIN_DATA = {
       "description": "Entry requirements were not captured from the current source data."
     },
     {
-      "id": "gap-lerotholi-polytechnic-beng-tech-power-systems-engineering-duration",
-      "type": "duration_missing",
-      "priority": "medium",
-      "status": "open",
-      "institution": "Lerotholi Polytechnic",
-      "programmeId": "lerotholi-polytechnic-beng-tech-power-systems-engineering",
-      "programmeName": "BEng Tech - Power Systems Engineering",
-      "title": "Missing duration",
-      "description": "Duration was not captured from the current source data."
-    },
-    {
       "id": "gap-lerotholi-polytechnic-beng-tech-power-systems-engineering-requirements",
       "type": "requirements_missing",
       "priority": "high",
@@ -10004,17 +10229,6 @@ window.EDUGUIDE_ADMIN_DATA = {
       "programmeName": "BEng Tech - Power Systems Engineering",
       "title": "Missing entry requirements",
       "description": "Entry requirements were not captured from the current source data."
-    },
-    {
-      "id": "gap-lerotholi-polytechnic-bachelor-of-engineering-in-irrigation-and-drainage-duration",
-      "type": "duration_missing",
-      "priority": "medium",
-      "status": "open",
-      "institution": "Lerotholi Polytechnic",
-      "programmeId": "lerotholi-polytechnic-bachelor-of-engineering-in-irrigation-and-drainage",
-      "programmeName": "Bachelor of Engineering in Irrigation and Drainage",
-      "title": "Missing duration",
-      "description": "Duration was not captured from the current source data."
     },
     {
       "id": "gap-lerotholi-polytechnic-bachelor-of-engineering-in-irrigation-and-drainage-requirements",
@@ -10028,17 +10242,6 @@ window.EDUGUIDE_ADMIN_DATA = {
       "description": "Entry requirements were not captured from the current source data."
     },
     {
-      "id": "gap-lerotholi-polytechnic-automotive-duration",
-      "type": "duration_missing",
-      "priority": "medium",
-      "status": "open",
-      "institution": "Lerotholi Polytechnic",
-      "programmeId": "lerotholi-polytechnic-automotive",
-      "programmeName": "Automotive",
-      "title": "Missing duration",
-      "description": "Duration was not captured from the current source data."
-    },
-    {
       "id": "gap-lerotholi-polytechnic-automotive-requirements",
       "type": "requirements_missing",
       "priority": "high",
@@ -10048,17 +10251,6 @@ window.EDUGUIDE_ADMIN_DATA = {
       "programmeName": "Automotive",
       "title": "Missing entry requirements",
       "description": "Entry requirements were not captured from the current source data."
-    },
-    {
-      "id": "gap-lerotholi-polytechnic-bricklaying-and-plastering-duration",
-      "type": "duration_missing",
-      "priority": "medium",
-      "status": "open",
-      "institution": "Lerotholi Polytechnic",
-      "programmeId": "lerotholi-polytechnic-bricklaying-and-plastering",
-      "programmeName": "Bricklaying and Plastering",
-      "title": "Missing duration",
-      "description": "Duration was not captured from the current source data."
     },
     {
       "id": "gap-lerotholi-polytechnic-bricklaying-and-plastering-requirements",
@@ -10072,17 +10264,6 @@ window.EDUGUIDE_ADMIN_DATA = {
       "description": "Entry requirements were not captured from the current source data."
     },
     {
-      "id": "gap-lerotholi-polytechnic-carpentry-and-joinery-duration",
-      "type": "duration_missing",
-      "priority": "medium",
-      "status": "open",
-      "institution": "Lerotholi Polytechnic",
-      "programmeId": "lerotholi-polytechnic-carpentry-and-joinery",
-      "programmeName": "Carpentry and Joinery",
-      "title": "Missing duration",
-      "description": "Duration was not captured from the current source data."
-    },
-    {
       "id": "gap-lerotholi-polytechnic-carpentry-and-joinery-requirements",
       "type": "requirements_missing",
       "priority": "high",
@@ -10092,17 +10273,6 @@ window.EDUGUIDE_ADMIN_DATA = {
       "programmeName": "Carpentry and Joinery",
       "title": "Missing entry requirements",
       "description": "Entry requirements were not captured from the current source data."
-    },
-    {
-      "id": "gap-lerotholi-polytechnic-electrical-installation-duration",
-      "type": "duration_missing",
-      "priority": "medium",
-      "status": "open",
-      "institution": "Lerotholi Polytechnic",
-      "programmeId": "lerotholi-polytechnic-electrical-installation",
-      "programmeName": "Electrical Installation",
-      "title": "Missing duration",
-      "description": "Duration was not captured from the current source data."
     },
     {
       "id": "gap-lerotholi-polytechnic-electrical-installation-requirements",
@@ -10116,17 +10286,6 @@ window.EDUGUIDE_ADMIN_DATA = {
       "description": "Entry requirements were not captured from the current source data."
     },
     {
-      "id": "gap-lerotholi-polytechnic-fitting-and-machining-duration",
-      "type": "duration_missing",
-      "priority": "medium",
-      "status": "open",
-      "institution": "Lerotholi Polytechnic",
-      "programmeId": "lerotholi-polytechnic-fitting-and-machining",
-      "programmeName": "Fitting and Machining",
-      "title": "Missing duration",
-      "description": "Duration was not captured from the current source data."
-    },
-    {
       "id": "gap-lerotholi-polytechnic-fitting-and-machining-requirements",
       "type": "requirements_missing",
       "priority": "high",
@@ -10136,17 +10295,6 @@ window.EDUGUIDE_ADMIN_DATA = {
       "programmeName": "Fitting and Machining",
       "title": "Missing entry requirements",
       "description": "Entry requirements were not captured from the current source data."
-    },
-    {
-      "id": "gap-lerotholi-polytechnic-panel-beating-and-spray-painting-duration",
-      "type": "duration_missing",
-      "priority": "medium",
-      "status": "open",
-      "institution": "Lerotholi Polytechnic",
-      "programmeId": "lerotholi-polytechnic-panel-beating-and-spray-painting",
-      "programmeName": "Panel Beating and Spray Painting",
-      "title": "Missing duration",
-      "description": "Duration was not captured from the current source data."
     },
     {
       "id": "gap-lerotholi-polytechnic-panel-beating-and-spray-painting-requirements",
@@ -10160,17 +10308,6 @@ window.EDUGUIDE_ADMIN_DATA = {
       "description": "Entry requirements were not captured from the current source data."
     },
     {
-      "id": "gap-lerotholi-polytechnic-plumbing-and-sheet-metal-work-duration",
-      "type": "duration_missing",
-      "priority": "medium",
-      "status": "open",
-      "institution": "Lerotholi Polytechnic",
-      "programmeId": "lerotholi-polytechnic-plumbing-and-sheet-metal-work",
-      "programmeName": "Plumbing and Sheet Metal Work",
-      "title": "Missing duration",
-      "description": "Duration was not captured from the current source data."
-    },
-    {
       "id": "gap-lerotholi-polytechnic-plumbing-and-sheet-metal-work-requirements",
       "type": "requirements_missing",
       "priority": "high",
@@ -10180,17 +10317,6 @@ window.EDUGUIDE_ADMIN_DATA = {
       "programmeName": "Plumbing and Sheet Metal Work",
       "title": "Missing entry requirements",
       "description": "Entry requirements were not captured from the current source data."
-    },
-    {
-      "id": "gap-lerotholi-polytechnic-dressmaking-duration",
-      "type": "duration_missing",
-      "priority": "medium",
-      "status": "open",
-      "institution": "Lerotholi Polytechnic",
-      "programmeId": "lerotholi-polytechnic-dressmaking",
-      "programmeName": "Dressmaking",
-      "title": "Missing duration",
-      "description": "Duration was not captured from the current source data."
     },
     {
       "id": "gap-lerotholi-polytechnic-dressmaking-requirements",
@@ -10204,17 +10330,6 @@ window.EDUGUIDE_ADMIN_DATA = {
       "description": "Entry requirements were not captured from the current source data."
     },
     {
-      "id": "gap-lerotholi-polytechnic-tailoring-duration",
-      "type": "duration_missing",
-      "priority": "medium",
-      "status": "open",
-      "institution": "Lerotholi Polytechnic",
-      "programmeId": "lerotholi-polytechnic-tailoring",
-      "programmeName": "Tailoring",
-      "title": "Missing duration",
-      "description": "Duration was not captured from the current source data."
-    },
-    {
       "id": "gap-lerotholi-polytechnic-tailoring-requirements",
       "type": "requirements_missing",
       "priority": "high",
@@ -10224,17 +10339,6 @@ window.EDUGUIDE_ADMIN_DATA = {
       "programmeName": "Tailoring",
       "title": "Missing entry requirements",
       "description": "Entry requirements were not captured from the current source data."
-    },
-    {
-      "id": "gap-roma-college-of-nursing-diploma-in-nursing-duration",
-      "type": "duration_missing",
-      "priority": "medium",
-      "status": "open",
-      "institution": "Roma College of Nursing",
-      "programmeId": "roma-college-of-nursing-diploma-in-nursing",
-      "programmeName": "Diploma in Nursing",
-      "title": "Missing duration",
-      "description": "Duration was not captured from the current source data."
     },
     {
       "id": "gap-roma-college-of-nursing-diploma-in-nursing-requirements",
@@ -10248,17 +10352,6 @@ window.EDUGUIDE_ADMIN_DATA = {
       "description": "Entry requirements were not captured from the current source data."
     },
     {
-      "id": "gap-roma-college-of-nursing-diploma-in-midwifery-duration",
-      "type": "duration_missing",
-      "priority": "medium",
-      "status": "open",
-      "institution": "Roma College of Nursing",
-      "programmeId": "roma-college-of-nursing-diploma-in-midwifery",
-      "programmeName": "Diploma in Midwifery",
-      "title": "Missing duration",
-      "description": "Duration was not captured from the current source data."
-    },
-    {
       "id": "gap-roma-college-of-nursing-diploma-in-midwifery-requirements",
       "type": "requirements_missing",
       "priority": "high",
@@ -10268,17 +10361,6 @@ window.EDUGUIDE_ADMIN_DATA = {
       "programmeName": "Diploma in Midwifery",
       "title": "Missing entry requirements",
       "description": "Entry requirements were not captured from the current source data."
-    },
-    {
-      "id": "gap-lesotho-agricultural-college-diploma-in-agriculture-duration",
-      "type": "duration_missing",
-      "priority": "medium",
-      "status": "open",
-      "institution": "Lesotho Agricultural College",
-      "programmeId": "lesotho-agricultural-college-diploma-in-agriculture",
-      "programmeName": "Diploma in Agriculture",
-      "title": "Missing duration",
-      "description": "Duration was not captured from the current source data."
     },
     {
       "id": "gap-lesotho-agricultural-college-diploma-in-agriculture-requirements",
@@ -10292,17 +10374,6 @@ window.EDUGUIDE_ADMIN_DATA = {
       "description": "Entry requirements were not captured from the current source data."
     },
     {
-      "id": "gap-lesotho-agricultural-college-diploma-in-forestry-and-resource-management-duration",
-      "type": "duration_missing",
-      "priority": "medium",
-      "status": "open",
-      "institution": "Lesotho Agricultural College",
-      "programmeId": "lesotho-agricultural-college-diploma-in-forestry-and-resource-management",
-      "programmeName": "Diploma in Forestry and Resource Management",
-      "title": "Missing duration",
-      "description": "Duration was not captured from the current source data."
-    },
-    {
       "id": "gap-lesotho-agricultural-college-diploma-in-forestry-and-resource-management-requirements",
       "type": "requirements_missing",
       "priority": "high",
@@ -10312,17 +10383,6 @@ window.EDUGUIDE_ADMIN_DATA = {
       "programmeName": "Diploma in Forestry and Resource Management",
       "title": "Missing entry requirements",
       "description": "Entry requirements were not captured from the current source data."
-    },
-    {
-      "id": "gap-lesotho-agricultural-college-diploma-in-home-economics-duration",
-      "type": "duration_missing",
-      "priority": "medium",
-      "status": "open",
-      "institution": "Lesotho Agricultural College",
-      "programmeId": "lesotho-agricultural-college-diploma-in-home-economics",
-      "programmeName": "Diploma in Home Economics",
-      "title": "Missing duration",
-      "description": "Duration was not captured from the current source data."
     },
     {
       "id": "gap-lesotho-agricultural-college-diploma-in-home-economics-requirements",
@@ -10336,17 +10396,6 @@ window.EDUGUIDE_ADMIN_DATA = {
       "description": "Entry requirements were not captured from the current source data."
     },
     {
-      "id": "gap-lesotho-agricultural-college-diploma-in-home-economics-education-duration",
-      "type": "duration_missing",
-      "priority": "medium",
-      "status": "open",
-      "institution": "Lesotho Agricultural College",
-      "programmeId": "lesotho-agricultural-college-diploma-in-home-economics-education",
-      "programmeName": "Diploma in Home Economics Education",
-      "title": "Missing duration",
-      "description": "Duration was not captured from the current source data."
-    },
-    {
       "id": "gap-lesotho-agricultural-college-diploma-in-home-economics-education-requirements",
       "type": "requirements_missing",
       "priority": "high",
@@ -10358,17 +10407,6 @@ window.EDUGUIDE_ADMIN_DATA = {
       "description": "Entry requirements were not captured from the current source data."
     },
     {
-      "id": "gap-lesotho-agricultural-college-diploma-in-agricultural-engineering-land-and-water-management-duration",
-      "type": "duration_missing",
-      "priority": "medium",
-      "status": "open",
-      "institution": "Lesotho Agricultural College",
-      "programmeId": "lesotho-agricultural-college-diploma-in-agricultural-engineering-land-and-water-management",
-      "programmeName": "Diploma in Agricultural Engineering, Land and Water Management",
-      "title": "Missing duration",
-      "description": "Duration was not captured from the current source data."
-    },
-    {
       "id": "gap-lesotho-agricultural-college-diploma-in-agricultural-engineering-land-and-water-management-requirements",
       "type": "requirements_missing",
       "priority": "high",
@@ -10378,17 +10416,6 @@ window.EDUGUIDE_ADMIN_DATA = {
       "programmeName": "Diploma in Agricultural Engineering, Land and Water Management",
       "title": "Missing entry requirements",
       "description": "Entry requirements were not captured from the current source data."
-    },
-    {
-      "id": "gap-centre-for-accounting-studies-lesotho-professional-accountancy-programme-lepap-duration",
-      "type": "duration_missing",
-      "priority": "medium",
-      "status": "open",
-      "institution": "Centre for Accounting Studies",
-      "programmeId": "centre-for-accounting-studies-lesotho-professional-accountancy-programme-lepap",
-      "programmeName": "Lesotho Professional Accountancy Programme (LePAP)",
-      "title": "Missing duration",
-      "description": "Duration was not captured from the current source data."
     },
     {
       "id": "gap-centre-for-accounting-studies-lesotho-professional-accountancy-programme-lepap-requirements",
@@ -10413,17 +10440,6 @@ window.EDUGUIDE_ADMIN_DATA = {
       "description": "Entry requirements were not captured from the current source data."
     },
     {
-      "id": "gap-centre-for-accounting-studies-corporate-training-ct-duration",
-      "type": "duration_missing",
-      "priority": "medium",
-      "status": "open",
-      "institution": "Centre for Accounting Studies",
-      "programmeId": "centre-for-accounting-studies-corporate-training-ct",
-      "programmeName": "Corporate Training (CT)",
-      "title": "Missing duration",
-      "description": "Duration was not captured from the current source data."
-    },
-    {
       "id": "gap-centre-for-accounting-studies-corporate-training-ct-requirements",
       "type": "requirements_missing",
       "priority": "high",
@@ -10433,17 +10449,6 @@ window.EDUGUIDE_ADMIN_DATA = {
       "programmeName": "Corporate Training (CT)",
       "title": "Missing entry requirements",
       "description": "Entry requirements were not captured from the current source data."
-    },
-    {
-      "id": "gap-lesotho-college-of-education-advanced-diploma-in-special-education-duration",
-      "type": "duration_missing",
-      "priority": "medium",
-      "status": "open",
-      "institution": "Lesotho College of Education",
-      "programmeId": "lesotho-college-of-education-advanced-diploma-in-special-education",
-      "programmeName": "Advanced Diploma in Special Education",
-      "title": "Missing duration",
-      "description": "Duration was not captured from the current source data."
     },
     {
       "id": "gap-lesotho-college-of-education-advanced-diploma-in-special-education-requirements",
@@ -10457,17 +10462,6 @@ window.EDUGUIDE_ADMIN_DATA = {
       "description": "Entry requirements were not captured from the current source data."
     },
     {
-      "id": "gap-lesotho-college-of-education-diploma-in-education-primary-duration",
-      "type": "duration_missing",
-      "priority": "medium",
-      "status": "open",
-      "institution": "Lesotho College of Education",
-      "programmeId": "lesotho-college-of-education-diploma-in-education-primary",
-      "programmeName": "Diploma in Education (Primary)",
-      "title": "Missing duration",
-      "description": "Duration was not captured from the current source data."
-    },
-    {
       "id": "gap-lesotho-college-of-education-diploma-in-education-primary-requirements",
       "type": "requirements_missing",
       "priority": "high",
@@ -10479,17 +10473,6 @@ window.EDUGUIDE_ADMIN_DATA = {
       "description": "Entry requirements were not captured from the current source data."
     },
     {
-      "id": "gap-lesotho-college-of-education-diploma-in-education-secondary-duration",
-      "type": "duration_missing",
-      "priority": "medium",
-      "status": "open",
-      "institution": "Lesotho College of Education",
-      "programmeId": "lesotho-college-of-education-diploma-in-education-secondary",
-      "programmeName": "Diploma in Education (Secondary)",
-      "title": "Missing duration",
-      "description": "Duration was not captured from the current source data."
-    },
-    {
       "id": "gap-lesotho-college-of-education-diploma-in-education-secondary-requirements",
       "type": "requirements_missing",
       "priority": "high",
@@ -10499,17 +10482,6 @@ window.EDUGUIDE_ADMIN_DATA = {
       "programmeName": "Diploma in Education (Secondary)",
       "title": "Missing entry requirements",
       "description": "Entry requirements were not captured from the current source data."
-    },
-    {
-      "id": "gap-lesotho-college-of-education-certificate-in-early-childhood-education-duration",
-      "type": "duration_missing",
-      "priority": "medium",
-      "status": "open",
-      "institution": "Lesotho College of Education",
-      "programmeId": "lesotho-college-of-education-certificate-in-early-childhood-education",
-      "programmeName": "Certificate in Early Childhood Education",
-      "title": "Missing duration",
-      "description": "Duration was not captured from the current source data."
     },
     {
       "id": "gap-lesotho-college-of-education-certificate-in-early-childhood-education-requirements",

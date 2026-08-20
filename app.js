@@ -147,6 +147,7 @@ const legacyDemoIds = new Set(["demo-student", "demo-admin"]);
 const defaultUsers = [];
 const adminRoles = new Set(["owner", "admin"]);
 const maxActivityItems = 45;
+const catalogueDataVersion = "2026-08-enrichment-1";
 const maxAiChatMessages = 24;
 const calibrationProfiles = {
   arts: {
@@ -1379,6 +1380,7 @@ function applyCustomGaps(customGaps = []) {
 
 function getReviewStateSnapshot() {
   return {
+    catalogueDataVersion,
     customProgrammes: adminProgrammes.filter(isCustomAdminProgramme).map((programme) => ({ ...programme })),
     programmeStatuses: Object.fromEntries(adminProgrammes.map((programme) => [programme.id, programme.reviewStatus])),
     programmeEdits: Object.fromEntries(
@@ -1394,9 +1396,11 @@ function getReviewStateSnapshot() {
 }
 
 function applyReviewState(snapshot) {
-  if (!snapshot) return;
+  if (!snapshot) return false;
   applyCustomProgrammes(snapshot.customProgrammes || []);
   applyCustomGaps(snapshot.customGaps || []);
+  const isCurrentCatalogue = snapshot.catalogueDataVersion === catalogueDataVersion;
+  if (!isCurrentCatalogue) return false;
   const programmeStatuses = snapshot.programmeStatuses || {};
   const programmeEdits = snapshot.programmeEdits || {};
   const gapStatuses = snapshot.gapStatuses || {};
@@ -1407,6 +1411,7 @@ function applyReviewState(snapshot) {
   adminGaps.forEach((gap) => {
     if (gapStatuses[gap.id]) gap.status = gapStatuses[gap.id];
   });
+  return true;
 }
 
 async function loadServerDatabaseState() {
@@ -1429,8 +1434,7 @@ async function loadServerDatabaseState() {
 
     const reviewState = data.state?.review_state;
     if (reviewState) {
-      applyReviewState(reviewState);
-      databaseLoadedReviewState = true;
+      databaseLoadedReviewState = applyReviewState(reviewState);
     }
   } catch (error) {
     serverDatabaseAvailable = false;
@@ -1563,7 +1567,7 @@ function loadLocalReviewState() {
   try {
     const raw = localStorage.getItem(persistenceKey);
     if (!raw) return;
-    applyReviewState(JSON.parse(raw));
+    databaseLoadedReviewState = applyReviewState(JSON.parse(raw));
     lastPersistenceMessage = "Loaded local review state";
   } catch (error) {
     lastPersistenceMessage = "Local review state could not be loaded";

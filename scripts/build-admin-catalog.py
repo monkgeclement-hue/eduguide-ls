@@ -39,6 +39,7 @@ def compact_programme(record: dict[str, Any]) -> dict[str, Any]:
         "sourcePath": record.get("source_path"),
         "supportingSourcePath": record.get("supporting_source_path"),
         "supportingFeeSourcePath": record.get("supporting_fee_source_path"),
+        "feeNote": record.get("fee_note"),
         "sourceType": record.get("source_type"),
         "extractionMethod": record.get("extraction_method"),
         "reviewStatus": record.get("review_status", "needs_admin_review"),
