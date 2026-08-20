@@ -113,6 +113,7 @@ const gradeState = {};
 const interestState = new Set(["Technology & IT", "Natural Sciences"]);
 let latestMatches = [];
 let latestBlockedMatches = [];
+let comparisonProgrammeIds = [];
 let selectedResultInstitution = null;
 let adminProgrammes = structuredClone(adminData.programmes || []);
 let adminGaps = structuredClone(adminData.dataGaps || []);
@@ -3859,6 +3860,7 @@ function toggleShortlist(programmeId) {
 
 function calculateMatches() {
   selectedResultInstitution = null;
+  comparisonProgrammeIds = [];
   const evaluatedMatches = getMatchingCatalogue()
     .map((programme) => ({ ...programme, match: getProgrammeMatch(programme) }))
     .sort((a, b) => getTierRank(a.match.tier) - getTierRank(b.match.tier) || b.match.overall - a.match.overall || b.match.eligibility - a.match.eligibility);
@@ -3886,6 +3888,7 @@ function calculateMatches() {
 
 function renderProgrammeCard(programme) {
   const saved = currentUser?.shortlist?.includes(programme.id);
+  const compared = comparisonProgrammeIds.includes(programme.id);
   const eligibilityBadge = programme.match.eligibility >= 70 ? "green" : programme.match.eligibility >= 45 ? "amber" : "red";
   const confidenceBadge = programme.match.confidence >= 75 ? "green" : programme.match.confidence >= 55 ? "amber" : "red";
   const tier = tierMeta[programme.match.tier] || tierMeta.explore;
@@ -3937,6 +3940,10 @@ function renderProgrammeCard(programme) {
             <i data-lucide="${saved ? "bookmark-check" : "bookmark-plus"}"></i>
             ${saved ? "Saved" : "Save"}
           </button>
+          <button class="secondary-action ${compared ? "active" : ""}" type="button" data-compare-programme="${escapeHtml(programme.id)}">
+            <i data-lucide="${compared ? "check" : "columns-3"}"></i>
+            ${compared ? "Comparing" : "Compare"}
+          </button>
         </div>
       </div>
       <div class="programme-detail">
@@ -3970,6 +3977,56 @@ function renderProgrammeCard(programme) {
           : ""
       }
     </article>
+  `;
+}
+
+function renderProgrammeComparison() {
+  const selected = comparisonProgrammeIds
+    .map((id) => latestMatches.find((programme) => programme.id === id))
+    .filter(Boolean);
+  if (!selected.length) return "";
+  return `
+    <section class="programme-comparison" aria-label="Programme comparison">
+      <div class="programme-comparison-head">
+        <div>
+          <p class="section-kicker">Shortlist decision</p>
+          <h4>Compare selected programmes</h4>
+          <span>Compare up to three recommendations before saving your final choices.</span>
+        </div>
+        <button class="secondary-action compact-action" type="button" data-clear-comparison>
+          <i data-lucide="x"></i>
+          Clear
+        </button>
+      </div>
+      <div class="programme-comparison-scroll">
+        <div class="programme-comparison-grid" style="--comparison-count: ${selected.length}">
+          <div class="comparison-labels" aria-hidden="true">
+            <span>Programme</span>
+            <span>Match</span>
+            <span>Institution</span>
+            <span>Eligibility</span>
+            <span>Duration</span>
+            <span>Funding</span>
+            <span>Level</span>
+            <span>Requirements</span>
+            <span>Careers</span>
+          </div>
+          ${selected.map((programme) => `
+            <article class="comparison-column">
+              <h5>${escapeHtml(programme.title)}</h5>
+              <strong class="comparison-score">${programme.match.overall}%</strong>
+              <span>${escapeHtml(programme.institution)}</span>
+              <span>${programme.match.eligibility}%</span>
+              <span>${escapeHtml(programme.duration)}</span>
+              <span>${programme.match.funding}%</span>
+              <span>${escapeHtml(programme.level)}</span>
+              <span>${escapeHtml(programme.requirements.slice(0, 2).join("; ") || "Requirements under review")}</span>
+              <span>${escapeHtml(programme.careers.slice(0, 3).join(", ") || "Career paths under review")}</span>
+            </article>
+          `).join("")}
+        </div>
+      </div>
+    </section>
   `;
 }
 
@@ -4162,6 +4219,7 @@ function renderInstitutionMatches() {
   const selectedGroup = groups.find((group) => group.institution === selectedResultInstitution);
   if (selectedGroup) {
     return `
+        ${renderProgrammeComparison()}
       <div class="results-school-focus-head">
         <button class="explorer-back-button results-back-button" type="button" data-results-back>
           <i data-lucide="arrow-left"></i>
@@ -4180,6 +4238,7 @@ function renderInstitutionMatches() {
   }
   const tierCounts = getMatchTierCounts();
   return `
+    ${renderProgrammeComparison()}
     <div class="institution-match-summary">
       <div>
         <strong>${groups.length} institution${groups.length === 1 ? "" : "s"} found</strong>
@@ -7640,8 +7699,28 @@ function bindEvents() {
       return;
     }
     const shortlistButton = event.target.closest("[data-shortlist-programme]");
-    if (!shortlistButton) return;
-    toggleShortlist(shortlistButton.dataset.shortlistProgramme);
+    if (shortlistButton) {
+      toggleShortlist(shortlistButton.dataset.shortlistProgramme);
+      return;
+    }
+    const compareButton = event.target.closest("[data-compare-programme]");
+    if (compareButton) {
+      const id = compareButton.dataset.compareProgramme;
+      if (comparisonProgrammeIds.includes(id)) {
+        comparisonProgrammeIds = comparisonProgrammeIds.filter((item) => item !== id);
+      } else if (comparisonProgrammeIds.length < 3) {
+        comparisonProgrammeIds = [...comparisonProgrammeIds, id];
+      } else {
+        setAdminActionStatus("Choose up to three programmes to compare.", "warning");
+      }
+      renderResults();
+      return;
+    }
+    const clearComparisonButton = event.target.closest("[data-clear-comparison]");
+    if (clearComparisonButton) {
+      comparisonProgrammeIds = [];
+      renderResults();
+    }
   });
   qsa("[data-admin-tab]").forEach((button) => {
     button.addEventListener("click", () => setAdminTab(button.dataset.adminTab));
