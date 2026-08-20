@@ -5024,8 +5024,9 @@ function getExplorerProgrammes() {
 }
 
 function isPublicProgramme(programme = {}) {
-  return [programme.reviewStatus, programme.status, programme.publicationStatus]
-    .some((status) => ["approved", "published", "verified"].includes(String(status || "").toLowerCase()));
+  const statuses = [programme.reviewStatus, programme.status, programme.publicationStatus]
+    .map((status) => String(status || "").toLowerCase());
+  return !statuses.includes("rejected") && !statuses.includes("archived");
 }
 
 function getPublicProgrammeCount() {
