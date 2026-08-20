@@ -1833,6 +1833,37 @@ textarea:focus {
   margin-top: 3px;
 }
 
+.results-school-focus-head {
+  display: grid;
+  gap: 10px;
+  margin-bottom: 12px;
+  padding: 12px 13px;
+  border: 1px solid #9bd8c6;
+  border-radius: 8px;
+  background: var(--brand-soft);
+}
+
+.results-school-focus-head > div {
+  display: grid;
+  gap: 3px;
+}
+
+.results-school-focus-head strong {
+  color: var(--brand-deep);
+  font-size: 18px;
+}
+
+.results-school-focus-head span {
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.4;
+}
+
+.results-back-button {
+  display: inline-flex;
+  justify-self: start;
+}
+
 .tier-summary {
   display: flex;
   flex-wrap: wrap;
@@ -1935,6 +1966,14 @@ textarea:focus {
 
 .institution-programmes .programme-card {
   box-shadow: none;
+}
+
+.results-focused-school .institution-match-head {
+  cursor: default;
+}
+
+.results-focused-school .institution-match-head:hover {
+  background: transparent;
 }
 
 .institution-more-note {

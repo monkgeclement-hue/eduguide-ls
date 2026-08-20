@@ -4015,14 +4015,14 @@ function getInstitutionMatchGroups() {
   return Array.from(grouped.values()).sort((a, b) => a.bestTierRank - b.bestTierRank || b.bestOverall - a.bestOverall || b.bestEligibility - a.bestEligibility);
 }
 
-function renderInstitutionGroup(group) {
+function renderInstitutionGroup(group, { focused = false } = {}) {
   const active = selectedResultInstitution === group.institution;
   const eligibilityBadge = group.bestEligibility >= 70 ? "green" : group.bestEligibility >= 45 ? "amber" : "red";
   const bestTier = tierMeta[group.bestTier] || tierMeta.explore;
   const visibleProgrammes = group.programmes.slice(0, 10);
   return `
     <article class="institution-match ${active ? "active" : ""}">
-      <button class="institution-match-head" type="button" data-institution-result="${escapeHtml(group.institution)}" aria-expanded="${active}">
+      ${focused ? `<div class="institution-match-head results-focused-school-head">` : `<button class="institution-match-head" type="button" data-institution-result="${escapeHtml(group.institution)}" aria-expanded="${active}">`}
         <div class="institution-icon">${escapeHtml(group.shortInstitution.slice(0, 4))}</div>
         <div class="institution-match-main">
           <h4>${escapeHtml(group.institution)}</h4>
@@ -4041,9 +4041,9 @@ function renderInstitutionGroup(group) {
         </div>
         <div class="institution-match-score">
           <strong>${group.bestOverall}%</strong>
-          <span>${active ? "Hide" : "View"} programmes</span>
+          <span>${focused ? "Selected school" : active ? "Hide" : "View"} programmes</span>
         </div>
-      </button>
+      ${focused ? `</div>` : `</button>`}
       ${
         active
           ? `<div class="institution-programmes">
@@ -4158,6 +4158,25 @@ function renderInstitutionMatches() {
   }
   if (selectedResultInstitution && !groups.some((group) => group.institution === selectedResultInstitution)) {
     selectedResultInstitution = null;
+  }
+  const selectedGroup = groups.find((group) => group.institution === selectedResultInstitution);
+  if (selectedGroup) {
+    return `
+      <div class="results-school-focus-head">
+        <button class="explorer-back-button results-back-button" type="button" data-results-back>
+          <i data-lucide="arrow-left"></i>
+          All matched schools
+        </button>
+        <div>
+          <p class="section-kicker">Selected school</p>
+          <strong>${escapeHtml(selectedGroup.institution)}</strong>
+          <span>${selectedGroup.programmes.length} matched programme${selectedGroup.programmes.length === 1 ? "" : "s"} with requirements and career paths.</span>
+        </div>
+      </div>
+      <div class="institution-match-list results-focused-school">
+        ${renderInstitutionGroup(selectedGroup, { focused: true })}
+      </div>
+    `;
   }
   const tierCounts = getMatchTierCounts();
   return `
@@ -7562,6 +7581,13 @@ function bindEvents() {
     });
   });
   qs("#view-results")?.addEventListener("click", (event) => {
+    const resultsBackButton = event.target.closest("[data-results-back]");
+    if (resultsBackButton) {
+      selectedResultInstitution = null;
+      renderResults();
+      return;
+    }
+
     const applicationSchoolButton = event.target.closest("[data-application-school]");
     if (applicationSchoolButton) {
       schoolExplorerState.selectedInstitution = applicationSchoolButton.dataset.applicationSchool;
