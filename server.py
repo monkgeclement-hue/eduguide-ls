@@ -204,6 +204,8 @@ def get_db_connection() -> sqlite3.Connection:
   DB_PATH.parent.mkdir(parents=True, exist_ok=True)
   connection = sqlite3.connect(DB_PATH)
   connection.row_factory = sqlite3.Row
+  connection.execute("pragma busy_timeout = 5000")
+  connection.execute("pragma journal_mode = wal")
   return connection
 
 
@@ -3820,12 +3822,12 @@ def index_html() -> FileResponse:
 
 @app.get("/styles.css")
 def styles() -> FileResponse:
-  return cached_file_response(ROOT / "styles.css", media_type="text/css")
+  return cached_file_response(ROOT / "styles.css", media_type="text/css", headers=IMMUTABLE_CACHE_HEADERS)
 
 
 @app.get("/app.js")
 def app_script() -> FileResponse:
-  return cached_file_response(ROOT / "app.js", media_type="application/javascript")
+  return cached_file_response(ROOT / "app.js", media_type="application/javascript", headers=IMMUTABLE_CACHE_HEADERS)
 
 
 @app.get("/manifest.webmanifest")

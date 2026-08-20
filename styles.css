@@ -4289,6 +4289,7 @@ textarea:focus {
 
   body {
     min-width: 320px;
+    overflow-x: hidden;
   }
 
   .app-shell {
@@ -4344,6 +4345,7 @@ textarea:focus {
 
   .workspace {
     padding: 12px 12px calc(96px + env(safe-area-inset-bottom));
+    overflow-x: hidden;
   }
 
   .topbar,
@@ -4363,6 +4365,7 @@ textarea:focus {
   .top-actions {
     justify-content: space-between;
     width: 100%;
+    min-width: 0;
   }
 
   .install-button.compact span {
@@ -4380,6 +4383,7 @@ textarea:focus {
   .user-chip {
     max-width: calc(100vw - 84px);
     overflow: hidden;
+    min-width: 0;
   }
 
   .profile-identity-panel { align-items: flex-start; flex-direction: column; }
@@ -4739,13 +4743,15 @@ textarea:focus {
 
   .institution-match-summary {
     gap: 10px;
-    .profile-match-action {
-      align-items: stretch;
-      flex-direction: column;
-    }
-    .profile-match-action .primary-button {
-      width: 100%;
-    }
+  }
+
+  .profile-match-action {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .profile-match-action .primary-button {
+    width: 100%;
   }
 
   .tier-summary {
@@ -4799,5 +4805,21 @@ textarea:focus {
 
   .ai-chat-panel .ai-action-row {
     grid-template-columns: 1fr;
+  }
+
+  .admin-toolbar input,
+  .admin-toolbar select,
+  .admin-toolbar button,
+  .admin-row-actions button,
+  .detail-actions button {
+    min-height: 44px;
+  }
+
+  .admin-record-list,
+  .admin-detail,
+  .table-scroll,
+  .match-explanation-body {
+    max-width: 100%;
+    overflow-x: auto;
   }
 }

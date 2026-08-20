@@ -15,4 +15,4 @@ RUN mkdir -p data/uploads
 
 EXPOSE 8765
 
-CMD ["sh", "-c", "python -m uvicorn server:app --host 0.0.0.0 --port ${PORT:-8765}"]
+CMD ["sh", "-c", "python -m uvicorn server:app --host 0.0.0.0 --port ${PORT:-8765} --workers ${WEB_CONCURRENCY:-2}"]
