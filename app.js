@@ -129,8 +129,11 @@ let adminState = {
   selectedProgrammeId: adminProgrammes[0]?.id || null,
   selectedUserId: null,
   selectedAuditId: null,
-  editingProgrammeId: null
+  editingProgrammeId: null,
+  reportFrom: "",
+  reportTo: ""
 };
+let resultsFilters = { search: "", institution: "all", level: "all", tier: "all", minimumMatch: "all" };
 let schoolExplorerState = {
   query: "",
   selectedInstitution: adminData.institutions?.[0]?.name || adminProgrammes[0]?.institution || "",
@@ -534,6 +537,7 @@ function normalizeUser(user = {}) {
     grades: user.grades || {},
     documents: Array.isArray(user.documents) ? user.documents : [],
     shortlist: Array.isArray(user.shortlist) ? user.shortlist : [],
+    shortlistPathways: user.shortlistPathways && typeof user.shortlistPathways === "object" ? user.shortlistPathways : {},
     createdAt,
     emailVerifiedAt: user.emailVerifiedAt || createdAt,
     reviewedAt: user.reviewedAt || (isAdminRole(user.role) ? createdAt : null),
@@ -612,7 +616,8 @@ function getCurrentUserPayload() {
     preferenceText: currentUser.preferenceText || "",
     grades: currentUser.grades || {},
     documents: currentUser.documents || [],
-    shortlist: currentUser.shortlist || []
+    shortlist: currentUser.shortlist || [],
+    shortlistPathways: currentUser.shortlistPathways || {}
   };
 }
 
@@ -674,6 +679,17 @@ function renderStudentProfile() {
           </li>
         `).join("")
       : `<li class="profile-empty-activity">No account activity recorded yet.</li>`;
+  }
+  const notificationList = qs("#profile-notification-list");
+  if (notificationList) {
+    const notifications = [];
+    if (getProfileCompletion() < 85) notifications.push({ icon: "user-round-check", title: "Complete your profile", detail: `${getProfileCompletion()}% complete - add details to improve recommendations.` });
+    if ((currentUser.shortlist || []).length) notifications.push({ icon: "bookmark-check", title: "Your saved pathways are ready", detail: `${currentUser.shortlist.length} programme(s) are saved for comparison.` });
+    if ((currentUser.documents || []).some((item) => item.extractionStatus === "completed" || item.extractionStatus === "processed")) notifications.push({ icon: "file-check-2", title: "Document processing completed", detail: "Review extracted results in your Student dashboard." });
+    if ((currentUser.activity || []).some((item) => item.type === "source_outdated_reported")) notifications.push({ icon: "triangle-alert", title: "Source report received", detail: "An admin can review the reported programme source." });
+    notificationList.innerHTML = notifications.length
+      ? notifications.slice(0, 6).map((item) => `<li><i data-lucide="${item.icon}"></i><span><strong>${escapeHtml(item.title)}</strong><small>${escapeHtml(item.detail)}</small></span></li>`).join("")
+      : `<li><i data-lucide="check-circle-2"></i><span><strong>No new notifications</strong><small>Your account is up to date.</small></span></li>`;
   }
   qs("#profile-name")?.replaceChildren(document.createTextNode(currentUser.name || "Student"));
   qs("#profile-email")?.replaceChildren(document.createTextNode(currentUser.email || "Not recorded"));
@@ -3835,9 +3851,11 @@ async function removeDocument(documentId) {
 function toggleShortlist(programmeId) {
   if (!currentUser) return;
   currentUser.shortlist ||= [];
+  currentUser.shortlistPathways ||= {};
   const programme = findProgrammeById(programmeId);
   if (currentUser.shortlist.includes(programmeId)) {
     currentUser.shortlist = currentUser.shortlist.filter((id) => id !== programmeId);
+    delete currentUser.shortlistPathways[programmeId];
     recordCurrentUserActivity("shortlist_updated", "Removed a saved programme", {
       programmeId,
       programmeName: programme?.name,
@@ -3856,6 +3874,58 @@ function toggleShortlist(programmeId) {
   renderResults();
   renderStudentDashboard();
   renderSchoolExplorer();
+}
+
+const pathwayLabels = {
+  primary: "Primary choice",
+  backup: "Backup choice",
+  considering: "Considering",
+  not_interested: "Not interested"
+};
+
+function setShortlistPathway(programmeId, pathway) {
+  if (!currentUser || !currentUser.shortlist?.includes(programmeId)) return;
+  currentUser.shortlistPathways ||= {};
+  if (pathwayLabels[pathway]) currentUser.shortlistPathways[programmeId] = pathway;
+  else delete currentUser.shortlistPathways[programmeId];
+  recordCurrentUserActivity("shortlist_pathway_updated", `Marked programme as ${pathwayLabels[pathway] || "Considering"}`, {
+    programmeId,
+    pathway: pathway || "considering"
+  });
+  saveAuthUsers();
+  renderResults();
+  renderStudentDashboard();
+}
+
+function renderMyPathways() {
+  const saved = (currentUser?.shortlist || [])
+    .map((id) => findProgrammeById(id))
+    .filter(Boolean);
+  if (!saved.length) return "";
+  const pathways = currentUser.shortlistPathways || {};
+  const groups = Object.keys(pathwayLabels).map((key) => ({
+    key,
+    items: saved.filter((programme) => (pathways[programme.id] || "considering") === key)
+  }));
+  return `
+    <section class="my-pathways-panel">
+      <div class="my-pathways-head">
+        <div>
+          <p class="section-kicker">My Pathways</p>
+          <h4>Organise your saved choices</h4>
+        </div>
+        <span>${saved.length} saved</span>
+      </div>
+      <div class="my-pathways-grid">
+        ${groups.map((group) => `
+          <div class="pathway-group ${group.key}">
+            <strong>${pathwayLabels[group.key]}</strong>
+            ${group.items.length ? group.items.slice(0, 4).map((programme) => `<span>${escapeHtml(programme.name || programme.title)}</span>`).join("") : `<small>No programmes yet</small>`}
+          </div>
+        `).join("")}
+      </div>
+    </section>
+  `;
 }
 
 function calculateMatches() {
@@ -3940,6 +4010,9 @@ function renderProgrammeCard(programme) {
             <i data-lucide="${saved ? "bookmark-check" : "bookmark-plus"}"></i>
             ${saved ? "Saved" : "Save"}
           </button>
+          ${saved ? `<label class="pathway-select-label"><span class="sr-only">Pathway category</span><select data-pathway-programme="${escapeHtml(programme.id)}" aria-label="Pathway category for ${escapeHtml(programme.title)}">
+            ${Object.entries(pathwayLabels).map(([value, label]) => `<option value="${value}" ${(currentUser.shortlistPathways?.[programme.id] || "considering") === value ? "selected" : ""}>${label}</option>`).join("")}
+          </select></label>` : ""}
           <button class="secondary-action ${compared ? "active" : ""}" type="button" data-compare-programme="${escapeHtml(programme.id)}">
             <i data-lucide="${compared ? "check" : "columns-3"}"></i>
             ${compared ? "Comparing" : "Compare"}
@@ -4031,7 +4104,15 @@ function renderProgrammeComparison() {
 }
 
 function getInstitutionMatchGroups() {
-  const displayMatches = latestMatches;
+  const displayMatches = latestMatches.filter((programme) => {
+    const text = `${programme.title} ${programme.institution} ${programme.faculty} ${programme.category}`.toLowerCase();
+    const minimum = resultsFilters.minimumMatch === "all" ? 0 : Number(resultsFilters.minimumMatch);
+    return (!resultsFilters.search || text.includes(resultsFilters.search.toLowerCase()))
+      && (resultsFilters.institution === "all" || programme.institution === resultsFilters.institution)
+      && (resultsFilters.level === "all" || programme.level === resultsFilters.level)
+      && (resultsFilters.tier === "all" || programme.match.tier === resultsFilters.tier)
+      && programme.match.overall >= minimum;
+  });
   const grouped = new Map();
   displayMatches.forEach((programme) => {
     const key = programme.institution || "Unknown institution";
@@ -4238,7 +4319,15 @@ function renderInstitutionMatches() {
   }
   const tierCounts = getMatchTierCounts();
   return `
+    ${renderMyPathways()}
     ${renderProgrammeComparison()}
+    <div class="results-filter-bar">
+      <input type="search" placeholder="Filter programmes or schools" value="${escapeHtml(resultsFilters.search)}" data-results-filter="search">
+      <select data-results-filter="institution"><option value="all">All schools</option>${Array.from(new Set(latestMatches.map((item) => item.institution))).sort().map((institution) => `<option value="${escapeHtml(institution)}" ${resultsFilters.institution === institution ? "selected" : ""}>${escapeHtml(institution)}</option>`).join("")}</select>
+      <select data-results-filter="level"><option value="all">All levels</option>${Array.from(new Set(latestMatches.map((item) => item.level))).sort().map((level) => `<option value="${escapeHtml(level)}" ${resultsFilters.level === level ? "selected" : ""}>${escapeHtml(level)}</option>`).join("")}</select>
+      <select data-results-filter="tier"><option value="all">All match tiers</option><option value="qualified" ${resultsFilters.tier === "qualified" ? "selected" : ""}>Qualified</option><option value="almost" ${resultsFilters.tier === "almost" ? "selected" : ""}>Almost</option><option value="explore" ${resultsFilters.tier === "explore" ? "selected" : ""}>Explore</option></select>
+      <select data-results-filter="minimumMatch"><option value="all">Any match</option><option value="70" ${resultsFilters.minimumMatch === "70" ? "selected" : ""}>70%+</option><option value="80" ${resultsFilters.minimumMatch === "80" ? "selected" : ""}>80%+</option><option value="90" ${resultsFilters.minimumMatch === "90" ? "selected" : ""}>90%+</option></select>
+    </div>
     <div class="institution-match-summary">
       <div>
         <strong>${groups.length} institution${groups.length === 1 ? "" : "s"} found</strong>
@@ -5827,7 +5916,16 @@ function getReportInstitutionScope() {
   const filteredProgrammes = scope === "all"
     ? adminProgrammes
     : adminProgrammes.filter((programme) => programme.institution === scope);
-  const visibleStudents = getVisibleUsers().filter((user) => !isAdmin(user));
+  const reportFrom = adminState.reportFrom ? new Date(`${adminState.reportFrom}T00:00:00`) : null;
+  const reportTo = adminState.reportTo ? new Date(`${adminState.reportTo}T23:59:59.999`) : null;
+  const inReportPeriod = (user) => {
+    if (!reportFrom && !reportTo) return true;
+    const timestamps = [user.createdAt, user.lastActiveAt, ...(user.activity || []).map((item) => item.at)]
+      .map((value) => new Date(value || 0))
+      .filter((value) => !Number.isNaN(value.getTime()));
+    return timestamps.some((value) => (!reportFrom || value >= reportFrom) && (!reportTo || value <= reportTo));
+  };
+  const visibleStudents = getVisibleUsers().filter((user) => !isAdmin(user) && inReportPeriod(user));
   const filteredStudents = scope === "all"
     ? visibleStudents
     : visibleStudents.filter((user) => {
@@ -5866,7 +5964,8 @@ function getReportInstitutionScope() {
     institutions,
     programmes: filteredProgrammes,
     students: filteredStudents,
-    summary
+    summary,
+    dateRange: { from: adminState.reportFrom || null, to: adminState.reportTo || null }
   };
 }
 
@@ -5907,6 +6006,7 @@ function getAdminReportSnapshot() {
   return {
     generatedAt: new Date().toISOString(),
     scope: scope.label,
+    dateRange: scope.dateRange,
     summary: reportSummary,
     topProgrammes,
     missingWarnings: (intelligence.missingWarnings || []).filter((warning) => {
@@ -5999,6 +6099,10 @@ function renderAdminReportSummary() {
 function renderAdminReports() {
   const grid = qs("#admin-report-grid");
   if (!grid) return;
+  const fromInput = qs("#admin-report-from");
+  const toInput = qs("#admin-report-to");
+  if (fromInput) fromInput.value = adminState.reportFrom || "";
+  if (toInput) toInput.value = adminState.reportTo || "";
   const cards = getAdminReportCards();
   grid.innerHTML = cards.map((card) => `
     <article class="admin-report-card">
@@ -6019,6 +6123,8 @@ function exportAdminReportCsv() {
   const rows = [
     ["report_scope", report.scope],
     ["generated_at", report.generatedAt],
+    ["report_from", report.dateRange?.from || ""],
+    ["report_to", report.dateRange?.to || ""],
     [""],
     ["metric", "value"],
     ["programme_count", String(report.summary.programmeCount)],
@@ -6075,7 +6181,7 @@ function printAdminReport() {
       </head>
       <body>
         <h1>EduGuide Admin Report</h1>
-        <div class="meta">Scope: ${escapeHtml(scope.label)} • Generated: ${escapeHtml(new Date(report.generatedAt).toLocaleString())}</div>
+        <div class="meta">Scope: ${escapeHtml(scope.label)} • Period: ${escapeHtml(report.dateRange?.from || "All time")} to ${escapeHtml(report.dateRange?.to || "Now")} • Generated: ${escapeHtml(new Date(report.generatedAt).toLocaleString())}</div>
         <div class="grid">
           <div class="card"><span class="label">Programmes</span><span class="value">${report.summary.programmeCount}</span></div>
           <div class="card"><span class="label">Students</span><span class="value">${report.summary.userCount}</span></div>
@@ -6950,6 +7056,10 @@ function renderAdminUserDetail(panel) {
         }
       </div>
       <div class="detail-actions">
+        <button class="primary-button small" type="button" data-student-report="${escapeHtml(user.id)}">
+          <i data-lucide="file-text"></i>
+          Generate Student Report
+        </button>
         ${
           needsReview
             ? `<button class="primary-button small" type="button" data-user-review="${escapeHtml(user.id)}">
@@ -6980,6 +7090,29 @@ function renderAdminUserDetail(panel) {
       </div>
     </div>
   `;
+}
+
+function printStudentReport(userId) {
+  const user = getVisibleUsers().find((item) => item.id === userId);
+  if (!user) return;
+  const programmesByPathway = (user.shortlist || []).map((id) => {
+    const programme = findProgrammeById(id);
+    const pathway = pathwayLabels[user.shortlistPathways?.[id] || "considering"] || "Considering";
+    return programme ? `<li><strong>${escapeHtml(programme.name)}</strong> - ${escapeHtml(programme.institution)} <span>(${pathway})</span></li>` : "";
+  }).filter(Boolean).join("");
+  const grades = Object.entries(user.grades || {}).map(([code, grade]) => `<li>${escapeHtml(getSubjectLabel(code))}: <strong>${escapeHtml(grade)}</strong></li>`).join("");
+  const documents = (user.documents || []).map((item) => `<li>${escapeHtml(item.name || "Document")} - ${escapeHtml(item.status || "Uploaded")}</li>`).join("");
+  const activity = (user.activity || []).slice(0, 10).map((item) => `<li>${escapeHtml(item.label || "Activity")} - ${escapeHtml(formatDateTime(item.at))}</li>`).join("");
+  const reportWindow = window.open("", "_blank", "noopener,noreferrer");
+  if (!reportWindow) {
+    setAdminActionStatus("Allow pop-ups to generate the student report.", "warning");
+    return;
+  }
+  reportWindow.document.write(`<!doctype html><html><head><title>EduGuide LS Student Guidance Report</title><style>
+    body{font-family:Arial,sans-serif;color:#1f2a26;max-width:900px;margin:40px auto;padding:0 24px;line-height:1.45}h1{color:#085041;margin-bottom:4px}h2{color:#0f6e56;border-bottom:1px solid #dce6e2;padding-bottom:6px;margin-top:28px}p{color:#65736f}ul{padding-left:22px}li{margin:5px 0}.meta{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;background:#f4f8f6;padding:14px}.meta strong{display:block;color:#085041}.print{float:right;padding:9px 14px;background:#1d9e75;color:#fff;border:0;border-radius:6px}@media print{.print{display:none}body{margin:0}}
+  </style></head><body><button class="print" onclick="print()">Print / Save PDF</button><h1>EduGuide LS</h1><p>Student Guidance Report</p><div class="meta"><div><strong>Name</strong>${escapeHtml(user.name)}</div><div><strong>Email</strong>${escapeHtml(user.email)}</div><div><strong>District</strong>${escapeHtml(user.district || "Not recorded")}</div><div><strong>Leaving year</strong>${escapeHtml(user.leavingYear || "Not recorded")}</div><div><strong>Stream</strong>${escapeHtml(user.stream || "Not recorded")}</div><div><strong>Income band</strong>${escapeHtml(user.incomeBand || "Not recorded")}</div></div><h2>Academic Profile</h2><ul>${grades || "<li>No grades captured.</li>"}</ul><h2>Interests and Guidance</h2><p>${escapeHtml(user.preferenceText || "No preference statement captured.")}</p><p>${escapeHtml((user.needSignals || []).join(", ") || "No funding need signals recorded.")}</p><h2>Saved Programme Pathways</h2><ul>${programmesByPathway || "<li>No saved programmes.</li>"}</ul><h2>Documents</h2><ul>${documents || "<li>No documents uploaded.</li>"}</ul><h2>Recent Activity</h2><ul>${activity || "<li>No recent activity.</li>"}</ul><p>Generated ${escapeHtml(formatDateTime(new Date().toISOString()))} by EduGuide LS Admin.</p></body></html>`);
+  reportWindow.document.close();
+  reportWindow.focus();
 }
 
 function renderAdminAuditDetail(panel) {
@@ -7703,6 +7836,11 @@ function bindEvents() {
       toggleShortlist(shortlistButton.dataset.shortlistProgramme);
       return;
     }
+    const pathwaySelect = event.target.closest("[data-pathway-programme]");
+    if (pathwaySelect) {
+      setShortlistPathway(pathwaySelect.dataset.pathwayProgramme, pathwaySelect.value);
+      return;
+    }
     const compareButton = event.target.closest("[data-compare-programme]");
     if (compareButton) {
       const id = compareButton.dataset.compareProgramme;
@@ -7721,6 +7859,20 @@ function bindEvents() {
       comparisonProgrammeIds = [];
       renderResults();
     }
+  });
+  qs("#view-results")?.addEventListener("input", (event) => {
+    const filter = event.target.closest('[data-results-filter="search"]');
+    if (!filter) return;
+    resultsFilters.search = filter.value;
+    selectedResultInstitution = null;
+    renderResults();
+  });
+  qs("#view-results")?.addEventListener("change", (event) => {
+    const filter = event.target.closest("[data-results-filter]");
+    if (!filter || filter.dataset.resultsFilter === "search") return;
+    resultsFilters[filter.dataset.resultsFilter] = filter.value;
+    selectedResultInstitution = null;
+    renderResults();
   });
   qsa("[data-admin-tab]").forEach((button) => {
     button.addEventListener("click", () => setAdminTab(button.dataset.adminTab));
@@ -7756,6 +7908,14 @@ function bindEvents() {
     adminState.reportInstitution = event.target.value;
     renderAdminReports();
     renderAdmin();
+  });
+  qs("#admin-report-from")?.addEventListener("change", (event) => {
+    adminState.reportFrom = event.target.value;
+    renderAdminReports();
+  });
+  qs("#admin-report-to")?.addEventListener("change", (event) => {
+    adminState.reportTo = event.target.value;
+    renderAdminReports();
   });
   qs("#admin-status-filter")?.addEventListener("change", (event) => {
     adminState.status = event.target.value;
@@ -7917,6 +8077,12 @@ function bindEvents() {
     const reviewButton = event.target.closest("[data-user-review]");
     if (reviewButton) {
       markUserReviewed(reviewButton.dataset.userReview);
+      return;
+    }
+
+    const studentReportButton = event.target.closest("[data-student-report]");
+    if (studentReportButton) {
+      printStudentReport(studentReportButton.dataset.studentReport);
       return;
     }
 

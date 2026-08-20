@@ -1822,6 +1822,25 @@ textarea:focus {
   line-height: 1.45;
 }
 
+.results-filter-bar {
+  display: grid;
+  grid-template-columns: minmax(180px, 1.5fr) repeat(4, minmax(120px, 1fr));
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.results-filter-bar input,
+.results-filter-bar select {
+  width: 100%;
+  min-height: 38px;
+  padding: 0 9px;
+  border: 1px solid var(--line);
+  border-radius: 7px;
+  background: #fff;
+  color: var(--ink);
+  font-size: 12px;
+}
+
 .institution-match-summary strong {
   display: block;
   color: var(--brand-deep);
@@ -1935,6 +1954,87 @@ textarea:focus {
   border-color: var(--brand);
   background: var(--brand-soft);
   color: var(--brand-deep);
+}
+
+.pathway-select-label {
+  display: inline-flex;
+  align-items: center;
+}
+
+.pathway-select-label select {
+  min-height: 34px;
+  max-width: 142px;
+  padding: 0 7px;
+  border: 1px solid var(--line);
+  border-radius: 7px;
+  background: #fff;
+  color: var(--brand-deep);
+  font-size: 11px;
+  font-weight: 800;
+}
+
+.my-pathways-panel {
+  display: grid;
+  gap: 12px;
+  margin-bottom: 14px;
+  padding: 14px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: #fff;
+}
+
+.my-pathways-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.my-pathways-head h4 {
+  margin: 0;
+  color: var(--brand-deep);
+  font-size: 17px;
+}
+
+.my-pathways-head > span {
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.my-pathways-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.pathway-group {
+  display: grid;
+  align-content: start;
+  gap: 5px;
+  min-height: 82px;
+  padding: 10px;
+  border-top: 3px solid var(--line);
+  border-radius: 6px;
+  background: var(--surface-soft);
+}
+
+.pathway-group.primary { border-top-color: var(--brand); }
+.pathway-group.backup { border-top-color: var(--blue); }
+.pathway-group.considering { border-top-color: var(--accent); }
+.pathway-group.not_interested { border-top-color: var(--danger); }
+
+.pathway-group strong {
+  color: var(--brand-deep);
+  font-size: 12px;
+}
+
+.pathway-group span,
+.pathway-group small {
+  color: var(--muted);
+  font-size: 11px;
+  line-height: 1.3;
+  overflow-wrap: anywhere;
 }
 
 .results-school-focus-head {
@@ -4683,6 +4783,28 @@ textarea:focus {
   .school-profile-grid,
   .course-detail-grid {
     grid-template-columns: 1fr;
+  }
+
+  .my-pathways-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .results-filter-bar {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .results-filter-bar input {
+    grid-column: 1 / -1;
+  }
+
+  .pathway-select-label {
+    width: 100%;
+  }
+
+  .pathway-select-label select {
+    width: 100%;
+    max-width: none;
+    min-height: 40px;
   }
 
   .application-status-strip {

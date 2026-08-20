@@ -609,6 +609,16 @@
               </div>
               <ul class="profile-activity-list" id="profile-activity-list"></ul>
             </section>
+            <section class="surface-panel profile-activity-panel">
+              <div class="section-head">
+                <div>
+                  <p class="section-kicker">Notification Centre</p>
+                  <h3>Important updates</h3>
+                </div>
+                <i class="profile-section-icon" data-lucide="bell-ring"></i>
+              </div>
+              <ul class="profile-activity-list" id="profile-notification-list"></ul>
+            </section>
           </div>
         </section>
 
@@ -932,6 +942,12 @@
                           <select id="admin-report-institution-filter" style="min-width: 180px;">
                             <option value="all">All institutions</option>
                           </select>
+                        </label>
+                        <label class="inline-filter" style="display:flex; align-items:center; gap:6px; color:var(--muted); font-size:12px;">
+                          <span>From</span><input id="admin-report-from" type="date" />
+                        </label>
+                        <label class="inline-filter" style="display:flex; align-items:center; gap:6px; color:var(--muted); font-size:12px;">
+                          <span>To</span><input id="admin-report-to" type="date" />
                         </label>
                         <button class="secondary-action compact-action" type="button" data-admin-report-export>
                           <i data-lucide="download"></i>
