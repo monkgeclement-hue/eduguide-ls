@@ -14,7 +14,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link rel="preload" href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Playfair+Display:wght@600;700&display=swap" as="style" onload="this.onload=null;this.rel='stylesheet'" />
     <noscript><link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet" /></noscript>
-    <link rel="stylesheet" href="/styles.css?v=33" />
+    <link rel="stylesheet" href="/styles.css?v=34" />
   </head>
   <body>
     <section class="auth-screen" id="auth-screen">
@@ -793,6 +793,14 @@
               </div>
 
               <div class="admin-notice" id="admin-user-notice" hidden></div>
+              <section class="catalogue-review-guide" aria-label="Catalogue publishing guide">
+                <div class="catalogue-review-guide-icon"><i data-lucide="shield-check"></i></div>
+                <div>
+                  <strong>Student catalogue publishing</strong>
+                  <p>Pending programmes stay private until you verify them. Choose an institution below, inspect its records, approve the records you trust, then use <b>Publish institution</b> to make that institution visible to students.</p>
+                  <div class="catalogue-review-steps"><span>1. Choose institution</span><span>2. Inspect and approve</span><span>3. Publish institution</span></div>
+                </div>
+              </section>
               <div class="deployment-readiness" id="deployment-readiness">
                 <div>
                   <strong>Checking hosted readiness...</strong>
@@ -870,9 +878,9 @@
                     <div class="admin-list-head">
                       <span id="catalogue-result-count">0 records</span>
                       <span>Click a row to inspect evidence</span>
-                      <button class="secondary-action compact-action" type="button" id="publish-institution" title="Choose an institution filter first">
+                      <button class="primary-button small compact-action" type="button" id="publish-institution" title="Choose an institution filter first">
                         <i data-lucide="shield-check"></i>
-                        Publish institution
+                        Review & publish institution
                       </button>
                     </div>
                     <div class="admin-record-list" id="admin-programme-list"></div>
@@ -984,7 +992,7 @@
     <script src="/data/supabase-config.js" defer></script>
     <script src="/data/catalog.js" defer></script>
     <script src="/data/admin-catalog.js" defer></script>
-    <script src="/app.js?v=31" defer></script>
+    <script src="/app.js?v=34" defer></script>
     <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js" async onload="window.lucide && window.lucide.createIcons()"></script>
     <script src="https://unpkg.com/@supabase/supabase-js@2" async></script>
   </body>
