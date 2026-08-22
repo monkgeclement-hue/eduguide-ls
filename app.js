@@ -5935,6 +5935,11 @@ function getReportInstitutionScope() {
     : adminProgrammes.filter((programme) => programme.institution === scope);
   const reportFrom = adminState.reportFrom ? new Date(`${adminState.reportFrom}T00:00:00`) : null;
   const reportTo = adminState.reportTo ? new Date(`${adminState.reportTo}T23:59:59.999`) : null;
+  const isDateInReportRange = (value) => {
+    if (!value) return false;
+    const date = new Date(value);
+    return !Number.isNaN(date.getTime()) && (!reportFrom || date >= reportFrom) && (!reportTo || date <= reportTo);
+  };
   const inReportPeriod = (user) => {
     if (!reportFrom && !reportTo) return true;
     const timestamps = [user.createdAt, user.lastActiveAt, ...(user.activity || []).map((item) => item.at)]
@@ -5967,7 +5972,7 @@ function getReportInstitutionScope() {
         }, 0)
       : 0,
     userCount: filteredStudents.length,
-    newUserCount: filteredStudents.filter((user) => !user.reviewedAt).length,
+    newUserCount: filteredStudents.filter((user) => isDateInReportRange(user.createdAt)).length,
     institutionCount: scope === "all" ? institutions.length : 1,
     averageProgrammeQuality: filteredProgrammes.length
       ? Math.round(filteredProgrammes.reduce((total, programme) => total + getProgrammeQualityChecks(programme).percent, 0) / filteredProgrammes.length)
@@ -7115,7 +7120,8 @@ function printStudentReport(userId) {
   const programmesByPathway = (user.shortlist || []).map((id) => {
     const programme = findProgrammeById(id);
     const pathway = pathwayLabels[user.shortlistPathways?.[id] || "considering"] || "Considering";
-    return programme ? `<li><strong>${escapeHtml(programme.name)}</strong> - ${escapeHtml(programme.institution)} <span>(${pathway})</span></li>` : "";
+    const programmeName = programme?.name || programme?.title || "Programme";
+    return programme ? `<li><strong>${escapeHtml(programmeName)}</strong> - ${escapeHtml(programme.institution)} <span>(${escapeHtml(pathway)})</span></li>` : "";
   }).filter(Boolean).join("");
   const grades = Object.entries(user.grades || {}).map(([code, grade]) => `<li>${escapeHtml(getSubjectLabel(code))}: <strong>${escapeHtml(grade)}</strong></li>`).join("");
   const documents = (user.documents || []).map((item) => `<li>${escapeHtml(item.name || "Document")} - ${escapeHtml(item.status || "Uploaded")}</li>`).join("");
@@ -7125,9 +7131,17 @@ function printStudentReport(userId) {
     setAdminActionStatus("Allow pop-ups to generate the student report.", "warning");
     return;
   }
+  const pathwayGroups = Object.keys(pathwayLabels).map((key) => `${pathwayLabels[key]}: ${(user.shortlist || []).filter((id) => (user.shortlistPathways?.[id] || "considering") === key).length}`).join(" | ");
+  const profileCompletion = Math.min(100, [user.name, user.district, user.leavingYear, user.stream].filter(Boolean).length * 12 + Math.min(Object.keys(user.grades || {}).length, 6) * 5 + Math.min((user.documents || []).length, 2) * 8 + (user.preferenceText?.length > 20 ? 8 : 0));
+  const usableGrades = Object.values(user.grades || {}).filter((grade) => gradePoints[grade] > 0);
+  const academicReadiness = usableGrades.length ? Math.round(usableGrades.reduce((total, grade) => total + gradePoints[grade], 0) / (usableGrades.length * 8) * 100) : 0;
+  const topSaved = (user.shortlist || []).slice(0, 5).map((id, index) => {
+    const programme = findProgrammeById(id);
+    return programme ? `<li>${index + 1}. ${escapeHtml(programme.name || programme.title || "Programme")} - ${escapeHtml(programme.institution)}</li>` : "";
+  }).filter(Boolean).join("");
   reportWindow.document.write(`<!doctype html><html><head><title>EduGuide LS Student Guidance Report</title><style>
     body{font-family:Arial,sans-serif;color:#1f2a26;max-width:900px;margin:40px auto;padding:0 24px;line-height:1.45}h1{color:#085041;margin-bottom:4px}h2{color:#0f6e56;border-bottom:1px solid #dce6e2;padding-bottom:6px;margin-top:28px}p{color:#65736f}ul{padding-left:22px}li{margin:5px 0}.meta{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;background:#f4f8f6;padding:14px}.meta strong{display:block;color:#085041}.print{float:right;padding:9px 14px;background:#1d9e75;color:#fff;border:0;border-radius:6px}@media print{.print{display:none}body{margin:0}}
-  </style></head><body><button class="print" onclick="print()">Print / Save PDF</button><h1>EduGuide LS</h1><p>Student Guidance Report</p><div class="meta"><div><strong>Name</strong>${escapeHtml(user.name)}</div><div><strong>Email</strong>${escapeHtml(user.email)}</div><div><strong>District</strong>${escapeHtml(user.district || "Not recorded")}</div><div><strong>Leaving year</strong>${escapeHtml(user.leavingYear || "Not recorded")}</div><div><strong>Stream</strong>${escapeHtml(user.stream || "Not recorded")}</div><div><strong>Income band</strong>${escapeHtml(user.incomeBand || "Not recorded")}</div></div><h2>Academic Profile</h2><ul>${grades || "<li>No grades captured.</li>"}</ul><h2>Interests and Guidance</h2><p>${escapeHtml(user.preferenceText || "No preference statement captured.")}</p><p>${escapeHtml((user.needSignals || []).join(", ") || "No funding need signals recorded.")}</p><h2>Saved Programme Pathways</h2><ul>${programmesByPathway || "<li>No saved programmes.</li>"}</ul><h2>Documents</h2><ul>${documents || "<li>No documents uploaded.</li>"}</ul><h2>Recent Activity</h2><ul>${activity || "<li>No recent activity.</li>"}</ul><p>Generated ${escapeHtml(formatDateTime(new Date().toISOString()))} by EduGuide LS Admin.</p></body></html>`);
+  </style></head><body><button class="print" onclick="print()">Print / Save PDF</button><h1>EduGuide LS</h1><p>Student Guidance Report</p><div class="meta"><div><strong>Name</strong>${escapeHtml(user.name)}</div><div><strong>Email</strong>${escapeHtml(user.email)}</div><div><strong>District</strong>${escapeHtml(user.district || "Not recorded")}</div><div><strong>Leaving year</strong>${escapeHtml(user.leavingYear || "Not recorded")}</div><div><strong>Stream</strong>${escapeHtml(user.stream || "Not recorded")}</div><div><strong>Profile completion</strong>${profileCompletion}%</div></div><h2>Academic Profile</h2><ul>${grades || "<li>No grades captured.</li>"}</ul><p>Academic readiness estimate: <strong>${academicReadiness}%</strong></p><h2>Recommendation Summary</h2><p>${escapeHtml(pathwayGroups)}</p><h3>Top Saved Pathways</h3><ul>${topSaved || "<li>No saved programmes.</li>"}</ul><h2>Interests and Guidance</h2><p>${escapeHtml(user.preferenceText || "No preference statement captured.")}</p><p>${escapeHtml((user.needSignals || []).join(", ") || "No funding need signals recorded.")}</p><h2>Saved Programme Pathways</h2><ul>${programmesByPathway || "<li>No saved programmes.</li>"}</ul><h2>Documents</h2><ul>${documents || "<li>No documents uploaded.</li>"}</ul><h2>Recent Activity</h2><ul>${activity || "<li>No recent activity.</li>"}</ul><p>Generated ${escapeHtml(formatDateTime(new Date().toISOString()))} by EduGuide LS Admin.</p></body></html>`);
   reportWindow.document.close();
   reportWindow.focus();
 }

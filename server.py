@@ -3792,30 +3792,11 @@ def ai_guidance(payload: GuidanceRequest, request: Request, authorization: str |
 
 @app.get("/health")
 def health() -> dict[str, Any]:
-  """Public health endpoint with compatibility fields for admin status UI.
-
-  Keep the minimal response shape for health checks, while also exposing the older
-  backend/email values that the admin dashboard still reads before it fetches
-  /api/db/diagnostics.
-  """
-  ai_provider = get_ai_provider()
-  ai_model = get_gemini_model_candidates()[0] if ai_provider == "gemini" else (os.getenv("OPENAI_MODEL", "gpt-5.2").strip() or "gpt-5.2")
+  """Return only non-sensitive readiness flags for public uptime checks."""
   return {
     "ok": True,
     "database_ready": check_data_backend_ready(),
     "storage_ready": check_document_storage_ready(),
-    "database": get_data_backend(),
-    "data_backend": get_data_backend(),
-    "supabase_configured": supabase_configured(),
-    "email_configured": smtp_configured(),
-    "email_transport": email_transport(),
-    "email_missing_keys": smtp_missing_keys(),
-    "email_debug_codes": email_debug_codes_enabled(),
-    "ai_configured": bool(get_gemini_api_key() if ai_provider == "gemini" else get_openai_api_key()),
-    "ai_provider": ai_provider,
-    "ai_model": ai_model,
-    "storage_bucket": get_supabase_storage_bucket() if using_supabase() else None,
-    "startup_persistence_error": STARTUP_PERSISTENCE_ERROR,
   }
 
 
