@@ -2372,6 +2372,11 @@ function countGradesAtLeast(minGrade) {
   return getEnteredGrades().filter((grade) => gradeMeets(grade, minGrade)).length;
 }
 
+function hasEnteredGradesBelowPass() {
+  const enteredGrades = getEnteredGrades();
+  return enteredGrades.length > 0 && !enteredGrades.some((grade) => gradeMeets(grade, "D"));
+}
+
 function getRequirementDetailScore(detail) {
   if (detail.met) return 1;
   if (detail.type === "prior-qualification") return 0.18;
@@ -3195,6 +3200,7 @@ function formatRequirementGap(detail) {
 }
 
 function getMatchTier(scores, evaluation, programme, strictGateEvaluation) {
+  if (hasEnteredGradesBelowPass()) return "blocked";
   if (strictGateEvaluation?.failures?.length) return "blocked";
   if (!evaluation.total) return programme.dataConfidence >= 75 && scores.academic >= 65 ? "almost" : "explore";
   if (evaluation.missing.some((detail) => detail.type === "prior-qualification")) return "explore";
@@ -3241,6 +3247,9 @@ function getMatchExplanations(programme, scores, evaluation, tier, strictGateEva
   if (fundingPolicy.caution) cautions.push(fundingPolicy.caution);
   if (programme.dataConfidence < 70) cautions.push("Some catalogue fields are still incomplete or awaiting admin review.");
   if (/under review/i.test(programme.duration)) cautions.push("Duration is not confirmed yet.");
+  if (String(programme.institution || "").toLowerCase() === "national university of lesotho" && !gradeMeets(getGradeForSubject("ENG"), "C")) {
+    cautions.push("NUL attention: an English grade below C does not guarantee admission or sponsorship. Confirm the current admission and funding rules with NUL.");
+  }
   return { reasons: reasons.slice(0, 3), cautions: unique(cautions).slice(0, 3), requirementGaps: unique([...strictGateGaps, ...requirementGaps]) };
 }
 
@@ -5276,7 +5285,13 @@ function getExplorerInstitutionNames() {
 function getInstitutionProgrammes(institution) {
   return getExplorerProgrammes()
     .filter((programme) => programme.institution === institution)
-    .sort((a, b) => getProgrammeDisplayName(a).localeCompare(getProgrammeDisplayName(b)));
+    .sort((a, b) => getAcademicScore(b) - getAcademicScore(a) || getProgrammeDisplayName(a).localeCompare(getProgrammeDisplayName(b)));
+}
+
+function getNulEnglishAttention(programme) {
+  if (String(programme?.institution || "").toLowerCase() !== "national university of lesotho") return "";
+  if (gradeMeets(getGradeForSubject("ENG"), "C")) return "";
+  return "NUL attention: an English grade below C does not guarantee admission or sponsorship. Confirm the current admission and funding rules with NUL.";
 }
 
 function getInstitutionSourcesForExplorer(institution) {
@@ -5513,6 +5528,7 @@ function renderExplorerCourseProfile(programme) {
   const skills = unique([...(matchingProgramme.skills || []), ...(profile.skills || [])]).slice(0, 8);
   const feeNotes = [programme.feeNote, programme.supportingFeeSourcePath ? `Fee evidence: ${programme.supportingFeeSourcePath}` : ""].filter(Boolean);
   const freshness = getSourceFreshnessMeta(programme);
+  const nulEnglishAttention = getNulEnglishAttention(programme);
   return `
     <article class="course-profile-card">
       <div class="course-profile-head">
@@ -5531,6 +5547,7 @@ function renderExplorerCourseProfile(programme) {
         </div>
       </div>
       <div class="programme-detail course-detail-grid">
+        ${nulEnglishAttention ? `<div class="programme-alerts course-attention"><span><i data-lucide="triangle-alert"></i>${escapeHtml(nulEnglishAttention)}</span></div>` : ""}
         <div class="detail-block">
           <h5>Requirements</h5>
           <ul>${requirementItems.map((item) => `<li>${escapeHtml(item)}</li>`).join("")}</ul>
@@ -5615,7 +5632,7 @@ function renderSchoolExplorer() {
         <div class="school-list-head">
           ${screen !== "schools" ? `<button class="explorer-back-button" type="button" data-explorer-back="schools"><i data-lucide="arrow-left"></i> Schools</button>` : ""}
           <strong>${schoolExplorerState.query ? `${results.length} search result${results.length === 1 ? "" : "s"}` : `${escapeHtml(schoolExplorerState.selectedInstitution)} courses`}</strong>
-          <span>Open a course for requirements, fees, careers, and links</span>
+          <span>Sorted by academic fit - open a course for requirements, fees, careers, and links</span>
         </div>
         <div class="explorer-programme-list">${renderExplorerProgrammeList(results)}</div>
       </section>

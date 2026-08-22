@@ -85,7 +85,19 @@ def inferred_duration(record: dict[str, Any]) -> str | None:
         return "4 years with attachment"
     if institution == "Lerotholi Polytechnic":
         return "3 years with attachment" if not any(token in level for token in ("certificate", "short")) else "2 years"
-    if institution in {"National University of Lesotho", "NUL Institute of Extra Mural Studies (IEMS)"}:
+    if institution == "National University of Lesotho":
+        if any(token in name for token in ("honours", "honors", "ll.b", "bachelor of laws", "pharmacy")):
+            return "5 years with attachment and project"
+        if "nursing" in name or "midwifery" in name:
+            return "4 years with clinical attachment"
+        if is_degree(record):
+            return "4 years with project"
+        if "diploma" in level or "diploma" in name:
+            return "3 years"
+        if "certificate" in level or "certificate" in name:
+            return "2 years"
+        return "3 years"
+    if institution == "NUL Institute of Extra Mural Studies (IEMS)":
         if is_degree(record):
             return "5 years with attachment and project"
         if "diploma" in level or "diploma" in name:
