@@ -83,6 +83,12 @@ window.EDUGUIDE_ADMIN_DATA = {
         "Fashion Buyer",
         "Retail Manager"
       ],
+      "skills": [
+        "News writing",
+        "Content production",
+        "Media research",
+        "Public communication"
+      ],
       "sourceUrl": "https://www.portal.co.ls/apply/courses",
       "sourcePath": null,
       "supportingSourcePath": null,
@@ -110,6 +116,12 @@ window.EDUGUIDE_ADMIN_DATA = {
         "Architectural Technologist",
         "Quantity Surveyor",
         "Urban Planner"
+      ],
+      "skills": [
+        "Architectural design",
+        "Technical drawing",
+        "Building regulations",
+        "Project coordination"
       ],
       "sourceUrl": "https://www.portal.co.ls/apply/courses",
       "sourcePath": null,
@@ -139,6 +151,12 @@ window.EDUGUIDE_ADMIN_DATA = {
         "Content Producer",
         "Public Relations Officer"
       ],
+      "skills": [
+        "News writing",
+        "Content production",
+        "Media research",
+        "Public communication"
+      ],
       "sourceUrl": "https://www.portal.co.ls/apply/courses",
       "sourcePath": null,
       "supportingSourcePath": null,
@@ -166,6 +184,12 @@ window.EDUGUIDE_ADMIN_DATA = {
         "Director",
         "Video Editor",
         "Cinematographer"
+      ],
+      "skills": [
+        "News writing",
+        "Content production",
+        "Media research",
+        "Public communication"
       ],
       "sourceUrl": "https://www.portal.co.ls/apply/courses",
       "sourcePath": null,
@@ -195,6 +219,12 @@ window.EDUGUIDE_ADMIN_DATA = {
         "Business Development Officer",
         "Entrepreneur"
       ],
+      "skills": [
+        "Strategic planning",
+        "Operations management",
+        "Leadership",
+        "Business communication"
+      ],
       "sourceUrl": "https://www.portal.co.ls/apply/courses",
       "sourcePath": null,
       "supportingSourcePath": null,
@@ -222,6 +252,12 @@ window.EDUGUIDE_ADMIN_DATA = {
         "Talent Acquisition Specialist",
         "Training Coordinator",
         "Employee Relations Officer"
+      ],
+      "skills": [
+        "Strategic planning",
+        "Operations management",
+        "Leadership",
+        "Business communication"
       ],
       "sourceUrl": "https://www.portal.co.ls/apply/courses",
       "sourcePath": null,
@@ -251,6 +287,12 @@ window.EDUGUIDE_ADMIN_DATA = {
         "Business Development Officer",
         "Entrepreneur"
       ],
+      "skills": [
+        "Strategic planning",
+        "Operations management",
+        "Leadership",
+        "Business communication"
+      ],
       "sourceUrl": "https://www.portal.co.ls/apply/courses",
       "sourcePath": null,
       "supportingSourcePath": null,
@@ -278,6 +320,12 @@ window.EDUGUIDE_ADMIN_DATA = {
         "Public Relations Officer",
         "Corporate Communications Specialist",
         "Content Strategist"
+      ],
+      "skills": [
+        "News writing",
+        "Content production",
+        "Media research",
+        "Public communication"
       ],
       "sourceUrl": "https://www.portal.co.ls/apply/courses",
       "sourcePath": null,
@@ -307,6 +355,12 @@ window.EDUGUIDE_ADMIN_DATA = {
         "Systems Administrator",
         "Technology Project Officer"
       ],
+      "skills": [
+        "Systems administration",
+        "Network configuration",
+        "Technical support",
+        "Database management"
+      ],
       "sourceUrl": "https://www.portal.co.ls/apply/courses",
       "sourcePath": null,
       "supportingSourcePath": null,
@@ -334,6 +388,12 @@ window.EDUGUIDE_ADMIN_DATA = {
         "Broadcast Producer",
         "Content Producer",
         "Public Relations Officer"
+      ],
+      "skills": [
+        "Systems administration",
+        "Network configuration",
+        "Technical support",
+        "Database management"
       ],
       "sourceUrl": "https://www.portal.co.ls/apply/courses",
       "sourcePath": null,
@@ -363,6 +423,12 @@ window.EDUGUIDE_ADMIN_DATA = {
         "Systems Architect",
         "Quality Assurance Engineer"
       ],
+      "skills": [
+        "Programming",
+        "Software design",
+        "Algorithms",
+        "Quality assurance"
+      ],
       "sourceUrl": "https://www.portal.co.ls/apply/courses",
       "sourcePath": null,
       "supportingSourcePath": null,
@@ -390,6 +456,12 @@ window.EDUGUIDE_ADMIN_DATA = {
         "Operations Manager",
         "Business Development Officer",
         "Entrepreneur"
+      ],
+      "skills": [
+        "Guest services",
+        "Event planning",
+        "Hotel operations",
+        "Revenue management"
       ],
       "sourceUrl": "https://www.portal.co.ls/apply/courses",
       "sourcePath": null,
@@ -419,6 +491,12 @@ window.EDUGUIDE_ADMIN_DATA = {
         "Quantity Surveyor",
         "Urban Planner"
       ],
+      "skills": [
+        "Technical design",
+        "Engineering mathematics",
+        "Project management",
+        "Safety compliance"
+      ],
       "sourceUrl": "https://www.portal.co.ls/apply/courses",
       "sourcePath": null,
       "supportingSourcePath": null,
@@ -446,6 +524,12 @@ window.EDUGUIDE_ADMIN_DATA = {
         "IT Business Analyst",
         "Systems Administrator",
         "Technology Project Officer"
+      ],
+      "skills": [
+        "Systems administration",
+        "Network configuration",
+        "Technical support",
+        "Database management"
       ],
       "sourceUrl": "https://www.portal.co.ls/apply/courses",
       "sourcePath": null,
@@ -475,6 +559,12 @@ window.EDUGUIDE_ADMIN_DATA = {
         "Business Development Officer",
         "Entrepreneur"
       ],
+      "skills": [
+        "Strategic planning",
+        "Operations management",
+        "Leadership",
+        "Business communication"
+      ],
       "sourceUrl": "https://www.portal.co.ls/apply/courses",
       "sourcePath": null,
       "supportingSourcePath": null,
@@ -502,6 +592,12 @@ window.EDUGUIDE_ADMIN_DATA = {
         "Broadcast Producer",
         "Content Producer",
         "Public Relations Officer"
+      ],
+      "skills": [
+        "News writing",
+        "Content production",
+        "Media research",
+        "Public communication"
       ],
       "sourceUrl": "https://www.portal.co.ls/apply/courses?page=2",
       "sourcePath": null,
@@ -531,6 +627,12 @@ window.EDUGUIDE_ADMIN_DATA = {
         "Content Producer",
         "Public Relations Officer"
       ],
+      "skills": [
+        "Market research",
+        "Brand strategy",
+        "Digital marketing",
+        "Customer analytics"
+      ],
       "sourceUrl": "https://www.portal.co.ls/apply/courses?page=2",
       "sourcePath": null,
       "supportingSourcePath": null,
@@ -558,6 +660,12 @@ window.EDUGUIDE_ADMIN_DATA = {
         "Operations Manager",
         "Business Development Officer",
         "Entrepreneur"
+      ],
+      "skills": [
+        "Guest services",
+        "Event planning",
+        "Hotel operations",
+        "Revenue management"
       ],
       "sourceUrl": "https://www.portal.co.ls/apply/courses?page=2",
       "sourcePath": null,
@@ -587,6 +695,12 @@ window.EDUGUIDE_ADMIN_DATA = {
         "Fashion Buyer",
         "Retail Manager"
       ],
+      "skills": [
+        "News writing",
+        "Content production",
+        "Media research",
+        "Public communication"
+      ],
       "sourceUrl": "https://www.portal.co.ls/apply/courses?page=2",
       "sourcePath": null,
       "supportingSourcePath": null,
@@ -614,6 +728,12 @@ window.EDUGUIDE_ADMIN_DATA = {
         "Director",
         "Video Editor",
         "Cinematographer"
+      ],
+      "skills": [
+        "News writing",
+        "Content production",
+        "Media research",
+        "Public communication"
       ],
       "sourceUrl": "https://www.portal.co.ls/apply/courses?page=2",
       "sourcePath": null,
@@ -643,6 +763,12 @@ window.EDUGUIDE_ADMIN_DATA = {
         "Content Producer",
         "Public Relations Officer"
       ],
+      "skills": [
+        "News writing",
+        "Content production",
+        "Media research",
+        "Public communication"
+      ],
       "sourceUrl": "https://www.portal.co.ls/apply/courses?page=2",
       "sourcePath": null,
       "supportingSourcePath": null,
@@ -670,6 +796,12 @@ window.EDUGUIDE_ADMIN_DATA = {
         "Operations Manager",
         "Business Development Officer",
         "Entrepreneur"
+      ],
+      "skills": [
+        "Guest services",
+        "Event planning",
+        "Hotel operations",
+        "Revenue management"
       ],
       "sourceUrl": "https://www.portal.co.ls/apply/courses?page=2",
       "sourcePath": null,
@@ -699,6 +831,12 @@ window.EDUGUIDE_ADMIN_DATA = {
         "Content Producer",
         "Public Relations Officer"
       ],
+      "skills": [
+        "Systems administration",
+        "Network configuration",
+        "Technical support",
+        "Database management"
+      ],
       "sourceUrl": "https://www.portal.co.ls/apply/courses?page=2",
       "sourcePath": null,
       "supportingSourcePath": null,
@@ -726,6 +864,12 @@ window.EDUGUIDE_ADMIN_DATA = {
         "Broadcast Producer",
         "Content Producer",
         "Public Relations Officer"
+      ],
+      "skills": [
+        "News writing",
+        "Content production",
+        "Media research",
+        "Public communication"
       ],
       "sourceUrl": "https://www.portal.co.ls/apply/courses?page=2",
       "sourcePath": null,
@@ -755,6 +899,12 @@ window.EDUGUIDE_ADMIN_DATA = {
         "Business Development Officer",
         "Entrepreneur"
       ],
+      "skills": [
+        "Strategic planning",
+        "Operations management",
+        "Leadership",
+        "Business communication"
+      ],
       "sourceUrl": "https://www.portal.co.ls/apply/courses?page=2",
       "sourcePath": null,
       "supportingSourcePath": null,
@@ -782,6 +932,12 @@ window.EDUGUIDE_ADMIN_DATA = {
         "Software Developer",
         "Systems Architect",
         "Quality Assurance Engineer"
+      ],
+      "skills": [
+        "Programming",
+        "Software design",
+        "Algorithms",
+        "Quality assurance"
       ],
       "sourceUrl": "https://www.portal.co.ls/apply/courses?page=2",
       "sourcePath": null,
@@ -811,6 +967,12 @@ window.EDUGUIDE_ADMIN_DATA = {
         "Corporate Communications Specialist",
         "Content Strategist"
       ],
+      "skills": [
+        "News writing",
+        "Content production",
+        "Media research",
+        "Public communication"
+      ],
       "sourceUrl": "https://www.portal.co.ls/apply/courses?page=2",
       "sourcePath": null,
       "supportingSourcePath": null,
@@ -838,6 +1000,12 @@ window.EDUGUIDE_ADMIN_DATA = {
         "Operations Manager",
         "Business Development Officer",
         "Entrepreneur"
+      ],
+      "skills": [
+        "Strategic planning",
+        "Operations management",
+        "Leadership",
+        "Business communication"
       ],
       "sourceUrl": "https://www.portal.co.ls/apply/courses?page=2",
       "sourcePath": null,
@@ -867,6 +1035,12 @@ window.EDUGUIDE_ADMIN_DATA = {
         "Business Development Officer",
         "Entrepreneur"
       ],
+      "skills": [
+        "Guest services",
+        "Event planning",
+        "Hotel operations",
+        "Revenue management"
+      ],
       "sourceUrl": "https://www.portal.co.ls/apply/courses?page=2",
       "sourcePath": null,
       "supportingSourcePath": null,
@@ -894,6 +1068,12 @@ window.EDUGUIDE_ADMIN_DATA = {
         "Electronics Engineer",
         "Telecommunications Engineer",
         "Control Systems Engineer"
+      ],
+      "skills": [
+        "Technical design",
+        "Engineering mathematics",
+        "Project management",
+        "Safety compliance"
       ],
       "sourceUrl": "https://www.bothouniversity.com/lesotho/programmes",
       "sourcePath": null,
@@ -923,6 +1103,12 @@ window.EDUGUIDE_ADMIN_DATA = {
         "Security Engineer",
         "Network Security Specialist"
       ],
+      "skills": [
+        "Threat analysis",
+        "Digital forensics",
+        "Network defence",
+        "Incident response"
+      ],
       "sourceUrl": "https://www.bothouniversity.com/lesotho/programmes",
       "sourcePath": null,
       "supportingSourcePath": null,
@@ -950,6 +1136,12 @@ window.EDUGUIDE_ADMIN_DATA = {
         "Digital Forensics Investigator",
         "Security Engineer",
         "Network Security Specialist"
+      ],
+      "skills": [
+        "Threat analysis",
+        "Digital forensics",
+        "Network defence",
+        "Incident response"
       ],
       "sourceUrl": "https://www.bothouniversity.com/lesotho/programmes",
       "sourcePath": null,
@@ -979,6 +1171,12 @@ window.EDUGUIDE_ADMIN_DATA = {
         "Machine Learning Engineer",
         "Business Intelligence Analyst"
       ],
+      "skills": [
+        "Statistical analysis",
+        "Machine learning",
+        "Data visualisation",
+        "Database querying"
+      ],
       "sourceUrl": "https://www.bothouniversity.com/lesotho/programmes",
       "sourcePath": null,
       "supportingSourcePath": null,
@@ -1007,6 +1205,12 @@ window.EDUGUIDE_ADMIN_DATA = {
         "Systems Architect",
         "Quality Assurance Engineer"
       ],
+      "skills": [
+        "Programming",
+        "Software design",
+        "Algorithms",
+        "Quality assurance"
+      ],
       "sourceUrl": "https://www.bothouniversity.com/lesotho/programmes",
       "sourcePath": null,
       "supportingSourcePath": null,
@@ -1030,10 +1234,16 @@ window.EDUGUIDE_ADMIN_DATA = {
       "overview": "Aiming for a leadership role in the global business world? The Bachelor of Business Administration in Business Management provides the strategic mindset and practical skills you need. The programme covers management, finance, marketing, entrepreneurship, operations, and digital transformation, with a strong emphasis on innovation, sustainability, and ethical leadership. Through case studies, collaborative projects, and industry-driven learning, you will gain real-world experience while sharpening critical thinking and problem-solving abilities. Whether your ambition is to launch an entrepreneurial venture or advance in a corporate career, this degree equips you to drive innovation and achieve lasting success.",
       "requirementsSummary": "IGCSE/BGCSE/equivalent with 5 Passes including English and Mathematics. Applicants in possession of a Diploma or Higher Diploma in related fields may be given exemptions based on the credit point equivalency.",
       "careers": [
-        "Accountant",
-        "Auditor",
-        "Financial Analyst",
-        "Banking Officer"
+        "Business Analyst",
+        "Operations Manager",
+        "Business Development Officer",
+        "Entrepreneur"
+      ],
+      "skills": [
+        "Strategic planning",
+        "Operations management",
+        "Leadership",
+        "Business communication"
       ],
       "sourceUrl": "https://www.bothouniversity.com/lesotho/programmes",
       "sourcePath": null,
@@ -1063,6 +1273,12 @@ window.EDUGUIDE_ADMIN_DATA = {
         "Financial Analyst",
         "Banking Officer"
       ],
+      "skills": [
+        "Financial reporting",
+        "Auditing",
+        "Taxation",
+        "Bookkeeping"
+      ],
       "sourceUrl": "https://www.bothouniversity.com/lesotho/programmes",
       "sourcePath": null,
       "supportingSourcePath": null,
@@ -1091,6 +1307,12 @@ window.EDUGUIDE_ADMIN_DATA = {
         "Financial Analyst",
         "Banking Officer"
       ],
+      "skills": [
+        "Financial modelling",
+        "Investment analysis",
+        "Risk assessment",
+        "Portfolio management"
+      ],
       "sourceUrl": "https://www.bothouniversity.com/lesotho/programmes",
       "sourcePath": null,
       "supportingSourcePath": null,
@@ -1114,10 +1336,16 @@ window.EDUGUIDE_ADMIN_DATA = {
       "overview": "Elevate your career in a global industry with the Bachelor of Commerce in Hospitality Management. This programme focuses on service excellence and operational efficiency, equipping you to thrive in the fast-paced tourism and hospitality sectors. You will build a versatile toolkit covering hotel operations, food and beverage management, and event planning, all supported by core business disciplines like marketing, accounting, and human resources. What makes this degree unique is its extensive work-integrated learning, with almost half of the programme dedicated to industry-based experience. This hands-on approach sharpens your leadership, customer service, and problem-solving skills in real-world environments. With an additional focus on digital transformation and sustainability, you will graduate ready for supervisory and management roles. Whether your goal is to manage a luxury resort or launch an entrepreneurial venture, this degree provides the expertise to lead in the modern hospitality landscape.",
       "requirementsSummary": "IGCSE/BGCSE/equivalent with 5 Passes. Applicants in possession of a Diploma or Higher Diploma in related fields may be given exemptions based on the credit point equivalency.",
       "careers": [
-        "Accountant",
-        "Auditor",
-        "Financial Analyst",
-        "Banking Officer"
+        "Business Analyst",
+        "Operations Manager",
+        "Business Development Officer",
+        "Entrepreneur"
+      ],
+      "skills": [
+        "Guest services",
+        "Event planning",
+        "Hotel operations",
+        "Revenue management"
       ],
       "sourceUrl": "https://www.bothouniversity.com/lesotho/programmes",
       "sourcePath": null,
@@ -1147,6 +1375,12 @@ window.EDUGUIDE_ADMIN_DATA = {
         "Financial Analyst",
         "Banking Officer"
       ],
+      "skills": [
+        "Financial modelling",
+        "Investment analysis",
+        "Risk assessment",
+        "Portfolio management"
+      ],
       "sourceUrl": "https://www.bothouniversity.com/lesotho/programmes",
       "sourcePath": null,
       "supportingSourcePath": null,
@@ -1175,6 +1409,12 @@ window.EDUGUIDE_ADMIN_DATA = {
         "Business Development Officer",
         "Entrepreneur"
       ],
+      "skills": [
+        "Procurement",
+        "Inventory control",
+        "Logistics planning",
+        "Supply chain analytics"
+      ],
       "sourceUrl": "https://www.bothouniversity.com/lesotho/programmes",
       "sourcePath": null,
       "supportingSourcePath": null,
@@ -1198,10 +1438,16 @@ window.EDUGUIDE_ADMIN_DATA = {
       "overview": "Transform healthcare through technology with the Bachelor of Science in Health Informatics. This cutting-edge programme sits at the intersection of healthcare, information technology, and data science, empowering you to revolutionise patient outcomes. You will gain the essential skills to design and manage advanced health information systems, ensuring healthcare data is accurate, accessible, and secure. The curriculum focuses on the practical application of data analytics, electronic health records (EHRs), and clinical decision-support tools. By bridging the gap between medical frameworks and technological innovation, you will learn to optimise operations and enhance the quality of patient care. Graduates emerge as proficient professionals ready for impactful roles in hospitals, public health entities, and health-tech companies. This degree ensures you are prepared to shape the future of medicine through informed data management and innovative digital solutions.",
       "requirementsSummary": "IGCSE/BGCSE/equivalent with 5 Passes. Applicants in possession of a Diploma or Higher Diploma in related fields may be given exemptions based on the credit point equivalency.",
       "careers": [
-        "Data Scientist",
-        "Data Analyst",
-        "Machine Learning Engineer",
-        "Business Intelligence Analyst"
+        "Health Information Manager",
+        "Hospital Administrator",
+        "Clinical Data Analyst",
+        "Health Services Manager"
+      ],
+      "skills": [
+        "Laboratory practice",
+        "Scientific method",
+        "Data analysis",
+        "Research methods"
       ],
       "sourceUrl": "https://www.bothouniversity.com/lesotho/programmes",
       "sourcePath": null,
@@ -1231,6 +1477,12 @@ window.EDUGUIDE_ADMIN_DATA = {
         "Business Development Officer",
         "Entrepreneur"
       ],
+      "skills": [
+        "Laboratory practice",
+        "Scientific method",
+        "Data analysis",
+        "Research methods"
+      ],
       "sourceUrl": "https://www.bothouniversity.com/lesotho/programmes",
       "sourcePath": null,
       "supportingSourcePath": null,
@@ -1254,10 +1506,16 @@ window.EDUGUIDE_ADMIN_DATA = {
       "overview": "Aspiring to a leadership role in healthcare? The BSc in Hospital Administration is a specialised programme designed to develop essential knowledge and skills for managing modern healthcare organisations. It integrates business administration, healthcare management, and public health principles to address the sector's unique challenges. Learners explore healthcare systems, hospital operations, and patient care protocols, gaining a holistic understanding of this complex industry. With its blend of theory, case studies, and experiential learning, the programme prepares graduates to optimise resources, improve healthcare delivery, and enhance patient outcomes across hospitals, clinics, and related settings.",
       "requirementsSummary": "IGCSE/BGCSE/equivalent with 5 Passes. Applicants in possession of a Diploma or Higher Diploma in related fields may be given exemptions based on the credit point equivalency.",
       "careers": [
-        "Business Analyst",
-        "Operations Manager",
-        "Business Development Officer",
-        "Entrepreneur"
+        "Health Information Manager",
+        "Hospital Administrator",
+        "Clinical Data Analyst",
+        "Health Services Manager"
+      ],
+      "skills": [
+        "Laboratory practice",
+        "Scientific method",
+        "Data analysis",
+        "Research methods"
       ],
       "sourceUrl": "https://www.bothouniversity.com/lesotho/programmes",
       "sourcePath": null,
@@ -1282,10 +1540,16 @@ window.EDUGUIDE_ADMIN_DATA = {
       "overview": "Ready to champion workplace safety and environmental well-being? The BSc in Safety, Health, and Environment (SHE) Management is an interdisciplinary programme that integrates occupational health, environmental science, and risk management principles. Learners study how to identify and assess workplace hazards, design effective control measures, and ensure compliance with safety and environmental regulations. The programme also places emphasis on sustainable practices. Graduates are prepared to meet the rising demand for SHE professionals across industries such as manufacturing, construction, and healthcare, making a meaningful contribution to both worker welfare and environmental stewardship.",
       "requirementsSummary": "IGCSE/BGCSE/equivalent with 5 Passes including Credit in English, Mathematics/Statistics and Science (Biology, Chemistry, Physics or Double Science). Applicants in possession of a Diploma or Higher Diploma in related fields may be given exemptions based on the credit point equivalency.",
       "careers": [
-        "Architect",
-        "Architectural Technologist",
-        "Quantity Surveyor",
-        "Urban Planner"
+        "Business Analyst",
+        "Operations Manager",
+        "Business Development Officer",
+        "Entrepreneur"
+      ],
+      "skills": [
+        "Laboratory practice",
+        "Scientific method",
+        "Data analysis",
+        "Research methods"
       ],
       "sourceUrl": "https://www.bothouniversity.com/lesotho/programmes",
       "sourcePath": null,
@@ -1315,6 +1579,12 @@ window.EDUGUIDE_ADMIN_DATA = {
         "Education Officer",
         "Teaching and Learning Resource Developer"
       ],
+      "skills": [
+        "Lesson planning",
+        "Classroom management",
+        "Learner assessment",
+        "Curriculum development"
+      ],
       "sourceUrl": "https://www.bothouniversity.com/lesotho/programmes",
       "sourcePath": null,
       "supportingSourcePath": null,
@@ -1338,10 +1608,16 @@ window.EDUGUIDE_ADMIN_DATA = {
       "overview": "The BSc in Computing provides a robust foundation in core principles, software development, and systems design, preparing graduates to navigate the evolving tech landscape. Students can tailor their studies through two specialised tracks: Software Engineering, which focuses on programming, AI, and data science, or Networking, which emphasises the design and management of LAN/WAN infrastructures using industry-standard tools like Cisco and Huawei. By blending essential theory with practical expertise, the programme equips graduates for diverse professional IT roles, specialised technical careers, or advanced academic studies and professional certifications.",
       "requirementsSummary": "IGCSE/EGCSE/equivalent with 5 Credits including English and Mathematics. Applicants in possession of a Diploma or Higher Diploma in related fields may be given exemptions based on the credit point equivalency.",
       "careers": [
-        "Data Scientist",
-        "Data Analyst",
-        "Machine Learning Engineer",
-        "Business Intelligence Analyst"
+        "Software Developer",
+        "Systems Analyst",
+        "Database Administrator",
+        "IT Support Specialist"
+      ],
+      "skills": [
+        "Systems administration",
+        "Network configuration",
+        "Technical support",
+        "Database management"
       ],
       "sourceUrl": "https://www.bothouniversity.com/lesotho/programmes",
       "sourcePath": null,
@@ -1371,6 +1647,12 @@ window.EDUGUIDE_ADMIN_DATA = {
         "Business Development Officer",
         "Entrepreneur"
       ],
+      "skills": [
+        "Communication",
+        "Research methods",
+        "Problem solving",
+        "Professional practice"
+      ],
       "sourceUrl": "https://www.bothouniversity.com/lesotho/programmes",
       "sourcePath": null,
       "supportingSourcePath": null,
@@ -1394,10 +1676,16 @@ window.EDUGUIDE_ADMIN_DATA = {
       "overview": "Want to build the next generation of mobile apps? Our BSc in Mobile Computing equips you to design and develop innovative solutions for smartphones and connected devices. This forward-looking programme integrates mobile application development, wireless communication, and user experience design, preparing students to create responsive, secure, and user-friendly applications. Through hands-on learning, industry exposure, and practical projects, students gain real-world skills. Graduates are ready for exciting careers as mobile app developers, software engineers, or UX designers across industries such as business, healthcare, technology, and entertainment.",
       "requirementsSummary": "IGCSE/LGCSE/equivalent with 3 Credits and 2 Passes including a Credit in Mathematics and a Pass in English. Applicants in possession of a Diploma or Higher Diploma in related fields may be given exemptions based on the credit point equivalency.",
       "careers": [
-        "Journalist",
-        "Broadcast Producer",
-        "Content Producer",
-        "Public Relations Officer"
+        "Software Developer",
+        "Systems Analyst",
+        "Database Administrator",
+        "IT Support Specialist"
+      ],
+      "skills": [
+        "Systems administration",
+        "Network configuration",
+        "Technical support",
+        "Database management"
       ],
       "sourceUrl": "https://www.bothouniversity.com/lesotho/programmes",
       "sourcePath": null,
@@ -1422,10 +1710,16 @@ window.EDUGUIDE_ADMIN_DATA = {
       "overview": "Want to build the next generation of mobile apps? Our BSc in Mobile Computing equips you to design and develop innovative solutions for smartphones and connected devices. This forward-looking programme integrates mobile application development, wireless communication, and user experience design, preparing students to create responsive, secure, and user-friendly applications. Through hands-on learning, industry exposure, and practical projects, students gain real-world skills. Graduates are ready for exciting careers as mobile app developers, software engineers, or UX designers across industries such as business, healthcare, technology, and entertainment.",
       "requirementsSummary": "IGCSE/LGCSE/equivalent with 3 Credits and 2 Passes including a Credit in Mathematics and a Pass in English. Applicants in possession of a Diploma or Higher Diploma in related fields may be given exemptions based on the credit point equivalency.",
       "careers": [
-        "Journalist",
-        "Broadcast Producer",
-        "Content Producer",
-        "Public Relations Officer"
+        "Network Administrator",
+        "Network Engineer",
+        "Systems Administrator",
+        "IT Support Specialist"
+      ],
+      "skills": [
+        "Systems administration",
+        "Network configuration",
+        "Technical support",
+        "Database management"
       ],
       "sourceUrl": "https://www.bothouniversity.com/lesotho/programmes",
       "sourcePath": null,
@@ -1455,6 +1749,12 @@ window.EDUGUIDE_ADMIN_DATA = {
         "Science Teacher",
         "Quality Control Analyst"
       ],
+      "skills": [
+        "Laboratory practice",
+        "Scientific method",
+        "Data analysis",
+        "Research methods"
+      ],
       "sourceUrl": "https://nul.ls/faculty-of-science-and-technology/academic-programmes/",
       "sourcePath": null,
       "supportingSourcePath": null,
@@ -1482,6 +1782,12 @@ window.EDUGUIDE_ADMIN_DATA = {
         "Research Scientist",
         "Science Teacher",
         "Quality Control Analyst"
+      ],
+      "skills": [
+        "Laboratory practice",
+        "Scientific method",
+        "Data analysis",
+        "Research methods"
       ],
       "sourceUrl": "https://nul.ls/faculty-of-science-and-technology/academic-programmes/",
       "sourcePath": null,
@@ -1511,6 +1817,12 @@ window.EDUGUIDE_ADMIN_DATA = {
         "Database Administrator",
         "IT Support Specialist"
       ],
+      "skills": [
+        "Programming",
+        "Software design",
+        "Algorithms",
+        "Quality assurance"
+      ],
       "sourceUrl": "https://nul.ls/faculty-of-science-and-technology/academic-programmes/",
       "sourcePath": null,
       "supportingSourcePath": null,
@@ -1538,6 +1850,12 @@ window.EDUGUIDE_ADMIN_DATA = {
         "Engineering Technologist",
         "Project Engineer",
         "Technical Consultant"
+      ],
+      "skills": [
+        "Technical design",
+        "Engineering mathematics",
+        "Project management",
+        "Safety compliance"
       ],
       "sourceUrl": "https://nul.ls/faculty-of-science-and-technology/academic-programmes/",
       "sourcePath": null,
@@ -1567,6 +1885,12 @@ window.EDUGUIDE_ADMIN_DATA = {
         "Risk Manager",
         "Compliance Officer"
       ],
+      "skills": [
+        "Laboratory practice",
+        "Scientific method",
+        "Data analysis",
+        "Research methods"
+      ],
       "sourceUrl": "https://nul.ls/faculty-of-science-and-technology/academic-programmes/",
       "sourcePath": null,
       "supportingSourcePath": null,
@@ -1594,6 +1918,12 @@ window.EDUGUIDE_ADMIN_DATA = {
         "Research Scientist",
         "Science Teacher",
         "Quality Control Analyst"
+      ],
+      "skills": [
+        "Laboratory practice",
+        "Scientific method",
+        "Data analysis",
+        "Research methods"
       ],
       "sourceUrl": "https://nul.ls/faculty-of-science-and-technology/academic-programmes/",
       "sourcePath": null,
@@ -1623,6 +1953,12 @@ window.EDUGUIDE_ADMIN_DATA = {
         "Science Teacher",
         "Quality Control Analyst"
       ],
+      "skills": [
+        "Laboratory practice",
+        "Scientific method",
+        "Data analysis",
+        "Research methods"
+      ],
       "sourceUrl": "https://nul.ls/faculty-of-science-and-technology/academic-programmes/",
       "sourcePath": null,
       "supportingSourcePath": null,
@@ -1650,6 +1986,12 @@ window.EDUGUIDE_ADMIN_DATA = {
         "Community Development Officer",
         "Youth Programme Officer",
         "Social Researcher"
+      ],
+      "skills": [
+        "Case management",
+        "Community engagement",
+        "Social research",
+        "Counselling skills"
       ],
       "sourceUrl": "https://nul.ls/faculty-of-science-and-technology/academic-programmes/",
       "sourcePath": null,
@@ -1679,6 +2021,12 @@ window.EDUGUIDE_ADMIN_DATA = {
         "Systems Administrator",
         "IT Support Specialist"
       ],
+      "skills": [
+        "Laboratory practice",
+        "Scientific method",
+        "Data analysis",
+        "Research methods"
+      ],
       "sourceUrl": "https://nul.ls/faculty-of-science-and-technology/academic-programmes/",
       "sourcePath": null,
       "supportingSourcePath": null,
@@ -1706,6 +2054,12 @@ window.EDUGUIDE_ADMIN_DATA = {
         "Engineering Technologist",
         "Project Engineer",
         "Technical Consultant"
+      ],
+      "skills": [
+        "Technical design",
+        "Engineering mathematics",
+        "Project management",
+        "Safety compliance"
       ],
       "sourceUrl": "https://nul.ls/faculty-of-science-and-technology/academic-programmes/",
       "sourcePath": null,
@@ -1735,6 +2089,12 @@ window.EDUGUIDE_ADMIN_DATA = {
         "Science Teacher",
         "Quality Control Analyst"
       ],
+      "skills": [
+        "Laboratory practice",
+        "Scientific method",
+        "Data analysis",
+        "Research methods"
+      ],
       "sourceUrl": "https://nul.ls/faculty-of-science-and-technology/academic-programmes/",
       "sourcePath": null,
       "supportingSourcePath": null,
@@ -1762,6 +2122,12 @@ window.EDUGUIDE_ADMIN_DATA = {
         "Research Scientist",
         "Science Teacher",
         "Quality Control Analyst"
+      ],
+      "skills": [
+        "Laboratory practice",
+        "Scientific method",
+        "Data analysis",
+        "Research methods"
       ],
       "sourceUrl": "https://nul.ls/faculty-of-science-and-technology/academic-programmes/",
       "sourcePath": null,
@@ -1791,6 +2157,12 @@ window.EDUGUIDE_ADMIN_DATA = {
         "Science Teacher",
         "Quality Control Analyst"
       ],
+      "skills": [
+        "Laboratory practice",
+        "Scientific method",
+        "Data analysis",
+        "Research methods"
+      ],
       "sourceUrl": "https://nul.ls/faculty-of-science-and-technology/academic-programmes/",
       "sourcePath": null,
       "supportingSourcePath": null,
@@ -1818,6 +2190,12 @@ window.EDUGUIDE_ADMIN_DATA = {
         "Research Scientist",
         "Science Teacher",
         "Quality Control Analyst"
+      ],
+      "skills": [
+        "Laboratory practice",
+        "Scientific method",
+        "Data analysis",
+        "Research methods"
       ],
       "sourceUrl": "https://nul.ls/faculty-of-science-and-technology/academic-programmes/",
       "sourcePath": null,
@@ -1847,6 +2225,12 @@ window.EDUGUIDE_ADMIN_DATA = {
         "Science Teacher",
         "Quality Control Analyst"
       ],
+      "skills": [
+        "Laboratory practice",
+        "Scientific method",
+        "Data analysis",
+        "Research methods"
+      ],
       "sourceUrl": "https://nul.ls/faculty-of-science-and-technology/academic-programmes/",
       "sourcePath": null,
       "supportingSourcePath": null,
@@ -1874,6 +2258,12 @@ window.EDUGUIDE_ADMIN_DATA = {
         "Research Scientist",
         "Science Teacher",
         "Quality Control Analyst"
+      ],
+      "skills": [
+        "Laboratory practice",
+        "Scientific method",
+        "Data analysis",
+        "Research methods"
       ],
       "sourceUrl": "https://nul.ls/faculty-of-science-and-technology/academic-programmes/",
       "sourcePath": null,
@@ -1903,6 +2293,12 @@ window.EDUGUIDE_ADMIN_DATA = {
         "Database Administrator",
         "IT Support Specialist"
       ],
+      "skills": [
+        "Programming",
+        "Software design",
+        "Algorithms",
+        "Quality assurance"
+      ],
       "sourceUrl": "https://nul.ls/faculty-of-science-and-technology/academic-programmes/",
       "sourcePath": null,
       "supportingSourcePath": null,
@@ -1930,6 +2326,12 @@ window.EDUGUIDE_ADMIN_DATA = {
         "Systems Analyst",
         "Database Administrator",
         "IT Support Specialist"
+      ],
+      "skills": [
+        "Programming",
+        "Software design",
+        "Algorithms",
+        "Quality assurance"
       ],
       "sourceUrl": "https://nul.ls/faculty-of-science-and-technology/academic-programmes/",
       "sourcePath": null,
@@ -1959,6 +2361,12 @@ window.EDUGUIDE_ADMIN_DATA = {
         "Science Teacher",
         "Quality Control Analyst"
       ],
+      "skills": [
+        "Laboratory practice",
+        "Scientific method",
+        "Data analysis",
+        "Research methods"
+      ],
       "sourceUrl": "https://nul.ls/faculty-of-science-and-technology/academic-programmes/",
       "sourcePath": null,
       "supportingSourcePath": null,
@@ -1986,6 +2394,12 @@ window.EDUGUIDE_ADMIN_DATA = {
         "Network Engineer",
         "Systems Administrator",
         "IT Support Specialist"
+      ],
+      "skills": [
+        "Technical design",
+        "Engineering mathematics",
+        "Project management",
+        "Safety compliance"
       ],
       "sourceUrl": "https://nul.ls/faculty-of-science-and-technology/academic-programmes/",
       "sourcePath": null,
@@ -2015,6 +2429,12 @@ window.EDUGUIDE_ADMIN_DATA = {
         "Risk Manager",
         "Compliance Officer"
       ],
+      "skills": [
+        "Laboratory practice",
+        "Scientific method",
+        "Data analysis",
+        "Research methods"
+      ],
       "sourceUrl": "https://nul.ls/faculty-of-science-and-technology/academic-programmes/",
       "sourcePath": null,
       "supportingSourcePath": null,
@@ -2042,6 +2462,12 @@ window.EDUGUIDE_ADMIN_DATA = {
         "Research Scientist",
         "Science Teacher",
         "Quality Control Analyst"
+      ],
+      "skills": [
+        "Laboratory practice",
+        "Scientific method",
+        "Data analysis",
+        "Research methods"
       ],
       "sourceUrl": "https://nul.ls/faculty-of-science-and-technology/academic-programmes/",
       "sourcePath": null,
@@ -2071,6 +2497,12 @@ window.EDUGUIDE_ADMIN_DATA = {
         "Science Teacher",
         "Quality Control Analyst"
       ],
+      "skills": [
+        "Laboratory practice",
+        "Scientific method",
+        "Data analysis",
+        "Research methods"
+      ],
       "sourceUrl": "https://nul.ls/faculty-of-science-and-technology/academic-programmes/",
       "sourcePath": null,
       "supportingSourcePath": null,
@@ -2098,6 +2530,12 @@ window.EDUGUIDE_ADMIN_DATA = {
         "Research Scientist",
         "Science Teacher",
         "Quality Control Analyst"
+      ],
+      "skills": [
+        "Laboratory practice",
+        "Scientific method",
+        "Data analysis",
+        "Research methods"
       ],
       "sourceUrl": "https://nul.ls/faculty-of-science-and-technology/academic-programmes/",
       "sourcePath": null,
@@ -2127,6 +2565,12 @@ window.EDUGUIDE_ADMIN_DATA = {
         "Youth Programme Officer",
         "Social Researcher"
       ],
+      "skills": [
+        "Case management",
+        "Community engagement",
+        "Social research",
+        "Counselling skills"
+      ],
       "sourceUrl": "https://nul.ls/faculty-of-science-and-technology/academic-programmes/",
       "sourcePath": null,
       "supportingSourcePath": null,
@@ -2154,6 +2598,12 @@ window.EDUGUIDE_ADMIN_DATA = {
         "Research Scientist",
         "Science Teacher",
         "Quality Control Analyst"
+      ],
+      "skills": [
+        "Laboratory practice",
+        "Scientific method",
+        "Data analysis",
+        "Research methods"
       ],
       "sourceUrl": "https://nul.ls/faculty-of-science-and-technology/academic-programmes/",
       "sourcePath": null,
@@ -2183,6 +2633,12 @@ window.EDUGUIDE_ADMIN_DATA = {
         "Project Engineer",
         "Technical Consultant"
       ],
+      "skills": [
+        "Technical design",
+        "Engineering mathematics",
+        "Project management",
+        "Safety compliance"
+      ],
       "sourceUrl": "https://nul.ls/faculty-of-science-and-technology/academic-programmes/",
       "sourcePath": null,
       "supportingSourcePath": null,
@@ -2210,6 +2666,12 @@ window.EDUGUIDE_ADMIN_DATA = {
         "Architectural Technologist",
         "Quantity Surveyor",
         "Urban Planner"
+      ],
+      "skills": [
+        "Technical design",
+        "Engineering mathematics",
+        "Project management",
+        "Safety compliance"
       ],
       "sourceUrl": "https://nul.ls/faculty-of-science-and-technology/academic-programmes/",
       "sourcePath": null,
@@ -2239,6 +2701,12 @@ window.EDUGUIDE_ADMIN_DATA = {
         "Science Teacher",
         "Quality Control Analyst"
       ],
+      "skills": [
+        "Laboratory practice",
+        "Scientific method",
+        "Data analysis",
+        "Research methods"
+      ],
       "sourceUrl": "https://nul.ls/faculty-of-science-and-technology/academic-programmes/",
       "sourcePath": null,
       "supportingSourcePath": null,
@@ -2266,6 +2734,12 @@ window.EDUGUIDE_ADMIN_DATA = {
         "Research Scientist",
         "Science Teacher",
         "Quality Control Analyst"
+      ],
+      "skills": [
+        "Laboratory practice",
+        "Scientific method",
+        "Data analysis",
+        "Research methods"
       ],
       "sourceUrl": "https://nul.ls/faculty-of-science-and-technology/academic-programmes/",
       "sourcePath": null,
@@ -2295,6 +2769,12 @@ window.EDUGUIDE_ADMIN_DATA = {
         "Science Teacher",
         "Quality Control Analyst"
       ],
+      "skills": [
+        "Laboratory practice",
+        "Scientific method",
+        "Data analysis",
+        "Research methods"
+      ],
       "sourceUrl": "https://nul.ls/faculty-of-science-and-technology/academic-programmes/",
       "sourcePath": null,
       "supportingSourcePath": null,
@@ -2322,6 +2802,12 @@ window.EDUGUIDE_ADMIN_DATA = {
         "Research Scientist",
         "Science Teacher",
         "Quality Control Analyst"
+      ],
+      "skills": [
+        "Laboratory practice",
+        "Scientific method",
+        "Data analysis",
+        "Research methods"
       ],
       "sourceUrl": "https://nul.ls/faculty-of-science-and-technology/academic-programmes/",
       "sourcePath": null,
@@ -2351,6 +2837,12 @@ window.EDUGUIDE_ADMIN_DATA = {
         "Research Assistant",
         "Community Development Officer"
       ],
+      "skills": [
+        "Communication",
+        "Research methods",
+        "Problem solving",
+        "Professional practice"
+      ],
       "sourceUrl": "https://nul.ls/humanities/academic-programmes/",
       "sourcePath": null,
       "supportingSourcePath": null,
@@ -2378,6 +2870,12 @@ window.EDUGUIDE_ADMIN_DATA = {
         "Project Officer",
         "Research Assistant",
         "Community Development Officer"
+      ],
+      "skills": [
+        "Communication",
+        "Research methods",
+        "Problem solving",
+        "Professional practice"
       ],
       "sourceUrl": "https://nul.ls/humanities/academic-programmes/",
       "sourcePath": null,
@@ -2407,6 +2905,12 @@ window.EDUGUIDE_ADMIN_DATA = {
         "Research Assistant",
         "Community Development Officer"
       ],
+      "skills": [
+        "Communication",
+        "Research methods",
+        "Problem solving",
+        "Professional practice"
+      ],
       "sourceUrl": "https://nul.ls/humanities/academic-programmes/",
       "sourcePath": null,
       "supportingSourcePath": null,
@@ -2434,6 +2938,12 @@ window.EDUGUIDE_ADMIN_DATA = {
         "Project Officer",
         "Research Assistant",
         "Community Development Officer"
+      ],
+      "skills": [
+        "Communication",
+        "Research methods",
+        "Problem solving",
+        "Professional practice"
       ],
       "sourceUrl": "https://nul.ls/humanities/academic-programmes/",
       "sourcePath": null,
@@ -2463,6 +2973,12 @@ window.EDUGUIDE_ADMIN_DATA = {
         "Research Assistant",
         "Community Development Officer"
       ],
+      "skills": [
+        "Communication",
+        "Research methods",
+        "Problem solving",
+        "Professional practice"
+      ],
       "sourceUrl": "https://nul.ls/humanities/academic-programmes/",
       "sourcePath": null,
       "supportingSourcePath": null,
@@ -2490,6 +3006,12 @@ window.EDUGUIDE_ADMIN_DATA = {
         "Project Officer",
         "Research Assistant",
         "Community Development Officer"
+      ],
+      "skills": [
+        "Communication",
+        "Research methods",
+        "Problem solving",
+        "Professional practice"
       ],
       "sourceUrl": "https://nul.ls/humanities/academic-programmes/",
       "sourcePath": null,
@@ -2519,6 +3041,12 @@ window.EDUGUIDE_ADMIN_DATA = {
         "Research Assistant",
         "Community Development Officer"
       ],
+      "skills": [
+        "Communication",
+        "Research methods",
+        "Problem solving",
+        "Professional practice"
+      ],
       "sourceUrl": "https://nul.ls/humanities/academic-programmes/",
       "sourcePath": null,
       "supportingSourcePath": null,
@@ -2546,6 +3074,12 @@ window.EDUGUIDE_ADMIN_DATA = {
         "Broadcast Producer",
         "Content Producer",
         "Public Relations Officer"
+      ],
+      "skills": [
+        "News writing",
+        "Content production",
+        "Media research",
+        "Public communication"
       ],
       "sourceUrl": "https://nul.ls/humanities/academic-programmes/",
       "sourcePath": null,
@@ -2575,6 +3109,12 @@ window.EDUGUIDE_ADMIN_DATA = {
         "Research Assistant",
         "Community Development Officer"
       ],
+      "skills": [
+        "Communication",
+        "Research methods",
+        "Problem solving",
+        "Professional practice"
+      ],
       "sourceUrl": "https://nul.ls/humanities/academic-programmes/",
       "sourcePath": null,
       "supportingSourcePath": null,
@@ -2602,6 +3142,12 @@ window.EDUGUIDE_ADMIN_DATA = {
         "Project Officer",
         "Research Assistant",
         "Community Development Officer"
+      ],
+      "skills": [
+        "Communication",
+        "Research methods",
+        "Problem solving",
+        "Professional practice"
       ],
       "sourceUrl": "https://nul.ls/humanities/academic-programmes/",
       "sourcePath": null,
@@ -2631,6 +3177,12 @@ window.EDUGUIDE_ADMIN_DATA = {
         "Research Assistant",
         "Community Development Officer"
       ],
+      "skills": [
+        "Communication",
+        "Research methods",
+        "Problem solving",
+        "Professional practice"
+      ],
       "sourceUrl": "https://nul.ls/humanities/academic-programmes/",
       "sourcePath": null,
       "supportingSourcePath": null,
@@ -2658,6 +3210,12 @@ window.EDUGUIDE_ADMIN_DATA = {
         "Project Officer",
         "Research Assistant",
         "Community Development Officer"
+      ],
+      "skills": [
+        "Communication",
+        "Research methods",
+        "Problem solving",
+        "Professional practice"
       ],
       "sourceUrl": "https://nul.ls/humanities/academic-programmes/",
       "sourcePath": null,
@@ -2687,6 +3245,12 @@ window.EDUGUIDE_ADMIN_DATA = {
         "Research Assistant",
         "Community Development Officer"
       ],
+      "skills": [
+        "Communication",
+        "Research methods",
+        "Problem solving",
+        "Professional practice"
+      ],
       "sourceUrl": "https://nul.ls/humanities/academic-programmes/",
       "sourcePath": null,
       "supportingSourcePath": null,
@@ -2714,6 +3278,12 @@ window.EDUGUIDE_ADMIN_DATA = {
         "Project Officer",
         "Research Assistant",
         "Community Development Officer"
+      ],
+      "skills": [
+        "Communication",
+        "Research methods",
+        "Problem solving",
+        "Professional practice"
       ],
       "sourceUrl": "https://nul.ls/humanities/academic-programmes/",
       "sourcePath": null,
@@ -2743,6 +3313,12 @@ window.EDUGUIDE_ADMIN_DATA = {
         "Research Assistant",
         "Community Development Officer"
       ],
+      "skills": [
+        "Communication",
+        "Research methods",
+        "Problem solving",
+        "Professional practice"
+      ],
       "sourceUrl": "https://nul.ls/humanities/academic-programmes/",
       "sourcePath": null,
       "supportingSourcePath": null,
@@ -2770,6 +3346,12 @@ window.EDUGUIDE_ADMIN_DATA = {
         "Project Officer",
         "Research Assistant",
         "Community Development Officer"
+      ],
+      "skills": [
+        "Communication",
+        "Research methods",
+        "Problem solving",
+        "Professional practice"
       ],
       "sourceUrl": "https://nul.ls/humanities/academic-programmes/",
       "sourcePath": null,
@@ -2799,6 +3381,12 @@ window.EDUGUIDE_ADMIN_DATA = {
         "Research Assistant",
         "Community Development Officer"
       ],
+      "skills": [
+        "Communication",
+        "Research methods",
+        "Problem solving",
+        "Professional practice"
+      ],
       "sourceUrl": "https://nul.ls/humanities/academic-programmes/",
       "sourcePath": null,
       "supportingSourcePath": null,
@@ -2826,6 +3414,12 @@ window.EDUGUIDE_ADMIN_DATA = {
         "Project Officer",
         "Research Assistant",
         "Community Development Officer"
+      ],
+      "skills": [
+        "Communication",
+        "Research methods",
+        "Problem solving",
+        "Professional practice"
       ],
       "sourceUrl": "https://nul.ls/humanities/academic-programmes/",
       "sourcePath": null,
@@ -2855,6 +3449,12 @@ window.EDUGUIDE_ADMIN_DATA = {
         "Research Assistant",
         "Community Development Officer"
       ],
+      "skills": [
+        "Communication",
+        "Research methods",
+        "Problem solving",
+        "Professional practice"
+      ],
       "sourceUrl": "https://nul.ls/humanities/academic-programmes/",
       "sourcePath": null,
       "supportingSourcePath": null,
@@ -2882,6 +3482,12 @@ window.EDUGUIDE_ADMIN_DATA = {
         "Project Officer",
         "Research Assistant",
         "Community Development Officer"
+      ],
+      "skills": [
+        "Communication",
+        "Research methods",
+        "Problem solving",
+        "Professional practice"
       ],
       "sourceUrl": "https://nul.ls/humanities/academic-programmes/",
       "sourcePath": null,
@@ -2911,6 +3517,12 @@ window.EDUGUIDE_ADMIN_DATA = {
         "Compliance Officer",
         "Human Rights Officer"
       ],
+      "skills": [
+        "Legal research",
+        "Case analysis",
+        "Legal writing",
+        "Advocacy"
+      ],
       "sourceUrl": "https://nul.ls/faculty-of-law/academic-programmes/",
       "sourcePath": null,
       "supportingSourcePath": null,
@@ -2938,6 +3550,12 @@ window.EDUGUIDE_ADMIN_DATA = {
         "Legal Officer",
         "Compliance Officer",
         "Human Rights Officer"
+      ],
+      "skills": [
+        "Legal research",
+        "Case analysis",
+        "Legal writing",
+        "Advocacy"
       ],
       "sourceUrl": "https://nul.ls/faculty-of-law/academic-programmes/",
       "sourcePath": null,
@@ -2967,6 +3585,12 @@ window.EDUGUIDE_ADMIN_DATA = {
         "Compliance Officer",
         "Human Rights Officer"
       ],
+      "skills": [
+        "Legal research",
+        "Case analysis",
+        "Legal writing",
+        "Advocacy"
+      ],
       "sourceUrl": "https://nul.ls/faculty-of-law/academic-programmes/",
       "sourcePath": null,
       "supportingSourcePath": null,
@@ -2994,6 +3618,12 @@ window.EDUGUIDE_ADMIN_DATA = {
         "Legal Officer",
         "Compliance Officer",
         "Human Rights Officer"
+      ],
+      "skills": [
+        "Legal research",
+        "Case analysis",
+        "Legal writing",
+        "Advocacy"
       ],
       "sourceUrl": "https://nul.ls/faculty-of-law/academic-programmes/",
       "sourcePath": null,
@@ -3023,6 +3653,12 @@ window.EDUGUIDE_ADMIN_DATA = {
         "Compliance Officer",
         "Human Rights Officer"
       ],
+      "skills": [
+        "Legal research",
+        "Case analysis",
+        "Legal writing",
+        "Advocacy"
+      ],
       "sourceUrl": "https://nul.ls/faculty-of-law/academic-programmes/",
       "sourcePath": null,
       "supportingSourcePath": null,
@@ -3050,6 +3686,12 @@ window.EDUGUIDE_ADMIN_DATA = {
         "Legal Officer",
         "Compliance Officer",
         "Human Rights Officer"
+      ],
+      "skills": [
+        "Legal research",
+        "Case analysis",
+        "Legal writing",
+        "Advocacy"
       ],
       "sourceUrl": "https://nul.ls/faculty-of-law/academic-programmes/",
       "sourcePath": null,
@@ -3079,6 +3721,12 @@ window.EDUGUIDE_ADMIN_DATA = {
         "Compliance Officer",
         "Human Rights Officer"
       ],
+      "skills": [
+        "Legal research",
+        "Case analysis",
+        "Legal writing",
+        "Advocacy"
+      ],
       "sourceUrl": "https://nul.ls/faculty-of-law/academic-programmes/",
       "sourcePath": null,
       "supportingSourcePath": null,
@@ -3106,6 +3754,12 @@ window.EDUGUIDE_ADMIN_DATA = {
         "Legal Officer",
         "Compliance Officer",
         "Human Rights Officer"
+      ],
+      "skills": [
+        "Legal research",
+        "Case analysis",
+        "Legal writing",
+        "Advocacy"
       ],
       "sourceUrl": "https://nul.ls/faculty-of-law/academic-programmes/",
       "sourcePath": null,
@@ -3135,6 +3789,12 @@ window.EDUGUIDE_ADMIN_DATA = {
         "Compliance Officer",
         "Human Rights Officer"
       ],
+      "skills": [
+        "Legal research",
+        "Case analysis",
+        "Legal writing",
+        "Advocacy"
+      ],
       "sourceUrl": "https://nul.ls/faculty-of-law/academic-programmes/",
       "sourcePath": null,
       "supportingSourcePath": null,
@@ -3162,6 +3822,12 @@ window.EDUGUIDE_ADMIN_DATA = {
         "Legal Officer",
         "Compliance Officer",
         "Human Rights Officer"
+      ],
+      "skills": [
+        "Legal research",
+        "Case analysis",
+        "Legal writing",
+        "Advocacy"
       ],
       "sourceUrl": "https://nul.ls/faculty-of-law/academic-programmes/",
       "sourcePath": null,
@@ -3191,6 +3857,12 @@ window.EDUGUIDE_ADMIN_DATA = {
         "Compliance Officer",
         "Human Rights Officer"
       ],
+      "skills": [
+        "Legal research",
+        "Case analysis",
+        "Legal writing",
+        "Advocacy"
+      ],
       "sourceUrl": "https://nul.ls/faculty-of-law/academic-programmes/",
       "sourcePath": null,
       "supportingSourcePath": null,
@@ -3218,6 +3890,12 @@ window.EDUGUIDE_ADMIN_DATA = {
         "Legal Officer",
         "Compliance Officer",
         "Human Rights Officer"
+      ],
+      "skills": [
+        "Legal research",
+        "Case analysis",
+        "Legal writing",
+        "Advocacy"
       ],
       "sourceUrl": "https://nul.ls/faculty-of-law/academic-programmes/",
       "sourcePath": null,
@@ -3247,6 +3925,12 @@ window.EDUGUIDE_ADMIN_DATA = {
         "Compliance Officer",
         "Human Rights Officer"
       ],
+      "skills": [
+        "Legal research",
+        "Case analysis",
+        "Legal writing",
+        "Advocacy"
+      ],
       "sourceUrl": "https://nul.ls/faculty-of-law/academic-programmes/",
       "sourcePath": null,
       "supportingSourcePath": null,
@@ -3274,6 +3958,12 @@ window.EDUGUIDE_ADMIN_DATA = {
         "Legal Officer",
         "Compliance Officer",
         "Human Rights Officer"
+      ],
+      "skills": [
+        "Legal research",
+        "Case analysis",
+        "Legal writing",
+        "Advocacy"
       ],
       "sourceUrl": "https://nul.ls/faculty-of-law/academic-programmes/",
       "sourcePath": null,
@@ -3303,6 +3993,12 @@ window.EDUGUIDE_ADMIN_DATA = {
         "Compliance Officer",
         "Human Rights Officer"
       ],
+      "skills": [
+        "Legal research",
+        "Case analysis",
+        "Legal writing",
+        "Advocacy"
+      ],
       "sourceUrl": "https://nul.ls/faculty-of-law/academic-programmes/",
       "sourcePath": null,
       "supportingSourcePath": null,
@@ -3330,6 +4026,12 @@ window.EDUGUIDE_ADMIN_DATA = {
         "Digital Forensics Investigator",
         "Security Engineer",
         "Network Security Specialist"
+      ],
+      "skills": [
+        "Threat analysis",
+        "Digital forensics",
+        "Network defence",
+        "Incident response"
       ],
       "sourceUrl": "https://nul.ls/faculty-of-law/academic-programmes/",
       "sourcePath": null,
@@ -3359,6 +4061,12 @@ window.EDUGUIDE_ADMIN_DATA = {
         "Compliance Officer",
         "Human Rights Officer"
       ],
+      "skills": [
+        "Legal research",
+        "Case analysis",
+        "Legal writing",
+        "Advocacy"
+      ],
       "sourceUrl": "https://nul.ls/faculty-of-law/academic-programmes/",
       "sourcePath": null,
       "supportingSourcePath": null,
@@ -3386,6 +4094,12 @@ window.EDUGUIDE_ADMIN_DATA = {
         "Legal Officer",
         "Compliance Officer",
         "Human Rights Officer"
+      ],
+      "skills": [
+        "Legal research",
+        "Case analysis",
+        "Legal writing",
+        "Advocacy"
       ],
       "sourceUrl": "https://nul.ls/faculty-of-law/academic-programmes/",
       "sourcePath": null,
@@ -3415,6 +4129,12 @@ window.EDUGUIDE_ADMIN_DATA = {
         "Compliance Officer",
         "Human Rights Officer"
       ],
+      "skills": [
+        "Legal research",
+        "Case analysis",
+        "Legal writing",
+        "Advocacy"
+      ],
       "sourceUrl": "https://nul.ls/faculty-of-law/academic-programmes/",
       "sourcePath": null,
       "supportingSourcePath": null,
@@ -3442,6 +4162,12 @@ window.EDUGUIDE_ADMIN_DATA = {
         "Legal Officer",
         "Compliance Officer",
         "Human Rights Officer"
+      ],
+      "skills": [
+        "Legal research",
+        "Case analysis",
+        "Legal writing",
+        "Advocacy"
       ],
       "sourceUrl": "https://nul.ls/faculty-of-law/academic-programmes/",
       "sourcePath": null,
@@ -3471,6 +4197,12 @@ window.EDUGUIDE_ADMIN_DATA = {
         "Compliance Officer",
         "Human Rights Officer"
       ],
+      "skills": [
+        "Legal research",
+        "Case analysis",
+        "Legal writing",
+        "Advocacy"
+      ],
       "sourceUrl": "https://nul.ls/faculty-of-law/academic-programmes/",
       "sourcePath": null,
       "supportingSourcePath": null,
@@ -3498,6 +4230,12 @@ window.EDUGUIDE_ADMIN_DATA = {
         "Legal Officer",
         "Compliance Officer",
         "Human Rights Officer"
+      ],
+      "skills": [
+        "Legal research",
+        "Case analysis",
+        "Legal writing",
+        "Advocacy"
       ],
       "sourceUrl": "https://nul.ls/faculty-of-law/academic-programmes/",
       "sourcePath": null,
@@ -3527,6 +4265,12 @@ window.EDUGUIDE_ADMIN_DATA = {
         "Compliance Officer",
         "Human Rights Officer"
       ],
+      "skills": [
+        "Legal research",
+        "Case analysis",
+        "Legal writing",
+        "Advocacy"
+      ],
       "sourceUrl": "https://nul.ls/faculty-of-law/academic-programmes/",
       "sourcePath": null,
       "supportingSourcePath": null,
@@ -3554,6 +4298,12 @@ window.EDUGUIDE_ADMIN_DATA = {
         "Legal Officer",
         "Compliance Officer",
         "Human Rights Officer"
+      ],
+      "skills": [
+        "Legal research",
+        "Case analysis",
+        "Legal writing",
+        "Advocacy"
       ],
       "sourceUrl": "https://nul.ls/faculty-of-law/academic-programmes/",
       "sourcePath": null,
@@ -3583,6 +4333,12 @@ window.EDUGUIDE_ADMIN_DATA = {
         "Business Development Officer",
         "Entrepreneur"
       ],
+      "skills": [
+        "Case management",
+        "Community engagement",
+        "Social research",
+        "Counselling skills"
+      ],
       "sourceUrl": "https://nul.ls/faculty-of-social-sciences/academic-programmes/",
       "sourcePath": null,
       "supportingSourcePath": null,
@@ -3610,6 +4366,12 @@ window.EDUGUIDE_ADMIN_DATA = {
         "Operations Manager",
         "Business Development Officer",
         "Entrepreneur"
+      ],
+      "skills": [
+        "Case management",
+        "Community engagement",
+        "Social research",
+        "Counselling skills"
       ],
       "sourceUrl": "https://nul.ls/faculty-of-social-sciences/academic-programmes/",
       "sourcePath": null,
@@ -3639,6 +4401,12 @@ window.EDUGUIDE_ADMIN_DATA = {
         "Financial Analyst",
         "Banking Officer"
       ],
+      "skills": [
+        "Financial reporting",
+        "Auditing",
+        "Taxation",
+        "Bookkeeping"
+      ],
       "sourceUrl": "https://nul.ls/faculty-of-social-sciences/academic-programmes/",
       "sourcePath": null,
       "supportingSourcePath": null,
@@ -3666,6 +4434,12 @@ window.EDUGUIDE_ADMIN_DATA = {
         "Operations Manager",
         "Business Development Officer",
         "Entrepreneur"
+      ],
+      "skills": [
+        "Market research",
+        "Brand strategy",
+        "Digital marketing",
+        "Customer analytics"
       ],
       "sourceUrl": "https://nul.ls/faculty-of-social-sciences/academic-programmes/",
       "sourcePath": null,
@@ -3695,6 +4469,12 @@ window.EDUGUIDE_ADMIN_DATA = {
         "Training Coordinator",
         "Employee Relations Officer"
       ],
+      "skills": [
+        "Recruitment",
+        "Employee relations",
+        "Performance management",
+        "Labour policy"
+      ],
       "sourceUrl": "https://nul.ls/faculty-of-social-sciences/academic-programmes/",
       "sourcePath": null,
       "supportingSourcePath": null,
@@ -3722,6 +4502,12 @@ window.EDUGUIDE_ADMIN_DATA = {
         "Community Development Officer",
         "Youth Programme Officer",
         "Social Researcher"
+      ],
+      "skills": [
+        "Case management",
+        "Community engagement",
+        "Social research",
+        "Counselling skills"
       ],
       "sourceUrl": "https://nul.ls/faculty-of-social-sciences/academic-programmes/",
       "sourcePath": null,
@@ -3751,6 +4537,12 @@ window.EDUGUIDE_ADMIN_DATA = {
         "Business Development Officer",
         "Entrepreneur"
       ],
+      "skills": [
+        "Strategic planning",
+        "Operations management",
+        "Leadership",
+        "Business communication"
+      ],
       "sourceUrl": "https://nul.ls/faculty-of-social-sciences/academic-programmes/",
       "sourcePath": null,
       "supportingSourcePath": null,
@@ -3778,6 +4570,12 @@ window.EDUGUIDE_ADMIN_DATA = {
         "Community Development Officer",
         "Youth Programme Officer",
         "Social Researcher"
+      ],
+      "skills": [
+        "Case management",
+        "Community engagement",
+        "Social research",
+        "Counselling skills"
       ],
       "sourceUrl": "https://nul.ls/faculty-of-social-sciences/academic-programmes/",
       "sourcePath": null,
@@ -3807,6 +4605,12 @@ window.EDUGUIDE_ADMIN_DATA = {
         "Youth Programme Officer",
         "Social Researcher"
       ],
+      "skills": [
+        "Case management",
+        "Community engagement",
+        "Social research",
+        "Counselling skills"
+      ],
       "sourceUrl": "https://nul.ls/faculty-of-social-sciences/academic-programmes/",
       "sourcePath": null,
       "supportingSourcePath": null,
@@ -3834,6 +4638,12 @@ window.EDUGUIDE_ADMIN_DATA = {
         "Community Development Officer",
         "Youth Programme Officer",
         "Social Researcher"
+      ],
+      "skills": [
+        "Case management",
+        "Community engagement",
+        "Social research",
+        "Counselling skills"
       ],
       "sourceUrl": "https://nul.ls/faculty-of-social-sciences/academic-programmes/",
       "sourcePath": null,
@@ -3863,6 +4673,12 @@ window.EDUGUIDE_ADMIN_DATA = {
         "Youth Programme Officer",
         "Social Researcher"
       ],
+      "skills": [
+        "Case management",
+        "Community engagement",
+        "Social research",
+        "Counselling skills"
+      ],
       "sourceUrl": "https://nul.ls/faculty-of-social-sciences/academic-programmes/",
       "sourcePath": null,
       "supportingSourcePath": null,
@@ -3890,6 +4706,12 @@ window.EDUGUIDE_ADMIN_DATA = {
         "Community Development Officer",
         "Youth Programme Officer",
         "Social Researcher"
+      ],
+      "skills": [
+        "Case management",
+        "Community engagement",
+        "Social research",
+        "Counselling skills"
       ],
       "sourceUrl": "https://nul.ls/faculty-of-social-sciences/academic-programmes/",
       "sourcePath": null,
@@ -3919,6 +4741,12 @@ window.EDUGUIDE_ADMIN_DATA = {
         "Youth Programme Officer",
         "Social Researcher"
       ],
+      "skills": [
+        "Case management",
+        "Community engagement",
+        "Social research",
+        "Counselling skills"
+      ],
       "sourceUrl": "https://nul.ls/faculty-of-social-sciences/academic-programmes/",
       "sourcePath": null,
       "supportingSourcePath": null,
@@ -3946,6 +4774,12 @@ window.EDUGUIDE_ADMIN_DATA = {
         "Community Development Officer",
         "Youth Programme Officer",
         "Social Researcher"
+      ],
+      "skills": [
+        "Case management",
+        "Community engagement",
+        "Social research",
+        "Counselling skills"
       ],
       "sourceUrl": "https://nul.ls/faculty-of-social-sciences/academic-programmes/",
       "sourcePath": null,
@@ -3975,6 +4809,12 @@ window.EDUGUIDE_ADMIN_DATA = {
         "Youth Programme Officer",
         "Social Researcher"
       ],
+      "skills": [
+        "Case management",
+        "Community engagement",
+        "Social research",
+        "Counselling skills"
+      ],
       "sourceUrl": "https://nul.ls/faculty-of-social-sciences/academic-programmes/",
       "sourcePath": null,
       "supportingSourcePath": null,
@@ -4002,6 +4842,12 @@ window.EDUGUIDE_ADMIN_DATA = {
         "Community Development Officer",
         "Youth Programme Officer",
         "Social Researcher"
+      ],
+      "skills": [
+        "Case management",
+        "Community engagement",
+        "Social research",
+        "Counselling skills"
       ],
       "sourceUrl": "https://nul.ls/faculty-of-social-sciences/academic-programmes/",
       "sourcePath": null,
@@ -4031,6 +4877,12 @@ window.EDUGUIDE_ADMIN_DATA = {
         "Youth Programme Officer",
         "Social Researcher"
       ],
+      "skills": [
+        "Case management",
+        "Community engagement",
+        "Social research",
+        "Counselling skills"
+      ],
       "sourceUrl": "https://nul.ls/faculty-of-social-sciences/academic-programmes/",
       "sourcePath": null,
       "supportingSourcePath": null,
@@ -4058,6 +4910,12 @@ window.EDUGUIDE_ADMIN_DATA = {
         "Community Development Officer",
         "Youth Programme Officer",
         "Social Researcher"
+      ],
+      "skills": [
+        "Case management",
+        "Community engagement",
+        "Social research",
+        "Counselling skills"
       ],
       "sourceUrl": "https://nul.ls/faculty-of-social-sciences/academic-programmes/",
       "sourcePath": null,
@@ -4087,6 +4945,12 @@ window.EDUGUIDE_ADMIN_DATA = {
         "Youth Programme Officer",
         "Social Researcher"
       ],
+      "skills": [
+        "Case management",
+        "Community engagement",
+        "Social research",
+        "Counselling skills"
+      ],
       "sourceUrl": "https://nul.ls/faculty-of-social-sciences/academic-programmes/",
       "sourcePath": null,
       "supportingSourcePath": null,
@@ -4114,6 +4978,12 @@ window.EDUGUIDE_ADMIN_DATA = {
         "Operations Manager",
         "Business Development Officer",
         "Entrepreneur"
+      ],
+      "skills": [
+        "Strategic planning",
+        "Operations management",
+        "Leadership",
+        "Business communication"
       ],
       "sourceUrl": "https://nul.ls/faculty-of-social-sciences/academic-programmes/",
       "sourcePath": null,
@@ -4143,6 +5013,12 @@ window.EDUGUIDE_ADMIN_DATA = {
         "Business Development Officer",
         "Entrepreneur"
       ],
+      "skills": [
+        "Strategic planning",
+        "Operations management",
+        "Leadership",
+        "Business communication"
+      ],
       "sourceUrl": "https://nul.ls/faculty-of-social-sciences/academic-programmes/",
       "sourcePath": null,
       "supportingSourcePath": null,
@@ -4170,6 +5046,12 @@ window.EDUGUIDE_ADMIN_DATA = {
         "Operations Manager",
         "Business Development Officer",
         "Entrepreneur"
+      ],
+      "skills": [
+        "Case management",
+        "Community engagement",
+        "Social research",
+        "Counselling skills"
       ],
       "sourceUrl": "https://nul.ls/faculty-of-social-sciences/academic-programmes/",
       "sourcePath": null,
@@ -4199,6 +5081,12 @@ window.EDUGUIDE_ADMIN_DATA = {
         "Youth Programme Officer",
         "Social Researcher"
       ],
+      "skills": [
+        "Case management",
+        "Community engagement",
+        "Social research",
+        "Counselling skills"
+      ],
       "sourceUrl": "https://nul.ls/faculty-of-social-sciences/academic-programmes/",
       "sourcePath": null,
       "supportingSourcePath": null,
@@ -4226,6 +5114,12 @@ window.EDUGUIDE_ADMIN_DATA = {
         "Community Development Officer",
         "Youth Programme Officer",
         "Social Researcher"
+      ],
+      "skills": [
+        "Case management",
+        "Community engagement",
+        "Social research",
+        "Counselling skills"
       ],
       "sourceUrl": "https://nul.ls/faculty-of-social-sciences/academic-programmes/",
       "sourcePath": null,
@@ -4255,6 +5149,12 @@ window.EDUGUIDE_ADMIN_DATA = {
         "Farm Manager",
         "Agribusiness Officer"
       ],
+      "skills": [
+        "Lesson planning",
+        "Classroom management",
+        "Learner assessment",
+        "Curriculum development"
+      ],
       "sourceUrl": "https://nul.ls/faculty-of-education/academic-programmes/",
       "sourcePath": null,
       "supportingSourcePath": null,
@@ -4282,6 +5182,12 @@ window.EDUGUIDE_ADMIN_DATA = {
         "Curriculum Developer",
         "Education Officer",
         "Teaching and Learning Resource Developer"
+      ],
+      "skills": [
+        "Lesson planning",
+        "Classroom management",
+        "Learner assessment",
+        "Curriculum development"
       ],
       "sourceUrl": "https://nul.ls/faculty-of-education/academic-programmes/",
       "sourcePath": null,
@@ -4311,6 +5217,12 @@ window.EDUGUIDE_ADMIN_DATA = {
         "Education Officer",
         "Teaching and Learning Resource Developer"
       ],
+      "skills": [
+        "Lesson planning",
+        "Classroom management",
+        "Learner assessment",
+        "Curriculum development"
+      ],
       "sourceUrl": "https://nul.ls/faculty-of-education/academic-programmes/",
       "sourcePath": null,
       "supportingSourcePath": null,
@@ -4338,6 +5250,12 @@ window.EDUGUIDE_ADMIN_DATA = {
         "Curriculum Developer",
         "Education Officer",
         "Teaching and Learning Resource Developer"
+      ],
+      "skills": [
+        "Lesson planning",
+        "Classroom management",
+        "Learner assessment",
+        "Curriculum development"
       ],
       "sourceUrl": "https://nul.ls/faculty-of-education/academic-programmes/",
       "sourcePath": null,
@@ -4367,6 +5285,12 @@ window.EDUGUIDE_ADMIN_DATA = {
         "Education Officer",
         "Teaching and Learning Resource Developer"
       ],
+      "skills": [
+        "Lesson planning",
+        "Classroom management",
+        "Learner assessment",
+        "Curriculum development"
+      ],
       "sourceUrl": "https://nul.ls/faculty-of-education/academic-programmes/",
       "sourcePath": null,
       "supportingSourcePath": null,
@@ -4394,6 +5318,12 @@ window.EDUGUIDE_ADMIN_DATA = {
         "Curriculum Developer",
         "Education Officer",
         "Teaching and Learning Resource Developer"
+      ],
+      "skills": [
+        "Lesson planning",
+        "Classroom management",
+        "Learner assessment",
+        "Curriculum development"
       ],
       "sourceUrl": "https://nul.ls/faculty-of-education/academic-programmes/",
       "sourcePath": null,
@@ -4423,6 +5353,12 @@ window.EDUGUIDE_ADMIN_DATA = {
         "Education Officer",
         "Teaching and Learning Resource Developer"
       ],
+      "skills": [
+        "Lesson planning",
+        "Classroom management",
+        "Learner assessment",
+        "Curriculum development"
+      ],
       "sourceUrl": "https://nul.ls/faculty-of-education/academic-programmes/",
       "sourcePath": null,
       "supportingSourcePath": null,
@@ -4450,6 +5386,12 @@ window.EDUGUIDE_ADMIN_DATA = {
         "Curriculum Developer",
         "Education Officer",
         "Teaching and Learning Resource Developer"
+      ],
+      "skills": [
+        "Lesson planning",
+        "Classroom management",
+        "Learner assessment",
+        "Curriculum development"
       ],
       "sourceUrl": "https://nul.ls/faculty-of-education/academic-programmes/",
       "sourcePath": null,
@@ -4479,6 +5421,12 @@ window.EDUGUIDE_ADMIN_DATA = {
         "Education Officer",
         "Teaching and Learning Resource Developer"
       ],
+      "skills": [
+        "Lesson planning",
+        "Classroom management",
+        "Learner assessment",
+        "Curriculum development"
+      ],
       "sourceUrl": "https://nul.ls/faculty-of-education/academic-programmes/",
       "sourcePath": null,
       "supportingSourcePath": null,
@@ -4506,6 +5454,12 @@ window.EDUGUIDE_ADMIN_DATA = {
         "Curriculum Developer",
         "Education Officer",
         "Teaching and Learning Resource Developer"
+      ],
+      "skills": [
+        "Lesson planning",
+        "Classroom management",
+        "Learner assessment",
+        "Curriculum development"
       ],
       "sourceUrl": "https://nul.ls/faculty-of-education/academic-programmes/",
       "sourcePath": null,
@@ -4535,6 +5489,12 @@ window.EDUGUIDE_ADMIN_DATA = {
         "Farm Manager",
         "Agribusiness Officer"
       ],
+      "skills": [
+        "Lesson planning",
+        "Classroom management",
+        "Learner assessment",
+        "Curriculum development"
+      ],
       "sourceUrl": "https://nul.ls/faculty-of-education/academic-programmes/",
       "sourcePath": null,
       "supportingSourcePath": null,
@@ -4562,6 +5522,12 @@ window.EDUGUIDE_ADMIN_DATA = {
         "Curriculum Developer",
         "Education Officer",
         "Teaching and Learning Resource Developer"
+      ],
+      "skills": [
+        "Lesson planning",
+        "Classroom management",
+        "Learner assessment",
+        "Curriculum development"
       ],
       "sourceUrl": "https://nul.ls/faculty-of-education/academic-programmes/",
       "sourcePath": null,
@@ -4591,6 +5557,12 @@ window.EDUGUIDE_ADMIN_DATA = {
         "Education Officer",
         "Teaching and Learning Resource Developer"
       ],
+      "skills": [
+        "Lesson planning",
+        "Classroom management",
+        "Learner assessment",
+        "Curriculum development"
+      ],
       "sourceUrl": "https://nul.ls/faculty-of-education/academic-programmes/",
       "sourcePath": null,
       "supportingSourcePath": null,
@@ -4618,6 +5590,12 @@ window.EDUGUIDE_ADMIN_DATA = {
         "Agricultural Extension Officer",
         "Farm Manager",
         "Agribusiness Officer"
+      ],
+      "skills": [
+        "Crop production",
+        "Farm management",
+        "Field research",
+        "Agricultural extension"
       ],
       "sourceUrl": "https://nul.ls/faculty-of-agriculture/academic-programmes/",
       "sourcePath": null,
@@ -4647,6 +5625,12 @@ window.EDUGUIDE_ADMIN_DATA = {
         "Farm Manager",
         "Agribusiness Officer"
       ],
+      "skills": [
+        "Crop production",
+        "Farm management",
+        "Field research",
+        "Agricultural extension"
+      ],
       "sourceUrl": "https://nul.ls/faculty-of-agriculture/academic-programmes/",
       "sourcePath": null,
       "supportingSourcePath": null,
@@ -4674,6 +5658,12 @@ window.EDUGUIDE_ADMIN_DATA = {
         "Agricultural Extension Officer",
         "Farm Manager",
         "Agribusiness Officer"
+      ],
+      "skills": [
+        "Crop production",
+        "Farm management",
+        "Field research",
+        "Agricultural extension"
       ],
       "sourceUrl": "https://nul.ls/faculty-of-agriculture/academic-programmes/",
       "sourcePath": null,
@@ -4703,6 +5693,12 @@ window.EDUGUIDE_ADMIN_DATA = {
         "Farm Manager",
         "Agribusiness Officer"
       ],
+      "skills": [
+        "Crop production",
+        "Farm management",
+        "Field research",
+        "Agricultural extension"
+      ],
       "sourceUrl": "https://nul.ls/faculty-of-agriculture/academic-programmes/",
       "sourcePath": null,
       "supportingSourcePath": null,
@@ -4730,6 +5726,12 @@ window.EDUGUIDE_ADMIN_DATA = {
         "Agricultural Extension Officer",
         "Farm Manager",
         "Agribusiness Officer"
+      ],
+      "skills": [
+        "Crop production",
+        "Farm management",
+        "Field research",
+        "Agricultural extension"
       ],
       "sourceUrl": "https://nul.ls/faculty-of-agriculture/academic-programmes/",
       "sourcePath": null,
@@ -4759,6 +5761,12 @@ window.EDUGUIDE_ADMIN_DATA = {
         "Farm Manager",
         "Agribusiness Officer"
       ],
+      "skills": [
+        "Crop production",
+        "Farm management",
+        "Field research",
+        "Agricultural extension"
+      ],
       "sourceUrl": "https://nul.ls/faculty-of-agriculture/academic-programmes/",
       "sourcePath": null,
       "supportingSourcePath": null,
@@ -4786,6 +5794,12 @@ window.EDUGUIDE_ADMIN_DATA = {
         "Agricultural Extension Officer",
         "Farm Manager",
         "Agribusiness Officer"
+      ],
+      "skills": [
+        "Crop production",
+        "Farm management",
+        "Field research",
+        "Agricultural extension"
       ],
       "sourceUrl": "https://nul.ls/faculty-of-agriculture/academic-programmes/",
       "sourcePath": null,
@@ -4815,6 +5829,12 @@ window.EDUGUIDE_ADMIN_DATA = {
         "Farm Manager",
         "Agribusiness Officer"
       ],
+      "skills": [
+        "Crop production",
+        "Farm management",
+        "Field research",
+        "Agricultural extension"
+      ],
       "sourceUrl": "https://nul.ls/faculty-of-agriculture/academic-programmes/",
       "sourcePath": null,
       "supportingSourcePath": null,
@@ -4842,6 +5862,12 @@ window.EDUGUIDE_ADMIN_DATA = {
         "Agricultural Extension Officer",
         "Farm Manager",
         "Agribusiness Officer"
+      ],
+      "skills": [
+        "Crop production",
+        "Farm management",
+        "Field research",
+        "Agricultural extension"
       ],
       "sourceUrl": "https://nul.ls/faculty-of-agriculture/academic-programmes/",
       "sourcePath": null,
@@ -4871,6 +5897,12 @@ window.EDUGUIDE_ADMIN_DATA = {
         "Farm Manager",
         "Agribusiness Officer"
       ],
+      "skills": [
+        "Crop production",
+        "Farm management",
+        "Field research",
+        "Agricultural extension"
+      ],
       "sourceUrl": "https://nul.ls/faculty-of-agriculture/academic-programmes/",
       "sourcePath": null,
       "supportingSourcePath": null,
@@ -4898,6 +5930,12 @@ window.EDUGUIDE_ADMIN_DATA = {
         "Agricultural Extension Officer",
         "Farm Manager",
         "Agribusiness Officer"
+      ],
+      "skills": [
+        "Crop production",
+        "Farm management",
+        "Field research",
+        "Agricultural extension"
       ],
       "sourceUrl": "https://nul.ls/faculty-of-agriculture/academic-programmes/",
       "sourcePath": null,
@@ -4927,6 +5965,12 @@ window.EDUGUIDE_ADMIN_DATA = {
         "Farm Manager",
         "Agribusiness Officer"
       ],
+      "skills": [
+        "Crop production",
+        "Farm management",
+        "Field research",
+        "Agricultural extension"
+      ],
       "sourceUrl": "https://nul.ls/faculty-of-agriculture/academic-programmes/",
       "sourcePath": null,
       "supportingSourcePath": null,
@@ -4954,6 +5998,12 @@ window.EDUGUIDE_ADMIN_DATA = {
         "Agricultural Extension Officer",
         "Farm Manager",
         "Agribusiness Officer"
+      ],
+      "skills": [
+        "Crop production",
+        "Farm management",
+        "Field research",
+        "Agricultural extension"
       ],
       "sourceUrl": "https://nul.ls/faculty-of-agriculture/academic-programmes/",
       "sourcePath": null,
@@ -4983,6 +6033,12 @@ window.EDUGUIDE_ADMIN_DATA = {
         "Farm Manager",
         "Agribusiness Officer"
       ],
+      "skills": [
+        "Crop production",
+        "Farm management",
+        "Field research",
+        "Agricultural extension"
+      ],
       "sourceUrl": "https://nul.ls/faculty-of-agriculture/academic-programmes/",
       "sourcePath": null,
       "supportingSourcePath": null,
@@ -5010,6 +6066,12 @@ window.EDUGUIDE_ADMIN_DATA = {
         "Agricultural Extension Officer",
         "Farm Manager",
         "Agribusiness Officer"
+      ],
+      "skills": [
+        "Crop production",
+        "Farm management",
+        "Field research",
+        "Agricultural extension"
       ],
       "sourceUrl": "https://nul.ls/faculty-of-agriculture/academic-programmes/",
       "sourcePath": null,
@@ -5039,6 +6101,12 @@ window.EDUGUIDE_ADMIN_DATA = {
         "Farm Manager",
         "Agribusiness Officer"
       ],
+      "skills": [
+        "Crop production",
+        "Farm management",
+        "Field research",
+        "Agricultural extension"
+      ],
       "sourceUrl": "https://nul.ls/faculty-of-agriculture/academic-programmes/",
       "sourcePath": null,
       "supportingSourcePath": null,
@@ -5066,6 +6134,12 @@ window.EDUGUIDE_ADMIN_DATA = {
         "Curriculum Developer",
         "Education Officer",
         "Teaching and Learning Resource Developer"
+      ],
+      "skills": [
+        "Lesson planning",
+        "Classroom management",
+        "Learner assessment",
+        "Curriculum development"
       ],
       "sourceUrl": "https://nul.ls/iems-2/academic-programmes/",
       "sourcePath": null,
@@ -5095,6 +6169,12 @@ window.EDUGUIDE_ADMIN_DATA = {
         "Business Development Officer",
         "Entrepreneur"
       ],
+      "skills": [
+        "Communication",
+        "Research methods",
+        "Problem solving",
+        "Professional practice"
+      ],
       "sourceUrl": "https://nul.ls/iems-2/academic-programmes/",
       "sourcePath": null,
       "supportingSourcePath": null,
@@ -5122,6 +6202,12 @@ window.EDUGUIDE_ADMIN_DATA = {
         "Broadcast Producer",
         "Content Producer",
         "Public Relations Officer"
+      ],
+      "skills": [
+        "News writing",
+        "Content production",
+        "Media research",
+        "Public communication"
       ],
       "sourceUrl": "https://nul.ls/iems-2/academic-programmes/",
       "sourcePath": null,
@@ -5151,6 +6237,12 @@ window.EDUGUIDE_ADMIN_DATA = {
         "Education Officer",
         "Teaching and Learning Resource Developer"
       ],
+      "skills": [
+        "Lesson planning",
+        "Classroom management",
+        "Learner assessment",
+        "Curriculum development"
+      ],
       "sourceUrl": "https://nul.ls/iems-2/academic-programmes/",
       "sourcePath": null,
       "supportingSourcePath": null,
@@ -5178,6 +6270,12 @@ window.EDUGUIDE_ADMIN_DATA = {
         "Curriculum Developer",
         "Education Officer",
         "Teaching and Learning Resource Developer"
+      ],
+      "skills": [
+        "Lesson planning",
+        "Classroom management",
+        "Learner assessment",
+        "Curriculum development"
       ],
       "sourceUrl": "https://nul.ls/iems-2/academic-programmes/",
       "sourcePath": null,
@@ -5207,6 +6305,12 @@ window.EDUGUIDE_ADMIN_DATA = {
         "Business Development Officer",
         "Entrepreneur"
       ],
+      "skills": [
+        "Communication",
+        "Research methods",
+        "Problem solving",
+        "Professional practice"
+      ],
       "sourceUrl": "https://nul.ls/iems-2/academic-programmes/",
       "sourcePath": null,
       "supportingSourcePath": null,
@@ -5234,6 +6338,12 @@ window.EDUGUIDE_ADMIN_DATA = {
         "Curriculum Developer",
         "Education Officer",
         "Teaching and Learning Resource Developer"
+      ],
+      "skills": [
+        "Lesson planning",
+        "Classroom management",
+        "Learner assessment",
+        "Curriculum development"
       ],
       "sourceUrl": "https://nul.ls/iems-2/academic-programmes/",
       "sourcePath": null,
@@ -5263,6 +6373,12 @@ window.EDUGUIDE_ADMIN_DATA = {
         "Business Development Officer",
         "Entrepreneur"
       ],
+      "skills": [
+        "Strategic planning",
+        "Operations management",
+        "Leadership",
+        "Business communication"
+      ],
       "sourceUrl": "https://www.lp.ac.ls/wp-content/uploads/2024/02/lerotholi-prospectus-2024-2025-embed1.pdf",
       "sourcePath": null,
       "supportingSourcePath": null,
@@ -5290,6 +6406,12 @@ window.EDUGUIDE_ADMIN_DATA = {
         "Operations Manager",
         "Business Development Officer",
         "Entrepreneur"
+      ],
+      "skills": [
+        "Guest services",
+        "Event planning",
+        "Hotel operations",
+        "Revenue management"
       ],
       "sourceUrl": "https://www.lp.ac.ls/wp-content/uploads/2024/02/lerotholi-prospectus-2024-2025-embed1.pdf",
       "sourcePath": null,
@@ -5319,6 +6441,12 @@ window.EDUGUIDE_ADMIN_DATA = {
         "Business Development Officer",
         "Entrepreneur"
       ],
+      "skills": [
+        "Market research",
+        "Brand strategy",
+        "Digital marketing",
+        "Customer analytics"
+      ],
       "sourceUrl": "https://www.lp.ac.ls/wp-content/uploads/2024/02/lerotholi-prospectus-2024-2025-embed1.pdf",
       "sourcePath": null,
       "supportingSourcePath": null,
@@ -5346,6 +6474,12 @@ window.EDUGUIDE_ADMIN_DATA = {
         "Operations Manager",
         "Business Development Officer",
         "Entrepreneur"
+      ],
+      "skills": [
+        "Communication",
+        "Research methods",
+        "Problem solving",
+        "Professional practice"
       ],
       "sourceUrl": "https://www.lp.ac.ls/wp-content/uploads/2024/02/lerotholi-prospectus-2024-2025-embed1.pdf",
       "sourcePath": null,
@@ -5375,6 +6509,12 @@ window.EDUGUIDE_ADMIN_DATA = {
         "Business Development Officer",
         "Entrepreneur"
       ],
+      "skills": [
+        "Guest services",
+        "Event planning",
+        "Hotel operations",
+        "Revenue management"
+      ],
       "sourceUrl": "https://www.lp.ac.ls/wp-content/uploads/2024/02/lerotholi-prospectus-2024-2025-embed1.pdf",
       "sourcePath": null,
       "supportingSourcePath": null,
@@ -5402,6 +6542,12 @@ window.EDUGUIDE_ADMIN_DATA = {
         "Engineering Technologist",
         "Project Engineer",
         "Technical Consultant"
+      ],
+      "skills": [
+        "Technical design",
+        "Engineering mathematics",
+        "Project management",
+        "Safety compliance"
       ],
       "sourceUrl": "https://www.lp.ac.ls/wp-content/uploads/2024/02/lerotholi-prospectus-2024-2025-embed1.pdf",
       "sourcePath": null,
@@ -5431,6 +6577,12 @@ window.EDUGUIDE_ADMIN_DATA = {
         "Content Producer",
         "Public Relations Officer"
       ],
+      "skills": [
+        "Technical design",
+        "Engineering mathematics",
+        "Project management",
+        "Safety compliance"
+      ],
       "sourceUrl": "https://www.lp.ac.ls/wp-content/uploads/2024/02/lerotholi-prospectus-2024-2025-embed1.pdf",
       "sourcePath": null,
       "supportingSourcePath": null,
@@ -5458,6 +6610,12 @@ window.EDUGUIDE_ADMIN_DATA = {
         "Architectural Technologist",
         "Quantity Surveyor",
         "Urban Planner"
+      ],
+      "skills": [
+        "Technical design",
+        "Engineering mathematics",
+        "Project management",
+        "Safety compliance"
       ],
       "sourceUrl": "https://www.lp.ac.ls/wp-content/uploads/2024/02/lerotholi-prospectus-2024-2025-embed1.pdf",
       "sourcePath": null,
@@ -5487,6 +6645,12 @@ window.EDUGUIDE_ADMIN_DATA = {
         "Quantity Surveyor",
         "Urban Planner"
       ],
+      "skills": [
+        "Technical design",
+        "Engineering mathematics",
+        "Project management",
+        "Safety compliance"
+      ],
       "sourceUrl": "https://www.lp.ac.ls/wp-content/uploads/2024/02/lerotholi-prospectus-2024-2025-embed1.pdf",
       "sourcePath": null,
       "supportingSourcePath": null,
@@ -5514,6 +6678,12 @@ window.EDUGUIDE_ADMIN_DATA = {
         "Architectural Technologist",
         "Quantity Surveyor",
         "Urban Planner"
+      ],
+      "skills": [
+        "Technical design",
+        "Engineering mathematics",
+        "Project management",
+        "Safety compliance"
       ],
       "sourceUrl": "https://www.lp.ac.ls/wp-content/uploads/2024/02/lerotholi-prospectus-2024-2025-embed1.pdf",
       "sourcePath": null,
@@ -5543,6 +6713,12 @@ window.EDUGUIDE_ADMIN_DATA = {
         "Quantity Surveyor",
         "Urban Planner"
       ],
+      "skills": [
+        "Technical design",
+        "Engineering mathematics",
+        "Project management",
+        "Safety compliance"
+      ],
       "sourceUrl": "https://www.lp.ac.ls/wp-content/uploads/2024/02/lerotholi-prospectus-2024-2025-embed1.pdf",
       "sourcePath": null,
       "supportingSourcePath": null,
@@ -5570,6 +6746,12 @@ window.EDUGUIDE_ADMIN_DATA = {
         "Architectural Technologist",
         "Quantity Surveyor",
         "Urban Planner"
+      ],
+      "skills": [
+        "Architectural design",
+        "Technical drawing",
+        "Building regulations",
+        "Project coordination"
       ],
       "sourceUrl": "https://www.lp.ac.ls/wp-content/uploads/2024/02/lerotholi-prospectus-2024-2025-embed1.pdf",
       "sourcePath": null,
@@ -5599,6 +6781,12 @@ window.EDUGUIDE_ADMIN_DATA = {
         "Quantity Surveyor",
         "Urban Planner"
       ],
+      "skills": [
+        "Technical design",
+        "Engineering mathematics",
+        "Project management",
+        "Safety compliance"
+      ],
       "sourceUrl": "https://www.lp.ac.ls/wp-content/uploads/2024/02/lerotholi-prospectus-2024-2025-embed1.pdf",
       "sourcePath": null,
       "supportingSourcePath": null,
@@ -5626,6 +6814,12 @@ window.EDUGUIDE_ADMIN_DATA = {
         "Project Officer",
         "Research Assistant",
         "Community Development Officer"
+      ],
+      "skills": [
+        "Communication",
+        "Research methods",
+        "Problem solving",
+        "Professional practice"
       ],
       "sourceUrl": "https://www.lp.ac.ls/wp-content/uploads/2024/02/lerotholi-prospectus-2024-2025-embed1.pdf",
       "sourcePath": null,
@@ -5655,6 +6849,12 @@ window.EDUGUIDE_ADMIN_DATA = {
         "Research Assistant",
         "Community Development Officer"
       ],
+      "skills": [
+        "Communication",
+        "Research methods",
+        "Problem solving",
+        "Professional practice"
+      ],
       "sourceUrl": "https://www.lp.ac.ls/wp-content/uploads/2024/02/lerotholi-prospectus-2024-2025-embed1.pdf",
       "sourcePath": null,
       "supportingSourcePath": null,
@@ -5682,6 +6882,12 @@ window.EDUGUIDE_ADMIN_DATA = {
         "Project Officer",
         "Research Assistant",
         "Community Development Officer"
+      ],
+      "skills": [
+        "Communication",
+        "Research methods",
+        "Problem solving",
+        "Professional practice"
       ],
       "sourceUrl": "https://www.lp.ac.ls/wp-content/uploads/2024/02/lerotholi-prospectus-2024-2025-embed1.pdf",
       "sourcePath": null,
@@ -5711,6 +6917,12 @@ window.EDUGUIDE_ADMIN_DATA = {
         "Quantity Surveyor",
         "Urban Planner"
       ],
+      "skills": [
+        "Technical design",
+        "Engineering mathematics",
+        "Project management",
+        "Safety compliance"
+      ],
       "sourceUrl": "https://www.lp.ac.ls/wp-content/uploads/2024/02/lerotholi-prospectus-2024-2025-embed1.pdf",
       "sourcePath": null,
       "supportingSourcePath": null,
@@ -5738,6 +6950,12 @@ window.EDUGUIDE_ADMIN_DATA = {
         "Project Officer",
         "Research Assistant",
         "Community Development Officer"
+      ],
+      "skills": [
+        "Communication",
+        "Research methods",
+        "Problem solving",
+        "Professional practice"
       ],
       "sourceUrl": "https://www.lp.ac.ls/wp-content/uploads/2024/02/lerotholi-prospectus-2024-2025-embed1.pdf",
       "sourcePath": null,
@@ -5767,6 +6985,12 @@ window.EDUGUIDE_ADMIN_DATA = {
         "Research Assistant",
         "Community Development Officer"
       ],
+      "skills": [
+        "Communication",
+        "Research methods",
+        "Problem solving",
+        "Professional practice"
+      ],
       "sourceUrl": "https://www.lp.ac.ls/wp-content/uploads/2024/02/lerotholi-prospectus-2024-2025-embed1.pdf",
       "sourcePath": null,
       "supportingSourcePath": null,
@@ -5794,6 +7018,12 @@ window.EDUGUIDE_ADMIN_DATA = {
         "Project Officer",
         "Research Assistant",
         "Community Development Officer"
+      ],
+      "skills": [
+        "Communication",
+        "Research methods",
+        "Problem solving",
+        "Professional practice"
       ],
       "sourceUrl": "https://www.lp.ac.ls/wp-content/uploads/2024/02/lerotholi-prospectus-2024-2025-embed1.pdf",
       "sourcePath": null,
@@ -5823,6 +7053,12 @@ window.EDUGUIDE_ADMIN_DATA = {
         "Research Assistant",
         "Community Development Officer"
       ],
+      "skills": [
+        "Communication",
+        "Research methods",
+        "Problem solving",
+        "Professional practice"
+      ],
       "sourceUrl": "https://www.lp.ac.ls/wp-content/uploads/2024/02/lerotholi-prospectus-2024-2025-embed1.pdf",
       "sourcePath": null,
       "supportingSourcePath": null,
@@ -5850,6 +7086,12 @@ window.EDUGUIDE_ADMIN_DATA = {
         "Project Officer",
         "Research Assistant",
         "Community Development Officer"
+      ],
+      "skills": [
+        "Communication",
+        "Research methods",
+        "Problem solving",
+        "Professional practice"
       ],
       "sourceUrl": "https://www.lp.ac.ls/wp-content/uploads/2024/02/lerotholi-prospectus-2024-2025-embed1.pdf",
       "sourcePath": null,
@@ -5879,6 +7121,12 @@ window.EDUGUIDE_ADMIN_DATA = {
         "Clinical Nurse",
         "Nursing Specialist"
       ],
+      "skills": [
+        "Patient assessment",
+        "Clinical care",
+        "Health education",
+        "Care planning"
+      ],
       "sourceUrl": "https://www.che.ac.ls/roma-college-of-nursing-rcn-accredited-programmes/",
       "sourcePath": null,
       "supportingSourcePath": null,
@@ -5906,6 +7154,12 @@ window.EDUGUIDE_ADMIN_DATA = {
         "Community Health Nurse",
         "Clinical Nurse",
         "Nursing Specialist"
+      ],
+      "skills": [
+        "Patient assessment",
+        "Clinical care",
+        "Health education",
+        "Care planning"
       ],
       "sourceUrl": "https://www.che.ac.ls/roma-college-of-nursing-rcn-accredited-programmes/",
       "sourcePath": null,
@@ -5935,6 +7189,12 @@ window.EDUGUIDE_ADMIN_DATA = {
         "Farm Manager",
         "Agribusiness Officer"
       ],
+      "skills": [
+        "Crop production",
+        "Farm management",
+        "Field research",
+        "Agricultural extension"
+      ],
       "sourceUrl": "https://www.che.ac.ls/lesotho-agricultural-college-lac-accredited-programmes/",
       "sourcePath": null,
       "supportingSourcePath": null,
@@ -5962,6 +7222,12 @@ window.EDUGUIDE_ADMIN_DATA = {
         "Operations Manager",
         "Business Development Officer",
         "Entrepreneur"
+      ],
+      "skills": [
+        "Communication",
+        "Research methods",
+        "Problem solving",
+        "Professional practice"
       ],
       "sourceUrl": "https://www.che.ac.ls/lesotho-agricultural-college-profile/",
       "sourcePath": null,
@@ -5991,6 +7257,12 @@ window.EDUGUIDE_ADMIN_DATA = {
         "Youth Programme Officer",
         "Social Researcher"
       ],
+      "skills": [
+        "Case management",
+        "Community engagement",
+        "Social research",
+        "Counselling skills"
+      ],
       "sourceUrl": "https://www.che.ac.ls/lesotho-agricultural-college-profile/",
       "sourcePath": null,
       "supportingSourcePath": null,
@@ -6018,6 +7290,12 @@ window.EDUGUIDE_ADMIN_DATA = {
         "Curriculum Developer",
         "Education Officer",
         "Teaching and Learning Resource Developer"
+      ],
+      "skills": [
+        "Lesson planning",
+        "Classroom management",
+        "Learner assessment",
+        "Curriculum development"
       ],
       "sourceUrl": "https://www.che.ac.ls/lesotho-agricultural-college-profile/",
       "sourcePath": null,
@@ -6047,6 +7325,12 @@ window.EDUGUIDE_ADMIN_DATA = {
         "Business Development Officer",
         "Entrepreneur"
       ],
+      "skills": [
+        "Technical design",
+        "Engineering mathematics",
+        "Project management",
+        "Safety compliance"
+      ],
       "sourceUrl": "https://www.che.ac.ls/lesotho-agricultural-college-profile/",
       "sourcePath": null,
       "supportingSourcePath": null,
@@ -6074,6 +7358,12 @@ window.EDUGUIDE_ADMIN_DATA = {
         "Auditor",
         "Financial Analyst",
         "Banking Officer"
+      ],
+      "skills": [
+        "Financial reporting",
+        "Auditing",
+        "Taxation",
+        "Bookkeeping"
       ],
       "sourceUrl": "https://cas.ac.ls/course/certified-accounting-certificate-cat/",
       "sourcePath": null,
@@ -6103,6 +7393,12 @@ window.EDUGUIDE_ADMIN_DATA = {
         "Financial Analyst",
         "Banking Officer"
       ],
+      "skills": [
+        "Financial reporting",
+        "Auditing",
+        "Taxation",
+        "Bookkeeping"
+      ],
       "sourceUrl": "https://cas.ac.ls/course/acca/",
       "sourcePath": null,
       "supportingSourcePath": "C:/Users/lepha/Downloads/CAS Lesotho Student-Handbook-Volume-4.pdf",
@@ -6130,6 +7426,12 @@ window.EDUGUIDE_ADMIN_DATA = {
         "Auditor",
         "Financial Analyst",
         "Banking Officer"
+      ],
+      "skills": [
+        "Financial reporting",
+        "Auditing",
+        "Taxation",
+        "Bookkeeping"
       ],
       "sourceUrl": "https://cas.ac.ls/course/cima/",
       "sourcePath": null,
@@ -6159,6 +7461,12 @@ window.EDUGUIDE_ADMIN_DATA = {
         "Financial Analyst",
         "Banking Officer"
       ],
+      "skills": [
+        "Financial reporting",
+        "Auditing",
+        "Taxation",
+        "Bookkeeping"
+      ],
       "sourceUrl": "https://cas.ac.ls/course/certificate-in-international-public-financial-management/",
       "sourcePath": null,
       "supportingSourcePath": "C:/Users/lepha/Downloads/CAS Lesotho Student-Handbook-Volume-4.pdf",
@@ -6186,6 +7494,12 @@ window.EDUGUIDE_ADMIN_DATA = {
         "Auditor",
         "Financial Analyst",
         "Banking Officer"
+      ],
+      "skills": [
+        "Financial reporting",
+        "Auditing",
+        "Taxation",
+        "Bookkeeping"
       ],
       "sourceUrl": "https://cas.ac.ls/bachelor-of-arts-in-financial-services-bafs/",
       "sourcePath": null,
@@ -6215,6 +7529,12 @@ window.EDUGUIDE_ADMIN_DATA = {
         "Financial Analyst",
         "Banking Officer"
       ],
+      "skills": [
+        "Financial reporting",
+        "Auditing",
+        "Taxation",
+        "Bookkeeping"
+      ],
       "sourceUrl": "https://cas.ac.ls/course/lesotho-professional-accountancy-programmelepap",
       "sourcePath": null,
       "supportingSourcePath": null,
@@ -6242,6 +7562,12 @@ window.EDUGUIDE_ADMIN_DATA = {
         "Auditor",
         "Financial Analyst",
         "Banking Officer"
+      ],
+      "skills": [
+        "Financial reporting",
+        "Auditing",
+        "Taxation",
+        "Bookkeeping"
       ],
       "sourceUrl": "https://cas.ac.ls/course/skills-based-computer-modules/",
       "sourcePath": null,
@@ -6271,6 +7597,12 @@ window.EDUGUIDE_ADMIN_DATA = {
         "Financial Analyst",
         "Banking Officer"
       ],
+      "skills": [
+        "Financial reporting",
+        "Auditing",
+        "Taxation",
+        "Bookkeeping"
+      ],
       "sourceUrl": "https://cas.ac.ls/course/corporate-training-ct/",
       "sourcePath": null,
       "supportingSourcePath": null,
@@ -6298,6 +7630,12 @@ window.EDUGUIDE_ADMIN_DATA = {
         "Curriculum Developer",
         "Education Officer",
         "Teaching and Learning Resource Developer"
+      ],
+      "skills": [
+        "Lesson planning",
+        "Classroom management",
+        "Learner assessment",
+        "Curriculum development"
       ],
       "sourceUrl": "https://mabumbe.com/official-lesotho-college-education-lce-courses/",
       "sourcePath": null,
@@ -6327,6 +7665,12 @@ window.EDUGUIDE_ADMIN_DATA = {
         "Education Officer",
         "Teaching and Learning Resource Developer"
       ],
+      "skills": [
+        "Lesson planning",
+        "Classroom management",
+        "Learner assessment",
+        "Curriculum development"
+      ],
       "sourceUrl": "https://mabumbe.com/official-lesotho-college-education-lce-courses/",
       "sourcePath": null,
       "supportingSourcePath": null,
@@ -6354,6 +7698,12 @@ window.EDUGUIDE_ADMIN_DATA = {
         "Curriculum Developer",
         "Education Officer",
         "Teaching and Learning Resource Developer"
+      ],
+      "skills": [
+        "Lesson planning",
+        "Classroom management",
+        "Learner assessment",
+        "Curriculum development"
       ],
       "sourceUrl": "https://mabumbe.com/official-lesotho-college-education-lce-courses/",
       "sourcePath": null,
@@ -6383,6 +7733,12 @@ window.EDUGUIDE_ADMIN_DATA = {
         "Education Officer",
         "Teaching and Learning Resource Developer"
       ],
+      "skills": [
+        "Lesson planning",
+        "Classroom management",
+        "Learner assessment",
+        "Curriculum development"
+      ],
       "sourceUrl": "https://mabumbe.com/official-lesotho-college-education-lce-courses/",
       "sourcePath": null,
       "supportingSourcePath": null,
@@ -6410,6 +7766,12 @@ window.EDUGUIDE_ADMIN_DATA = {
         "Curriculum Developer",
         "Education Officer",
         "Teaching and Learning Resource Developer"
+      ],
+      "skills": [
+        "Lesson planning",
+        "Classroom management",
+        "Learner assessment",
+        "Curriculum development"
       ],
       "sourceUrl": null,
       "sourcePath": "C:/Users/lepha/Downloads/Lesotho College Of Education.pdf",
@@ -6439,6 +7801,12 @@ window.EDUGUIDE_ADMIN_DATA = {
         "Education Officer",
         "Teaching and Learning Resource Developer"
       ],
+      "skills": [
+        "Lesson planning",
+        "Classroom management",
+        "Learner assessment",
+        "Curriculum development"
+      ],
       "sourceUrl": null,
       "sourcePath": "C:/Users/lepha/Downloads/Lesotho College Of Education.pdf",
       "supportingSourcePath": null,
@@ -6466,6 +7834,12 @@ window.EDUGUIDE_ADMIN_DATA = {
         "Community Health Nurse",
         "Clinical Nurse",
         "Nursing Specialist"
+      ],
+      "skills": [
+        "Patient assessment",
+        "Clinical care",
+        "Health education",
+        "Care planning"
       ],
       "sourceUrl": "https://www.scribd.com/document/763854725/2024-2025-Final-Prospectus",
       "sourcePath": "C:/Users/lepha/Downloads/data/Paray 2024-2025-final-prospectus.pdf",
@@ -6495,6 +7869,12 @@ window.EDUGUIDE_ADMIN_DATA = {
         "Clinical Nurse",
         "Nursing Specialist"
       ],
+      "skills": [
+        "Patient assessment",
+        "Clinical care",
+        "Health education",
+        "Care planning"
+      ],
       "sourceUrl": "https://www.scribd.com/document/763854725/2024-2025-Final-Prospectus",
       "sourcePath": "C:/Users/lepha/Downloads/data/Paray 2024-2025-final-prospectus.pdf",
       "supportingSourcePath": null,
@@ -6522,6 +7902,12 @@ window.EDUGUIDE_ADMIN_DATA = {
         "Community Health Nurse",
         "Clinical Nurse",
         "Nursing Specialist"
+      ],
+      "skills": [
+        "Patient assessment",
+        "Clinical care",
+        "Health education",
+        "Care planning"
       ],
       "sourceUrl": "https://www.scribd.com/document/763854725/2024-2025-Final-Prospectus",
       "sourcePath": "C:/Users/lepha/Downloads/data/Paray 2024-2025-final-prospectus.pdf",
@@ -6551,6 +7937,12 @@ window.EDUGUIDE_ADMIN_DATA = {
         "Business Development Officer",
         "Entrepreneur"
       ],
+      "skills": [
+        "Strategic planning",
+        "Operations management",
+        "Leadership",
+        "Business communication"
+      ],
       "sourceUrl": "https://www.imperialcollege.edu.np/",
       "sourcePath": "C:/Users/lepha/Downloads/data/IBC prospectus-outlined-fonts.pdf",
       "supportingSourcePath": null,
@@ -6578,6 +7970,12 @@ window.EDUGUIDE_ADMIN_DATA = {
         "Research Scientist",
         "Science Teacher",
         "Quality Control Analyst"
+      ],
+      "skills": [
+        "Laboratory practice",
+        "Scientific method",
+        "Data analysis",
+        "Research methods"
       ],
       "sourceUrl": "https://www.imperialcollege.edu.np/",
       "sourcePath": "C:/Users/lepha/Downloads/data/IBC prospectus-outlined-fonts.pdf",

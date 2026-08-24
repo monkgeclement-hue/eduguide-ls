@@ -49,7 +49,33 @@ CAREER_RULES: list[tuple[tuple[str, ...], list[str]]] = [
 
 
 def text(record: dict[str, Any]) -> str:
-    return " ".join(str(record.get(key) or "") for key in ("name", "category", "faculty", "overview")).lower()
+    return " ".join(str(record.get(key) or "") for key in ("name", "category", "faculty")).lower()
+
+
+SKILL_RULES: list[tuple[tuple[str, ...], list[str]]] = [
+    (("business management", "business administration"), ["Strategic planning", "Operations management", "Leadership", "Business communication"]),
+    (("accounting", "accountancy"), ["Financial reporting", "Auditing", "Taxation", "Bookkeeping"]),
+    (("finance", "investment", "banking"), ["Financial modelling", "Investment analysis", "Risk assessment", "Portfolio management"]),
+    (("marketing", "advertising"), ["Market research", "Brand strategy", "Digital marketing", "Customer analytics"]),
+    (("human resource", "personnel"), ["Recruitment", "Employee relations", "Performance management", "Labour policy"]),
+    (("supply chain", "procurement", "logistics"), ["Procurement", "Inventory control", "Logistics planning", "Supply chain analytics"]),
+    (("hospitality", "tourism", "hotel"), ["Guest services", "Event planning", "Hotel operations", "Revenue management"]),
+    (("computer science", "software engineering"), ["Programming", "Software design", "Algorithms", "Quality assurance"]),
+    (("information technology", "computing", "computer networking"), ["Systems administration", "Network configuration", "Technical support", "Database management"]),
+    (("cyber", "network security", "forensics"), ["Threat analysis", "Digital forensics", "Network defence", "Incident response"]),
+    (("data science", "data analytics"), ["Statistical analysis", "Machine learning", "Data visualisation", "Database querying"]),
+    (("engineering", "electrical", "electronics", "mechanical", "civil"), ["Technical design", "Engineering mathematics", "Project management", "Safety compliance"]),
+    (("architecture", "built environment", "construction"), ["Architectural design", "Technical drawing", "Building regulations", "Project coordination"]),
+    (("nursing", "midwifery"), ["Patient assessment", "Clinical care", "Health education", "Care planning"]),
+    (("pharmacy",), ["Dispensing practice", "Pharmacology", "Patient counselling", "Medicine safety"]),
+    (("education", "teaching", "teacher"), ["Lesson planning", "Classroom management", "Learner assessment", "Curriculum development"]),
+    (("agriculture", "crop", "animal science", "soil", "horticulture"), ["Crop production", "Farm management", "Field research", "Agricultural extension"]),
+    (("law", "legal", "jurisprudence"), ["Legal research", "Case analysis", "Legal writing", "Advocacy"]),
+    (("journalism", "media", "broadcast", "communication"), ["News writing", "Content production", "Media research", "Public communication"]),
+    (("fashion", "design", "film", "creative"), ["Creative production", "Portfolio development", "Design software", "Visual communication"]),
+    (("social work", "social science", "psychology", "sociology"), ["Case management", "Community engagement", "Social research", "Counselling skills"]),
+    (("chemistry", "physics", "biology", "science"), ["Laboratory practice", "Scientific method", "Data analysis", "Research methods"]),
+]
 
 
 def infer_careers(record: dict[str, Any]) -> list[str]:
@@ -68,6 +94,14 @@ def infer_careers(record: dict[str, Any]) -> list[str]:
     if "education" in category:
         return ["Teacher", "Education Officer", "Curriculum Developer", "Training Coordinator"]
     return ["Programme Specialist", "Project Officer", "Research Assistant", "Community Development Officer"]
+
+
+def infer_skills(record: dict[str, Any]) -> list[str]:
+    haystack = text(record)
+    for keywords, skills in SKILL_RULES:
+        if any(keyword in haystack for keyword in keywords):
+            return skills
+    return ["Communication", "Research methods", "Problem solving", "Professional practice"]
 
 
 def is_degree(record: dict[str, Any]) -> bool:
@@ -139,6 +173,9 @@ def main() -> None:
         if record.get("career_options") != inferred_careers:
             record["career_options"] = inferred_careers
             changed["careers"] += 1
+        inferred_skills = infer_skills(record)
+        if record.get("skill_options") != inferred_skills:
+            record["skill_options"] = inferred_skills
         duration = inferred_duration(record)
         if duration and record.get("duration") != duration:
             record["duration"] = duration

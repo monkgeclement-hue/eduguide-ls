@@ -35,6 +35,7 @@ def compact_programme(record: dict[str, Any]) -> dict[str, Any]:
         "overview": record.get("overview"),
         "requirementsSummary": record.get("requirements_summary"),
         "careers": record.get("career_options") or [],
+        "skills": record.get("skill_options") or [],
         "sourceUrl": record.get("source_url"),
         "sourcePath": record.get("source_path"),
         "supportingSourcePath": record.get("supporting_source_path"),

@@ -3146,7 +3146,7 @@ function getMatchingProgrammeFromAdmin(programme) {
     requirements,
     requirementRules,
     careers: programme.careers?.length ? programme.careers : profile.careers,
-    skills: profile.skills,
+    skills: programme.skills?.length ? programme.skills : profile.skills,
     labourSector: profile.sector,
     nmdsPriority: profile.priority,
     dataConfidence: getDataConfidence(programme),
@@ -5524,7 +5524,7 @@ function renderExplorerCourseProfile(programme) {
   const saved = currentUser?.shortlist?.includes(programme.id);
   const profile = getDomainProfile(programme);
   const requirementItems = matchingProgramme.requirements?.length ? matchingProgramme.requirements : [programme.requirementsSummary || "Entry requirements need confirmation."];
-  const careers = unique([...(programme.careers || []), ...(profile.careers || [])]).slice(0, 8);
+  const careers = unique(programme.careers || []).slice(0, 8);
   const skills = unique([...(matchingProgramme.skills || []), ...(profile.skills || [])]).slice(0, 8);
   const feeNotes = [programme.feeNote, programme.supportingFeeSourcePath ? `Fee evidence: ${programme.supportingFeeSourcePath}` : ""].filter(Boolean);
   const freshness = getSourceFreshnessMeta(programme);
