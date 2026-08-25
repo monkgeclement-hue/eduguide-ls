@@ -8,7 +8,17 @@ The EduGuide API provides access to Lesotho's education programme database throu
 
 ## Authentication
 
-Currently no authentication required. All endpoints are public.
+EduGuide LS uses authenticated sessions for protected API resources.
+
+Public resources include the application shell, static catalogue
+assets, and the minimal /health readiness endpoint.
+
+Student-specific resources such as AI guidance, documents, account
+data, and shared application state require an authenticated user.
+
+Administrative endpoints, including database diagnostics, catalogue
+management, reporting, user administration, and protected state
+changes, require an administrator account.
 
 ## Response Format
 

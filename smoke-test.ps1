@@ -76,8 +76,12 @@ try {
   $response = Invoke-ApiRequest -Method "GET" -Endpoint "/health"
   if ($response.Success -and $response.Status -eq 200) {
     $health = $response.Body
-    if ($health.ok -and $null -ne $health.database_ready -and $null -ne $health.storage_ready -and $null -ne $health.data_backend -and $null -ne $health.email_configured -and $null -ne $health.ai_configured) {
-      Write-TestPass "Health endpoint responds with persistence, email, and AI readiness fields"
+    if (
+      $health.ok -and
+      $null -ne $health.database_ready -and
+      $null -ne $health.storage_ready
+    ) {
+      Write-TestPass "Public health endpoint exposes minimal readiness flags"
     }
     else {
       Write-TestFail "Health endpoint missing required fields"
