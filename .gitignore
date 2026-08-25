@@ -2,6 +2,7 @@
 __pycache__/
 *.pyc
 *.log
+*.bak
 data/*.db
 data/*.db-*
 data/uploads/
