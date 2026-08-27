@@ -1470,6 +1470,25 @@ async function loadServerDatabaseState() {
   }
 }
 
+let appToastTimer = null;
+
+function showAppToast(message, tone = "neutral", durationMs = 3200) {
+  const toast = qs("#app-toast");
+  const text = qs("#app-toast-message");
+  const icon = qs("#app-toast-icon");
+  if (!toast || !text || !message) return;
+  text.textContent = message;
+  toast.dataset.tone = tone || "neutral";
+  toast.hidden = false;
+  if (icon) {
+    const iconName = tone === "success" ? "circle-check" : tone === "warning" ? "triangle-alert" : tone === "error" ? "circle-x" : "info";
+    icon.setAttribute("data-lucide", iconName);
+    if (window.lucide) window.lucide.createIcons();
+  }
+  if (appToastTimer) clearTimeout(appToastTimer);
+  if (tone !== "loading" && durationMs > 0) appToastTimer = setTimeout(() => { toast.hidden = true; }, durationMs);
+}
+
 function setAdminActionStatus(message, tone = "neutral") {
   adminActionStatus = {
     message: message || "",
@@ -1479,6 +1498,9 @@ function setAdminActionStatus(message, tone = "neutral") {
   if (health && adminActionStatus.message) {
     health.textContent = adminActionStatus.message;
     health.dataset.tone = adminActionStatus.tone;
+  }
+  if (message && tone !== "loading") {
+    showAppToast(message, tone === "danger" ? "error" : tone);
   }
 }
 
@@ -3666,6 +3688,7 @@ function getStudentDashboardSnapshot() {
 function renderStudentDashboard() {
   const completionEl = qs("#profile-completion");
   if (!completionEl) return;
+  updateTopbarShortlistBadge();
   const snapshot = getStudentDashboardSnapshot();
   const qualifiedEl = qs("#qualified-count");
   const almostEl = qs("#almost-count");
@@ -3871,6 +3894,7 @@ function toggleShortlist(programmeId) {
       institution: programme?.institution,
       action: "removed"
     });
+    showAppToast("Removed from shortlist", "neutral");
   } else {
     currentUser.shortlist.push(programmeId);
     recordCurrentUserActivity("shortlist_updated", "Saved a programme", {
@@ -3879,10 +3903,21 @@ function toggleShortlist(programmeId) {
       institution: programme?.institution,
       action: "saved"
     });
+    showAppToast("Saved to shortlist", "success");
   }
+  saveAuthUsers();
   renderResults();
   renderStudentDashboard();
   renderSchoolExplorer();
+  updateTopbarShortlistBadge();
+}
+
+function updateTopbarShortlistBadge() {
+  const badge = qs("#topbar-shortlist-count");
+  if (!badge) return;
+  const count = currentUser?.shortlist?.length || 0;
+  badge.textContent = String(count);
+  badge.hidden = count === 0;
 }
 
 const pathwayLabels = {
@@ -4026,6 +4061,10 @@ function renderProgrammeCard(programme) {
             <i data-lucide="${compared ? "check" : "columns-3"}"></i>
             ${compared ? "Comparing" : "Compare"}
           </button>
+          <button class="secondary-action" type="button" data-ask-ai-programme="${escapeHtml(programme.id)}" title="Ask AI about this programme">
+            <i data-lucide="bot"></i>
+            Ask AI
+          </button>
         </div>
       </div>
       <div class="programme-detail">
@@ -4110,6 +4149,54 @@ function renderProgrammeComparison() {
       </div>
     </section>
   `;
+}
+
+function updateComparisonTray() {
+  const tray = qs("#comparison-tray");
+  const countEl = qs("#comparison-tray-count");
+  const clearButton = qs("#results-clear-compare-button");
+  const count = comparisonProgrammeIds.length;
+  if (tray) tray.hidden = count === 0;
+  if (countEl) countEl.textContent = count === 1 ? "1 selected" : `${count} selected`;
+  if (clearButton) clearButton.hidden = count === 0;
+}
+
+function buildMatchSummaryText() {
+  const name = currentUser?.name || "Student";
+  const shortlist = (currentUser?.shortlist || []).map((id) => findProgrammeById(id)).filter(Boolean).slice(0, 5);
+  const topMatches = (latestMatches || []).slice(0, 5);
+  const lines = [
+    `EduGuide LS summary for ${name}`,
+    `Profile matches: ${latestMatches.length} programmes across ${getInstitutionMatchGroups().length} institution(s)`,
+    `Saved shortlist: ${shortlist.length}`
+  ];
+  if (topMatches.length) {
+    lines.push("Top matches:");
+    topMatches.forEach((programme, index) => lines.push(`${index + 1}. ${programme.title} @ ${programme.institution} (${programme.match.overall}% - ${programme.match.tierLabel || programme.match.tier})`));
+  }
+  return lines.join("\n");
+}
+
+async function shareMatchSummary() {
+  try {
+    await navigator.clipboard.writeText(buildMatchSummaryText());
+    setAdminActionStatus("Match summary copied to clipboard.", "success");
+  } catch (error) {
+    setAdminActionStatus("Could not copy summary. Try the Guidance Report instead.", "warning");
+  }
+}
+
+function askAiAboutProgramme(programmeId, { blocked = false } = {}) {
+  const programme = latestMatches.find((item) => item.id === programmeId) || latestBlockedMatches.find((item) => item.id === programmeId) || findProgrammeById(programmeId);
+  if (!programme) return;
+  const title = programme.title || programme.name || "this programme";
+  const gaps = programme.match?.hardGateFailures?.length ? programme.match.hardGateFailures : programme.match?.requirementGaps || [];
+  const question = blocked
+    ? `I am interested in ${title}, but I am not eligible yet. The gaps are: ${gaps.slice(0, 4).join("; ") || "missing required subjects or grades"}. What should I improve first?`
+    : `Explain why ${title} at ${programme.institution} matched my profile. What are the key requirements, careers, and next steps?`;
+  setView("ai");
+  const input = qs("#ai-question");
+  if (input) { input.value = question; input.focus(); }
 }
 
 function getInstitutionMatchGroups() {
@@ -4251,6 +4338,12 @@ function renderBlockedProgrammeCard(programme) {
       <div class="blocked-requirements">
         <h5>Captured requirements</h5>
         <ul>${programme.requirements.slice(0, 4).map((item) => `<li>${escapeHtml(item)}</li>`).join("")}</ul>
+      </div>
+      <div class="blocked-programme-actions">
+        <button class="secondary-action" type="button" data-ask-ai-programme="${escapeHtml(programme.id)}" data-ask-ai-blocked="1">
+          <i data-lucide="bot"></i>
+          Ask AI what to improve
+        </button>
       </div>
     </article>
   `;
@@ -4538,6 +4631,7 @@ function renderApplicationAssistant() {
 
 function renderResults() {
   updateBlockedTabCount();
+  updateComparisonTray();
   const blockedPanel = qs("#tab-blocked");
   if (blockedPanel) blockedPanel.innerHTML = renderBlockedMatches();
   if (!latestMatches.length) {
@@ -5543,6 +5637,10 @@ function renderExplorerCourseProfile(programme) {
             <i data-lucide="${saved ? "bookmark-check" : "bookmark-plus"}"></i>
             ${saved ? "Saved" : "Save"}
           </button>
+          <button class="secondary-action" type="button" data-ask-ai-programme="${escapeHtml(programme.id)}" title="Ask AI about this programme">
+            <i data-lucide="bot"></i>
+            Ask AI
+          </button>
           ${application.link?.url ? `<a class="primary-button small" href="${escapeHtml(application.link.url)}" target="_blank" rel="noreferrer"><i data-lucide="external-link"></i> Apply / Source</a>` : ""}
         </div>
       </div>
@@ -5965,12 +6063,9 @@ function getReportInstitutionScope() {
     openGapCount: adminGaps.filter((gap) => gap.status === "open" && (
       scope === "all" || filteredProgrammes.some((programme) => programme.id === gap.programmeId)
     )).length,
-    feeItemCount: filteredProgrammes.length
-      ? filteredProgrammes.reduce((total, programme) => {
-          const feeSchedules = getInstitutionFeeSchedules(programme.institution);
-          return total + feeSchedules.reduce((scheduleTotal, schedule) => scheduleTotal + (schedule.items || []).length, 0);
-        }, 0)
-      : 0,
+    feeItemCount: adminFees
+      .filter((schedule) => scope === "all" || schedule.institution === scope)
+      .reduce((total, schedule) => total + (schedule.items || []).length, 0),
     userCount: filteredStudents.length,
     newUserCount: filteredStudents.filter((user) => isDateInReportRange(user.createdAt)).length,
     institutionCount: scope === "all" ? institutions.length : 1,
@@ -7130,11 +7225,12 @@ function printStudentReport(userId) {
   const grades = Object.entries(user.grades || {}).map(([code, grade]) => `<li>${escapeHtml(getSubjectLabel(code))}: <strong>${escapeHtml(grade)}</strong></li>`).join("");
   const documents = (user.documents || []).map((item) => `<li>${escapeHtml(item.name || "Document")} - ${escapeHtml(item.status || "Uploaded")}</li>`).join("");
   const activity = (user.activity || []).slice(0, 10).map((item) => `<li>${escapeHtml(item.label || "Activity")} - ${escapeHtml(formatDateTime(item.at))}</li>`).join("");
-  const reportWindow = window.open("", "_blank", "noopener,noreferrer");
+  const reportWindow = window.open("", "_blank");
   if (!reportWindow) {
     setAdminActionStatus("Allow pop-ups to generate the student report.", "warning");
     return;
   }
+  reportWindow.opener = null;
   const pathwayGroups = Object.keys(pathwayLabels).map((key) => `${pathwayLabels[key]}: ${(user.shortlist || []).filter((id) => (user.shortlistPathways?.[id] || "considering") === key).length}`).join(" | ");
   const profileCompletion = Math.min(100, [user.name, user.district, user.leavingYear, user.stream].filter(Boolean).length * 12 + Math.min(Object.keys(user.grades || {}).length, 6) * 5 + Math.min((user.documents || []).length, 2) * 8 + (user.preferenceText?.length > 20 ? 8 : 0));
   const usableGrades = Object.values(user.grades || {}).filter((grade) => gradePoints[grade] > 0);
@@ -7689,6 +7785,18 @@ function bindEvents() {
   qs("#results-print-button")?.addEventListener("click", () => {
     if (currentUser) printStudentReport(currentUser.id);
   });
+  qs("#dashboard-report-button")?.addEventListener("click", () => {
+    if (currentUser) printStudentReport(currentUser.id);
+  });
+  qs("#plan-report-button")?.addEventListener("click", () => {
+    if (currentUser) printStudentReport(currentUser.id);
+  });
+  qs("#dashboard-share-button")?.addEventListener("click", () => shareMatchSummary());
+  qs("#profile-share-button")?.addEventListener("click", () => shareMatchSummary());
+  qs("#app-toast-close")?.addEventListener("click", () => {
+    const toast = qs("#app-toast");
+    if (toast) toast.hidden = true;
+  });
   qs("#user-chip")?.addEventListener("click", () => setView("profile"));
   qs("#view-student")?.addEventListener("click", (event) => {
     const focusButton = event.target.closest("[data-student-focus]");
@@ -7899,7 +8007,24 @@ function bindEvents() {
     if (clearComparisonButton) {
       comparisonProgrammeIds = [];
       renderResults();
+      return;
     }
+    const askAiProgramme = event.target.closest("[data-ask-ai-programme]");
+    if (askAiProgramme) {
+      askAiAboutProgramme(askAiProgramme.dataset.askAiProgramme, {
+        blocked: askAiProgramme.dataset.askAiBlocked === "1"
+      });
+    }
+  });
+  qs("#comparison-tray-open")?.addEventListener("click", () => {
+    const comparison = qs(".programme-comparison");
+    if (comparison) comparison.scrollIntoView({ behavior: "smooth", block: "start" });
+    else setAdminActionStatus("Select programmes with Compare first.", "warning");
+  });
+  qs("#results-share-button")?.addEventListener("click", () => shareMatchSummary());
+  qs("#results-clear-compare-button")?.addEventListener("click", () => {
+    comparisonProgrammeIds = [];
+    renderResults();
   });
   qs("#view-results")?.addEventListener("input", (event) => {
     const filter = event.target.closest('[data-results-filter="search"]');
@@ -8021,6 +8146,12 @@ function bindEvents() {
     const shortlistButton = event.target.closest("[data-explorer-shortlist]");
     if (shortlistButton) {
       toggleShortlist(shortlistButton.dataset.explorerShortlist);
+      return;
+    }
+
+    const askAiProgramme = event.target.closest("[data-ask-ai-programme]");
+    if (askAiProgramme) {
+      askAiAboutProgramme(askAiProgramme.dataset.askAiProgramme);
       return;
     }
 

@@ -21,6 +21,72 @@
   box-sizing: border-box;
 }
 
+.comparison-tray {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin: 0 0 14px;
+  padding: 12px 14px;
+  border: 1px solid #9bd8c6;
+  border-radius: 10px;
+  background: linear-gradient(135deg, #f2fcf8 0%, #e8f7f1 100%);
+  position: sticky;
+  top: 8px;
+  z-index: 5;
+}
+
+.comparison-tray[hidden] { display: none !important; }
+.comparison-tray-copy, .comparison-tray-actions { display: flex; align-items: center; gap: 10px; }
+.comparison-tray-copy { color: var(--brand-deep); font-size: 13px; }
+.comparison-tray-copy span { color: var(--muted); }
+.results-toolbar { display: flex; flex-wrap: wrap; gap: 8px; }
+.user-chip { position: relative; }
+.shortlist-chip-count {
+  position: absolute;
+  top: -4px;
+  right: -4px;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 5px;
+  border-radius: 999px;
+  background: var(--brand);
+  color: #fff;
+  font-size: 11px;
+  font-weight: 800;
+  line-height: 18px;
+  text-align: center;
+}
+.app-toast {
+  position: fixed;
+  right: 18px;
+  bottom: 18px;
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  max-width: min(420px, calc(100vw - 28px));
+  padding: 12px 14px;
+  border: 1px solid #d7e8e1;
+  border-radius: 12px;
+  background: #fff;
+  box-shadow: 0 12px 30px rgba(16, 42, 34, 0.16);
+  color: var(--ink);
+  font-size: 13px;
+  font-weight: 600;
+}
+.app-toast[hidden] { display: none !important; }
+.app-toast[data-tone="success"] { border-color: #9bd8c6; background: #f2fcf8; }
+.app-toast[data-tone="warning"] { border-color: #f0d7a8; background: #fff9ef; }
+.app-toast[data-tone="error"] { border-color: #f0b4b4; background: #fff5f5; }
+.app-toast-close { margin-left: 4px; border: 0; background: transparent; color: var(--muted); cursor: pointer; display: inline-flex; padding: 2px; }
+
+@media (max-width: 720px) {
+  .app-toast { left: 14px; right: 14px; bottom: 14px; max-width: none; }
+  .comparison-tray { align-items: flex-start; flex-direction: column; }
+  .comparison-tray-actions { width: 100%; }
+}
+
 html {
   min-height: 100%;
 }

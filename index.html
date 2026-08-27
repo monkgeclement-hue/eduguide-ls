@@ -14,7 +14,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link rel="preload" href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Playfair+Display:wght@600;700&display=swap" as="style" onload="this.onload=null;this.rel='stylesheet'" />
     <noscript><link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet" /></noscript>
-    <link rel="stylesheet" href="/styles.css?v=36" />
+    <link rel="stylesheet" href="/styles.css?v=39" />
   </head>
   <body>
     <section class="auth-screen" id="auth-screen">
@@ -205,6 +205,7 @@
             <button class="user-chip" id="user-chip" type="button" title="Open my profile" aria-label="Open my profile">
               <div class="avatar" id="user-avatar">ST</div>
               <span id="user-chip-name">Student</span>
+              <span class="shortlist-chip-count" id="topbar-shortlist-count" hidden>0</span>
             </button>
           </div>
         </header>
@@ -222,6 +223,18 @@
                 <button class="primary-button" type="button" id="analyse-button">
                   <i data-lucide="sparkles"></i>
                   Find My Best Programmes
+                </button>
+                <button class="secondary-button" type="button" data-view-target="results" id="dashboard-shortlist-button">
+                  <i data-lucide="bookmark-check"></i>
+                  My Shortlist
+                </button>
+                <button class="secondary-button" type="button" id="dashboard-report-button" title="Print or save your guidance report as PDF">
+                  <i data-lucide="file-text"></i>
+                  Guidance Report
+                </button>
+                <button class="secondary-button" type="button" id="dashboard-share-button" title="Copy a short summary of your matches">
+                  <i data-lucide="share-2"></i>
+                  Share summary
                 </button>
                 <button class="secondary-button" type="button" data-view-target="admin" data-admin-only>
                   <i data-lucide="shield-check"></i>
@@ -540,8 +553,12 @@
             <div class="section-head">
               <div>
                 <p class="section-kicker">Application plan</p>
-                <h3>What the student does next</h3>
+                  <h3>What you should do next</h3>
               </div>
+                <button class="secondary-button" type="button" id="plan-report-button" title="Print or save your guidance report">
+                  <i data-lucide="file-text"></i>
+                  Guidance Report
+                </button>
               <button class="primary-button large-action" type="button" data-view-target="results">
                 <i data-lucide="sparkles"></i>
                 View Matches
@@ -593,6 +610,10 @@
                   <i data-lucide="file-text"></i>
                   Print My Report
                 </button>
+                <button class="secondary-button small" type="button" id="profile-share-button">
+                  <i data-lucide="share-2"></i>
+                  Share summary
+                </button>
                 <button class="secondary-button small" type="button" id="profile-logout-button">
                   <i data-lucide="log-out"></i>
                   Log out
@@ -637,10 +658,20 @@
                   <p class="section-kicker">Recommendations</p>
                   <h3 id="results-heading">Best programme matches</h3>
                 </div>
-                <button class="secondary-action compact-action" type="button" id="results-print-button" title="Print or save your guidance report as PDF">
-                  <i data-lucide="file-text"></i>
-                  My Guidance Report
-                </button>
+                <div class="results-toolbar">
+                  <button class="primary-button compact-action" type="button" id="results-print-button" title="Print or save your guidance report as PDF">
+                    <i data-lucide="file-text"></i>
+                    Guidance Report
+                  </button>
+                  <button class="secondary-action compact-action" type="button" id="results-share-button" title="Copy a short summary of your matches">
+                    <i data-lucide="share-2"></i>
+                    Share
+                  </button>
+                  <button class="secondary-action compact-action" type="button" id="results-clear-compare-button" title="Clear comparison selection" hidden>
+                    <i data-lucide="columns-3"></i>
+                    Clear compare
+                  </button>
+                </div>
                 <div class="result-tabs" role="tablist">
                   <button class="result-tab active" type="button" data-results-tab="programmes">Programmes</button>
                   <button class="result-tab" type="button" data-results-tab="applications">Applications</button>
@@ -649,6 +680,23 @@
                   <button class="result-tab" type="button" data-results-tab="blocked">
                     Not eligible yet
                     <span class="result-tab-count" id="blocked-tab-count"></span>
+                  </button>
+                </div>
+              </div>
+              <div class="comparison-tray" id="comparison-tray" hidden aria-live="polite">
+                <div class="comparison-tray-copy">
+                  <i data-lucide="columns-3"></i>
+                  <strong id="comparison-tray-count">0 selected</strong>
+                  <span>Compare up to 3 programmes side by side</span>
+                </div>
+                <div class="comparison-tray-actions">
+                  <button class="primary-button small" type="button" id="comparison-tray-open">
+                    <i data-lucide="scale"></i>
+                    Compare selected
+                  </button>
+                  <button class="secondary-action small" type="button" data-clear-comparison>
+                    <i data-lucide="x"></i>
+                    Clear
                   </button>
                 </div>
               </div>
@@ -1019,10 +1067,18 @@
       </main>
     </div>
 
+    <div class="app-toast" id="app-toast" role="status" aria-live="polite" hidden>
+      <i data-lucide="info" id="app-toast-icon"></i>
+      <span id="app-toast-message"></span>
+      <button type="button" class="app-toast-close" id="app-toast-close" aria-label="Dismiss notification">
+        <i data-lucide="x"></i>
+      </button>
+    </div>
+
     <script src="/data/supabase-config.js" defer></script>
     <script src="/data/catalog.js" defer></script>
     <script src="/data/admin-catalog.js" defer></script>
-    <script src="/app.js?v=36" defer></script>
+    <script src="/app.js?v=39" defer></script>
     <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js" async onload="window.lucide && window.lucide.createIcons()"></script>
     <script src="https://unpkg.com/@supabase/supabase-js@2" async></script>
   </body>
