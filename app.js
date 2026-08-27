@@ -7679,6 +7679,12 @@ function bindEvents() {
     });
   });
   qs("#profile-logout-button")?.addEventListener("click", signOut);
+  qs("#profile-print-report")?.addEventListener("click", () => {
+    if (currentUser) printStudentReport(currentUser.id);
+  });
+  qs("#results-print-button")?.addEventListener("click", () => {
+    if (currentUser) printStudentReport(currentUser.id);
+  });
   qs("#user-chip")?.addEventListener("click", () => setView("profile"));
   qs("#view-student")?.addEventListener("click", (event) => {
     const focusButton = event.target.closest("[data-student-focus]");

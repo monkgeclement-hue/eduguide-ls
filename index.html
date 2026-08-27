@@ -14,7 +14,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link rel="preload" href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Playfair+Display:wght@600;700&display=swap" as="style" onload="this.onload=null;this.rel='stylesheet'" />
     <noscript><link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet" /></noscript>
-    <link rel="stylesheet" href="/styles.css?v=35" />
+    <link rel="stylesheet" href="/styles.css?v=36" />
   </head>
   <body>
     <section class="auth-screen" id="auth-screen">
@@ -377,6 +377,9 @@
                     <option>2025</option>
                     <option>2024</option>
                     <option>2023</option>
+                    <option>2022</option>
+                    <option>2021</option>
+                    <option>2020</option>
                   </select>
                 </label>
                 <label>
@@ -586,6 +589,10 @@
                   <i data-lucide="pencil-line"></i>
                   Edit academic profile
                 </button>
+                <button class="secondary-button small" type="button" id="profile-print-report">
+                  <i data-lucide="file-text"></i>
+                  Print My Report
+                </button>
                 <button class="secondary-button small" type="button" id="profile-logout-button">
                   <i data-lucide="log-out"></i>
                   Log out
@@ -630,6 +637,10 @@
                   <p class="section-kicker">Recommendations</p>
                   <h3 id="results-heading">Best programme matches</h3>
                 </div>
+                <button class="secondary-action compact-action" type="button" id="results-print-button" title="Print or save your guidance report as PDF">
+                  <i data-lucide="file-text"></i>
+                  My Guidance Report
+                </button>
                 <div class="result-tabs" role="tablist">
                   <button class="result-tab active" type="button" data-results-tab="programmes">Programmes</button>
                   <button class="result-tab" type="button" data-results-tab="applications">Applications</button>
@@ -687,6 +698,9 @@
                 <button type="button" data-ai-prompt="What programmes do I qualify for right now, and why?">What can I study?</button>
                 <button type="button" data-ai-prompt="Which subjects should I improve if I want technology, nursing, or science programmes?">What should I improve?</button>
                 <button type="button" data-ai-prompt="Explain my NMDS or scholarship readiness and what documents I should prepare.">Funding readiness</button>
+                <button type="button" data-ai-prompt="Which programmes am I not yet eligible for, and what specific grades or subjects do I need to qualify for them?">What am I missing?</button>
+                <button type="button" data-ai-prompt="What are my next application steps based on my saved programmes, current profile, and document readiness?">How do I apply?</button>
+                <button type="button" data-ai-prompt="Compare my top shortlisted programmes by career prospects, duration, fees, and NMDS scholarship suitability.">Compare my options</button>
               </div>
               <div class="ai-interview-card" id="ai-interview-card">
                 <div>
@@ -735,7 +749,7 @@
                   New Chat
                 </button>
               </div>
-              <div class="ai-status" id="ai-guidance-status">Uses Gemini through the server when configured; otherwise shows local fallback guidance.</div>
+              <div class="ai-status" id="ai-guidance-status">Powered by Gemini 2.5 Flash via the EduGuide server. Falls back to local guidance if the server is unavailable.</div>
             </section>
           </div>
         </section>
@@ -1008,7 +1022,7 @@
     <script src="/data/supabase-config.js" defer></script>
     <script src="/data/catalog.js" defer></script>
     <script src="/data/admin-catalog.js" defer></script>
-    <script src="/app.js?v=35" defer></script>
+    <script src="/app.js?v=36" defer></script>
     <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js" async onload="window.lucide && window.lucide.createIcons()"></script>
     <script src="https://unpkg.com/@supabase/supabase-js@2" async></script>
   </body>

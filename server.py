@@ -51,11 +51,12 @@ RATE_LIMIT_STATE: dict[str, list[datetime]] = {}
 SECURITY_CLEANUP_INTERVAL_SECONDS = 3600
 LAST_SECURITY_CLEANUP_AT: datetime | None = None
 GRADE_VALUES = {"A*", "A", "B", "C", "D", "E", "F", "G", "X", "Z"}
-GEMINI_DEFAULT_MODEL = "gemini-3.6-flash"
-GEMINI_MODEL_FALLBACKS = ["gemini-3.6-flash", "gemini-3.5-flash", "gemini-flash-latest"]
+GEMINI_DEFAULT_MODEL = "gemini-2.5-flash"
+GEMINI_MODEL_FALLBACKS = ["gemini-2.5-flash", "gemini-2.0-flash", "gemini-flash-latest"]
 DEPRECATED_GEMINI_MODELS = {
-  "gemini-2.5-flash": GEMINI_DEFAULT_MODEL,
   "gemini-2.5-pro": GEMINI_DEFAULT_MODEL,
+  "gemini-1.5-flash": GEMINI_DEFAULT_MODEL,
+  "gemini-1.5-pro": GEMINI_DEFAULT_MODEL,
 }
 SUBJECT_ALIASES = [
   {"code": "MATH", "subject": "Mathematics", "aliases": ["mathematics", "maths", "math"]},
@@ -3496,7 +3497,7 @@ def delete_document(document_id: str, authorization: str | None = Header(default
 def database_diagnostics(authorization: str | None = Header(default=None)) -> dict[str, Any]:
   require_admin_user(authorization)
   ai_provider = get_ai_provider()
-  ai_model = get_gemini_model_candidates()[0] if ai_provider == "gemini" else (os.getenv("OPENAI_MODEL", "gpt-5.2").strip() or "gpt-5.2")
+  ai_model = get_gemini_model_candidates()[0] if ai_provider == "gemini" else (os.getenv("OPENAI_MODEL", "gpt-4o").strip() or "gpt-4o")
   if using_supabase():
     state_rows = list_state_payloads()
     document_rows = supabase_request(
@@ -3695,7 +3696,7 @@ def call_gemini(payload: GuidanceRequest, request_payload: dict[str, Any]) -> di
 
 def call_openai(payload: GuidanceRequest, request_payload: dict[str, Any]) -> dict[str, Any]:
   api_key = get_openai_api_key()
-  model = os.getenv("OPENAI_MODEL", "gpt-5.2").strip() or "gpt-5.2"
+  model = os.getenv("OPENAI_MODEL", "gpt-4o").strip() or "gpt-4o"
   if not api_key:
     return {
       "mode": "local_fallback",
