@@ -5096,9 +5096,9 @@ async function handleAiInterviewAnswer(answer) {
   await finishAiInterview();
 }
 
-function guidanceToConversationText(guidance = {}) {
+function guidanceToConversationText(guidance = {}, { includeRecommendations = true } = {}) {
   const parts = [guidance.summary, guidance.direct_answer, guidance.scholarship_note].filter(Boolean);
-  if (Array.isArray(guidance.top_recommendations) && guidance.top_recommendations.length) {
+  if (includeRecommendations && Array.isArray(guidance.top_recommendations) && guidance.top_recommendations.length) {
     parts.push(`Top recommendations: ${guidance.top_recommendations.map((item) => `${item.programme || "Programme"} at ${item.institution || "Institution"}: ${item.why || item.action || "match"} Evidence: ${item.evidence || "matcher evidence"}`).join(" | ")}`);
   }
   if (Array.isArray(guidance.study_plan) && guidance.study_plan.length) parts.push(`Study plan: ${guidance.study_plan.join(" | ")}`);
@@ -5115,6 +5115,8 @@ function getAiConversationPayload() {
 function renderAiGuidance(guidance, mode, model, serverChat = null) {
   const recommendations = guidance.top_recommendations || [];
   const comparison = guidance.comparison || [];
+  const hasPreviousGuidance = aiChatMessages.some((message) => message.role === "assistant" && message.id !== "ai-welcome" && message.content);
+  const showRecommendations = !hasPreviousGuidance;
   const answerMarkup = `
     <article class="ai-answer-card">
       <h4>Summary</h4>
@@ -5129,7 +5131,7 @@ function renderAiGuidance(guidance, mode, model, serverChat = null) {
         : ""
     }
     ${
-      recommendations.length
+      showRecommendations && recommendations.length
         ? `<article class="ai-answer-card">
             <h4>Top recommendations</h4>
             ${recommendations
@@ -5202,7 +5204,7 @@ function renderAiGuidance(guidance, mode, model, serverChat = null) {
         : ""
     }
   `;
-  appendAiChatMessage("assistant", guidanceToConversationText(guidance), answerMarkup);
+  appendAiChatMessage("assistant", guidanceToConversationText(guidance, { includeRecommendations: showRecommendations }), answerMarkup);
   if (Array.isArray(serverChat) && serverChat.length) {
     aiChatMessages = mergeAiChatMessages(aiChatMessages, serverChat);
     saveAiChatMessages();
