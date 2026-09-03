@@ -168,6 +168,10 @@
             <i data-lucide="circle-user-round"></i>
             <span>Profile</span>
           </button>
+          <button class="side-link" type="button" data-view="institution" data-institution-only>
+            <i data-lucide="building-2"></i>
+            <span>Institution</span>
+          </button>
           <button class="side-link" type="button" data-view="admin" data-admin-only>
             <i data-lucide="database"></i>
             <span>Admin</span>
@@ -802,6 +806,50 @@
           </div>
         </section>
 
+        <section class="view" id="view-institution">
+          <div class="institution-dashboard">
+            <section class="surface-panel institution-console">
+              <div class="section-head">
+                <div>
+                  <p class="section-kicker">Institution</p>
+                  <h3>Programme update workbench</h3>
+                </div>
+                <div class="admin-head-actions">
+                  <button class="secondary-action" type="button" id="refresh-institution-proposals">
+                    <i data-lucide="refresh-cw"></i>
+                    Refresh
+                  </button>
+                </div>
+              </div>
+
+              <div class="institution-summary-grid" id="institution-workbench-summary"></div>
+
+              <div class="admin-toolbar institution-toolbar">
+                <label class="search-field">
+                  <span>Search programmes</span>
+                  <input id="institution-workbench-search" type="search" placeholder="Programme, faculty, requirement..." />
+                </label>
+                <label data-admin-only>
+                  <span>Institution</span>
+                  <select id="institution-workbench-filter"></select>
+                </label>
+              </div>
+
+              <div class="institution-workbench">
+                <section class="admin-main-pane">
+                  <div class="admin-list-head">
+                    <span id="institution-programme-count">0 programmes</span>
+                    <span id="institution-proposal-count">0 pending updates</span>
+                  </div>
+                  <div class="admin-record-list" id="institution-programme-list"></div>
+                </section>
+
+                <aside class="admin-detail-pane" id="institution-detail-panel"></aside>
+              </div>
+            </section>
+          </div>
+        </section>
+
         <section class="view" id="view-admin">
           <div class="admin-dashboard">
             <div class="admin-summary-grid">
@@ -930,6 +978,10 @@
                   <i data-lucide="file-search"></i>
                   Sources
                 </button>
+                <button class="admin-tab" type="button" data-admin-tab="institution">
+                  <i data-lucide="building-2"></i>
+                  Institution Updates
+                </button>
                 <button class="admin-tab" type="button" data-admin-tab="users">
                   <i data-lucide="users-round"></i>
                   Users
@@ -977,6 +1029,16 @@
                       <span>Audit of links, PDFs, and manual extracts</span>
                     </div>
                     <div class="admin-record-list" id="admin-source-list"></div>
+                  </div>
+                  <div class="admin-tab-panel" id="admin-tab-institution">
+                    <div class="admin-list-head">
+                      <span id="institution-update-count">0 updates</span>
+                      <button class="secondary-action compact-action" type="button" data-institution-proposals-refresh>
+                        <i data-lucide="refresh-cw"></i>
+                        Refresh
+                      </button>
+                    </div>
+                    <div class="admin-record-list" id="admin-institution-proposal-list"></div>
                   </div>
                   <div class="admin-tab-panel" id="admin-tab-users">
                     <div class="admin-list-head">
@@ -1078,7 +1140,7 @@
     <script src="/data/supabase-config.js" defer></script>
     <script src="/data/catalog.js" defer></script>
     <script src="/data/admin-catalog.js" defer></script>
-    <script src="/app.js?v=39" defer></script>
+    <script src="/app.js?v=40" defer></script>
     <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js" async onload="window.lucide && window.lucide.createIcons()"></script>
     <script src="https://unpkg.com/@supabase/supabase-js@2" async></script>
   </body>

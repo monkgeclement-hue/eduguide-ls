@@ -3518,6 +3518,33 @@ textarea:focus {
   align-items: start;
 }
 
+.institution-dashboard {
+  display: grid;
+  gap: 16px;
+}
+
+.institution-console {
+  padding: 18px;
+}
+
+.institution-summary-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 12px;
+  margin-bottom: 14px;
+}
+
+.institution-toolbar {
+  margin-bottom: 14px;
+}
+
+.institution-workbench {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 410px;
+  gap: 14px;
+  align-items: start;
+}
+
 .admin-tab-panel {
   display: none;
 }
@@ -3719,6 +3746,74 @@ textarea:focus {
 .admin-row-actions button:disabled {
   cursor: not-allowed;
   opacity: 0.42;
+}
+
+.institution-access-box {
+  padding: 12px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--surface-soft);
+}
+
+.proposal-change-list {
+  display: grid;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.proposal-change-list li {
+  display: grid;
+  gap: 4px;
+  padding: 9px 10px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--surface-soft);
+}
+
+.proposal-change-list strong {
+  color: var(--brand-deep);
+  font-size: 12px;
+}
+
+.proposal-change-list span {
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.45;
+  overflow-wrap: anywhere;
+}
+
+.proposal-history-item {
+  display: grid;
+  gap: 8px;
+  margin-bottom: 10px;
+  padding: 10px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: #fff;
+}
+
+.proposal-history-item > div:first-child {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.proposal-history-item strong {
+  color: var(--brand-deep);
+  font-size: 12px;
+}
+
+.proposal-history-item span {
+  color: var(--muted);
+  font-size: 11px;
+  font-weight: 800;
+}
+
+.compact-links {
+  align-items: flex-start;
 }
 
 .admin-empty {
@@ -4551,7 +4646,8 @@ textarea:focus {
   .results-layout,
   .ai-guide-layout,
   .admin-layout,
-  .admin-workbench {
+  .admin-workbench,
+  .institution-workbench {
     grid-template-columns: 1fr;
   }
 

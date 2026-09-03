@@ -136,6 +136,7 @@ let adminState = {
   status: "all",
   qualityFilter: "all",
   selectedProgrammeId: adminProgrammes[0]?.id || null,
+  selectedProposalId: null,
   selectedUserId: null,
   selectedAuditId: null,
   editingProgrammeId: null,
@@ -149,6 +150,11 @@ let schoolExplorerState = {
   selectedProgrammeId: null,
   screen: "schools"
 };
+let institutionWorkbenchState = {
+  search: "",
+  institution: "",
+  selectedProgrammeId: null
+};
 
 const persistenceKey = "eduguide-admin-review-state-v1";
 const authUsersKey = "eduguide-auth-users-v1";
@@ -159,6 +165,23 @@ const legacyDemoEmails = new Set();
 const legacyDemoIds = new Set(["demo-student", "demo-admin"]);
 const defaultUsers = [];
 const adminRoles = new Set(["owner", "admin"]);
+const institutionProposalEditableFields = [
+  { name: "name", label: "Programme name", type: "input" },
+  { name: "code", label: "Code", type: "input" },
+  { name: "faculty", label: "Faculty", type: "input" },
+  { name: "category", label: "Category", type: "input" },
+  { name: "level", label: "Level", type: "input" },
+  { name: "duration", label: "Duration", type: "input" },
+  { name: "deliveryMode", label: "Delivery mode", type: "input" },
+  { name: "sourceUrl", label: "Official source URL", type: "input" },
+  { name: "supportingSourcePath", label: "Evidence file/path", type: "input" },
+  { name: "careers", label: "Careers", type: "textarea", full: true },
+  { name: "requirementsSummary", label: "Requirements", type: "textarea", full: true },
+  { name: "overview", label: "Overview", type: "textarea", full: true },
+  { name: "sourceNote", label: "Source note", type: "textarea", full: true },
+  { name: "feeNote", label: "Fee source or note", type: "textarea", full: true },
+  { name: "supportingFeeSourcePath", label: "Fee evidence URL/file path", type: "input", full: true }
+];
 const maxActivityItems = 45;
 const catalogueDataVersion = "2026-08-enrichment-1";
 const maxAiChatMessages = 24;
@@ -259,6 +282,10 @@ let adminIntelligenceError = "";
 let adminAuditEvents = [];
 let adminAuditLoading = false;
 let adminAuditError = "";
+let institutionProposals = [];
+let institutionProposalsLoading = false;
+let institutionProposalsLoaded = false;
+let institutionProposalsError = "";
 let databaseLoadedAuthUsers = false;
 let databaseLoadedReviewState = false;
 let aiChatLoadedFromServer = false;
@@ -274,6 +301,7 @@ const titles = {
   results: "Recommendation Results",
   schools: "Schools & Courses",
   ai: "EduGuide AI",
+  institution: "Institution Workbench",
   admin: "Admin Dashboard",
   sources: "Data Sources"
 };
@@ -500,8 +528,20 @@ function isAdminRole(role) {
   return adminRoles.has(role);
 }
 
+function isInstitutionAdminRole(role) {
+  return role === "institution_admin";
+}
+
 function isAdmin(user = currentUser) {
   return isAdminRole(user?.role);
+}
+
+function isInstitutionAdmin(user = currentUser) {
+  return isInstitutionAdminRole(user?.role);
+}
+
+function isInstitutionUser(user = currentUser) {
+  return isAdmin(user) || isInstitutionAdmin(user);
 }
 
 function isOwner(user = currentUser) {
@@ -511,7 +551,37 @@ function isOwner(user = currentUser) {
 function getUserRoleLabel(user = {}) {
   if (user.role === "owner") return "System Admin";
   if (user.role === "admin") return "Admin";
+  if (user.role === "institution_admin") return "Institution Admin";
   return "Student";
+}
+
+function normalizeInstitutionName(value) {
+  return String(value || "").trim().replace(/\s+/g, " ");
+}
+
+function getManagedInstitution(user = currentUser) {
+  return normalizeInstitutionName(
+    user?.managedInstitution ||
+    user?.institution ||
+    user?.institutionName ||
+    user?.assignedInstitution ||
+    ""
+  );
+}
+
+function getInstitutionNames() {
+  return Array.from(
+    new Set([
+      ...(adminData.institutions || []).map((item) => item.name),
+      ...adminProgrammes.map((programme) => programme.institution)
+    ].map(normalizeInstitutionName).filter(Boolean))
+  ).sort();
+}
+
+function getPreferredLandingView(user = currentUser, fallback = "student") {
+  if (isAdmin(user)) return fallback === "admin" ? "admin" : fallback === "institution" ? "institution" : "admin";
+  if (isInstitutionAdmin(user)) return "institution";
+  return titles[fallback] && fallback !== "admin" && fallback !== "institution" ? fallback : "student";
 }
 
 function getVisibleUsers() {
@@ -530,12 +600,14 @@ function normalizeUser(user = {}) {
   if (!user?.email || isLegacyDemoUser(user)) return null;
   const createdAt = user.createdAt || user.registeredAt || new Date().toISOString();
   const activity = Array.isArray(user.activity) ? user.activity.slice(0, maxActivityItems) : [];
+  const role = isAdminRole(user.role) || isInstitutionAdminRole(user.role) ? user.role : "student";
   return {
     id: user.id || generateUserId("user"),
     name: String(user.name || user.email || "Student").trim(),
     email: normalizeEmail(user.email),
     password: String(user.password || ""),
-    role: isAdminRole(user.role) ? user.role : "student",
+    role,
+    managedInstitution: role === "institution_admin" ? getManagedInstitution(user) : "",
     status: user.status || "active",
     district: user.district || "",
     stream: user.stream || "",
@@ -549,7 +621,7 @@ function normalizeUser(user = {}) {
     shortlistPathways: user.shortlistPathways && typeof user.shortlistPathways === "object" ? user.shortlistPathways : {},
     createdAt,
     emailVerifiedAt: user.emailVerifiedAt || createdAt,
-    reviewedAt: user.reviewedAt || (isAdminRole(user.role) ? createdAt : null),
+    reviewedAt: user.reviewedAt || (role === "admin" || role === "owner" || role === "institution_admin" ? createdAt : null),
     lastActiveAt: user.lastActiveAt || user.lastLoginAt || createdAt,
     lastActivity: user.lastActivity || (activity[0]?.label ?? "Account created"),
     activity
@@ -667,7 +739,12 @@ function renderViewOnDemand(viewName) {
   if (viewName === "admin") {
     renderAdmin();
     loadAdminUsers();
+    if (!institutionProposalsLoaded) loadInstitutionProposals({ silent: true });
     loadAdminIntelligence();
+  }
+  if (viewName === "institution") {
+    renderInstitutionWorkbench();
+    if (!institutionProposalsLoaded) loadInstitutionProposals({ silent: true });
   }
   if (viewName === "sources") renderSources();
   if (viewName === "schools") renderSchoolExplorer();
@@ -1177,7 +1254,7 @@ async function verifyPasswordResetCode(payload, code) {
     saveAuthUsers();
     pendingPasswordReset = null;
     updatePasswordResetUi();
-    setCurrentUser(user, isAdmin(user) ? "admin" : "student");
+    setCurrentUser(user, getPreferredLandingView(user, "student"));
     setAuthMessage("Password reset. You are signed in now.", "success");
     return true;
   } catch (error) {
@@ -1204,6 +1281,10 @@ function updateUserShell() {
   qsa("[data-admin-only]").forEach((element) => {
     element.hidden = !isAdmin();
     if ("disabled" in element) element.disabled = !isAdmin();
+  });
+  qsa("[data-institution-only]").forEach((element) => {
+    element.hidden = !isInstitutionUser();
+    if ("disabled" in element) element.disabled = !isInstitutionUser();
   });
   if (!currentUser) return;
   const initials = getInitials(currentUser.name, currentUser.email);
@@ -1245,7 +1326,7 @@ renderAiChatMessages();
 renderStudentDashboard();
 renderAdminUsers();
 calculateMatches();
-setView(isAdmin() && preferredView === "admin" ? "admin" : "student");
+setView(getPreferredLandingView(currentUser, preferredView));
 
 if (currentUser && authToken) {
   loadServerDatabaseState().then(() => {
@@ -1291,7 +1372,7 @@ async function loginWithCredentials(email, password, preferredView = "student") 
     const user = normalizeUser(data.user);
     authUsers = mergeAuthUsersInMemory(authUsers, [user]);
     saveAuthUsers();
-    setCurrentUser(user, isAdmin(user) ? "admin" : preferredView);
+    setCurrentUser(user, getPreferredLandingView(user, preferredView));
     return true;
   } catch (error) {
     setAuthMessage(getFriendlyAuthError(error, "Email or password is not correct."), "error");
@@ -1338,7 +1419,7 @@ async function restoreAuthSession() {
       const user = normalizeUser(data.user);
       authUsers = mergeAuthUsersInMemory(authUsers, [user]);
       saveAuthUsers();
-      setCurrentUser(user, isAdmin(user) ? "admin" : "student");
+      setCurrentUser(user, getPreferredLandingView(user, "student"));
       return true;
     } catch (error) {
       authToken = null;
@@ -1706,6 +1787,8 @@ async function persistProgrammeEdit(programme, changes) {
     qualification_level: programme.level || null,
     duration_text: programme.duration || null,
     delivery_mode: programme.deliveryMode || null,
+    review_status: programme.reviewStatus || "needs_admin_review",
+    reviewed_at: programme.reviewedAt || null,
     overview: programme.overview || null,
     raw_payload: {
       ...programme,
@@ -2029,6 +2112,10 @@ function setView(viewName) {
     return;
   }
   if (viewName === "admin" && !isAdmin()) {
+    setView("student");
+    return;
+  }
+  if (viewName === "institution" && !isInstitutionUser()) {
     setView("student");
     return;
   }
@@ -5783,14 +5870,548 @@ function renderSchoolExplorer() {
   if (window.lucide) window.lucide.createIcons();
 }
 
+function normalizeInstitutionProposal(proposal = {}) {
+  const changes = proposal.changes && typeof proposal.changes === "object" ? proposal.changes : {};
+  return {
+    id: String(proposal.id || `local-proposal-${Date.now()}`),
+    programmeId: String(proposal.programmeId || proposal.programme_id || ""),
+    programmeName: String(proposal.programmeName || ""),
+    institution: normalizeInstitutionName(proposal.institution),
+    changes,
+    note: String(proposal.note || ""),
+    status: proposal.status || "pending_admin_review",
+    requestedBy: proposal.requestedBy || {},
+    reviewedBy: proposal.reviewedBy || {},
+    reviewNote: String(proposal.reviewNote || ""),
+    createdAt: proposal.createdAt || new Date().toISOString(),
+    updatedAt: proposal.updatedAt || proposal.createdAt || new Date().toISOString()
+  };
+}
+
+function getVisibleInstitutionProposals() {
+  if (isAdmin()) return institutionProposals;
+  const managedInstitution = getManagedInstitution();
+  return institutionProposals.filter((proposal) => normalizeInstitutionName(proposal.institution).toLowerCase() === managedInstitution.toLowerCase());
+}
+
+function getProposalFieldLabel(field) {
+  return institutionProposalEditableFields.find((item) => item.name === field)?.label || formatStatus(field);
+}
+
+function getProposalStatusTone(status) {
+  if (status === "approved") return "green";
+  if (status === "rejected") return "red";
+  return "amber";
+}
+
+function formatProposalValue(value) {
+  if (Array.isArray(value)) return value.join(", ");
+  if (value && typeof value === "object") return JSON.stringify(value);
+  return String(value ?? "");
+}
+
+function renderProposalChanges(changes = {}) {
+  const entries = Object.entries(changes).filter(([, value]) => formatProposalValue(value).trim());
+  if (!entries.length) return `<p><span class="muted-inline">No field changes captured.</span></p>`;
+  return `
+    <ul class="proposal-change-list">
+      ${entries.map(([field, value]) => `
+        <li>
+          <strong>${escapeHtml(getProposalFieldLabel(field))}</strong>
+          <span>${escapeHtml(formatProposalValue(value))}</span>
+        </li>
+      `).join("")}
+    </ul>
+  `;
+}
+
+function getInstitutionWorkbenchInstitutions() {
+  if (isAdmin()) return getInstitutionNames();
+  const managedInstitution = getManagedInstitution();
+  return managedInstitution ? [managedInstitution] : [];
+}
+
+function getInstitutionWorkbenchScope() {
+  const institutions = getInstitutionWorkbenchInstitutions();
+  if (!institutions.length) return "";
+  if (!institutionWorkbenchState.institution || !institutions.includes(institutionWorkbenchState.institution)) {
+    institutionWorkbenchState.institution = isInstitutionAdmin() ? getManagedInstitution() : institutions[0];
+  }
+  return institutionWorkbenchState.institution;
+}
+
+function populateInstitutionWorkbenchFilter() {
+  const filter = qs("#institution-workbench-filter");
+  if (!filter) return;
+  const institutions = getInstitutionWorkbenchInstitutions();
+  const current = getInstitutionWorkbenchScope();
+  filter.innerHTML = institutions
+    .map((institution) => `<option value="${escapeHtml(institution)}">${escapeHtml(institution)}</option>`)
+    .join("");
+  filter.value = current;
+}
+
+function getInstitutionWorkbenchProgrammes() {
+  const scope = getInstitutionWorkbenchScope();
+  const query = institutionWorkbenchState.search.trim().toLowerCase();
+  if (!scope) return [];
+  return adminProgrammes
+    .filter((programme) => normalizeInstitutionName(programme.institution).toLowerCase() === scope.toLowerCase())
+    .filter((programme) => {
+      if (!query) return true;
+      return [
+        programme.name,
+        programme.code,
+        programme.faculty,
+        programme.category,
+        programme.level,
+        programme.duration,
+        programme.requirementsSummary,
+        programme.overview,
+        (programme.careers || []).join(" ")
+      ].some((value) => String(value || "").toLowerCase().includes(query));
+    })
+    .sort((a, b) => (a.name || "").localeCompare(b.name || ""));
+}
+
+function getProgrammeProposals(programmeId) {
+  return getVisibleInstitutionProposals()
+    .filter((proposal) => proposal.programmeId === programmeId)
+    .sort((a, b) => String(b.createdAt || "").localeCompare(String(a.createdAt || "")));
+}
+
+function renderInstitutionSummary(scope, programmes) {
+  const summaryRoot = qs("#institution-workbench-summary");
+  if (!summaryRoot) return;
+  const visibleProposals = getVisibleInstitutionProposals().filter((proposal) => !scope || normalizeInstitutionName(proposal.institution).toLowerCase() === scope.toLowerCase());
+  const pending = visibleProposals.filter((proposal) => proposal.status === "pending_admin_review").length;
+  const openGaps = adminGaps.filter((gap) => gap.institution === scope && gap.status !== "resolved").length;
+  const feeItems = getInstitutionFeeSchedules(scope).reduce((total, schedule) => total + (schedule.items || []).length, 0);
+  summaryRoot.innerHTML = [
+    { label: "Institution", value: scope || "Not assigned" },
+    { label: "Programmes", value: String(programmes.length) },
+    { label: "Pending updates", value: String(pending) },
+    { label: "Open data gaps", value: String(openGaps) },
+    { label: "Fee items", value: String(feeItems) }
+  ].map((item) => `
+    <article class="admin-stat">
+      <span>${escapeHtml(item.label)}</span>
+      <strong>${escapeHtml(item.value)}</strong>
+    </article>
+  `).join("");
+}
+
+function renderInstitutionProgrammeList(programmes) {
+  const list = qs("#institution-programme-list");
+  const count = qs("#institution-programme-count");
+  const proposalCount = qs("#institution-proposal-count");
+  if (!list) return;
+  if (count) count.textContent = `${programmes.length} programme${programmes.length === 1 ? "" : "s"}`;
+  const pendingCount = getVisibleInstitutionProposals().filter((proposal) => proposal.status === "pending_admin_review").length;
+  if (proposalCount) proposalCount.textContent = `${pendingCount} pending update${pendingCount === 1 ? "" : "s"}`;
+  if (!programmes.length) {
+    list.innerHTML = `<article class="admin-empty"><h4>No programmes found.</h4><p>Try another search or ask an admin to check the institution assignment.</p></article>`;
+    return;
+  }
+  list.innerHTML = programmes.map((programme) => {
+    const quality = getProgrammeQualityChecks(programme);
+    const proposals = getProgrammeProposals(programme.id);
+    const pending = proposals.filter((proposal) => proposal.status === "pending_admin_review").length;
+    const active = institutionWorkbenchState.selectedProgrammeId === programme.id;
+    return `
+      <article class="admin-row ${active ? "selected" : ""}" data-institution-programme="${escapeHtml(programme.id)}">
+        <div class="admin-row-main">
+          <div class="admin-row-title">
+            <h4>${escapeHtml(programme.name)}</h4>
+            <span>${escapeHtml(programme.faculty || programme.category || "Faculty missing")}</span>
+          </div>
+          <div class="admin-row-meta">
+            <span>${escapeHtml(programme.level || "Level missing")}</span>
+            <span>${escapeHtml(programme.duration || "Duration missing")}</span>
+            <span>${quality.percent}% data ready</span>
+            <span>${pending} pending update${pending === 1 ? "" : "s"}</span>
+          </div>
+        </div>
+        <div class="admin-row-actions">
+          <span class="badge ${badgeClassForStatus(programme.reviewStatus)}">${escapeHtml(formatStatus(programme.reviewStatus))}</span>
+          <span class="badge ${pending ? "amber" : "green"}">${pending ? "Update pending" : "Ready"}</span>
+        </div>
+      </article>
+    `;
+  }).join("");
+}
+
+function renderInstitutionProposalForm(programme) {
+  return `
+    <form class="edit-form institution-proposal-form" id="institution-proposal-form" data-programme-id="${escapeHtml(programme.id)}">
+      <div class="edit-grid">
+        ${institutionProposalEditableFields.map((field) => {
+          const value = field.name === "careers" ? formatListText(programme.careers || []) : programme[field] || "";
+          const input = field.type === "textarea"
+            ? `<textarea name="${escapeHtml(field.name)}">${escapeHtml(value)}</textarea>`
+            : `<input name="${escapeHtml(field.name)}" value="${escapeHtml(value)}">`;
+          return `
+            <label class="${field.full ? "full" : ""}">
+              <span>${escapeHtml(field.label)}</span>
+              ${input}
+            </label>
+          `;
+        }).join("")}
+        <label class="full">
+          <span>Note for EduGuide admin</span>
+          <textarea name="note" placeholder="What source confirms this update?"></textarea>
+        </label>
+      </div>
+      <div class="detail-actions">
+        <button class="primary-button small" type="submit">
+          <i data-lucide="send"></i>
+          Submit update
+        </button>
+      </div>
+    </form>
+  `;
+}
+
+function renderInstitutionDetail(programme) {
+  const panel = qs("#institution-detail-panel");
+  if (!panel) return;
+  if (!isInstitutionUser()) {
+    panel.innerHTML = `<article class="admin-empty"><h4>Institution access required.</h4><p>Ask an admin to assign your account to an institution.</p></article>`;
+    return;
+  }
+  const scope = getInstitutionWorkbenchScope();
+  if (!scope) {
+    panel.innerHTML = `<article class="admin-empty"><h4>No institution assigned.</h4><p>Open Admin Users and attach this account to a school.</p></article>`;
+    return;
+  }
+  if (!programme) {
+    panel.innerHTML = `<article class="admin-empty"><h4>No programme selected.</h4><p>Select a programme to propose updates.</p></article>`;
+    return;
+  }
+  const proposals = getProgrammeProposals(programme.id);
+  const links = getApplicationLinkPack(programme.institution, [programme]);
+  panel.innerHTML = `
+    <div class="detail-card">
+      <div class="detail-card-head">
+        <p class="section-kicker">Institution record</p>
+        <span class="badge ${badgeClassForStatus(programme.reviewStatus)}">${escapeHtml(formatStatus(programme.reviewStatus))}</span>
+      </div>
+      <h3>${escapeHtml(programme.name)}</h3>
+      <p class="detail-muted">${escapeHtml(programme.institution)}</p>
+      <div class="detail-meta-grid">
+        <div><span>Level</span><strong>${escapeHtml(programme.level || "Missing")}</strong></div>
+        <div><span>Faculty</span><strong>${escapeHtml(programme.faculty || "Missing")}</strong></div>
+        <div><span>Duration</span><strong>${escapeHtml(programme.duration || "Missing")}</strong></div>
+        <div><span>Code</span><strong>${escapeHtml(programme.code || "Missing")}</strong></div>
+      </div>
+      <div class="detail-section">
+        <h4>Application links</h4>
+        <div class="application-links compact-links">
+          ${links.application ? `<a class="primary-button small" href="${escapeHtml(links.application.url)}" target="_blank" rel="noreferrer"><i data-lucide="external-link"></i>${escapeHtml(links.application.label)}</a>` : `<span class="badge amber">Apply link missing</span>`}
+          ${links.prospectus ? `<a class="secondary-action" href="${escapeHtml(links.prospectus.url)}" target="_blank" rel="noreferrer"><i data-lucide="download"></i>${escapeHtml(links.prospectus.label)}</a>` : `<span class="badge amber">Prospectus missing</span>`}
+        </div>
+      </div>
+      <div class="detail-section">
+        <h4>Propose catalogue update</h4>
+        ${renderInstitutionProposalForm(programme)}
+      </div>
+      <div class="detail-section">
+        <h4>Update history</h4>
+        ${
+          proposals.length
+            ? proposals.slice(0, 6).map((proposal) => `
+                <article class="proposal-history-item">
+                  <div>
+                    <strong>${escapeHtml(formatStatus(proposal.status))}</strong>
+                    <span>${escapeHtml(formatDateTime(proposal.createdAt))}</span>
+                  </div>
+                  ${renderProposalChanges(proposal.changes)}
+                </article>
+              `).join("")
+            : `<p><span class="muted-inline">No proposed updates yet.</span></p>`
+        }
+      </div>
+    </div>
+  `;
+}
+
+function renderInstitutionWorkbench() {
+  if (!isInstitutionUser()) return;
+  populateInstitutionWorkbenchFilter();
+  const scope = getInstitutionWorkbenchScope();
+  const programmes = getInstitutionWorkbenchProgrammes();
+  if (!institutionWorkbenchState.selectedProgrammeId || !programmes.some((programme) => programme.id === institutionWorkbenchState.selectedProgrammeId)) {
+    institutionWorkbenchState.selectedProgrammeId = programmes[0]?.id || null;
+  }
+  const selected = programmes.find((programme) => programme.id === institutionWorkbenchState.selectedProgrammeId) || programmes[0] || null;
+  renderInstitutionSummary(scope, programmes);
+  renderInstitutionProgrammeList(programmes);
+  renderInstitutionDetail(selected);
+  if (window.lucide) window.lucide.createIcons();
+}
+
+function getFilteredAdminInstitutionProposals() {
+  const query = adminState.search.trim().toLowerCase();
+  return institutionProposals.filter((proposal) => {
+    const institutionMatch = adminState.institution === "all" || proposal.institution === adminState.institution;
+    const searchMatch = !query || [
+      proposal.id,
+      proposal.programmeId,
+      proposal.programmeName,
+      proposal.institution,
+      proposal.status,
+      proposal.note,
+      proposal.requestedBy?.name,
+      proposal.requestedBy?.email,
+      Object.keys(proposal.changes || {}).join(" "),
+      Object.values(proposal.changes || {}).map(formatProposalValue).join(" ")
+    ].some((value) => String(value || "").toLowerCase().includes(query));
+    return institutionMatch && searchMatch;
+  });
+}
+
+function renderAdminInstitutionProposals() {
+  const list = qs("#admin-institution-proposal-list");
+  const count = qs("#institution-update-count");
+  if (!list || !count) return;
+  const proposals = getFilteredAdminInstitutionProposals();
+  if (proposals.length && !proposals.some((proposal) => proposal.id === adminState.selectedProposalId)) {
+    adminState.selectedProposalId = proposals[0].id;
+  }
+  if (!proposals.length) adminState.selectedProposalId = null;
+  count.textContent = institutionProposalsLoading ? "Loading updates..." : `${proposals.length} update${proposals.length === 1 ? "" : "s"}`;
+  if (institutionProposalsLoading && !institutionProposals.length) {
+    list.innerHTML = `<article class="admin-empty"><h4>Loading institution updates...</h4><p>Reading the server proposal queue.</p></article>`;
+    return;
+  }
+  if (institutionProposalsError && !proposals.length) {
+    list.innerHTML = `<article class="admin-empty"><h4>Updates unavailable.</h4><p>${escapeHtml(institutionProposalsError)}</p></article>`;
+    return;
+  }
+  list.innerHTML = proposals.length
+    ? proposals.map((proposal) => {
+        const active = proposal.id === adminState.selectedProposalId;
+        const pending = proposal.status === "pending_admin_review";
+        return `
+          <article class="admin-row ${active ? "selected" : ""}" data-institution-proposal-id="${escapeHtml(proposal.id)}">
+            <div class="admin-row-main">
+              <div class="admin-row-title">
+                <h4>${escapeHtml(proposal.programmeName || proposal.programmeId)}</h4>
+                <span>${escapeHtml(proposal.institution)}</span>
+              </div>
+              <p>${escapeHtml(Object.keys(proposal.changes || {}).map(getProposalFieldLabel).join(", ") || "Catalogue update")}</p>
+              <div class="admin-row-meta">
+                <span>${escapeHtml(proposal.requestedBy?.name || "Institution user")}</span>
+                <span>${escapeHtml(formatDateTime(proposal.createdAt))}</span>
+                <span>${escapeHtml(proposal.id)}</span>
+              </div>
+            </div>
+            <div class="admin-row-actions">
+              <span class="badge ${getProposalStatusTone(proposal.status)}">${escapeHtml(formatStatus(proposal.status))}</span>
+              <button type="button" title="Apply update" data-institution-proposal-apply="${escapeHtml(proposal.id)}" ${pending ? "" : "disabled"}>
+                <i data-lucide="check"></i>
+              </button>
+              <button class="reject" type="button" title="Reject update" data-institution-proposal-reject="${escapeHtml(proposal.id)}" ${pending ? "" : "disabled"}>
+                <i data-lucide="x"></i>
+              </button>
+            </div>
+          </article>
+        `;
+      }).join("")
+    : `<article class="admin-empty"><h4>No institution updates match.</h4><p>Approved, rejected, and pending updates will appear here.</p></article>`;
+}
+
+function renderAdminInstitutionProposalDetail(panel) {
+  const proposals = getFilteredAdminInstitutionProposals();
+  const proposal = proposals.find((item) => item.id === adminState.selectedProposalId) || proposals[0];
+  if (!proposal) {
+    panel.innerHTML = `<article class="admin-empty"><h4>No institution update selected.</h4><p>Institution-submitted catalogue changes appear here.</p></article>`;
+    return;
+  }
+  const programme = findProgrammeById(proposal.programmeId);
+  panel.innerHTML = `
+    <div class="detail-card">
+      <div class="detail-card-head">
+        <p class="section-kicker">Institution update</p>
+        <span class="badge ${getProposalStatusTone(proposal.status)}">${escapeHtml(formatStatus(proposal.status))}</span>
+      </div>
+      <h3>${escapeHtml(proposal.programmeName || programme?.name || "Programme update")}</h3>
+      <p class="detail-muted">${escapeHtml(proposal.institution)} - ${escapeHtml(formatDateTime(proposal.createdAt))}</p>
+      <div class="detail-meta-grid">
+        <div><span>Programme ID</span><strong>${escapeHtml(proposal.programmeId)}</strong></div>
+        <div><span>Submitted by</span><strong>${escapeHtml(proposal.requestedBy?.name || "Institution user")}</strong></div>
+        <div><span>Status</span><strong>${escapeHtml(formatStatus(proposal.status))}</strong></div>
+        <div><span>Current record</span><strong>${escapeHtml(programme ? "Found" : "Missing")}</strong></div>
+      </div>
+      <div class="detail-section">
+        <h4>Submitted changes</h4>
+        ${renderProposalChanges(proposal.changes)}
+      </div>
+      <div class="detail-section">
+        <h4>Institution note</h4>
+        <p>${shortText(proposal.note, "No note attached.")}</p>
+      </div>
+      ${
+        proposal.reviewNote
+          ? `<div class="detail-section"><h4>Review note</h4><p>${escapeHtml(proposal.reviewNote)}</p></div>`
+          : ""
+      }
+      <div class="detail-actions">
+        <button class="primary-button small" type="button" data-institution-proposal-apply="${escapeHtml(proposal.id)}" ${proposal.status === "pending_admin_review" && programme ? "" : "disabled"}>
+          <i data-lucide="check"></i>
+          Apply update
+        </button>
+        <button class="secondary-action danger" type="button" data-institution-proposal-reject="${escapeHtml(proposal.id)}" ${proposal.status === "pending_admin_review" ? "" : "disabled"}>
+          <i data-lucide="x"></i>
+          Reject update
+        </button>
+        ${programme ? `<button class="secondary-action" type="button" data-admin-edit="${escapeHtml(programme.id)}"><i data-lucide="pencil"></i> Edit record</button>` : ""}
+      </div>
+    </div>
+  `;
+}
+
+function getInstitutionProposalPayload(form, programme) {
+  const values = new FormData(form);
+  const changes = {};
+  institutionProposalEditableFields.forEach((field) => {
+    const rawValue = values.get(field.name);
+    const value = field.name === "careers" ? parseListText(rawValue) : String(rawValue || "").trim();
+    const current = field.name === "careers" ? (programme.careers || []) : (programme[field.name] || "");
+    if (field.name === "careers") {
+      if (value.length && !valuesAreEqual(current, value)) changes[field.name] = value;
+      return;
+    }
+    if (value && !valuesAreEqual(current, value)) changes[field.name] = value;
+  });
+  return {
+    programmeId: programme.id,
+    programmeName: programme.name,
+    institution: programme.institution,
+    note: String(values.get("note") || "").trim(),
+    changes
+  };
+}
+
+async function loadInstitutionProposals({ silent = false } = {}) {
+  if (!authToken || !isInstitutionUser() || institutionProposalsLoading) return;
+  institutionProposalsLoading = true;
+  institutionProposalsError = "";
+  if (!silent) {
+    renderInstitutionWorkbench();
+    renderAdminInstitutionProposals();
+  }
+  try {
+    const response = await fetch("/api/institution/proposals", { headers: getAuthHeaders({ Accept: "application/json" }) });
+    const data = await response.json().catch(() => ({}));
+    if (!response.ok || !data.ok || !Array.isArray(data.proposals)) throw new Error(data.detail || "Could not load institution updates");
+    institutionProposals = data.proposals.map(normalizeInstitutionProposal).filter((proposal) => proposal.programmeId && proposal.institution);
+    institutionProposalsLoaded = true;
+  } catch (error) {
+    institutionProposalsError = error.message || "Could not load institution updates";
+  } finally {
+    institutionProposalsLoading = false;
+    renderInstitutionWorkbench();
+    renderAdminInstitutionProposals();
+    renderAdminDetail();
+    if (window.lucide) window.lucide.createIcons();
+  }
+}
+
+async function submitInstitutionProposal(form) {
+  const programme = findProgrammeById(form.dataset.programmeId);
+  if (!programme || !authToken || !isInstitutionUser()) return;
+  const payload = getInstitutionProposalPayload(form, programme);
+  if (!Object.keys(payload.changes).length) {
+    setAdminActionStatus("Change at least one field before submitting.", "warning");
+    return;
+  }
+  try {
+    const response = await fetch("/api/institution/proposals", {
+      method: "POST",
+      headers: getAuthHeaders({ "Content-Type": "application/json", Accept: "application/json" }),
+      body: JSON.stringify(payload)
+    });
+    const data = await response.json().catch(() => ({}));
+    if (!response.ok || !data.ok) throw new Error(data.detail || "Could not submit update");
+    institutionProposals = Array.isArray(data.proposals)
+      ? data.proposals.map(normalizeInstitutionProposal)
+      : [normalizeInstitutionProposal(data.proposal), ...institutionProposals].filter(Boolean);
+    institutionProposalsLoaded = true;
+    setAdminActionStatus("Institution update submitted for admin review.", "success");
+    recordCurrentUserActivity("institution_update_submitted", `Submitted update for ${programme.name}`, { programmeId: programme.id, institution: programme.institution });
+    renderInstitutionWorkbench();
+    renderAdminInstitutionProposals();
+  } catch (error) {
+    setAdminActionStatus(error.message || "Could not submit institution update", "danger");
+  }
+}
+
+async function setInstitutionProposalStatus(proposalId, status, note = "") {
+  if (!isAdmin() || !authToken) return null;
+  const response = await fetch(`/api/institution/proposals/${encodeURIComponent(proposalId)}`, {
+    method: "PUT",
+    headers: getAuthHeaders({ "Content-Type": "application/json", Accept: "application/json" }),
+    body: JSON.stringify({ status, note })
+  });
+  const data = await response.json().catch(() => ({}));
+  if (!response.ok || !data.ok) throw new Error(data.detail || "Could not update proposal");
+  institutionProposals = Array.isArray(data.proposals) ? data.proposals.map(normalizeInstitutionProposal) : institutionProposals;
+  return normalizeInstitutionProposal(data.proposal);
+}
+
+async function applyInstitutionProposal(proposalId) {
+  const proposal = institutionProposals.find((item) => item.id === proposalId);
+  const programme = proposal ? findProgrammeById(proposal.programmeId) : null;
+  if (!proposal || !programme || proposal.status !== "pending_admin_review") return;
+  const previousValues = {};
+  Object.keys(proposal.changes || {}).forEach((field) => {
+    previousValues[field] = Array.isArray(programme[field]) ? [...programme[field]] : programme[field];
+  });
+  const previousStatus = programme.reviewStatus;
+  const previousReviewedAt = programme.reviewedAt;
+  try {
+    Object.assign(programme, proposal.changes);
+    programme.reviewStatus = "approved";
+    programme.reviewedAt = new Date().toISOString();
+    adminState.selectedProgrammeId = programme.id;
+    await persistProgrammeEdit(programme, proposal.changes);
+    await setInstitutionProposalStatus(proposal.id, "approved", "Applied to catalogue by admin.");
+    setAdminActionStatus("Institution update applied to the catalogue.", "success");
+    recordCurrentUserActivity("admin_institution_update_applied", `Applied institution update for ${programme.name}`, { proposalId: proposal.id, programmeId: programme.id, institution: programme.institution });
+  } catch (error) {
+    Object.assign(programme, previousValues);
+    programme.reviewStatus = previousStatus;
+    programme.reviewedAt = previousReviewedAt;
+    setAdminActionStatus(error.message || "Could not apply institution update", "danger");
+  }
+  renderAdmin();
+  renderInstitutionWorkbench();
+  updateCounts();
+  calculateMatches();
+}
+
+async function rejectInstitutionProposal(proposalId) {
+  const proposal = institutionProposals.find((item) => item.id === proposalId);
+  if (!proposal || proposal.status !== "pending_admin_review") return;
+  try {
+    await setInstitutionProposalStatus(proposal.id, "rejected", "Rejected by admin.");
+    setAdminActionStatus("Institution update rejected.", "success");
+    renderAdmin();
+    renderInstitutionWorkbench();
+  } catch (error) {
+    setAdminActionStatus(error.message || "Could not reject institution update", "danger");
+  }
+}
+
 function getUnreviewedUsers() {
-  return getVisibleUsers().filter((user) => !isAdmin(user) && !user.reviewedAt);
+  return getVisibleUsers().filter((user) => !isAdmin(user) && !isInstitutionAdmin(user) && !user.reviewedAt);
 }
 
 function getFilteredAdminUsers() {
   const query = adminState.search.trim().toLowerCase();
   return getVisibleUsers().filter((user) =>
-    [user.id, user.name, user.email, user.role, user.status, user.district, user.lastActivity].some((value) => String(value || "").toLowerCase().includes(query))
+    [user.id, user.name, user.email, user.role, getManagedInstitution(user), user.status, user.district, user.lastActivity].some((value) => String(value || "").toLowerCase().includes(query))
   );
 }
 
@@ -5827,7 +6448,7 @@ function getActivityCount(user, type) {
 }
 
 function getAdminIntelligence() {
-  const students = getVisibleUsers().filter((user) => !isAdmin(user));
+  const students = getVisibleUsers().filter((user) => !isAdmin(user) && !isInstitutionAdmin(user));
   const programmeScores = new Map();
   const addProgrammeSignal = (programmeId, weight, source) => {
     const programme = findProgrammeById(programmeId);
@@ -6006,7 +6627,7 @@ function renderAdminIntelligence() {
 function getAdminReportCards() {
   const summary = getAdminSummary();
   const intelligence = mergeAdminIntelligence(getAdminIntelligence());
-  const students = getVisibleUsers().filter((user) => !isAdmin(user));
+  const students = getVisibleUsers().filter((user) => !isAdmin(user) && !isInstitutionAdmin(user));
   const institutionCount = new Set(adminProgrammes.map((programme) => programme.institution)).size;
   const qualityScores = adminProgrammes.map((programme) => getProgrammeQualityChecks(programme).percent);
   const averageQuality = qualityScores.length ? Math.round(qualityScores.reduce((total, value) => total + value, 0) / qualityScores.length) : 0;
@@ -6084,7 +6705,7 @@ function getReportInstitutionScope() {
       .filter((value) => !Number.isNaN(value.getTime()));
     return timestamps.some((value) => (!reportFrom || value >= reportFrom) && (!reportTo || value <= reportTo));
   };
-  const visibleStudents = getVisibleUsers().filter((user) => !isAdmin(user) && inReportPeriod(user));
+  const visibleStudents = getVisibleUsers().filter((user) => !isAdmin(user) && !isInstitutionAdmin(user) && inReportPeriod(user));
   const filteredStudents = scope === "all"
     ? visibleStudents
     : visibleStudents.filter((user) => {
@@ -6487,6 +7108,7 @@ function getDeploymentReadiness() {
       { label: "Users", value: String(diagnostics.state_counts?.auth_users ?? getVisibleUsers().length ?? 0) },
       { label: "Documents", value: String(diagnostics.document_count ?? 0) },
       { label: "Events", value: String(diagnostics.runtime_event_count ?? 0) },
+      { label: "Institution updates", value: String(diagnostics.state_counts?.institution_proposals ?? institutionProposals.length ?? 0) },
       { label: "AI chats", value: String(diagnostics.ai_chat_message_count ?? 0) }
     ],
     warnings: warningItems.slice(1)
@@ -7100,7 +7722,9 @@ function renderAdminUsers() {
           const protectedOwner = isOwner(user);
           const canChangeRole = isAdmin() && !self && !protectedOwner;
           const canChangeStatus = isAdmin() && !self && !protectedOwner;
-          const needsReview = !isAdmin(user) && !user.reviewedAt;
+          const needsReview = !isAdmin(user) && !isInstitutionAdmin(user) && !user.reviewedAt;
+          const managedInstitution = getManagedInstitution(user);
+          const roleTone = isAdmin(user) ? "green" : isInstitutionAdmin(user) ? "amber" : "blue";
           return `
             <article class="admin-row user-row ${user.id === adminState.selectedUserId ? "selected" : ""}" data-user-id="${escapeHtml(user.id)}">
               <div class="admin-row-main">
@@ -7113,13 +7737,15 @@ function renderAdminUsers() {
                   <span>${escapeHtml(user.district || "District missing")}</span>
                   <span>${escapeHtml(user.status || "active")}</span>
                   <span>Last: ${escapeHtml(user.lastActivity || "No activity yet")}</span>
+                  ${managedInstitution ? `<span>${escapeHtml(managedInstitution)}</span>` : ""}
                   <span>${user.documents?.length || 0} documents</span>
                   <span>${user.shortlist?.length || 0} saved programmes</span>
                 </div>
               </div>
               <div class="admin-row-actions">
                 ${needsReview ? `<span class="badge amber">New</span>` : ""}
-                <span class="badge ${isAdmin(user) ? "green" : "blue"}">${escapeHtml(getUserRoleLabel(user))}</span>
+                <span class="badge ${roleTone}">${escapeHtml(getUserRoleLabel(user))}</span>
+                ${managedInstitution ? `<span class="badge blue">${escapeHtml(getInstitutionShortName(managedInstitution))}</span>` : ""}
                 <span class="badge ${user.status === "suspended" ? "red" : "green"}">${escapeHtml(formatStatus(user.status || "active"))}</span>
                 ${
                   needsReview
@@ -7166,12 +7792,18 @@ function renderAdminUserDetail(panel) {
   }
   const grades = Object.entries(user.grades || {});
   const activities = user.activity || [];
-  const needsReview = !isAdmin(user) && !user.reviewedAt;
+  const needsReview = !isAdmin(user) && !isInstitutionAdmin(user) && !user.reviewedAt;
+  const managedInstitution = getManagedInstitution(user);
+  const roleTone = isAdmin(user) ? "green" : isInstitutionAdmin(user) ? "amber" : "blue";
+  const institutionOptions = getInstitutionNames()
+    .map((institution) => `<option value="${escapeHtml(institution)}" ${institution === managedInstitution ? "selected" : ""}>${escapeHtml(institution)}</option>`)
+    .join("");
+  const canChangeThisUser = user.id !== currentUser?.id && !isOwner(user);
   panel.innerHTML = `
     <div class="detail-card user-detail-card">
       <div class="detail-card-head">
         <p class="section-kicker">User account</p>
-        <span class="badge ${isAdmin(user) ? "green" : "blue"}">${escapeHtml(getUserRoleLabel(user))}</span>
+        <span class="badge ${roleTone}">${escapeHtml(getUserRoleLabel(user))}</span>
       </div>
       <h3>${escapeHtml(user.name)}</h3>
       <p class="detail-muted">${escapeHtml(user.email)}</p>
@@ -7182,7 +7814,36 @@ function renderAdminUserDetail(panel) {
         <div><span>Created</span><strong>${escapeHtml(formatDateTime(user.createdAt))}</strong></div>
         <div><span>Last active</span><strong>${escapeHtml(formatDateTime(user.lastActiveAt))}</strong></div>
         <div><span>Review</span><strong>${needsReview ? "Needs review" : "Reviewed"}</strong></div>
+        <div><span>Institution access</span><strong>${escapeHtml(managedInstitution || "None")}</strong></div>
       </div>
+      ${
+        canChangeThisUser
+          ? `<div class="detail-section institution-access-box">
+              <h4>Institution access</h4>
+              <label>
+                <span>Assigned institution</span>
+                <select id="user-managed-institution">
+                  <option value="">Choose institution</option>
+                  ${institutionOptions}
+                </select>
+              </label>
+              <div class="detail-actions">
+                <button class="secondary-action" type="button" data-user-role="${escapeHtml(user.id)}" data-role="institution_admin" data-institution-select="#user-managed-institution">
+                  <i data-lucide="building-2"></i>
+                  Grant Institution Access
+                </button>
+                ${
+                  isInstitutionAdmin(user)
+                    ? `<button class="secondary-action danger" type="button" data-user-role="${escapeHtml(user.id)}" data-role="student">
+                        <i data-lucide="shield-minus"></i>
+                        Remove Institution Access
+                      </button>`
+                    : ""
+                }
+              </div>
+            </div>`
+          : ""
+      }
       <div class="detail-section">
         <h4>Profile snapshot</h4>
         <p>${escapeHtml(user.stream || "Stream not set")} - ${escapeHtml(user.leavingYear || "Leaving year missing")} - ${escapeHtml(user.incomeBand || "Income band missing")}</p>
@@ -7339,6 +8000,10 @@ function renderAdminDetail() {
   }
   if (adminState.tab === "audit") {
     renderAdminAuditDetail(panel);
+    return;
+  }
+  if (adminState.tab === "institution") {
+    renderAdminInstitutionProposalDetail(panel);
     return;
   }
   const programme = adminProgrammes.find((item) => item.id === adminState.selectedProgrammeId) || adminProgrammes[0];
@@ -7559,6 +8224,9 @@ function setAdminTab(tabName) {
   if (tabName === "audit" && !adminAuditEvents.length) {
     loadAdminAudit({ silent: true });
   }
+  if (tabName === "institution" && !institutionProposalsLoaded) {
+    loadInstitutionProposals({ silent: true });
+  }
   qsa("[data-admin-tab]").forEach((tab) => tab.classList.toggle("active", tab.dataset.adminTab === tabName));
   qsa(".admin-tab-panel").forEach((panel) => panel.classList.toggle("active", panel.id === `admin-tab-${tabName}`));
   renderAdminDetail();
@@ -7633,13 +8301,13 @@ function resolveGap(id) {
   return setGapStatus(id, "resolved");
 }
 
-async function setUserRole(userId, role) {
+async function setUserRole(userId, role, options = {}) {
   if (!isAdmin() || !authToken) return;
   try {
     const response = await fetch(`/api/admin/users/${encodeURIComponent(userId)}/role`, {
       method: "PUT",
       headers: getAuthHeaders({ "Content-Type": "application/json" }),
-      body: JSON.stringify({ role })
+      body: JSON.stringify({ role, institution: options.institution || "" })
     });
     const data = await response.json().catch(() => ({}));
     if (!response.ok || !data.ok) throw new Error(data.detail || "Could not update role");
@@ -7693,6 +8361,7 @@ function renderAdmin() {
   renderAdminGaps();
   renderAdminFees();
   renderAdminSources();
+  renderAdminInstitutionProposals();
   renderAdminUsers();
   renderAdminAudit();
   renderAdminReports();
@@ -8126,6 +8795,16 @@ function bindEvents() {
     adminState.status = event.target.value;
     renderAdmin();
   });
+  qs("#institution-workbench-search")?.addEventListener("input", (event) => {
+    institutionWorkbenchState.search = event.target.value;
+    institutionWorkbenchState.selectedProgrammeId = null;
+    renderInstitutionWorkbench();
+  });
+  qs("#institution-workbench-filter")?.addEventListener("change", (event) => {
+    institutionWorkbenchState.institution = event.target.value;
+    institutionWorkbenchState.selectedProgrammeId = null;
+    renderInstitutionWorkbench();
+  });
   qs("#school-search")?.addEventListener("input", (event) => {
     schoolExplorerState.query = event.target.value;
     schoolExplorerState.selectedProgrammeId = null;
@@ -8206,6 +8885,26 @@ function bindEvents() {
       reportSourceButton.disabled = true;
     }
   });
+  qs("#view-institution")?.addEventListener("submit", (event) => {
+    if (!event.target.matches("#institution-proposal-form")) return;
+    event.preventDefault();
+    submitInstitutionProposal(event.target);
+  });
+  qs("#view-institution")?.addEventListener("click", (event) => {
+    const refreshButton = event.target.closest("#refresh-institution-proposals");
+    if (refreshButton) {
+      event.preventDefault();
+      institutionProposalsLoaded = false;
+      loadInstitutionProposals();
+      return;
+    }
+
+    const row = event.target.closest("[data-institution-programme]");
+    if (row) {
+      institutionWorkbenchState.selectedProgrammeId = row.dataset.institutionProgramme;
+      renderInstitutionWorkbench();
+    }
+  });
   qs("#view-admin")?.addEventListener("submit", (event) => {
     if (!event.target.matches("#admin-edit-form")) return;
     event.preventDefault();
@@ -8257,6 +8956,28 @@ function bindEvents() {
       return;
     }
 
+    const proposalRefresh = event.target.closest("[data-institution-proposals-refresh]");
+    if (proposalRefresh) {
+      event.preventDefault();
+      institutionProposalsLoaded = false;
+      loadInstitutionProposals();
+      return;
+    }
+
+    const proposalApply = event.target.closest("[data-institution-proposal-apply]");
+    if (proposalApply) {
+      event.preventDefault();
+      applyInstitutionProposal(proposalApply.dataset.institutionProposalApply);
+      return;
+    }
+
+    const proposalReject = event.target.closest("[data-institution-proposal-reject]");
+    if (proposalReject) {
+      event.preventDefault();
+      rejectInstitutionProposal(proposalReject.dataset.institutionProposalReject);
+      return;
+    }
+
     const auditRow = event.target.closest("[data-audit-id]");
     if (auditRow && auditRow.classList.contains("admin-row")) {
       adminState.selectedAuditId = auditRow.dataset.auditId;
@@ -8275,7 +8996,9 @@ function bindEvents() {
 
     const roleButton = event.target.closest("[data-user-role]");
     if (roleButton) {
-      setUserRole(roleButton.dataset.userRole, roleButton.dataset.role);
+      const institutionSelector = roleButton.dataset.institutionSelect;
+      const institution = institutionSelector ? qs(institutionSelector)?.value || "" : roleButton.dataset.institution || "";
+      setUserRole(roleButton.dataset.userRole, roleButton.dataset.role, { institution });
       return;
     }
 
@@ -8288,6 +9011,14 @@ function bindEvents() {
     const reviewButton = event.target.closest("[data-user-review]");
     if (reviewButton) {
       markUserReviewed(reviewButton.dataset.userReview);
+      return;
+    }
+
+    const proposalRow = event.target.closest("[data-institution-proposal-id]");
+    if (proposalRow && proposalRow.classList.contains("admin-row")) {
+      adminState.selectedProposalId = proposalRow.dataset.institutionProposalId;
+      setAdminTab("institution");
+      renderAdmin();
       return;
     }
 

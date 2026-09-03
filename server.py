@@ -176,6 +176,8 @@ class AuthProfileRequest(BaseModel):
 
 class UserRoleUpdate(BaseModel):
   role: str
+  institution: str | None = None
+  managedInstitution: str | None = None
 
 
 class UserStatusUpdate(BaseModel):
@@ -191,6 +193,19 @@ class RuntimeEventRequest(BaseModel):
   event_type: str | None = None
   label: str | None = None
   payload: dict[str, Any] = Field(default_factory=dict)
+
+
+class InstitutionProposalRequest(BaseModel):
+  programmeId: str
+  programmeName: str | None = None
+  institution: str | None = None
+  changes: dict[str, Any] = Field(default_factory=dict)
+  note: str | None = None
+
+
+class InstitutionProposalDecisionRequest(BaseModel):
+  status: str
+  note: str | None = None
 
 
 
@@ -2119,12 +2134,33 @@ def add_user_activity(user: dict[str, Any], activity_type: str, label: str, acto
   user["lastActivity"] = label
 
 
+def normalize_institution_name(value: Any) -> str:
+  return re.sub(r"\s+", " ", str(value or "").strip())[:180]
+
+
+def get_user_managed_institution(user: dict[str, Any] | None) -> str:
+  if not user:
+    return ""
+  return normalize_institution_name(
+    user.get("managedInstitution")
+    or user.get("institution")
+    or user.get("institutionName")
+    or user.get("assignedInstitution")
+  )
+
+
+def institutions_match(left: Any, right: Any) -> bool:
+  return normalize_institution_name(left).casefold() == normalize_institution_name(right).casefold()
+
+
 def normalize_auth_user(user: dict[str, Any]) -> dict[str, Any] | None:
   email = normalize_email(user.get("email"))
   if not email or user.get("id") in {"demo-student", "demo-admin"}:
     return None
   created_at = user.get("createdAt") or now_iso()
   email_verified_at = user.get("emailVerifiedAt") or created_at
+  role = user.get("role") if user.get("role") in {"owner", "admin", "student", "institution_admin"} else "student"
+  managed_institution = get_user_managed_institution(user)
   return {
     "id": user.get("id") or f"user-{uuid.uuid4().hex[:12]}",
     "name": (user.get("name") or email).strip(),
@@ -2132,7 +2168,8 @@ def normalize_auth_user(user: dict[str, Any]) -> dict[str, Any] | None:
     "passwordHash": user.get("passwordHash"),
     "passwordSalt": user.get("passwordSalt"),
     "password": user.get("password"),
-    "role": user.get("role") if user.get("role") in {"owner", "admin", "student"} else "student",
+    "role": role,
+    "managedInstitution": managed_institution if role == "institution_admin" else "",
     "status": user.get("status") or "active",
     "district": user.get("district") or "",
     "phone": user.get("phone") or "",
@@ -2147,7 +2184,7 @@ def normalize_auth_user(user: dict[str, Any]) -> dict[str, Any] | None:
     "shortlistPathways": user.get("shortlistPathways") if isinstance(user.get("shortlistPathways"), dict) else {},
     "createdAt": created_at,
     "emailVerifiedAt": email_verified_at,
-    "reviewedAt": user.get("reviewedAt") or (created_at if user.get("role") in {"owner", "admin"} else None),
+    "reviewedAt": user.get("reviewedAt") or (created_at if role in {"owner", "admin", "institution_admin"} else None),
     "lastActiveAt": user.get("lastActiveAt") or created_at,
     "lastActivity": user.get("lastActivity") or "Account created",
     "activity": user.get("activity") if isinstance(user.get("activity"), list) else [],
@@ -2179,7 +2216,115 @@ def public_user(user: dict[str, Any]) -> dict[str, Any]:
   return safe
 
 
-AUDIT_EVENT_PREFIXES = ("admin_", "auth_", "registration_", "password_reset_")
+INSTITUTION_PROPOSAL_STATE_KEY = "institution_proposals"
+INSTITUTION_PROPOSAL_FIELDS = {
+  "name",
+  "code",
+  "faculty",
+  "category",
+  "level",
+  "duration",
+  "deliveryMode",
+  "requirementsSummary",
+  "overview",
+  "sourceUrl",
+  "supportingSourcePath",
+  "sourceNote",
+  "feeNote",
+  "supportingFeeSourcePath",
+  "careers",
+}
+INSTITUTION_PROPOSAL_STATUSES = {"pending_admin_review", "approved", "rejected"}
+
+
+def sanitize_proposal_text(value: Any, limit: int = 1600) -> str:
+  return re.sub(r"\s+", " ", str(value or "").strip())[:limit]
+
+
+def sanitize_institution_proposal_changes(changes: dict[str, Any] | None) -> dict[str, Any]:
+  if not isinstance(changes, dict):
+    return {}
+  clean: dict[str, Any] = {}
+  for field in INSTITUTION_PROPOSAL_FIELDS:
+    if field not in changes:
+      continue
+    value = changes.get(field)
+    if field == "careers":
+      if isinstance(value, str):
+        items = re.split(r"[\n,]+", value)
+      elif isinstance(value, list):
+        items = value
+      else:
+        items = []
+      clean_items = [sanitize_proposal_text(item, 120) for item in items]
+      clean_items = [item for item in clean_items if item][:20]
+      if clean_items:
+        clean[field] = clean_items
+      continue
+    limit = 2600 if field in {"requirementsSummary", "overview", "sourceNote", "feeNote"} else 600
+    text = sanitize_proposal_text(value, limit)
+    if text:
+      clean[field] = text
+  return clean
+
+
+def normalize_institution_proposal(proposal: dict[str, Any]) -> dict[str, Any] | None:
+  if not isinstance(proposal, dict):
+    return None
+  proposal_id = sanitize_proposal_text(proposal.get("id"), 80) or f"iprop-{uuid.uuid4().hex[:14]}"
+  programme_id = sanitize_proposal_text(proposal.get("programmeId") or proposal.get("programme_id"), 140)
+  institution = normalize_institution_name(proposal.get("institution"))
+  changes = sanitize_institution_proposal_changes(proposal.get("changes"))
+  if not programme_id or not institution or not changes:
+    return None
+  status = sanitize_proposal_text(proposal.get("status"), 80) or "pending_admin_review"
+  if status not in INSTITUTION_PROPOSAL_STATUSES:
+    status = "pending_admin_review"
+  return {
+    "id": proposal_id,
+    "programmeId": programme_id,
+    "programmeName": sanitize_proposal_text(proposal.get("programmeName"), 220),
+    "institution": institution,
+    "changes": changes,
+    "note": sanitize_proposal_text(proposal.get("note"), 1200),
+    "status": status,
+    "requestedBy": proposal.get("requestedBy") if isinstance(proposal.get("requestedBy"), dict) else {},
+    "reviewedBy": proposal.get("reviewedBy") if isinstance(proposal.get("reviewedBy"), dict) else {},
+    "reviewNote": sanitize_proposal_text(proposal.get("reviewNote"), 1200),
+    "createdAt": sanitize_proposal_text(proposal.get("createdAt"), 80) or now_iso(),
+    "updatedAt": sanitize_proposal_text(proposal.get("updatedAt"), 80) or now_iso(),
+  }
+
+
+def load_institution_proposals() -> list[dict[str, Any]]:
+  payload = load_state_payload(INSTITUTION_PROPOSAL_STATE_KEY, {"proposals": []})
+  raw_proposals = payload.get("proposals", []) if isinstance(payload, dict) else payload if isinstance(payload, list) else []
+  proposals = []
+  for item in raw_proposals:
+    proposal = normalize_institution_proposal(item)
+    if proposal:
+      proposals.append(proposal)
+  return sorted(proposals, key=lambda item: item.get("createdAt") or "", reverse=True)
+
+
+def save_institution_proposals(proposals: list[dict[str, Any]]) -> None:
+  save_state_payload(
+    INSTITUTION_PROPOSAL_STATE_KEY,
+    {
+      "proposals": proposals,
+      "savedAt": now_iso(),
+    },
+  )
+
+
+def get_visible_institution_proposals(actor: dict[str, Any], proposals: list[dict[str, Any]]) -> list[dict[str, Any]]:
+  if actor.get("role") in {"owner", "admin"}:
+    return proposals
+  managed_institution = get_user_managed_institution(actor)
+  return [proposal for proposal in proposals if institutions_match(proposal.get("institution"), managed_institution)]
+
+
+AUDIT_EVENT_PREFIXES = ("admin_", "auth_", "registration_", "password_reset_", "institution_")
 AUDIT_EVENT_TYPES = {
   "document_uploaded",
   "document_ocr_requested",
@@ -2598,6 +2743,13 @@ def require_admin_user(authorization: str | None) -> dict[str, Any]:
   return user
 
 
+def require_institution_user(authorization: str | None) -> dict[str, Any]:
+  user = require_current_user(authorization)
+  if user.get("role") not in {"owner", "admin", "institution_admin"}:
+    raise HTTPException(status_code=403, detail="Institution access required.")
+  return user
+
+
 def require_user_access(target_user_id: str, authorization: str | None) -> dict[str, Any]:
   user = require_current_user(authorization)
   if user.get("role") in {"owner", "admin"} or user.get("id") == target_user_id:
@@ -2967,6 +3119,7 @@ def admin_public_user_summary(user: dict[str, Any]) -> dict[str, Any]:
     "name": user.get("name"),
     "email": user.get("email"),
     "role": user.get("role"),
+    "managedInstitution": get_user_managed_institution(user),
     "status": user.get("status"),
     "district": user.get("district"),
     "createdAt": user.get("createdAt"),
@@ -3076,7 +3229,7 @@ def add_admin_programme_signal(signals: dict[str, dict[str, Any]], programme: di
 
 def build_admin_intelligence() -> dict[str, Any]:
   users = get_auth_users_internal()
-  students = [user for user in users if user.get("role") not in {"owner", "admin"}]
+  students = [user for user in users if user.get("role") not in {"owner", "admin", "institution_admin"}]
   student_ids = {str(user["id"]) for user in students}
   users_by_id = {user["id"]: user for user in users}
   signals: dict[str, dict[str, Any]] = {}
@@ -3232,6 +3385,110 @@ def build_admin_intelligence() -> dict[str, Any]:
   }
 
 
+@app.get("/api/institution/proposals")
+def list_institution_proposals(request: Request, authorization: str | None = Header(default=None)) -> dict[str, Any]:
+  check_rate_limit(request, "institution_proposals_list", 120, 3600)
+  actor = require_institution_user(authorization)
+  proposals = load_institution_proposals()
+  visible = get_visible_institution_proposals(actor, proposals)
+  return {
+    "ok": True,
+    "database": get_data_backend(),
+    "managedInstitution": get_user_managed_institution(actor),
+    "proposals": visible,
+  }
+
+
+@app.post("/api/institution/proposals")
+def create_institution_proposal(payload: InstitutionProposalRequest, request: Request, authorization: str | None = Header(default=None)) -> dict[str, Any]:
+  check_rate_limit(request, "institution_proposals_create", 35, 3600)
+  actor = require_institution_user(authorization)
+  institution = normalize_institution_name(payload.institution)
+  if not institution:
+    raise HTTPException(status_code=400, detail="Institution is required.")
+  if actor.get("role") == "institution_admin" and not institutions_match(institution, get_user_managed_institution(actor)):
+    raise HTTPException(status_code=403, detail="You can only submit updates for your assigned institution.")
+
+  changes = sanitize_institution_proposal_changes(payload.changes)
+  if not changes:
+    raise HTTPException(status_code=400, detail="At least one proposed change is required.")
+  programme_id = sanitize_proposal_text(payload.programmeId, 140)
+  if not programme_id:
+    raise HTTPException(status_code=400, detail="Programme is required.")
+
+  proposals = load_institution_proposals()
+  proposal = {
+    "id": f"iprop-{uuid.uuid4().hex[:14]}",
+    "programmeId": programme_id,
+    "programmeName": sanitize_proposal_text(payload.programmeName, 220),
+    "institution": institution,
+    "changes": changes,
+    "note": sanitize_proposal_text(payload.note, 1200),
+    "status": "pending_admin_review",
+    "requestedBy": {
+      "id": actor.get("id"),
+      "name": actor.get("name"),
+      "email": mask_email(actor.get("email")),
+      "role": actor.get("role"),
+    },
+    "reviewedBy": {},
+    "reviewNote": "",
+    "createdAt": now_iso(),
+    "updatedAt": now_iso(),
+  }
+  proposals.insert(0, proposal)
+  save_institution_proposals(proposals)
+  safe_insert_runtime_event(
+    actor["id"],
+    "institution_proposal_submitted",
+    "Institution submitted catalogue update",
+    {
+      "proposalId": proposal["id"],
+      "programmeId": proposal["programmeId"],
+      "programmeName": proposal["programmeName"],
+      "institution": proposal["institution"],
+      "fields": list(changes.keys()),
+      "ip": get_request_ip(request),
+    },
+  )
+  return {"ok": True, "proposal": proposal, "proposals": get_visible_institution_proposals(actor, proposals)}
+
+
+@app.put("/api/institution/proposals/{proposal_id}")
+def decide_institution_proposal(proposal_id: str, payload: InstitutionProposalDecisionRequest, request: Request, authorization: str | None = Header(default=None)) -> dict[str, Any]:
+  check_rate_limit(request, "institution_proposals_decide", 80, 3600)
+  actor = require_admin_user(authorization)
+  if payload.status not in {"approved", "rejected"}:
+    raise HTTPException(status_code=400, detail="Proposal status must be approved or rejected.")
+  proposals = load_institution_proposals()
+  proposal = next((item for item in proposals if item.get("id") == proposal_id), None)
+  if not proposal:
+    raise HTTPException(status_code=404, detail="Proposal not found.")
+  proposal["status"] = payload.status
+  proposal["reviewNote"] = sanitize_proposal_text(payload.note, 1200)
+  proposal["reviewedBy"] = {
+    "id": actor.get("id"),
+    "name": actor.get("name"),
+    "email": mask_email(actor.get("email")),
+    "role": actor.get("role"),
+  }
+  proposal["updatedAt"] = now_iso()
+  save_institution_proposals(proposals)
+  safe_insert_runtime_event(
+    actor["id"],
+    "institution_proposal_reviewed",
+    "Admin reviewed institution update",
+    {
+      "proposalId": proposal.get("id"),
+      "programmeId": proposal.get("programmeId"),
+      "institution": proposal.get("institution"),
+      "status": proposal.get("status"),
+      "ip": get_request_ip(request),
+    },
+  )
+  return {"ok": True, "proposal": proposal, "proposals": get_visible_institution_proposals(actor, proposals)}
+
+
 @app.get("/api/admin/users")
 def admin_list_users(request: Request, authorization: str | None = Header(default=None)) -> dict[str, Any]:
   check_rate_limit(request, "admin_users", 120, 3600)
@@ -3303,8 +3560,11 @@ def admin_test_email(request: Request, payload: AdminTestEmailRequest | None = N
 def admin_set_user_role(user_id: str, payload: UserRoleUpdate, request: Request, authorization: str | None = Header(default=None)) -> dict[str, Any]:
   check_rate_limit(request, "admin_user_role", 40, 3600)
   actor = require_admin_user(authorization)
-  if payload.role not in {"admin", "student"}:
+  if payload.role not in {"admin", "student", "institution_admin"}:
     raise HTTPException(status_code=400, detail="Invalid role.")
+  managed_institution = normalize_institution_name(payload.institution or payload.managedInstitution)
+  if payload.role == "institution_admin" and not managed_institution:
+    raise HTTPException(status_code=400, detail="Choose an institution before granting institution access.")
   users = get_auth_users_internal()
   user = next((item for item in users if item["id"] == user_id), None)
   if not user:
@@ -3312,10 +3572,15 @@ def admin_set_user_role(user_id: str, payload: UserRoleUpdate, request: Request,
   if user["id"] == actor["id"] or user.get("role") == "owner":
     raise HTTPException(status_code=400, detail="Protected account.")
   user["role"] = payload.role
-  if payload.role == "admin":
+  if payload.role == "institution_admin":
+    user["managedInstitution"] = managed_institution
+  else:
+    user["managedInstitution"] = ""
+  if payload.role in {"admin", "institution_admin"}:
     user["reviewedAt"] = user.get("reviewedAt") or now_iso()
-  add_user_activity(user, "role_changed", f"Role changed to {payload.role}", actor, {"role": payload.role})
-  safe_insert_runtime_event(actor["id"], "admin_role_changed", "Admin changed a user role", {"targetUserId": user["id"], "targetEmail": mask_email(user.get("email")), "role": payload.role, "ip": get_request_ip(request)})
+  role_label = payload.role.replace("_", " ")
+  add_user_activity(user, "role_changed", f"Role changed to {role_label}", actor, {"role": payload.role, "managedInstitution": managed_institution})
+  safe_insert_runtime_event(actor["id"], "admin_role_changed", "Admin changed a user role", {"targetUserId": user["id"], "targetEmail": mask_email(user.get("email")), "role": payload.role, "managedInstitution": managed_institution, "ip": get_request_ip(request)})
   save_auth_users_internal(users)
   return {"ok": True, "user": public_user(user), "users": [public_user(item) for item in users]}
 
@@ -3599,6 +3864,9 @@ def database_diagnostics(authorization: str | None = Header(default=None)) -> di
         "edits": len(payload.get("programmeEdits", {})),
         "gaps": len(payload.get("gapStatuses", {})),
       }
+    elif state_key == INSTITUTION_PROPOSAL_STATE_KEY and isinstance(payload, dict):
+      proposals = payload.get("proposals", [])
+      state_counts[state_key] = len(proposals) if isinstance(proposals, list) else 0
     else:
       state_counts[state_key] = 1
   return {
