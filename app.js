@@ -5792,10 +5792,17 @@ function getExplorerSearchMatches() {
       programmes: getInstitutionProgrammes(schoolExplorerState.selectedInstitution).slice(0, 14)
     };
   }
+  const searchAliases = {
+    it: ["it", "information technology", "information systems", "computing", "computer"],
+    ict: ["ict", "information technology", "information systems", "computing", "computer"],
+    nursing: ["nursing", "midwifery", "health"],
+    accounting: ["accounting", "account", "finance"],
+    law: ["law", "legal", "llb"]
+  };
   const terms = query.split(/\s+/).filter(Boolean);
   const programmeMatches = programmes.filter((programme) => {
     const text = getProgrammeExplorerText(programme);
-    return terms.every((term) => text.includes(term));
+    return terms.every((term) => (searchAliases[term] || [term]).some((alias) => text.includes(alias)));
   });
   const schoolMatches = getExplorerInstitutionNames().filter((institution) => {
     const text = institution.toLowerCase();
@@ -5842,14 +5849,22 @@ function renderExplorerProgrammeList(programmes) {
     const profile = getDomainProfile(programme);
     const title = getProgrammeDisplayName(programme);
     const saved = currentUser?.shortlist?.includes(programme.id);
+    const matchingProgramme = getMatchingProgrammeFromAdmin(programme);
+    const fit = getCourseFitSummary(matchingProgramme);
+    const requirementSummary = programme.requirementsSummary || matchingProgramme.requirements?.slice(0, 2).join("; ") || "Requirements need confirmation.";
+    const feeSummary = getProgrammeFeeMatches(programme, 1)[0];
+    const feeDisplay = feeSummary ? getExplorerFeeDisplay(feeSummary) : null;
     const status = programme.reviewStatus === "approved" || programme.reviewStatus === "verified" ? "verified" : "review";
     return `
       <button class="explorer-programme-row ${active ? "active" : ""}" type="button" data-explorer-programme="${escapeHtml(programme.id)}">
         <span>
           <strong>${escapeHtml(title)}</strong>
           <small>${escapeHtml(programme.institution || "Institution")} - ${escapeHtml(programme.level || "Level under review")} - ${escapeHtml(programme.faculty || programme.category || "Faculty under review")}</small>
+          <small>${escapeHtml(String(requirementSummary).slice(0, 150))}</small>
         </span>
         <em>${escapeHtml(profile.key)}</em>
+        <small class="explorer-result-fit ${fit.tone}">${escapeHtml(fit.label)}${fit.match ? ` · ${fit.match.overall}%` : ""}</small>
+        <small class="explorer-result-fee">${escapeHtml(feeDisplay ? feeDisplay.amount : "Fees under review")}</small>
         <i data-lucide="${saved ? "bookmark-check" : status === "verified" ? "badge-check" : "clipboard-list"}"></i>
       </button>
     `;

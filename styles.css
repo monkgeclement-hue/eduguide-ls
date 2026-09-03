@@ -4484,7 +4484,7 @@ textarea:focus {
 }
 
 .explorer-programme-row {
-  grid-template-columns: minmax(0, 1fr) auto auto;
+  grid-template-columns: minmax(0, 1fr) auto auto auto auto;
 }
 
 .explorer-programme-row em {
@@ -4494,6 +4494,24 @@ textarea:focus {
   font-style: normal;
   font-weight: 900;
   text-transform: uppercase;
+}
+
+.explorer-result-fit,
+.explorer-result-fee {
+  min-width: 86px;
+  text-align: right;
+}
+
+.explorer-result-fit.green {
+  color: var(--success);
+}
+
+.explorer-result-fit.red {
+  color: var(--danger);
+}
+
+.explorer-result-fit.amber {
+  color: var(--warning);
 }
 
 .explorer-programme-row svg {
