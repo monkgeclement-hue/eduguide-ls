@@ -2600,6 +2600,7 @@ function evaluateRequirementRules(rules) {
 }
 
 const coreScienceCodes = ["PSCI", "PHY", "CHEM", "BIO"];
+const universityEnglishGateInstitutions = ["national university of lesotho", "limkokwing", "botho"];
 
 function isLowerQualification(programme) {
   const text = `${programme.level || ""} ${programme.title || ""}`.toLowerCase();
@@ -2645,6 +2646,7 @@ function getStrictGateRules(programme) {
   const scienceGrade = getGateGrade(programme, "C", "D");
   const isLuct = institution.includes("limkokwing");
   const isBotho = institution.includes("botho");
+  const isTargetUniversity = universityEnglishGateInstitutions.some((name) => institution.includes(name));
   const technologyPath =
     /information technology|business information technology|\bbit\b|software|computing|computer science|computer forensics|cyber|network|data science|data analytics|information systems|\bict\b|artificial intelligence|machine learning|database|web programming/.test(text) ||
     /technology|information & communication/.test(faculty);
@@ -2655,6 +2657,17 @@ function getStrictGateRules(programme) {
     !/social sciences|political science|library and information/.test(text);
   const healthPath = /nursing|midwifery|pharmacy|clinical|medical|health information|environmental health/.test(text);
   const agriculturePath = /agriculture|crop|animal science|soil science|horticulture|agribusiness|consumer science|food science/.test(text);
+
+  if (isTargetUniversity) {
+    const englishGrade = getGateGrade(programme, "C", "D");
+    addStrictGateRule(
+      rules,
+      ["ENG"],
+      englishGrade,
+      `English ${englishGrade} or better is required for entry to this university programme.`,
+      "university-english-policy"
+    );
+  }
 
   if (technologyPath || ((isLuct || isBotho) && /technology|software|comput|information|architecture/.test(text))) {
     addStrictGateRule(rules, ["MATH"], mathGrade, `Mathematics ${mathGrade} or better is required for technology pathways.`);
@@ -7658,6 +7671,9 @@ function renderAdminCatalogue() {
                 <button class="reject" type="button" title="Reject" data-admin-action="reject" data-programme-id="${escapeHtml(programme.id)}">
                   <i data-lucide="x"></i>
                 </button>
+                <button class="secondary-action danger" type="button" data-admin-action="delete" data-programme-id="${escapeHtml(programme.id)}">
+                  <i data-lucide="trash-2"></i>
+                </button>
               </div>
             </article>
           `;
@@ -8434,6 +8450,10 @@ function renderAdminDetail() {
           <i data-lucide="x"></i>
           Reject
         </button>
+        <button class="secondary-action danger" type="button" data-admin-action="delete" data-programme-id="${escapeHtml(programme.id)}">
+          <i data-lucide="trash-2"></i>
+          Delete
+        </button>
       </div>
     </div>
   `;
@@ -8581,6 +8601,52 @@ async function markUserReviewed(userId) {
     renderAdmin();
   }
 }
+async function deleteProgramme(id) {
+  if (!isAdmin()) {
+    setAdminActionStatus("Admin session is not ready. Sign in again, then retry.", "warning");
+    return;
+  }
+  const programme = adminProgrammes.find((p) => p.id === id);
+  if (!programme) return;
+  const confirmed = window.confirm("Delete this programme entirely? This cannot be undone.");
+  if (!confirmed) return;
+  const previousProgrammes = structuredClone(adminProgrammes);
+  try {
+    lastPersistenceMessage = supabaseClient ? "Deleting..." : "Deleted locally";
+    renderAdmin();
+    if (isCustomAdminProgramme(programme)) {
+      // Remove locally and attempt server delete if available
+      adminProgrammes = adminProgrammes.filter((p) => p.id !== id);
+      adminGaps = adminGaps.filter((g) => g.programmeId !== id);
+      if (supabaseClient) {
+        const { error } = await supabaseClient.from("programmes").delete().eq("external_key", id);
+        if (error) throw error;
+      }
+      await recordReviewEvent("programmes", id, "deleted", "Admin deleted manual programme.", { programme_name: programme.name, institution: programme.institution });
+      lastPersistenceMessage = "Deleted programme";
+    } else {
+      // For catalogue programmes archive instead of hard delete to avoid breaking relations
+      if (!supabaseClient) throw new Error("Server database not available to archive catalogue programme.");
+      const { error } = await supabaseClient
+        .from("programmes")
+        .update({ review_status: "archived", updated_at: new Date().toISOString() })
+        .eq("external_key", id);
+      if (error) throw error;
+      const p = adminProgrammes.find((x) => x.id === id);
+      if (p) p.reviewStatus = "archived";
+      await recordReviewEvent("programmes", id, "archived", "Admin archived programme record.", { programme_name: programme.name, institution: programme.institution });
+      lastPersistenceMessage = "Archived programme";
+    }
+    renderAdmin();
+    updateCounts();
+    calculateMatches();
+  } catch (error) {
+    adminProgrammes = previousProgrammes;
+    lastPersistenceMessage = `Delete failed: ${error.message || "programme delete"}`;
+    renderAdmin();
+  }
+}
+
 function renderAdmin() {
   renderAdminFilters();
   renderAdminMetrics();
@@ -9282,6 +9348,7 @@ function bindEvents() {
       if (actionButton.dataset.adminAction === "approve") setProgrammeReviewStatus(id, "approved");
       if (actionButton.dataset.adminAction === "flag") setProgrammeReviewStatus(id, "flagged");
       if (actionButton.dataset.adminAction === "reject") setProgrammeReviewStatus(id, "rejected");
+      if (actionButton.dataset.adminAction === "delete") deleteProgramme(id);
       return;
     }
 
