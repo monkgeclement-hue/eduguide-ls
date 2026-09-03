@@ -544,6 +544,10 @@ function isInstitutionUser(user = currentUser) {
   return isAdmin(user) || isInstitutionAdmin(user);
 }
 
+function isStudentUser(user = currentUser) {
+  return Boolean(user) && !isAdmin(user) && !isInstitutionAdmin(user);
+}
+
 function isOwner(user = currentUser) {
   return user?.role === "owner";
 }
@@ -579,9 +583,22 @@ function getInstitutionNames() {
 }
 
 function getPreferredLandingView(user = currentUser, fallback = "student") {
-  if (isAdmin(user)) return fallback === "admin" ? "admin" : fallback === "institution" ? "institution" : "admin";
+  if (titles[fallback] && isViewAllowedForRole(fallback, user)) return fallback;
+  if (isAdmin(user)) return "admin";
   if (isInstitutionAdmin(user)) return "institution";
-  return titles[fallback] && fallback !== "admin" && fallback !== "institution" ? fallback : "student";
+  return "student";
+}
+
+function isStudentWorkspaceView(viewName) {
+  return ["student", "results", "schools", "ai"].includes(viewName);
+}
+
+function isViewAllowedForRole(viewName, user = currentUser) {
+  if (!user || !titles[viewName]) return false;
+  if (viewName === "admin") return isAdmin(user);
+  if (viewName === "institution") return isInstitutionUser(user);
+  if (isStudentWorkspaceView(viewName)) return isStudentUser(user);
+  return true;
 }
 
 function getVisibleUsers() {
@@ -1281,6 +1298,10 @@ function updateUserShell() {
   qsa("[data-admin-only]").forEach((element) => {
     element.hidden = !isAdmin();
     if ("disabled" in element) element.disabled = !isAdmin();
+  });
+  qsa("[data-student-only]").forEach((element) => {
+    element.hidden = !isStudentUser();
+    if ("disabled" in element) element.disabled = !isStudentUser();
   });
   qsa("[data-institution-only]").forEach((element) => {
     element.hidden = !isInstitutionUser();
@@ -2111,12 +2132,16 @@ function setView(viewName) {
     updateUserShell();
     return;
   }
-  if (viewName === "admin" && !isAdmin()) {
-    setView("student");
-    return;
+  if (!isViewAllowedForRole(viewName)) {
+    const fallbackView = getPreferredLandingView(currentUser);
+    if (fallbackView !== viewName) {
+      setView(fallbackView);
+      return;
+    }
+    viewName = "profile";
   }
-  if (viewName === "institution" && !isInstitutionUser()) {
-    setView("student");
+  if (!isViewAllowedForRole(viewName)) {
+    updateUserShell();
     return;
   }
   if (viewName === "schools") {
