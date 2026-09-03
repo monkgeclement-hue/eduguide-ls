@@ -3755,6 +3755,13 @@ textarea:focus {
   background: var(--surface-soft);
 }
 
+.institution-access-note {
+  margin: -2px 0 12px;
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.45;
+}
+
 .proposal-change-list {
   display: grid;
   gap: 8px;

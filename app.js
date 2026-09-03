@@ -7795,7 +7795,9 @@ function renderAdminUserDetail(panel) {
   const needsReview = !isAdmin(user) && !isInstitutionAdmin(user) && !user.reviewedAt;
   const managedInstitution = getManagedInstitution(user);
   const roleTone = isAdmin(user) ? "green" : isInstitutionAdmin(user) ? "amber" : "blue";
-  const institutionOptions = getInstitutionNames()
+  const institutionNames = getInstitutionNames();
+  const hasInstitutionOptions = institutionNames.length > 0;
+  const institutionOptions = institutionNames
     .map((institution) => `<option value="${escapeHtml(institution)}" ${institution === managedInstitution ? "selected" : ""}>${escapeHtml(institution)}</option>`)
     .join("");
   const canChangeThisUser = user.id !== currentUser?.id && !isOwner(user);
@@ -7818,17 +7820,18 @@ function renderAdminUserDetail(panel) {
       </div>
       ${
         canChangeThisUser
-          ? `<div class="detail-section institution-access-box">
-              <h4>Institution access</h4>
-              <label>
-                <span>Assigned institution</span>
-                <select id="user-managed-institution">
-                  <option value="">Choose institution</option>
+            ? `<div class="detail-section institution-access-box">
+                <h4>Institution access</h4>
+                <p class="institution-access-note">Assign a user to one catalogue institution before granting Institution Admin access.</p>
+                <label>
+                  <span>Assigned institution</span>
+                <select id="user-managed-institution" ${hasInstitutionOptions ? "" : "disabled"}>
+                  <option value="">${hasInstitutionOptions ? "Choose institution" : "Add an institution first"}</option>
                   ${institutionOptions}
                 </select>
               </label>
               <div class="detail-actions">
-                <button class="secondary-action" type="button" data-user-role="${escapeHtml(user.id)}" data-role="institution_admin" data-institution-select="#user-managed-institution">
+                <button class="secondary-action" type="button" data-user-role="${escapeHtml(user.id)}" data-role="institution_admin" data-institution-select="#user-managed-institution" ${hasInstitutionOptions ? "" : "disabled"}>
                   <i data-lucide="building-2"></i>
                   Grant Institution Access
                 </button>
@@ -8303,6 +8306,11 @@ function resolveGap(id) {
 
 async function setUserRole(userId, role, options = {}) {
   if (!isAdmin() || !authToken) return;
+  if (role === "institution_admin" && !normalizeInstitutionName(options.institution)) {
+    lastPersistenceMessage = "Choose an institution before granting institution access";
+    renderAdmin();
+    return;
+  }
   try {
     const response = await fetch(`/api/admin/users/${encodeURIComponent(userId)}/role`, {
       method: "PUT",
