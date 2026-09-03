@@ -5604,14 +5604,169 @@ function renderInstitutionFeeSummary(institution, limit = 5) {
   }
   return `
     <ul class="explorer-fee-list">
-      ${feeItems.slice(0, limit).map((item) => `
+      ${feeItems.slice(0, limit).map((item) => {
+        const display = getExplorerFeeDisplay(item);
+        return `
         <li>
-          <strong>${escapeHtml(item.name || item.programmeGroup || "Fee item")}</strong>
-          <span>${escapeHtml(item.percentOfTuition ? `${item.percentOfTuition}% of tuition` : formatMoney(item.amount, item.schedule.currency))}${item.basis ? ` - ${escapeHtml(item.basis)}` : ""}</span>
+          <strong>${escapeHtml(display.label)}</strong>
+          <span>${escapeHtml(display.amount)}${display.meta ? ` - ${escapeHtml(display.meta)}` : ""}</span>
         </li>
-      `).join("")}
+      `;
+      }).join("")}
     </ul>
     ${feeItems.length > limit ? `<p class="muted-inline">${feeItems.length - limit} more fee item(s) in admin catalogue.</p>` : ""}
+  `;
+}
+
+function getExplorerFeeDisplay(item = {}) {
+  const schedule = item.schedule || {};
+  const currency = schedule.currency || item.currency || "LSL";
+  const amount = item.percentOfTuition
+    ? `${item.percentOfTuition}% of tuition`
+    : formatMoney(item.amount ?? item.annualEstimate ?? item.localSadcAmount ?? item.local_sadc_amount, currency);
+  const label = [item.programmeGroup, item.name || item.type].filter(Boolean).join(" - ") || "Fee item";
+  const meta = [item.studentCategory, item.basis, schedule.academicYear, schedule.title].filter(Boolean).join(" | ");
+  return { label, amount, meta };
+}
+
+function scoreFeeItemForProgramme(item, programme) {
+  const title = getProgrammeDisplayName(programme);
+  const programmeText = `${title} ${programme.name || ""} ${programme.title || ""}`;
+  const facultyText = `${programme.faculty || ""} ${programme.category || ""}`;
+  const itemText = `${item.programmeGroup || ""} ${item.faculty || ""} ${item.name || ""} ${item.type || ""}`;
+  let score = 0;
+  if (hasFeeTextOverlap(programmeText, item.programmeGroup || "")) score += 8;
+  if (hasFeeTextOverlap(title, item.programmeGroup || "")) score += 4;
+  if (hasFeeTextOverlap(facultyText, item.faculty || "")) score += 3;
+  if (/tuition|annual|programme/i.test(itemText)) score += 1;
+  if (/application|acceptance|registration/i.test(itemText)) score += 1;
+  return score;
+}
+
+function getProgrammeFeeMatches(programme, limit = 6) {
+  const scheduleItems = getInstitutionFeeSchedules(programme.institution)
+    .flatMap((schedule) => (schedule.items || []).map((item) => ({ ...item, schedule })));
+  const scored = scheduleItems
+    .map((item) => ({ item, score: scoreFeeItemForProgramme(item, programme) }))
+    .filter((entry) => entry.score > 0)
+    .sort((a, b) => b.score - a.score || String(a.item.programmeGroup || "").localeCompare(String(b.item.programmeGroup || "")));
+  const directMatches = scored.filter((entry) => entry.score >= 4);
+  const fallback = scored.filter((entry) => /application|acceptance|registration|tuition/i.test(`${entry.item.name || ""} ${entry.item.type || ""}`));
+  const chosen = [...directMatches, ...fallback].filter((entry, index, rows) => {
+    const key = entry.item.id || `${entry.item.programmeGroup}-${entry.item.name}-${entry.item.studentCategory}-${entry.item.amount}`;
+    return rows.findIndex((row) => (row.item.id || `${row.item.programmeGroup}-${row.item.name}-${row.item.studentCategory}-${row.item.amount}`) === key) === index;
+  });
+  return chosen.slice(0, limit).map((entry) => entry.item);
+}
+
+function renderProgrammeFeeSummary(programme, limit = 6) {
+  const matchedFees = getProgrammeFeeMatches(programme, limit);
+  const explicitNotes = unique([programme.feeNote, programme.supportingFeeSourcePath ? `Fee evidence: ${programme.supportingFeeSourcePath}` : ""].filter(Boolean));
+  if (!matchedFees.length && !explicitNotes.length) {
+    return renderInstitutionFeeSummary(programme.institution, Math.min(limit, 4));
+  }
+  return `
+    ${explicitNotes.length ? `<ul class="explorer-fee-list">${explicitNotes.map((note) => `<li><strong>Programme note</strong><span>${escapeHtml(note)}</span></li>`).join("")}</ul>` : ""}
+    ${
+      matchedFees.length
+        ? `<ul class="explorer-fee-list">${matchedFees.map((item) => {
+            const display = getExplorerFeeDisplay(item);
+            return `<li><strong>${escapeHtml(display.label)}</strong><span>${escapeHtml(display.amount)}${display.meta ? ` - ${escapeHtml(display.meta)}` : ""}</span></li>`;
+          }).join("")}</ul>`
+        : ""
+    }
+    <p class="muted-inline">Use captured fees as estimates and confirm the latest official amount before payment.</p>
+  `;
+}
+
+function getInstitutionProfileMeta(institution) {
+  const programmesForInstitution = getInstitutionProgrammes(institution);
+  const sourcesForInstitution = getInstitutionSourcesForExplorer(institution);
+  const links = getInstitutionExplorerLinks(institution);
+  const feeSchedules = getInstitutionFeeSchedules(institution);
+  const feeItems = feeSchedules.flatMap((schedule) => schedule.items || []);
+  const faculties = unique(programmesForInstitution.map((programme) => programme.faculty || programme.category).filter(Boolean));
+  const levels = unique(programmesForInstitution.map((programme) => programme.level).filter(Boolean));
+  const careers = unique(programmesForInstitution.flatMap((programme) => [...(programme.careers || []), ...(getDomainProfile(programme).careers || [])])).slice(0, 8);
+  const reviewed = programmesForInstitution.filter((programme) => ["approved", "verified"].includes(String(programme.reviewStatus || programme.status || "").toLowerCase())).length;
+  const incomplete = programmesForInstitution.filter((programme) => !programme.requirementsSummary || !programme.duration || (!programme.feeNote && !programme.supportingFeeSourcePath && !feeItems.length)).length;
+  return {
+    institution,
+    programmes: programmesForInstitution,
+    sources: sourcesForInstitution,
+    links,
+    feeSchedules,
+    feeItems,
+    faculties,
+    levels,
+    careers,
+    reviewed,
+    incomplete,
+    dataFound: unique(sourcesForInstitution.flatMap((source) => source.data_found || source.tags || [])).slice(0, 8),
+    shortages: unique(sourcesForInstitution.flatMap((source) => source.shortage || source.missingItems || [])).slice(0, 5)
+  };
+}
+
+function getInstitutionProfileNarrative(meta) {
+  const focus = meta.faculties.slice(0, 3).join(", ");
+  const levelText = meta.levels.slice(0, 3).join(", ");
+  const sourceText = meta.sources.length
+    ? `${meta.sources.length} source record${meta.sources.length === 1 ? "" : "s"} support this profile.`
+    : "Source coverage still needs admin review.";
+  return [
+    `EduGuide currently tracks ${meta.programmes.length} programme${meta.programmes.length === 1 ? "" : "s"} for ${meta.institution}.`,
+    focus ? `Main catalogue areas: ${focus}.` : "",
+    levelText ? `Captured levels include ${levelText}.` : "",
+    sourceText
+  ].filter(Boolean).join(" ");
+}
+
+function renderProfileTagList(items, emptyText) {
+  return items.length
+    ? `<div class="profile-tag-list">${items.map((item) => `<span>${escapeHtml(item)}</span>`).join("")}</div>`
+    : `<p class="muted-inline">${escapeHtml(emptyText)}</p>`;
+}
+
+function getCourseFitSummary(matchingProgramme) {
+  if (!getEnteredGrades().length) {
+    return {
+      tone: "blue",
+      label: "Add marks",
+      detail: "Enter grades to compare this course with your profile.",
+      match: null
+    };
+  }
+  const match = getProgrammeMatch(matchingProgramme);
+  return {
+    tone: tierMeta[match.tier]?.badge || "blue",
+    label: match.tierLabel,
+    detail: `${match.overall}% fit based on current marks, interests, requirements, and data confidence.`,
+    match
+  };
+}
+
+function renderCourseEvidenceLinks(programme, application) {
+  const links = dedupeLinks([
+    application.link?.url ? { label: application.link.label || "Apply / source", url: application.link.url } : null,
+    programme.sourceUrl ? { label: "Course source", url: programme.sourceUrl } : null,
+    programme.supportingSourcePath ? { label: "Supporting source", url: programme.supportingSourcePath } : null,
+    programme.supportingFeeSourcePath ? { label: "Fee evidence", url: programme.supportingFeeSourcePath } : null,
+    ...(application.links?.prospectusLinks || []).slice(0, 2)
+  ].filter(Boolean));
+  const localEvidence = unique([
+    getEvidenceFileLabel(programme.sourcePath),
+    getEvidenceFileLabel(programme.supportingSourcePath),
+    getEvidenceFileLabel(programme.supportingFeeSourcePath),
+    ...(application.links?.localEvidence || [])
+  ].filter(Boolean));
+  if (!links.length && !localEvidence.length) {
+    return `<p class="muted-inline">No course-specific evidence link is captured yet. Use the school profile until admin confirms a source.</p>`;
+  }
+  return `
+    <ul class="course-evidence-list">
+      ${links.map((link) => `<li><a href="${escapeHtml(link.url)}" target="_blank" rel="noreferrer">${escapeHtml(link.label)}</a></li>`).join("")}
+      ${localEvidence.map((label) => `<li><span>${escapeHtml(label)}</span></li>`).join("")}
+    </ul>
   `;
 }
 
@@ -5707,50 +5862,65 @@ function renderSchoolCards(institutions) {
 }
 
 function renderSelectedSchoolProfile(institution) {
-  const links = getInstitutionExplorerLinks(institution);
-  const sourcesForInstitution = getInstitutionSourcesForExplorer(institution);
-  const dataFound = unique(sourcesForInstitution.flatMap((source) => source.data_found || source.tags || [])).slice(0, 8);
-  const shortages = unique(sourcesForInstitution.flatMap((source) => source.shortage || source.missingItems || [])).slice(0, 5);
+  const meta = getInstitutionProfileMeta(institution);
+  const links = meta.links;
+  const profileNarrative = getInstitutionProfileNarrative(meta);
+  const topProgrammes = meta.programmes.slice(0, 4);
+  const sourceStatus = meta.sources.length ? `${meta.sources.length} source${meta.sources.length === 1 ? "" : "s"}` : "sources pending";
+  const feeStatus = meta.feeItems.length ? `${meta.feeItems.length} fee item${meta.feeItems.length === 1 ? "" : "s"}` : "fees pending";
   return `
     <article class="school-profile-card">
       <div class="school-profile-head">
         <div>
           <p class="section-kicker">${escapeHtml(getInstitutionShortName(institution))}</p>
           <h4>${escapeHtml(institution || "School under review")}</h4>
-          <span>${getInstitutionProgrammes(institution).length} programme record(s) in EduGuide catalogue.</span>
+          <span>${escapeHtml(profileNarrative)}</span>
         </div>
         <div class="school-profile-actions">
-          ${links.application?.url ? `<a class="primary-button small" href="${escapeHtml(links.application.url)}" target="_blank" rel="noreferrer"><i data-lucide="external-link"></i> Apply / Visit</a>` : `<span class="badge amber">Apply link missing</span>`}
+          ${links.application?.url ? `<a class="primary-button small" href="${escapeHtml(links.application.url)}" target="_blank" rel="noreferrer"><i data-lucide="external-link"></i> Apply online / Visit</a>` : `<span class="badge amber">Apply link missing</span>`}
+          ${links.prospectusLinks[0]?.url ? `<a class="secondary-action" href="${escapeHtml(links.prospectusLinks[0].url)}" target="_blank" rel="noreferrer"><i data-lucide="download"></i> Prospectus</a>` : ""}
           <a class="secondary-action" href="${nmdsPortalUrl}" target="_blank" rel="noreferrer"><i data-lucide="wallet-cards"></i> NMDS</a>
         </div>
       </div>
+      <div class="school-profile-stats">
+        <div><span>Courses</span><strong>${meta.programmes.length}</strong><small>${meta.reviewed} reviewed</small></div>
+        <div><span>Study areas</span><strong>${meta.faculties.length || "0"}</strong><small>${escapeHtml(meta.faculties.slice(0, 2).join(", ") || "under review")}</small></div>
+        <div><span>Sources</span><strong>${escapeHtml(sourceStatus)}</strong><small>${links.prospectusLinks.length ? "prospectus/source captured" : "prospectus missing"}</small></div>
+        <div><span>Fees</span><strong>${escapeHtml(feeStatus)}</strong><small>${meta.feeSchedules.length ? "verify before payment" : "add fee schedule"}</small></div>
+      </div>
       <div class="school-profile-grid">
         <div class="detail-block">
-          <h5>Prospectus & sources</h5>
+          <h5>Prospectus & apply links</h5>
           ${
             links.prospectusLinks.length
               ? `<ul>${links.prospectusLinks.slice(0, 4).map((link) => `<li><a href="${escapeHtml(link.url)}" target="_blank" rel="noreferrer">${escapeHtml(link.label)}</a></li>`).join("")}</ul>`
               : `<p class="muted-inline">No downloadable prospectus link captured yet. Add it in admin when available.</p>`
           }
+          ${links.application?.url ? `<a class="secondary-link" href="${escapeHtml(links.application.url)}" target="_blank" rel="noreferrer">Open application route</a>` : ""}
           ${links.primarySource?.url ? `<a class="secondary-link" href="${escapeHtml(links.primarySource.url)}" target="_blank" rel="noreferrer">Open primary source</a>` : ""}
         </div>
         <div class="detail-block">
-          <h5>Fees</h5>
-          ${renderInstitutionFeeSummary(institution, 4)}
-        </div>
-        <div class="detail-block">
-          <h5>Known data</h5>
+          <h5>Programmes at this school</h5>
           ${
-            dataFound.length
-              ? `<ul>${dataFound.map((item) => `<li>${escapeHtml(item)}</li>`).join("")}</ul>`
-              : `<p class="muted-inline">No source audit details captured yet.</p>`
+            topProgrammes.length
+              ? `<ul>${topProgrammes.map((programme) => `<li><button class="inline-course-link" type="button" data-explorer-programme="${escapeHtml(programme.id)}">${escapeHtml(getProgrammeDisplayName(programme))}</button></li>`).join("")}</ul>`
+              : `<p class="muted-inline">No public programme records captured yet.</p>`
           }
         </div>
         <div class="detail-block">
-          <h5>Shortages</h5>
+          <h5>Study focus</h5>
+          ${renderProfileTagList(meta.faculties.slice(0, 8), "Study areas are still under review.")}
+          ${meta.careers.length ? `<h5 class="detail-subhead">Career fields found</h5>${renderProfileTagList(meta.careers, "Career fields need confirmation.")}` : ""}
+        </div>
+        <div class="detail-block">
+          <h5>Fees & data coverage</h5>
+          ${renderInstitutionFeeSummary(institution, 4)}
+          <h5 class="detail-subhead">Known data</h5>
+          ${renderProfileTagList(meta.dataFound, "No source audit details captured yet.")}
+          <h5 class="detail-subhead">Needs attention</h5>
           ${
-            shortages.length
-              ? `<ul>${shortages.map((item) => `<li>${escapeHtml(item)}</li>`).join("")}</ul>`
+            meta.shortages.length
+              ? `<ul>${meta.shortages.map((item) => `<li>${escapeHtml(item)}</li>`).join("")}</ul>`
               : `<p class="muted-inline">No major shortage noted for this school profile.</p>`
           }
         </div>
@@ -5769,10 +5939,13 @@ function renderExplorerCourseProfile(programme) {
   const saved = currentUser?.shortlist?.includes(programme.id);
   const profile = getDomainProfile(programme);
   const requirementItems = matchingProgramme.requirements?.length ? matchingProgramme.requirements : [programme.requirementsSummary || "Entry requirements need confirmation."];
-  const careers = unique(programme.careers || []).slice(0, 8);
+  const careers = unique([...(programme.careers || []), ...(matchingProgramme.careers || []), ...(profile.careers || [])]).slice(0, 8);
   const skills = unique([...(matchingProgramme.skills || []), ...(profile.skills || [])]).slice(0, 8);
-  const feeNotes = [programme.feeNote, programme.supportingFeeSourcePath ? `Fee evidence: ${programme.supportingFeeSourcePath}` : ""].filter(Boolean);
   const freshness = getSourceFreshnessMeta(programme);
+  const fit = getCourseFitSummary(matchingProgramme);
+  const checklist = getApplicationDocumentChecklist([matchingProgramme]);
+  const readiness = getApplicationReadiness(checklist);
+  const fundingPolicy = application.fundingPolicy || getFundingPolicy(matchingProgramme);
   const nulEnglishAttention = getNulEnglishAttention(programme);
   return `
     <article class="course-profile-card">
@@ -5792,8 +5965,14 @@ function renderExplorerCourseProfile(programme) {
             <i data-lucide="bot"></i>
             Ask AI
           </button>
-          ${application.link?.url ? `<a class="primary-button small" href="${escapeHtml(application.link.url)}" target="_blank" rel="noreferrer"><i data-lucide="external-link"></i> Apply / Source</a>` : ""}
+          ${application.link?.url ? `<a class="primary-button small" href="${escapeHtml(application.link.url)}" target="_blank" rel="noreferrer"><i data-lucide="external-link"></i> Apply online / Source</a>` : ""}
         </div>
+      </div>
+      <div class="application-status-strip course-status-strip">
+        <div><span>Your fit</span><strong>${escapeHtml(fit.label)}</strong><small>${escapeHtml(fit.detail)}</small></div>
+        <div><span>Deadline/status</span><strong>${escapeHtml(application.deadlineSummary.label)}</strong><small>${escapeHtml(application.deadlineSummary.detail)}</small></div>
+        <div><span>Funding</span><strong>${escapeHtml(fundingPolicy.status || "NMDS estimate")}</strong><small>${escapeHtml(fundingPolicy.caution || "Scholarship approval is separate from EduGuide matching.")}</small></div>
+        <div><span>Documents</span><strong>${readiness}% ready</strong><small>Based on uploaded/captured document signals.</small></div>
       </div>
       <div class="programme-detail course-detail-grid">
         ${nulEnglishAttention ? `<div class="programme-alerts course-attention"><span><i data-lucide="triangle-alert"></i>${escapeHtml(nulEnglishAttention)}</span></div>` : ""}
@@ -5802,20 +5981,36 @@ function renderExplorerCourseProfile(programme) {
           <ul>${requirementItems.map((item) => `<li>${escapeHtml(item)}</li>`).join("")}</ul>
         </div>
         <div class="detail-block">
-          <h5>Careers / work fields</h5>
+          <h5>Estimated fees</h5>
+          ${renderProgrammeFeeSummary(programme, 5)}
+        </div>
+        <div class="detail-block">
+          <h5>Careers / alumni work fields</h5>
           <ul>${careers.map((item) => `<li>${escapeHtml(item)}</li>`).join("") || "<li>Career links need confirmation.</li>"}</ul>
         </div>
         <div class="detail-block">
           <h5>Skills</h5>
           <ul>${skills.map((item) => `<li>${escapeHtml(item)}</li>`).join("") || "<li>Skill mapping needs confirmation.</li>"}</ul>
         </div>
-        <div class="detail-block">
-          <h5>Fees</h5>
-          ${feeNotes.length ? `<ul>${feeNotes.map((item) => `<li>${escapeHtml(item)}</li>`).join("")}</ul>` : renderInstitutionFeeSummary(programme.institution, 3)}
+        <div class="detail-block full">
+          <h5>Application documents</h5>
+          <div class="application-document-grid course-document-grid">
+            ${checklist.slice(0, 6).map((item) => `
+              <div class="${item.ready === true ? "complete" : "verify"}">
+                <i data-lucide="${item.ready === true ? "check-circle-2" : "circle-dashed"}"></i>
+                <span><strong>${escapeHtml(item.label)}</strong><small>${escapeHtml(item.note)}</small></span>
+              </div>
+            `).join("")}
+          </div>
+        </div>
+        <div class="detail-block full">
+          <h5>Evidence & sources</h5>
+          ${renderCourseEvidenceLinks(programme, application)}
         </div>
       </div>
       <div class="application-links explorer-link-row">
         ${programme.sourceUrl ? `<a class="secondary-link" href="${escapeHtml(programme.sourceUrl)}" target="_blank" rel="noreferrer">Open course source</a>` : ""}
+        ${application.links?.prospectusLinks?.[0]?.url ? `<a class="secondary-link" href="${escapeHtml(application.links.prospectusLinks[0].url)}" target="_blank" rel="noreferrer">Download prospectus/source</a>` : ""}
         <a class="secondary-link" href="${nmdsPortalUrl}" target="_blank" rel="noreferrer">Open NMDS sponsorship portal</a>
         <button class="secondary-action" type="button" data-report-source="${escapeHtml(programme.id)}"><i data-lucide="flag"></i> Report outdated source</button>
         <button class="secondary-action" type="button" data-view-target="results"><i data-lucide="sparkles"></i> Compare with my marks</button>

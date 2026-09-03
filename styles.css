@@ -4536,6 +4536,49 @@ textarea:focus {
   line-height: 1.5;
 }
 
+.school-profile-stats {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.school-profile-stats div {
+  min-width: 0;
+  padding: 9px 10px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--surface-soft);
+}
+
+.school-profile-stats span,
+.school-profile-stats strong,
+.school-profile-stats small {
+  display: block;
+}
+
+.school-profile-stats span {
+  color: var(--muted);
+  font-size: 10px;
+  font-weight: 900;
+  letter-spacing: 0;
+  text-transform: uppercase;
+}
+
+.school-profile-stats strong {
+  margin-top: 4px;
+  color: var(--brand-deep);
+  font-size: 13px;
+  overflow-wrap: anywhere;
+}
+
+.school-profile-stats small {
+  margin-top: 3px;
+  color: var(--muted);
+  font-size: 11px;
+  line-height: 1.35;
+  overflow-wrap: anywhere;
+}
+
 .school-profile-actions,
 .explorer-link-row {
   display: flex;
@@ -4553,6 +4596,46 @@ textarea:focus {
 .school-profile-grid .detail-block,
 .course-detail-grid .detail-block {
   min-width: 0;
+}
+
+.course-detail-grid .detail-block.full {
+  grid-column: 1 / -1;
+}
+
+.detail-subhead {
+  margin-top: 12px;
+}
+
+.profile-tag-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.profile-tag-list span {
+  max-width: 100%;
+  padding: 5px 8px;
+  border: 1px solid #b9e4d6;
+  border-radius: 999px;
+  background: var(--brand-soft);
+  color: var(--brand-deep);
+  font-size: 11px;
+  font-weight: 900;
+  overflow-wrap: anywhere;
+}
+
+.inline-course-link {
+  display: inline;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--brand-deep);
+  font: inherit;
+  font-size: 12px;
+  font-weight: 900;
+  text-align: left;
+  text-decoration: underline;
+  cursor: pointer;
 }
 
 .explorer-fee-list {
@@ -4582,6 +4665,34 @@ textarea:focus {
 
 .course-detail-grid {
   grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.course-status-strip {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.course-document-grid {
+  margin-top: 2px;
+}
+
+.course-evidence-list {
+  display: grid;
+  gap: 7px;
+  margin: 0;
+  padding-left: 18px;
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 800;
+  line-height: 1.45;
+}
+
+.course-evidence-list a {
+  color: var(--brand-deep);
+  font-weight: 900;
+}
+
+.course-evidence-list span {
+  overflow-wrap: anywhere;
 }
 
 .course-overview {
