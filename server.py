@@ -51,8 +51,8 @@ RATE_LIMIT_STATE: dict[str, list[datetime]] = {}
 SECURITY_CLEANUP_INTERVAL_SECONDS = 3600
 LAST_SECURITY_CLEANUP_AT: datetime | None = None
 GRADE_VALUES = {"A*", "A", "B", "C", "D", "E", "F", "G", "X", "Z"}
-GEMINI_DEFAULT_MODEL = "gemini-2.5-flash"
-GEMINI_MODEL_FALLBACKS = ["gemini-2.5-flash", "gemini-2.0-flash", "gemini-flash-latest"]
+GEMINI_DEFAULT_MODEL = "gemini-3.6-flash"
+GEMINI_MODEL_FALLBACKS = ["gemini-3.6-flash", "gemini-2.5-flash", "gemini-flash-latest"]
 DEPRECATED_GEMINI_MODELS = {
   "gemini-2.5-pro": GEMINI_DEFAULT_MODEL,
   "gemini-1.5-flash": GEMINI_DEFAULT_MODEL,

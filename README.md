@@ -1,6 +1,6 @@
 # EduGuide LS
 
-EduGuide LS is a Lesotho higher-education guidance prototype. This milestone focuses on the dashboard UI and the data foundation: student guidance, programme matching, AI guidance, admin import review, local database persistence, and Supabase/Postgres schema design for future hosting.
+EduGuide LS is a Lesotho higher-education guidance web app. This milestone includes student guidance, programme matching, AI guidance, admin catalogue review, email verification, document upload, runtime analytics, and Supabase/Postgres production persistence.
 
 ## Run the Prototype
 
@@ -92,7 +92,7 @@ The browser UI can still load as static HTML, but local FastAPI mode is preferre
 
 - Student dashboard with profile inputs, grades, interests, and document upload/dropzone support
 - Real document upload in FastAPI mode, with files stored locally under `data/uploads/`, text/OCR extraction, and machine-detected grade suggestions
-- Matching Engine v2 using the real 234-record catalogue, inferred domains, eligibility checks, funding readiness, institution-grouped results, and data-confidence warnings
+- Matching Engine v2 using the real 233-record catalogue, inferred domains, eligibility checks, funding readiness, institution-grouped results, and data-confidence warnings
 - AI advisor that explains qualified/almost matches through a server-side Gemini API proxy, remembers recent chat turns, uses blocked-pathway evidence, and keeps OpenAI available as an optional fallback
 - Skills, careers, NMDS readiness, and labour-market notes
 - Admin dashboard for review-queue style data approval, user search, role management, account status, and activity monitoring

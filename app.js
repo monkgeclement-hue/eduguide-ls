@@ -30,6 +30,15 @@ const programmeFreshnessThresholds = Object.freeze({
   currentDays: 180,
   reviewSoonDays: 365
 });
+const maxDocumentUploadFiles = 5;
+const maxDocumentUploadBytes = 10 * 1024 * 1024;
+const allowedDocumentUploadExtensions = [".pdf", ".docx", ".jpg", ".jpeg", ".png"];
+const allowedDocumentUploadMimeTypes = new Set([
+  "application/pdf",
+  "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+  "image/jpeg",
+  "image/png"
+]);
 
 function formatScorePoints(value) {
   const numeric = Number(value || 0);
@@ -3724,6 +3733,8 @@ function renderStudentDashboard() {
 }
 
 async function uploadDocumentsToServer(files) {
+  const validationMessage = getDocumentUploadValidation(files);
+  if (validationMessage) throw new Error(validationMessage);
   const formData = new FormData();
   formData.append("user_id", currentUser.id);
   Array.from(files).forEach((file) => formData.append("files", file));
@@ -3735,6 +3746,26 @@ async function uploadDocumentsToServer(files) {
   const data = await response.json().catch(() => ({}));
   if (!response.ok || !data.ok) throw new Error(data.detail || data.error || `Upload failed with ${response.status}`);
   return data.documents || [];
+}
+
+function getDocumentUploadValidation(files) {
+  const selectedFiles = Array.from(files || []);
+  if (!selectedFiles.length) return "Choose at least one document to upload.";
+  if (selectedFiles.length > maxDocumentUploadFiles) return `Upload up to ${maxDocumentUploadFiles} documents at a time.`;
+
+  const oversizedFile = selectedFiles.find((file) => Number(file.size || 0) > maxDocumentUploadBytes);
+  if (oversizedFile) return `${oversizedFile.name || "A document"} is larger than 10 MB.`;
+
+  const invalidFile = selectedFiles.find((file) => {
+    const fileName = String(file.name || "").toLowerCase();
+    const hasAllowedExtension = allowedDocumentUploadExtensions.some((extension) => fileName.endsWith(extension));
+    const mimeType = String(file.type || "").toLowerCase();
+    const hasAllowedMime = !mimeType || mimeType === "application/octet-stream" || allowedDocumentUploadMimeTypes.has(mimeType);
+    return !hasAllowedExtension || !hasAllowedMime;
+  });
+  if (invalidFile) return `${invalidFile.name || "A document"} is not supported. Upload PDF, DOCX, JPG, JPEG, or PNG.`;
+
+  return "";
 }
 
 async function loadCurrentUserDocuments() {
@@ -3827,6 +3858,12 @@ async function addDocuments(files) {
   const selectedFiles = Array.from(files || []);
   if (!selectedFiles.length) return;
   const dropzoneText = qs("#dropzone-text");
+  const validationMessage = getDocumentUploadValidation(selectedFiles);
+  if (validationMessage) {
+    dropzoneText.textContent = validationMessage;
+    showAppToast(validationMessage, "warning");
+    return;
+  }
   dropzoneText.textContent = `Uploading ${selectedFiles.length} file(s)...`;
   let incoming = [];
   try {

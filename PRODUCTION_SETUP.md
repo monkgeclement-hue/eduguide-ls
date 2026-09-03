@@ -85,27 +85,24 @@ Open:
 https://eduguide-ls.onrender.com/health
 ```
 
-Expected production values:
+Expected public health values:
 
 ```json
 {
-  "data_backend": "supabase",
-  "supabase_configured": true,
+  "ok": true,
   "database_ready": true,
-  "storage_ready": true,
-  "email_configured": true,
-  "email_debug_codes": false,
-  "ai_configured": true
+  "storage_ready": true
 }
 ```
 
-Then log in as the system admin, open the Admin dashboard, press **Check Hosting**, then press **Test Email**. A successful test means public registration codes can be delivered.
+The public health route is intentionally minimal. Then log in as the system admin, open the Admin dashboard, press **Check Hosting**, then press **Test Email**. The protected diagnostics check should show Supabase, storage, AI, and Email OTP readiness. A successful test email means public registration codes can be delivered.
 
 ## 5. Launch Gate
 
 Do not begin public testing until these are true:
 
-- `/health` shows Supabase, database, storage, email, and AI ready.
+- `/health` shows `ok`, `database_ready`, and `storage_ready` as `true`.
+- The Admin dashboard **Check Hosting** panel shows Supabase, Email OTP, storage, and AI ready.
 - Admin login works with the private owner account.
 - Public registration creates only student accounts.
 - A new student can receive the email one-time code and sign in.
