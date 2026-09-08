@@ -193,6 +193,10 @@ class CounsellorAssignmentRequest(BaseModel):
   studentId: str
 
 
+class CounsellorConsentUpdateRequest(BaseModel):
+  consentStatus: str
+
+
 class CounsellorNoteRequest(BaseModel):
   studentId: str
   content: str
@@ -2363,8 +2367,26 @@ def counsellor_has_student_access(counsellor_id: str, student_id: str) -> bool:
     assignment.get("counsellorId") == counsellor_id
     and assignment.get("studentId") == student_id
     and assignment.get("status", "active") == "active"
+    and assignment.get("consentStatus", "pending") == "granted"
     for assignment in get_counsellor_state(COUNSELLOR_ASSIGNMENTS_STATE_KEY)
   )
+
+
+def student_counsellor_assignment_view(assignment: dict[str, Any], counsellor: dict[str, Any]) -> dict[str, Any]:
+  consent_status = assignment.get("consentStatus", "pending")
+  if consent_status not in {"pending", "granted", "paused"}:
+    consent_status = "pending"
+  return {
+    "id": assignment.get("id"),
+    "consentStatus": consent_status,
+    "assignedAt": assignment.get("assignedAt"),
+    "updatedAt": assignment.get("updatedAt"),
+    "counsellor": {
+      "id": counsellor.get("id"),
+      "name": counsellor.get("name") or "Counsellor",
+      "email": counsellor.get("email") or "",
+    },
+  }
 
 
 def require_counsellor_student_access(student_id: str, authorization: str | None) -> dict[str, Any]:
@@ -3832,9 +3854,18 @@ def admin_assign_counsellor_student(payload: CounsellorAssignmentRequest, reques
   if not student or is_demo_user(student):
     raise HTTPException(status_code=400, detail="Choose a student account.")
   assignments = get_counsellor_state(COUNSELLOR_ASSIGNMENTS_STATE_KEY)
+  timestamp = now_iso()
+  for item in assignments:
+    if item.get("studentId") == student["id"] and item.get("counsellorId") != counsellor["id"] and item.get("status") == "active":
+      item.update({"status": "inactive", "updatedAt": timestamp})
   existing = next((item for item in assignments if item.get("counsellorId") == counsellor["id"] and item.get("studentId") == student["id"]), None)
   if existing:
-    existing.update({"status": "active", "updatedAt": now_iso(), "assignedBy": actor["id"]})
+    was_active = existing.get("status") == "active"
+    existing.update({"status": "active", "updatedAt": timestamp, "assignedBy": actor["id"]})
+    if not was_active:
+      existing.update({"consentStatus": "pending", "consentAt": None})
+    else:
+      existing["consentStatus"] = existing.get("consentStatus", "pending")
     assignment = existing
   else:
     assignment = {
@@ -3842,13 +3873,15 @@ def admin_assign_counsellor_student(payload: CounsellorAssignmentRequest, reques
       "counsellorId": counsellor["id"],
       "studentId": student["id"],
       "status": "active",
+      "consentStatus": "pending",
+      "consentAt": None,
       "assignedBy": actor["id"],
-      "assignedAt": now_iso(),
-      "updatedAt": now_iso(),
+      "assignedAt": timestamp,
+      "updatedAt": timestamp,
     }
     assignments.append(assignment)
   save_counsellor_state(COUNSELLOR_ASSIGNMENTS_STATE_KEY, assignments)
-  add_user_activity(student, "counsellor_assigned", "Assigned to a counsellor", actor, {"counsellorId": counsellor["id"]})
+  add_user_activity(student, "counsellor_assigned", "Counsellor access is awaiting your approval", actor, {"counsellorId": counsellor["id"], "consentStatus": assignment.get("consentStatus", "pending")})
   save_auth_users_internal(users)
   safe_insert_runtime_event(actor["id"], "counsellor_student_assigned", "Admin assigned a student to a counsellor", {"counsellorId": counsellor["id"], "studentId": student["id"], "ip": get_request_ip(request)})
   return {"ok": True, "assignment": assignment, "assignments": assignments}
@@ -3869,6 +3902,48 @@ def admin_remove_counsellor_assignment(assignment_id: str, request: Request, aut
   return {"ok": True, "assignments": assignments}
 
 
+@app.get("/api/student/counsellor-access")
+def student_counsellor_access(request: Request, authorization: str | None = Header(default=None)) -> dict[str, Any]:
+  actor = require_current_user(authorization)
+  if actor.get("role") != "student":
+    raise HTTPException(status_code=403, detail="Student access required.")
+  check_rate_limit(request, "student_counsellor_access", 120, 3600, actor["id"])
+  users = get_auth_users_internal()
+  counsellors = {user.get("id"): user for user in users if user.get("role") == "counsellor" and user.get("status") == "active"}
+  assignments = [
+    student_counsellor_assignment_view(item, counsellors[item.get("counsellorId")])
+    for item in get_counsellor_state(COUNSELLOR_ASSIGNMENTS_STATE_KEY)
+    if item.get("studentId") == actor["id"] and item.get("status") == "active" and item.get("counsellorId") in counsellors
+  ]
+  return {"ok": True, "assignments": assignments}
+
+
+@app.put("/api/student/counsellor-access/{assignment_id}")
+def student_update_counsellor_access(assignment_id: str, payload: CounsellorConsentUpdateRequest, request: Request, authorization: str | None = Header(default=None)) -> dict[str, Any]:
+  actor = require_current_user(authorization)
+  if actor.get("role") != "student":
+    raise HTTPException(status_code=403, detail="Student access required.")
+  if payload.consentStatus not in {"granted", "paused"}:
+    raise HTTPException(status_code=400, detail="Choose whether to grant or pause counsellor access.")
+  check_rate_limit(request, "student_counsellor_access_write", 30, 3600, actor["id"])
+  assignments = get_counsellor_state(COUNSELLOR_ASSIGNMENTS_STATE_KEY)
+  assignment = next((item for item in assignments if item.get("id") == assignment_id and item.get("studentId") == actor["id"] and item.get("status") == "active"), None)
+  if not assignment:
+    raise HTTPException(status_code=404, detail="Active counsellor assignment not found.")
+  timestamp = now_iso()
+  assignment.update({"consentStatus": payload.consentStatus, "consentAt": timestamp, "updatedAt": timestamp})
+  save_counsellor_state(COUNSELLOR_ASSIGNMENTS_STATE_KEY, assignments)
+  users = get_auth_users_internal()
+  student = next((user for user in users if user.get("id") == actor["id"]), None)
+  if student:
+    label = "Granted counsellor access" if payload.consentStatus == "granted" else "Paused counsellor access"
+    add_user_activity(student, "counsellor_consent_updated", label, actor, {"assignmentId": assignment_id, "consentStatus": payload.consentStatus})
+    save_auth_users_internal(users)
+  safe_insert_runtime_event(actor["id"], "student_counsellor_consent_updated", "Student updated counsellor access", {"assignmentId": assignment_id, "consentStatus": payload.consentStatus, "ip": get_request_ip(request)})
+  counsellor = next((user for user in users if user.get("id") == assignment.get("counsellorId")), {})
+  return {"ok": True, "assignment": student_counsellor_assignment_view(assignment, counsellor)}
+
+
 @app.get("/api/counsellor/dashboard")
 def counsellor_dashboard(request: Request, authorization: str | None = Header(default=None)) -> dict[str, Any]:
   actor = require_counsellor_user(authorization)
@@ -3878,7 +3953,7 @@ def counsellor_dashboard(request: Request, authorization: str | None = Header(de
   if actor.get("role") in {"owner", "admin"}:
     student_users = [user for user in users if user.get("role") == "student" and not is_demo_user(user)]
   else:
-    assigned_ids = {item.get("studentId") for item in get_counsellor_state(COUNSELLOR_ASSIGNMENTS_STATE_KEY) if item.get("counsellorId") == actor["id"] and item.get("status") == "active"}
+    assigned_ids = {item.get("studentId") for item in get_counsellor_state(COUNSELLOR_ASSIGNMENTS_STATE_KEY) if item.get("counsellorId") == actor["id"] and item.get("status") == "active" and item.get("consentStatus", "pending") == "granted"}
     student_users = [user for user in users if user.get("id") in assigned_ids and user.get("role") == "student" and not is_demo_user(user)]
   students = [counsellor_student_summary(student, followups) for student in student_users]
   return {

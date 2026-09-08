@@ -653,6 +653,59 @@ a {
 .profile-activity-list svg { width: 16px; color: var(--brand); }
 .profile-empty-activity { color: var(--muted); }
 
+.student-counsellor-access-list {
+  display: grid;
+  gap: 10px;
+}
+
+.student-counsellor-access-card {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 12px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--surface-soft);
+}
+
+.student-counsellor-access-card h4 {
+  margin: 8px 0 2px;
+  color: var(--brand-deep);
+  font-size: 15px;
+}
+
+.student-counsellor-access-card p,
+.student-counsellor-access-card small,
+.consent-access-empty small {
+  margin: 0;
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.45;
+}
+
+.student-counsellor-access-card small {
+  display: block;
+  margin-top: 7px;
+  max-width: 500px;
+}
+
+.student-counsellor-access-actions {
+  display: flex;
+  align-items: flex-start;
+  flex: 0 0 auto;
+}
+
+.consent-access-empty {
+  display: grid;
+  gap: 8px;
+  padding: 10px 0;
+}
+
+.consent-access-empty p {
+  margin: 0;
+  color: var(--muted);
+}
+
 .catalogue-review-guide {
   display: flex;
   gap: 12px;
@@ -5382,6 +5435,8 @@ textarea:focus {
   .profile-identity-panel { align-items: flex-start; flex-direction: column; }
   .profile-actions { width: 100%; }
   .profile-actions button { flex: 1; min-width: 0; }
+  .student-counsellor-access-card { flex-direction: column; }
+  .student-counsellor-access-actions { width: 100%; }
   .profile-stats-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 
   .user-chip span:last-child {

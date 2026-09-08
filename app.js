@@ -171,6 +171,13 @@ let counsellorState = {
   search: ""
 };
 let counsellorAssignments = [];
+let studentCounsellorAccess = { assignments: [], loading: false, loaded: false, error: "" };
+
+const counsellorConsentMeta = {
+  pending: { label: "Awaiting your approval", tone: "amber" },
+  granted: { label: "Access granted", tone: "green" },
+  paused: { label: "Access paused", tone: "blue" }
+};
 
 const persistenceKey = "eduguide-admin-review-state-v1";
 const authUsersKey = "eduguide-auth-users-v1";
@@ -789,7 +796,10 @@ function saveAuthUsers() {
 }
 
 function renderViewOnDemand(viewName) {
-  if (viewName === "profile") renderStudentProfile();
+  if (viewName === "profile") {
+    renderStudentProfile();
+    loadStudentCounsellorAccess();
+  }
   if (viewName === "admin") {
     renderAdmin();
     loadAdminUsers();
@@ -1020,7 +1030,72 @@ function renderStudentProfile() {
   qs("#profile-district")?.replaceChildren(document.createTextNode(currentUser.district || "Not recorded"));
   qs("#profile-shortlist-count")?.replaceChildren(document.createTextNode(String(currentUser.shortlist?.length || 0)));
   qs("#profile-document-count")?.replaceChildren(document.createTextNode(String(currentUser.documents?.length || 0)));
+  renderStudentCounsellorAccess();
   if (window.lucide) window.lucide.createIcons();
+}
+
+function renderStudentCounsellorAccess() {
+  const panel = qs("#student-counsellor-access-panel");
+  const root = qs("#student-counsellor-access");
+  if (!panel || !root) return;
+  if (!isStudentUser()) {
+    panel.hidden = true;
+    return;
+  }
+  panel.hidden = false;
+  if (studentCounsellorAccess.loading) {
+    root.innerHTML = `<p class="muted-inline">Loading your guidance access...</p>`;
+    return;
+  }
+  if (studentCounsellorAccess.error) {
+    root.innerHTML = `<div class="consent-access-empty"><p>Guidance access could not be loaded.</p><button class="secondary-action" type="button" data-refresh-counsellor-access><i data-lucide="refresh-cw"></i> Retry</button></div>`;
+    return;
+  }
+  const assignments = studentCounsellorAccess.assignments || [];
+  root.innerHTML = assignments.length ? `<div class="student-counsellor-access-list">${assignments.map((assignment) => {
+    const consent = counsellorConsentMeta[assignment.consentStatus] || counsellorConsentMeta.pending;
+    const counsellor = assignment.counsellor || {};
+    const canGrant = assignment.consentStatus !== "granted";
+    return `<article class="student-counsellor-access-card"><div><span class="badge ${consent.tone}">${escapeHtml(consent.label)}</span><h4>${escapeHtml(counsellor.name || "Assigned counsellor")}</h4><p>${escapeHtml(counsellor.email || "Counsellor contact not available")}</p><small>${assignment.consentStatus === "granted" ? "This counsellor can view your guidance profile, application status, and follow-ups." : "Your profile stays private from this counsellor until you grant access."}</small></div><div class="student-counsellor-access-actions"><button class="${canGrant ? "primary-button" : "secondary-action"} compact-action" type="button" data-student-counsellor-consent="${escapeHtml(assignment.id)}" data-consent-status="${canGrant ? "granted" : "paused"}"><i data-lucide="${canGrant ? "shield-check" : "pause-circle"}"></i> ${canGrant ? "Grant access" : "Pause access"}</button></div></article>`;
+  }).join("")}</div>` : `<div class="consent-access-empty"><p>No counsellor is assigned to your account.</p><small>An administrator can assign a counsellor when guidance support is available.</small></div>`;
+  if (window.lucide) window.lucide.createIcons();
+}
+
+async function loadStudentCounsellorAccess({ force = false } = {}) {
+  if (!authToken || !isStudentUser() || studentCounsellorAccess.loading || (studentCounsellorAccess.loaded && !force)) return;
+  studentCounsellorAccess.loading = true;
+  studentCounsellorAccess.error = "";
+  renderStudentCounsellorAccess();
+  try {
+    const response = await fetch("/api/student/counsellor-access", { headers: getAuthHeaders({ Accept: "application/json" }) });
+    const data = await response.json().catch(() => ({}));
+    if (!response.ok || !data.ok) throw new Error(data.detail || "Unable to load guidance access.");
+    studentCounsellorAccess.assignments = Array.isArray(data.assignments) ? data.assignments : [];
+    studentCounsellorAccess.loaded = true;
+  } catch (error) {
+    studentCounsellorAccess.error = error.message || "Unable to load guidance access.";
+  } finally {
+    studentCounsellorAccess.loading = false;
+    renderStudentCounsellorAccess();
+  }
+}
+
+async function updateStudentCounsellorConsent(assignmentId, consentStatus) {
+  if (!authToken || !isStudentUser() || !assignmentId || !["granted", "paused"].includes(consentStatus)) return;
+  try {
+    const response = await fetch(`/api/student/counsellor-access/${encodeURIComponent(assignmentId)}`, {
+      method: "PUT",
+      headers: getAuthHeaders({ "Content-Type": "application/json" }),
+      body: JSON.stringify({ consentStatus })
+    });
+    const data = await response.json().catch(() => ({}));
+    if (!response.ok || !data.ok) throw new Error(data.detail || "Could not update counsellor access.");
+    studentCounsellorAccess.assignments = (studentCounsellorAccess.assignments || []).map((item) => item.id === assignmentId ? data.assignment : item);
+    renderStudentCounsellorAccess();
+    showAppToast(consentStatus === "granted" ? "Counsellor access granted." : "Counsellor access paused.", "success");
+  } catch (error) {
+    showAppToast(error.message || "Could not update counsellor access.", "error");
+  }
 }
 
 let refreshInProgress = false;
@@ -1559,6 +1634,7 @@ function updateUserShell() {
 
 function setCurrentUser(user, preferredView = "student") {
   currentUser = user;
+  studentCounsellorAccess = { assignments: [], loading: false, loaded: false, error: "" };
   aiChatLoadedFromServer = false;
   aiInterviewState = { active: false, step: 0, answers: [] };
   if (currentUser) {
@@ -1607,6 +1683,7 @@ function signOut() {
     fetch("/api/auth/logout", { method: "POST", headers: getAuthHeaders() }).catch(() => {});
   }
   currentUser = null;
+  studentCounsellorAccess = { assignments: [], loading: false, loaded: false, error: "" };
   authToken = null;
   aiChatMessages = [];
   aiInterviewState = { active: false, step: 0, answers: [] };
@@ -1743,6 +1820,7 @@ async function restoreAuthSession() {
     } catch (error) {
       authToken = null;
       currentUser = null;
+      studentCounsellorAccess = { assignments: [], loading: false, loaded: false, error: "" };
       saveAuthSession();
       setAuthMessage("Session expired. Login again to continue.", "error");
     }
@@ -8616,6 +8694,7 @@ function renderAdminUserDetail(panel) {
   const canChangeThisUser = user.id !== currentUser?.id && !isOwner(user);
   const counsellors = authUsers.filter((item) => isCounsellor(item) && item.status === "active");
   const assignment = counsellorAssignments.find((item) => item.studentId === user.id && item.status === "active");
+  const assignmentConsent = counsellorConsentMeta[assignment?.consentStatus] || counsellorConsentMeta.pending;
   panel.innerHTML = `
     <div class="detail-card user-detail-card">
       <div class="detail-card-head">
@@ -8666,7 +8745,7 @@ function renderAdminUserDetail(panel) {
         canChangeThisUser && user.role === "student"
           ? `<div class="detail-section counsellor-assignment-box">
               <h4>Counsellor assignment</h4>
-              <p class="institution-access-note">Only the assigned counsellor can open this student's guidance record.</p>
+              <p class="institution-access-note">Student consent: <span class="badge ${assignmentConsent.tone}">${escapeHtml(assignmentConsent.label)}</span> Counsellors can open the guidance record only after access is granted.</p>
               <label><span>Assigned counsellor</span><select id="user-counsellor-select"><option value="">${counsellors.length ? "Choose counsellor" : "Create a counsellor account first"}</option>${counsellors.map((counsellor) => `<option value="${escapeHtml(counsellor.id)}" ${assignment?.counsellorId === counsellor.id ? "selected" : ""}>${escapeHtml(counsellor.name)}</option>`).join("")}</select></label>
               <div class="detail-actions"><button class="secondary-action" type="button" data-counsellor-assign-student="${escapeHtml(user.id)}" ${counsellors.length ? "" : "disabled"}><i data-lucide="user-round-check"></i> Assign counsellor</button>${assignment ? `<button class="secondary-action danger" type="button" data-counsellor-unassign="${escapeHtml(assignment.id)}"><i data-lucide="user-round-x"></i> Remove assignment</button>` : ""}</div>
             </div>`
@@ -9212,7 +9291,7 @@ async function assignCounsellorToStudent(studentId, counsellorId) {
     counsellorAssignments = Array.isArray(data.assignments) ? data.assignments : counsellorAssignments;
     renderAdminUsers();
     renderAdminDetail();
-    showAppToast("Counsellor assigned to student.", "success");
+    showAppToast("Counsellor assigned. Student approval is now required.", "success");
   } catch (error) {
     showAppToast(error.message || "Could not assign counsellor.", "error");
   }
@@ -9489,6 +9568,15 @@ function bindEvents() {
   });
   qs("#dashboard-share-button")?.addEventListener("click", () => shareMatchSummary());
   qs("#profile-share-button")?.addEventListener("click", () => shareMatchSummary());
+  qs("#student-counsellor-access")?.addEventListener("click", (event) => {
+    const refreshButton = event.target.closest("[data-refresh-counsellor-access]");
+    if (refreshButton) {
+      loadStudentCounsellorAccess({ force: true });
+      return;
+    }
+    const consentButton = event.target.closest("[data-student-counsellor-consent]");
+    if (consentButton) updateStudentCounsellorConsent(consentButton.dataset.studentCounsellorConsent, consentButton.dataset.consentStatus);
+  });
   qs("#app-toast-close")?.addEventListener("click", () => {
     const toast = qs("#app-toast");
     if (toast) toast.hidden = true;
