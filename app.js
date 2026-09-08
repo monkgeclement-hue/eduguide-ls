@@ -4851,6 +4851,18 @@ function renderApplicationGroup(group) {
   `;
 }
 
+function renderApplicationProgressSummary() {
+  const savedProgrammes = currentUser?.shortlist || [];
+  if (!savedProgrammes.length) return "";
+  const progress = currentUser?.applicationProgress || {};
+  const counts = Object.keys(applicationProgressLabels).map((key) => ({
+    key,
+    label: applicationProgressLabels[key],
+    count: savedProgrammes.filter((programmeId) => (progress[programmeId] || "researching") === key).length
+  }));
+  return `<div class="application-progress-summary" aria-label="Application plan progress">${counts.map((item) => `<span class="application-progress-${item.key}"><strong>${item.count}</strong>${escapeHtml(item.label)}</span>`).join("")}</div>`;
+}
+
 function renderApplicationAssistant() {
   const groups = getInstitutionMatchGroups()
     .map((group) => ({
@@ -4884,6 +4896,7 @@ function renderApplicationAssistant() {
         <p class="section-kicker">Application assistant</p>
         <h4>Prepare before you apply</h4>
         <span>These packs use current matched institutions, uploaded documents, source links, and NMDS readiness. When a deadline is known, it is shown as verified; otherwise the app keeps the source-check warning.</span>
+        ${renderApplicationProgressSummary()}
       </div>
       <div class="application-assistant-actions">
         <button class="secondary-action" type="button" data-application-toggle-saved>${applicationSavedOnly ? "Show all matches" : "Saved only"}</button>

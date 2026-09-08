@@ -2355,6 +2355,38 @@ textarea:focus {
   color: var(--brand-deep);
 }
 
+.application-progress-summary {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 11px;
+}
+
+.application-progress-summary span {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: var(--surface);
+  padding: 4px 8px;
+  color: var(--muted);
+  font-size: 11px;
+}
+
+.application-progress-summary strong {
+  color: var(--brand-deep);
+  font-size: 12px;
+}
+
+.application-progress-summary .application-progress-ready {
+  border-color: rgba(28, 137, 90, 0.35);
+}
+
+.application-progress-summary .application-progress-applied {
+  border-color: rgba(24, 109, 175, 0.35);
+}
+
 .application-assistant-intro span,
 .application-card-head span,
 .application-programme-list span,
