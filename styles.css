@@ -2596,6 +2596,26 @@ textarea:focus {
   color: var(--muted);
 }
 
+.application-note-control {
+  display: grid;
+  gap: 5px;
+  margin-top: 10px;
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.application-note-control textarea {
+  width: 100%;
+  min-height: 52px;
+  resize: vertical;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  background: var(--surface);
+  color: var(--ink);
+  font: inherit;
+  padding: 7px 9px;
+}
+
 .application-document-grid {
   grid-template-columns: repeat(2, minmax(0, 1fr));
 }
@@ -2714,6 +2734,31 @@ textarea:focus {
   margin-top: 4px;
   color: var(--brand-deep);
   font-weight: 700;
+}
+
+.application-deadline-summary {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.application-deadline-summary span {
+  padding: 6px 8px;
+  border-radius: 6px;
+  background: #f4f7f5;
+  color: var(--muted);
+  font-size: 11px;
+}
+
+.application-deadline-summary strong {
+  margin-right: 3px;
+  color: var(--brand-deep);
+}
+
+.application-deadline-overdue strong,
+.application-deadline-soon strong {
+  color: #a45518;
 }
 
 .application-links .primary-button,

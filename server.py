@@ -178,6 +178,7 @@ class AuthProfileRequest(BaseModel):
   shortlist: list[str] = Field(default_factory=list)
   shortlistPathways: dict[str, str] = Field(default_factory=dict)
   applicationProgress: dict[str, str] = Field(default_factory=dict)
+  applicationNotes: dict[str, str] = Field(default_factory=dict)
 
 
 class UserRoleUpdate(BaseModel):
@@ -2249,6 +2250,7 @@ def normalize_auth_user(user: dict[str, Any]) -> dict[str, Any] | None:
     "shortlist": user.get("shortlist") if isinstance(user.get("shortlist"), list) else [],
     "shortlistPathways": user.get("shortlistPathways") if isinstance(user.get("shortlistPathways"), dict) else {},
     "applicationProgress": user.get("applicationProgress") if isinstance(user.get("applicationProgress"), dict) else {},
+    "applicationNotes": user.get("applicationNotes") if isinstance(user.get("applicationNotes"), dict) else {},
     "createdAt": created_at,
     "emailVerifiedAt": email_verified_at,
     "reviewedAt": user.get("reviewedAt") or (created_at if role in {"owner", "admin", "institution_admin"} else None),
@@ -3279,6 +3281,7 @@ def auth_update_me(payload: AuthProfileRequest, authorization: str | None = Head
   user["shortlist"] = safe_payload.shortlist
   user["shortlistPathways"] = safe_payload.shortlistPathways
   user["applicationProgress"] = safe_payload.applicationProgress
+  user["applicationNotes"] = safe_payload.applicationNotes
   add_user_activity(user, "profile_updated", "Updated profile", user)
   save_auth_users_internal(users)
   return {"ok": True, "user": public_user(user)}

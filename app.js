@@ -645,6 +645,7 @@ function normalizeUser(user = {}) {
     shortlist: Array.isArray(user.shortlist) ? user.shortlist : [],
     shortlistPathways: user.shortlistPathways && typeof user.shortlistPathways === "object" ? user.shortlistPathways : {},
     applicationProgress: user.applicationProgress && typeof user.applicationProgress === "object" ? user.applicationProgress : {},
+    applicationNotes: user.applicationNotes && typeof user.applicationNotes === "object" ? user.applicationNotes : {},
     createdAt,
     emailVerifiedAt: user.emailVerifiedAt || createdAt,
     reviewedAt: user.reviewedAt || (role === "admin" || role === "owner" || role === "institution_admin" ? createdAt : null),
@@ -725,7 +726,8 @@ function getCurrentUserPayload() {
     documents: currentUser.documents || [],
     shortlist: currentUser.shortlist || [],
     shortlistPathways: currentUser.shortlistPathways || {},
-    applicationProgress: currentUser.applicationProgress || {}
+    applicationProgress: currentUser.applicationProgress || {},
+    applicationNotes: currentUser.applicationNotes || {}
   };
 }
 
@@ -1405,6 +1407,7 @@ function setCurrentUser(user, preferredView = "student") {
     currentUser.shortlist ||= [];
     currentUser.grades ||= {};
     currentUser.needSignals ||= [];
+    currentUser.applicationNotes ||= {};
     currentUser.incomeBand ||= qs("#income-band")?.value || "mid";
     if (Object.keys(currentUser.grades).length) {
       Object.keys(gradeState).forEach((key) => delete gradeState[key]);
@@ -4206,11 +4209,13 @@ function toggleShortlist(programmeId) {
   currentUser.shortlist ||= [];
   currentUser.shortlistPathways ||= {};
   currentUser.applicationProgress ||= {};
+  currentUser.applicationNotes ||= {};
   const programme = findProgrammeById(programmeId);
   if (currentUser.shortlist.includes(programmeId)) {
     currentUser.shortlist = currentUser.shortlist.filter((id) => id !== programmeId);
     delete currentUser.shortlistPathways[programmeId];
     delete currentUser.applicationProgress[programmeId];
+    delete currentUser.applicationNotes[programmeId];
     recordCurrentUserActivity("shortlist_updated", "Removed a saved programme", {
       programmeId,
       programmeName: programme?.name,
@@ -4256,6 +4261,15 @@ const applicationProgressLabels = {
   ready: "Ready to apply",
   applied: "Applied"
 };
+
+function setApplicationNote(programmeId, note) {
+  if (!currentUser || !currentUser.shortlist?.includes(programmeId)) return;
+  currentUser.applicationNotes ||= {};
+  const cleanNote = String(note || "").trim().slice(0, 500);
+  if (cleanNote) currentUser.applicationNotes[programmeId] = cleanNote;
+  else delete currentUser.applicationNotes[programmeId];
+  saveAuthUsers();
+}
 
 function setApplicationProgress(programmeId, progress) {
   if (!currentUser || !currentUser.shortlist?.includes(programmeId) || !applicationProgressLabels[progress]) return;
@@ -4878,12 +4892,14 @@ function renderApplicationGroup(group) {
               const programmeFee = programmeFeeSummaries.get(programme.id);
               const isSaved = currentUser?.shortlist?.includes(programme.id);
               const progress = currentUser?.applicationProgress?.[programme.id] || "researching";
+              const note = currentUser?.applicationNotes?.[programme.id] || "";
               return `
               <div>
                 <strong>${escapeHtml(programme.title)}</strong>
                 <span>${escapeHtml(programme.level)} - ${escapeHtml(programme.duration)} - ${escapeHtml(programme.match.tierLabel)}</span>
                 <small>${escapeHtml(programmeFee?.lines?.[0] || programmeFee?.label || "Fee under review")}</small>
                 ${isSaved ? `<label class="application-progress-control"><span>Application progress</span><select data-application-progress="${escapeHtml(programme.id)}" aria-label="Application progress for ${escapeHtml(programme.title)}">${Object.entries(applicationProgressLabels).map(([value, label]) => `<option value="${value}" ${progress === value ? "selected" : ""}>${label}</option>`).join("")}</select></label>` : `<small class="application-progress-hint">Save this programme to track its application progress.</small>`}
+                ${isSaved ? `<label class="application-note-control"><span>Personal note</span><textarea data-application-note="${escapeHtml(programme.id)}" maxlength="500" rows="2" placeholder="Add a reminder or question...">${escapeHtml(note)}</textarea></label>` : ""}
               </div>
             `;
             }
@@ -4967,6 +4983,21 @@ function renderApplicationProgressSummary() {
   return `<div class="application-progress-summary" aria-label="Application plan progress">${counts.map((item) => `<span class="application-progress-${item.key}"><strong>${item.count}</strong>${escapeHtml(item.label)}</span>`).join("")}</div>`;
 }
 
+function renderApplicationDeadlineSummary() {
+  const saved = (currentUser?.shortlist || []).map((id) => findProgrammeById(id)).filter(Boolean);
+  if (!saved.length) return "";
+  const counts = { overdue: 0, soon: 0, upcoming: 0, unknown: 0 };
+  saved.forEach((programme) => {
+    counts[getApplicationDeadlineSummary([programme]).urgency || "unknown"]++;
+  });
+  return `<div class="application-deadline-summary" aria-label="Application deadline summary">
+    <span class="application-deadline-overdue"><strong>${counts.overdue}</strong> overdue</span>
+    <span class="application-deadline-soon"><strong>${counts.soon}</strong> due soon</span>
+    <span class="application-deadline-upcoming"><strong>${counts.upcoming}</strong> upcoming</span>
+    <span class="application-deadline-unknown"><strong>${counts.unknown}</strong> untracked</span>
+  </div>`;
+}
+
 function renderApplicationAssistant() {
   const groups = getInstitutionMatchGroups()
     .map((group) => ({
@@ -5001,6 +5032,7 @@ function renderApplicationAssistant() {
         <h4>Prepare before you apply</h4>
         <span>These packs use current matched institutions, uploaded documents, source links, and NMDS readiness. When a deadline is known, it is shown as verified; otherwise the app keeps the source-check warning.</span>
         ${renderApplicationProgressSummary()}
+        ${renderApplicationDeadlineSummary()}
       </div>
       <div class="application-assistant-actions">
         <button class="secondary-action" type="button" data-application-toggle-saved>${applicationSavedOnly ? "Show all matches" : "Saved only"}</button>
@@ -9377,6 +9409,10 @@ function bindEvents() {
     const progressSelect = event.target.closest("[data-application-progress]");
     if (progressSelect) setApplicationProgress(progressSelect.dataset.applicationProgress, progressSelect.value);
   });
+  qs("#view-results")?.addEventListener("blur", (event) => {
+    const noteInput = event.target.closest("[data-application-note]");
+    if (noteInput) setApplicationNote(noteInput.dataset.applicationNote, noteInput.value);
+  }, true);
   qs("#comparison-tray-open")?.addEventListener("click", () => {
     const comparison = qs(".programme-comparison");
     if (comparison) comparison.scrollIntoView({ behavior: "smooth", block: "start" });
