@@ -14,7 +14,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link rel="preload" href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Playfair+Display:wght@600;700&display=swap" as="style" onload="this.onload=null;this.rel='stylesheet'" />
     <noscript><link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet" /></noscript>
-    <link rel="stylesheet" href="/styles.css?v=43" />
+    <link rel="stylesheet" href="/styles.css?v=44" />
   </head>
   <body>
     <section class="auth-screen" id="auth-screen">
@@ -175,6 +175,10 @@
           <button class="side-link" type="button" data-view="institution" data-institution-only>
             <i data-lucide="building-2"></i>
             <span>Institution</span>
+          </button>
+          <button class="side-link" type="button" data-view="counsellor" data-counsellor-only>
+            <i data-lucide="heart-handshake"></i>
+            <span>Counsellor</span>
           </button>
           <button class="side-link" type="button" data-view="admin" data-admin-only>
             <i data-lucide="database"></i>
@@ -878,6 +882,47 @@
           </div>
         </section>
 
+        <section class="view" id="view-counsellor">
+          <div class="counsellor-dashboard">
+            <section class="surface-panel counsellor-console">
+              <div class="section-head">
+                <div>
+                  <p class="section-kicker">Counsellor</p>
+                  <h3>Student guidance workspace</h3>
+                  <p class="detail-muted">Review assigned students, record private guidance, and keep follow-ups moving.</p>
+                </div>
+                <button class="secondary-action" type="button" id="refresh-counsellor-dashboard">
+                  <i data-lucide="refresh-cw"></i>
+                  Refresh
+                </button>
+              </div>
+              <div class="counsellor-summary-grid" id="counsellor-summary-grid"></div>
+              <div class="admin-toolbar counsellor-toolbar">
+                <label class="search-field">
+                  <span>Search students</span>
+                  <input id="counsellor-search" type="search" placeholder="Student name, email, district..." />
+                </label>
+                <label>
+                  <span>Student status</span>
+                  <select id="counsellor-status-filter">
+                    <option value="all">All assigned students</option>
+                    <option value="attention">Needs attention</option>
+                    <option value="ready">Profile ready</option>
+                    <option value="followup">Open follow-up</option>
+                  </select>
+                </label>
+              </div>
+              <div class="counsellor-workbench">
+                <section class="admin-main-pane">
+                  <div class="admin-list-head"><span id="counsellor-student-count">0 students</span><span>Only students assigned to this counsellor are visible.</span></div>
+                  <div class="admin-record-list" id="counsellor-student-list"></div>
+                </section>
+                <aside class="admin-detail-pane" id="counsellor-student-detail"></aside>
+              </div>
+            </section>
+          </div>
+        </section>
+
         <section class="view" id="view-admin">
           <div class="admin-dashboard">
             <div class="admin-summary-grid">
@@ -1175,7 +1220,7 @@
     <script src="/data/supabase-config.js" defer></script>
     <script src="/data/catalog.js" defer></script>
     <script src="/data/admin-catalog.js" defer></script>
-    <script src="/app.js?v=50" defer></script>
+    <script src="/app.js?v=52" defer></script>
     <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js" async onload="window.lucide && window.lucide.createIcons()"></script>
     <script src="https://unpkg.com/@supabase/supabase-js@2" async></script>
   </body>

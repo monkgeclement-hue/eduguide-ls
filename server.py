@@ -187,6 +187,27 @@ class UserRoleUpdate(BaseModel):
   managedInstitution: str | None = None
 
 
+class CounsellorAssignmentRequest(BaseModel):
+  counsellorId: str
+  studentId: str
+
+
+class CounsellorNoteRequest(BaseModel):
+  studentId: str
+  content: str
+  noteType: str = "private"
+
+
+class CounsellorFollowupRequest(BaseModel):
+  studentId: str
+  title: str
+  dueAt: str | None = None
+
+
+class CounsellorFollowupUpdate(BaseModel):
+  status: str
+
+
 class UserStatusUpdate(BaseModel):
   status: str
 
@@ -2225,7 +2246,7 @@ def normalize_auth_user(user: dict[str, Any]) -> dict[str, Any] | None:
   user_id = user.get("id") or f"user-{uuid.uuid4().hex[:12]}"
   created_at = user.get("createdAt") or now_iso()
   email_verified_at = user.get("emailVerifiedAt") or created_at
-  role = user.get("role") if user.get("role") in {"owner", "admin", "student", "institution_admin"} else "student"
+  role = user.get("role") if user.get("role") in {"owner", "admin", "student", "institution_admin", "counsellor"} else "student"
   managed_institution = get_user_managed_institution(user)
   return {
     "id": user_id,
@@ -2283,6 +2304,81 @@ def save_auth_users_internal(users: list[dict[str, Any]]) -> None:
 def public_user(user: dict[str, Any]) -> dict[str, Any]:
   safe = {key: value for key, value in user.items() if key not in {"password", "passwordHash", "passwordSalt"}}
   return safe
+
+
+COUNSELLOR_ASSIGNMENTS_STATE_KEY = "counsellor_assignments"
+COUNSELLOR_NOTES_STATE_KEY = "counsellor_notes"
+COUNSELLOR_FOLLOWUPS_STATE_KEY = "counsellor_followups"
+
+
+def get_counsellor_state(state_key: str) -> list[dict[str, Any]]:
+  payload = load_state_payload(state_key, {"items": []})
+  items = payload.get("items", []) if isinstance(payload, dict) else []
+  return [item for item in items if isinstance(item, dict)]
+
+
+def save_counsellor_state(state_key: str, items: list[dict[str, Any]]) -> None:
+  save_state_payload(state_key, {"items": items[-1000:]})
+
+
+def require_counsellor_user(authorization: str | None) -> dict[str, Any]:
+  user = require_current_user(authorization)
+  if user.get("role") not in {"owner", "admin", "counsellor"}:
+    raise HTTPException(status_code=403, detail="Counsellor access required.")
+  return user
+
+
+def counsellor_has_student_access(counsellor_id: str, student_id: str) -> bool:
+  return any(
+    assignment.get("counsellorId") == counsellor_id
+    and assignment.get("studentId") == student_id
+    and assignment.get("status", "active") == "active"
+    for assignment in get_counsellor_state(COUNSELLOR_ASSIGNMENTS_STATE_KEY)
+  )
+
+
+def require_counsellor_student_access(student_id: str, authorization: str | None) -> dict[str, Any]:
+  actor = require_counsellor_user(authorization)
+  if actor.get("role") in {"owner", "admin"} or counsellor_has_student_access(actor["id"], student_id):
+    return actor
+  raise HTTPException(status_code=403, detail="This student is not assigned to your counsellor account.")
+
+
+def counsellor_student_flags(student: dict[str, Any]) -> list[dict[str, str]]:
+  flags: list[dict[str, str]] = []
+  grades = student.get("grades") if isinstance(student.get("grades"), dict) else {}
+  if not grades:
+    flags.append({"tone": "red", "label": "No grades captured"})
+  elif not grades.get("MATH"):
+    flags.append({"tone": "amber", "label": "Mathematics grade missing"})
+  if not student.get("preferenceText"):
+    flags.append({"tone": "amber", "label": "Interests not captured"})
+  if not student.get("shortlist"):
+    flags.append({"tone": "amber", "label": "No saved pathway"})
+  if not student.get("documents"):
+    flags.append({"tone": "blue", "label": "No results document"})
+  if not flags:
+    flags.append({"tone": "green", "label": "Profile ready for review"})
+  return flags
+
+
+def counsellor_student_summary(student: dict[str, Any], followups: list[dict[str, Any]]) -> dict[str, Any]:
+  flags = counsellor_student_flags(student)
+  active_followups = [item for item in followups if item.get("studentId") == student.get("id") and item.get("status") == "open"]
+  return {
+    "id": student.get("id"),
+    "name": student.get("name"),
+    "email": student.get("email"),
+    "district": student.get("district") or "",
+    "stream": student.get("stream") or "",
+    "grades": student.get("grades") if isinstance(student.get("grades"), dict) else {},
+    "documents": student.get("documents") if isinstance(student.get("documents"), list) else [],
+    "shortlist": student.get("shortlist") if isinstance(student.get("shortlist"), list) else [],
+    "applicationProgress": student.get("applicationProgress") if isinstance(student.get("applicationProgress"), dict) else {},
+    "lastActiveAt": student.get("lastActiveAt"),
+    "flags": flags,
+    "followups": active_followups,
+  }
 
 
 def is_demo_user(user: dict[str, Any] | None) -> bool:
@@ -3403,7 +3499,7 @@ def add_admin_programme_signal(signals: dict[str, dict[str, Any]], programme: di
 
 def build_admin_intelligence() -> dict[str, Any]:
   users = get_auth_users_internal()
-  students = [user for user in users if user.get("role") not in {"owner", "admin", "institution_admin"} and not is_demo_user(user)]
+  students = [user for user in users if user.get("role") == "student" and not is_demo_user(user)]
   student_ids = {str(user["id"]) for user in students}
   users_by_id = {user["id"]: user for user in users}
   signals: dict[str, dict[str, Any]] = {}
@@ -3670,6 +3766,146 @@ def admin_list_users(request: Request, authorization: str | None = Header(defaul
   return {"ok": True, "users": [public_user(user) for user in get_auth_users_internal() if not is_demo_user(user)]}
 
 
+@app.get("/api/admin/counsellor-assignments")
+def admin_list_counsellor_assignments(request: Request, authorization: str | None = Header(default=None)) -> dict[str, Any]:
+  actor = require_admin_user(authorization)
+  check_rate_limit(request, "admin_counsellor_assignments", 120, 3600, actor["id"])
+  return {"ok": True, "assignments": get_counsellor_state(COUNSELLOR_ASSIGNMENTS_STATE_KEY)}
+
+
+@app.post("/api/admin/counsellor-assignments")
+def admin_assign_counsellor_student(payload: CounsellorAssignmentRequest, request: Request, authorization: str | None = Header(default=None)) -> dict[str, Any]:
+  actor = require_admin_user(authorization)
+  check_rate_limit(request, "admin_counsellor_assignment_write", 80, 3600, actor["id"])
+  users = get_auth_users_internal()
+  counsellor = next((user for user in users if user.get("id") == payload.counsellorId and user.get("role") == "counsellor"), None)
+  student = next((user for user in users if user.get("id") == payload.studentId and user.get("role") == "student"), None)
+  if not counsellor or is_demo_user(counsellor):
+    raise HTTPException(status_code=400, detail="Choose an active counsellor account.")
+  if not student or is_demo_user(student):
+    raise HTTPException(status_code=400, detail="Choose a student account.")
+  assignments = get_counsellor_state(COUNSELLOR_ASSIGNMENTS_STATE_KEY)
+  existing = next((item for item in assignments if item.get("counsellorId") == counsellor["id"] and item.get("studentId") == student["id"]), None)
+  if existing:
+    existing.update({"status": "active", "updatedAt": now_iso(), "assignedBy": actor["id"]})
+    assignment = existing
+  else:
+    assignment = {
+      "id": f"cassign-{uuid.uuid4().hex[:12]}",
+      "counsellorId": counsellor["id"],
+      "studentId": student["id"],
+      "status": "active",
+      "assignedBy": actor["id"],
+      "assignedAt": now_iso(),
+      "updatedAt": now_iso(),
+    }
+    assignments.append(assignment)
+  save_counsellor_state(COUNSELLOR_ASSIGNMENTS_STATE_KEY, assignments)
+  add_user_activity(student, "counsellor_assigned", "Assigned to a counsellor", actor, {"counsellorId": counsellor["id"]})
+  save_auth_users_internal(users)
+  safe_insert_runtime_event(actor["id"], "counsellor_student_assigned", "Admin assigned a student to a counsellor", {"counsellorId": counsellor["id"], "studentId": student["id"], "ip": get_request_ip(request)})
+  return {"ok": True, "assignment": assignment, "assignments": assignments}
+
+
+@app.delete("/api/admin/counsellor-assignments/{assignment_id}")
+def admin_remove_counsellor_assignment(assignment_id: str, request: Request, authorization: str | None = Header(default=None)) -> dict[str, Any]:
+  actor = require_admin_user(authorization)
+  check_rate_limit(request, "admin_counsellor_assignment_write", 80, 3600, actor["id"])
+  assignments = get_counsellor_state(COUNSELLOR_ASSIGNMENTS_STATE_KEY)
+  assignment = next((item for item in assignments if item.get("id") == assignment_id), None)
+  if not assignment:
+    raise HTTPException(status_code=404, detail="Counsellor assignment not found.")
+  assignment["status"] = "inactive"
+  assignment["updatedAt"] = now_iso()
+  save_counsellor_state(COUNSELLOR_ASSIGNMENTS_STATE_KEY, assignments)
+  safe_insert_runtime_event(actor["id"], "counsellor_student_unassigned", "Admin removed a counsellor assignment", {"assignmentId": assignment_id, "ip": get_request_ip(request)})
+  return {"ok": True, "assignments": assignments}
+
+
+@app.get("/api/counsellor/dashboard")
+def counsellor_dashboard(request: Request, authorization: str | None = Header(default=None)) -> dict[str, Any]:
+  actor = require_counsellor_user(authorization)
+  check_rate_limit(request, "counsellor_dashboard", 180, 3600, actor["id"])
+  users = get_auth_users_internal()
+  followups = get_counsellor_state(COUNSELLOR_FOLLOWUPS_STATE_KEY)
+  if actor.get("role") in {"owner", "admin"}:
+    student_users = [user for user in users if user.get("role") == "student" and not is_demo_user(user)]
+  else:
+    assigned_ids = {item.get("studentId") for item in get_counsellor_state(COUNSELLOR_ASSIGNMENTS_STATE_KEY) if item.get("counsellorId") == actor["id"] and item.get("status") == "active"}
+    student_users = [user for user in users if user.get("id") in assigned_ids and user.get("role") == "student" and not is_demo_user(user)]
+  students = [counsellor_student_summary(student, followups) for student in student_users]
+  return {
+    "ok": True,
+    "students": students,
+    "summary": {
+      "assigned": len(students),
+      "needsAttention": sum(1 for student in students if any(flag["tone"] in {"red", "amber"} for flag in student["flags"])),
+      "ready": sum(1 for student in students if not any(flag["tone"] in {"red", "amber"} for flag in student["flags"])),
+      "followupsOpen": sum(len(student["followups"]) for student in students),
+    },
+  }
+
+
+@app.get("/api/counsellor/students/{student_id}")
+def counsellor_student_detail(student_id: str, request: Request, authorization: str | None = Header(default=None)) -> dict[str, Any]:
+  actor = require_counsellor_student_access(student_id, authorization)
+  check_rate_limit(request, "counsellor_student_detail", 180, 3600, actor["id"])
+  student = next((user for user in get_auth_users_internal() if user.get("id") == student_id and user.get("role") == "student"), None)
+  if not student or is_demo_user(student):
+    raise HTTPException(status_code=404, detail="Student not found.")
+  notes = [item for item in get_counsellor_state(COUNSELLOR_NOTES_STATE_KEY) if item.get("studentId") == student_id and (actor.get("role") in {"owner", "admin"} or item.get("counsellorId") == actor["id"])]
+  followups = [item for item in get_counsellor_state(COUNSELLOR_FOLLOWUPS_STATE_KEY) if item.get("studentId") == student_id and (actor.get("role") in {"owner", "admin"} or item.get("counsellorId") == actor["id"])]
+  return {"ok": True, "student": counsellor_student_summary(student, followups), "notes": notes[-80:], "followups": followups[-80:]}
+
+
+@app.post("/api/counsellor/notes")
+def counsellor_add_note(payload: CounsellorNoteRequest, request: Request, authorization: str | None = Header(default=None)) -> dict[str, Any]:
+  actor = require_counsellor_student_access(payload.studentId, authorization)
+  check_rate_limit(request, "counsellor_notes", 100, 3600, actor["id"])
+  content = sanitize_guidance_text(payload.content, 2200)
+  if not content:
+    raise HTTPException(status_code=400, detail="Write a guidance note before saving.")
+  note_type = payload.noteType if payload.noteType in {"private", "student_visible"} else "private"
+  notes = get_counsellor_state(COUNSELLOR_NOTES_STATE_KEY)
+  note = {"id": f"cnote-{uuid.uuid4().hex[:12]}", "studentId": payload.studentId, "counsellorId": actor["id"], "content": content, "noteType": note_type, "createdAt": now_iso()}
+  notes.append(note)
+  save_counsellor_state(COUNSELLOR_NOTES_STATE_KEY, notes)
+  safe_insert_runtime_event(actor["id"], "counsellor_note_created", "Counsellor added guidance note", {"studentId": payload.studentId, "noteType": note_type, "ip": get_request_ip(request)})
+  return {"ok": True, "note": note}
+
+
+@app.post("/api/counsellor/followups")
+def counsellor_add_followup(payload: CounsellorFollowupRequest, request: Request, authorization: str | None = Header(default=None)) -> dict[str, Any]:
+  actor = require_counsellor_student_access(payload.studentId, authorization)
+  check_rate_limit(request, "counsellor_followups", 100, 3600, actor["id"])
+  title = sanitize_guidance_text(payload.title, 240)
+  if not title:
+    raise HTTPException(status_code=400, detail="Enter a follow-up title.")
+  followups = get_counsellor_state(COUNSELLOR_FOLLOWUPS_STATE_KEY)
+  followup = {"id": f"cfollow-{uuid.uuid4().hex[:12]}", "studentId": payload.studentId, "counsellorId": actor["id"], "title": title, "dueAt": sanitize_guidance_text(payload.dueAt, 40), "status": "open", "createdAt": now_iso()}
+  followups.append(followup)
+  save_counsellor_state(COUNSELLOR_FOLLOWUPS_STATE_KEY, followups)
+  safe_insert_runtime_event(actor["id"], "counsellor_followup_created", "Counsellor created follow-up", {"studentId": payload.studentId, "ip": get_request_ip(request)})
+  return {"ok": True, "followup": followup}
+
+
+@app.put("/api/counsellor/followups/{followup_id}")
+def counsellor_update_followup(followup_id: str, payload: CounsellorFollowupUpdate, request: Request, authorization: str | None = Header(default=None)) -> dict[str, Any]:
+  actor = require_counsellor_user(authorization)
+  if payload.status not in {"open", "completed"}:
+    raise HTTPException(status_code=400, detail="Invalid follow-up status.")
+  followups = get_counsellor_state(COUNSELLOR_FOLLOWUPS_STATE_KEY)
+  followup = next((item for item in followups if item.get("id") == followup_id), None)
+  if not followup:
+    raise HTTPException(status_code=404, detail="Follow-up not found.")
+  if actor.get("role") not in {"owner", "admin"} and followup.get("counsellorId") != actor["id"]:
+    raise HTTPException(status_code=403, detail="You can only update your own follow-ups.")
+  followup["status"] = payload.status
+  followup["completedAt"] = now_iso() if payload.status == "completed" else None
+  save_counsellor_state(COUNSELLOR_FOLLOWUPS_STATE_KEY, followups)
+  return {"ok": True, "followup": followup}
+
+
 @app.get("/api/admin/intelligence")
 def admin_intelligence(request: Request, authorization: str | None = Header(default=None)) -> dict[str, Any]:
   check_rate_limit(request, "admin_intelligence", 120, 3600)
@@ -3734,7 +3970,7 @@ def admin_test_email(request: Request, payload: AdminTestEmailRequest | None = N
 def admin_set_user_role(user_id: str, payload: UserRoleUpdate, request: Request, authorization: str | None = Header(default=None)) -> dict[str, Any]:
   check_rate_limit(request, "admin_user_role", 40, 3600)
   actor = require_admin_user(authorization)
-  if payload.role not in {"admin", "student", "institution_admin"}:
+  if payload.role not in {"admin", "student", "institution_admin", "counsellor"}:
     raise HTTPException(status_code=400, detail="Invalid role.")
   managed_institution = normalize_institution_name(payload.institution or payload.managedInstitution)
   if payload.role == "institution_admin" and not managed_institution:

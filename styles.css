@@ -2596,6 +2596,88 @@ textarea:focus {
   color: var(--muted);
 }
 
+.counsellor-summary-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 10px;
+  margin: 14px 0;
+}
+
+.counsellor-workbench {
+  display: grid;
+  grid-template-columns: minmax(0, 1.2fr) minmax(300px, 0.8fr);
+  gap: 14px;
+  margin-top: 14px;
+}
+
+.counsellor-student-row {
+  cursor: pointer;
+}
+
+.counsellor-student-row:hover {
+  border-color: #b9e4d6;
+}
+
+.counsellor-timeline {
+  display: grid;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.counsellor-timeline li {
+  display: grid;
+  gap: 4px;
+  padding: 10px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--surface-soft);
+}
+
+.counsellor-timeline strong {
+  color: var(--brand-deep);
+  font-size: 12px;
+}
+
+.counsellor-timeline span,
+.counsellor-timeline small {
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.45;
+}
+
+.counsellor-note-form,
+.counsellor-followup-form {
+  display: grid;
+  gap: 8px;
+}
+
+.counsellor-note-form textarea,
+.counsellor-followup-form input,
+.counsellor-assignment-box select {
+  width: 100%;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  background: var(--surface);
+  color: var(--ink);
+  font: inherit;
+  padding: 9px 10px;
+}
+
+.counsellor-followup-form {
+  grid-template-columns: minmax(0, 1fr) minmax(130px, 0.45fr) auto;
+  align-items: center;
+}
+
+.inline-option {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--muted);
+  font-size: 12px;
+}
+
 .application-note-control {
   display: grid;
   gap: 5px;
@@ -5333,8 +5415,14 @@ textarea:focus {
 
   .application-programme-list,
   .application-document-grid,
+  .counsellor-summary-grid,
+  .counsellor-workbench,
   .school-profile-grid,
   .course-detail-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .counsellor-followup-form {
     grid-template-columns: 1fr;
   }
 

@@ -160,6 +160,17 @@ let institutionWorkbenchState = {
   institution: "",
   selectedProgrammeId: null
 };
+let counsellorState = {
+  students: [],
+  summary: null,
+  selectedStudentId: null,
+  selectedDetail: null,
+  loading: false,
+  detailLoading: false,
+  filter: "all",
+  search: ""
+};
+let counsellorAssignments = [];
 
 const persistenceKey = "eduguide-admin-review-state-v1";
 const authUsersKey = "eduguide-auth-users-v1";
@@ -308,6 +319,7 @@ const titles = {
   schools: "Schools & Courses",
   ai: "EduGuide AI",
   institution: "Institution Workbench",
+  counsellor: "Counsellor Workspace",
   presentation: "Presentation Mode",
   admin: "Admin Dashboard",
   sources: "Data Sources"
@@ -539,6 +551,10 @@ function isInstitutionAdminRole(role) {
   return role === "institution_admin";
 }
 
+function isCounsellorRole(role) {
+  return role === "counsellor";
+}
+
 function isAdmin(user = currentUser) {
   return isAdminRole(user?.role);
 }
@@ -547,12 +563,16 @@ function isInstitutionAdmin(user = currentUser) {
   return isInstitutionAdminRole(user?.role);
 }
 
+function isCounsellor(user = currentUser) {
+  return isCounsellorRole(user?.role);
+}
+
 function isInstitutionUser(user = currentUser) {
   return isAdmin(user) || isInstitutionAdmin(user);
 }
 
 function isStudentUser(user = currentUser) {
-  return Boolean(user) && !isAdmin(user) && !isInstitutionAdmin(user);
+  return Boolean(user) && !isAdmin(user) && !isInstitutionAdmin(user) && !isCounsellor(user);
 }
 
 function isOwner(user = currentUser) {
@@ -563,6 +583,7 @@ function getUserRoleLabel(user = {}) {
   if (user.role === "owner") return "System Admin";
   if (user.role === "admin") return "Admin";
   if (user.role === "institution_admin") return "Institution Admin";
+  if (user.role === "counsellor") return "Counsellor";
   return "Student";
 }
 
@@ -593,6 +614,7 @@ function getPreferredLandingView(user = currentUser, fallback = "student") {
   if (titles[fallback] && isViewAllowedForRole(fallback, user)) return fallback;
   if (isAdmin(user)) return "admin";
   if (isInstitutionAdmin(user)) return "institution";
+  if (isCounsellor(user)) return "counsellor";
   return "student";
 }
 
@@ -604,6 +626,7 @@ function isViewAllowedForRole(viewName, user = currentUser) {
   if (!user || !titles[viewName]) return false;
   if (viewName === "admin") return isAdmin(user);
   if (viewName === "institution") return isInstitutionUser(user);
+  if (viewName === "counsellor") return isAdmin(user) || isCounsellor(user);
   if (isStudentWorkspaceView(viewName)) return isStudentUser(user);
   return true;
 }
@@ -624,7 +647,7 @@ function normalizeUser(user = {}) {
   if (!user?.email) return null;
   const createdAt = user.createdAt || user.registeredAt || new Date().toISOString();
   const activity = Array.isArray(user.activity) ? user.activity.slice(0, maxActivityItems) : [];
-  const role = isAdminRole(user.role) || isInstitutionAdminRole(user.role) ? user.role : "student";
+  const role = isAdminRole(user.role) || isInstitutionAdminRole(user.role) || isCounsellorRole(user.role) ? user.role : "student";
   return {
     id: user.id || generateUserId("user"),
     name: String(user.name || user.email || "Student").trim(),
@@ -770,16 +793,141 @@ function renderViewOnDemand(viewName) {
     loadAdminUsers();
     if (!institutionProposalsLoaded) loadInstitutionProposals({ silent: true });
     loadAdminIntelligence();
+    loadCounsellorAssignments();
   }
   if (viewName === "institution") {
     renderInstitutionWorkbench();
     if (!institutionProposalsLoaded) loadInstitutionProposals({ silent: true });
   }
+  if (viewName === "counsellor") loadCounsellorDashboard();
   if (viewName === "sources") renderSources();
   if (viewName === "schools") renderSchoolExplorer();
   if (viewName === "results") renderResults();
   if (viewName === "ai") renderAiChatMessages();
   if (viewName === "presentation") renderPresentationMode();
+}
+
+function getCounsellorFilteredStudents() {
+  const query = counsellorState.search.trim().toLowerCase();
+  return counsellorState.students.filter((student) => {
+    const flags = student.flags || [];
+    const needsAttention = flags.some((flag) => ["red", "amber"].includes(flag.tone));
+    const hasFollowup = (student.followups || []).some((item) => item.status === "open");
+    if (counsellorState.filter === "attention" && !needsAttention) return false;
+    if (counsellorState.filter === "ready" && needsAttention) return false;
+    if (counsellorState.filter === "followup" && !hasFollowup) return false;
+    if (!query) return true;
+    return [student.name, student.email, student.district, student.stream, ...(flags.map((flag) => flag.label))]
+      .join(" ").toLowerCase().includes(query);
+  });
+}
+
+function renderCounsellorStudentDetail() {
+  const panel = qs("#counsellor-student-detail");
+  if (!panel) return;
+  const detail = counsellorState.selectedDetail;
+  if (counsellorState.detailLoading) {
+    panel.innerHTML = `<article class="admin-empty"><h4>Loading student profile...</h4><p>Reading the assigned student record.</p></article>`;
+    return;
+  }
+  if (!detail?.student) {
+    panel.innerHTML = `<article class="admin-empty"><h4>Select a student.</h4><p>Choose an assigned student to review their profile, notes, and follow-ups.</p></article>`;
+    return;
+  }
+  const { student, notes = [], followups = [] } = detail;
+  const openFollowups = followups.filter((item) => item.status === "open");
+  panel.innerHTML = `
+    <div class="detail-card counsellor-detail-card">
+      <div class="detail-card-head"><p class="section-kicker">Assigned student</p><span class="badge blue">${escapeHtml(student.district || "District pending")}</span></div>
+      <h3>${escapeHtml(student.name)}</h3>
+      <p class="detail-muted">${escapeHtml(student.email)}</p>
+      <div class="detail-meta-grid">
+        <div><span>Stream</span><strong>${escapeHtml(student.stream || "Not set")}</strong></div>
+        <div><span>Grades</span><strong>${Object.keys(student.grades || {}).length}</strong></div>
+        <div><span>Documents</span><strong>${student.documents?.length || 0}</strong></div>
+        <div><span>Saved pathways</span><strong>${student.shortlist?.length || 0}</strong></div>
+      </div>
+      <div class="detail-section"><h4>Intervention flags</h4><div class="badge-row">${(student.flags || []).map((flag) => `<span class="badge ${escapeHtml(flag.tone || "blue")}">${escapeHtml(flag.label)}</span>`).join("")}</div></div>
+      <div class="detail-section"><h4>Academic profile</h4>${Object.keys(student.grades || {}).length ? `<div class="user-grade-list">${Object.entries(student.grades).map(([code, grade]) => `<span>${escapeHtml(getSubjectLabel(code))}: <strong>${escapeHtml(grade)}</strong></span>`).join("")}</div>` : `<p class="muted-inline">No grades captured yet.</p>`}</div>
+      <div class="detail-section">
+        <h4>Add guidance note</h4>
+        <form class="counsellor-note-form" data-counsellor-student="${escapeHtml(student.id)}">
+          <textarea name="content" rows="4" maxlength="2200" placeholder="Record a practical guidance note..."></textarea>
+          <div class="detail-actions"><label class="inline-option"><input type="checkbox" name="studentVisible" /> Student-visible guidance</label><button class="secondary-action" type="submit"><i data-lucide="notebook-pen"></i> Save note</button></div>
+        </form>
+      </div>
+      <div class="detail-section"><h4>Guidance notes</h4>${notes.length ? `<ul class="counsellor-timeline">${notes.slice().reverse().slice(0, 8).map((note) => `<li><strong>${escapeHtml(note.noteType === "student_visible" ? "Student-visible guidance" : "Private counsellor note")}</strong><span>${escapeHtml(note.content)}</span><small>${escapeHtml(formatDateTime(note.createdAt))}</small></li>`).join("")}</ul>` : `<p class="muted-inline">No guidance notes yet.</p>`}</div>
+      <div class="detail-section">
+        <h4>Follow-ups</h4>
+        <form class="counsellor-followup-form" data-counsellor-student="${escapeHtml(student.id)}"><input name="title" maxlength="240" placeholder="Follow-up action" required /><input name="dueAt" type="date" /><button class="secondary-action" type="submit"><i data-lucide="calendar-plus"></i> Add</button></form>
+        ${openFollowups.length ? `<ul class="counsellor-timeline">${openFollowups.map((followup) => `<li><strong>${escapeHtml(followup.title)}</strong><small>${followup.dueAt ? `Due ${escapeHtml(followup.dueAt)}` : "No due date"}</small><button class="text-link-button" type="button" data-counsellor-followup-complete="${escapeHtml(followup.id)}">Mark complete</button></li>`).join("")}</ul>` : `<p class="muted-inline">No open follow-ups.</p>`}
+      </div>
+    </div>`;
+  if (window.lucide) window.lucide.createIcons();
+}
+
+function renderCounsellorDashboard() {
+  const grid = qs("#counsellor-summary-grid");
+  const list = qs("#counsellor-student-list");
+  const count = qs("#counsellor-student-count");
+  if (!grid || !list || !count) return;
+  const summary = counsellorState.summary || { assigned: 0, needsAttention: 0, ready: 0, followupsOpen: 0 };
+  grid.innerHTML = [
+    ["Assigned students", summary.assigned, "users-round"],
+    ["Need attention", summary.needsAttention, "triangle-alert"],
+    ["Profile ready", summary.ready, "circle-check"],
+    ["Open follow-ups", summary.followupsOpen, "calendar-clock"]
+  ].map(([label, value, icon]) => `<article class="admin-stat"><span>${label}</span><strong>${value}</strong><small><i data-lucide="${icon}"></i> Current counsellor scope</small></article>`).join("");
+  const students = getCounsellorFilteredStudents();
+  count.textContent = counsellorState.loading ? "Loading students..." : `${students.length} student${students.length === 1 ? "" : "s"}`;
+  list.innerHTML = students.length ? students.map((student) => {
+    const active = student.id === counsellorState.selectedStudentId;
+    const flags = (student.flags || []).slice(0, 3);
+    return `<article class="admin-row counsellor-student-row ${active ? "selected" : ""}" data-counsellor-student-select="${escapeHtml(student.id)}"><div class="admin-row-main"><div class="admin-row-title"><h4>${escapeHtml(student.name)}</h4><span>${escapeHtml(student.email)}</span></div><p>${escapeHtml(student.district || "District pending")} ${student.stream ? `- ${escapeHtml(student.stream)}` : ""}</p><div class="badge-row">${flags.map((flag) => `<span class="badge ${escapeHtml(flag.tone || "blue")}">${escapeHtml(flag.label)}</span>`).join("")}</div></div><div class="admin-row-actions"><span class="badge blue">${student.shortlist?.length || 0} saved</span><span class="badge ${student.followups?.length ? "amber" : "green"}">${student.followups?.length || 0} follow-ups</span></div></article>`;
+  }).join("") : `<article class="admin-empty"><h4>${counsellorState.loading ? "Loading assigned students..." : "No students match this view."}</h4><p>${isAdmin() ? "Assign student accounts to counsellors from the Users panel." : "Ask an administrator to assign students to your counsellor account."}</p></article>`;
+  renderCounsellorStudentDetail();
+  if (window.lucide) window.lucide.createIcons();
+}
+
+async function loadCounsellorStudentDetail(studentId) {
+  if (!authToken || !studentId) return;
+  counsellorState.selectedStudentId = studentId;
+  counsellorState.detailLoading = true;
+  renderCounsellorDashboard();
+  try {
+    const response = await fetch(`/api/counsellor/students/${encodeURIComponent(studentId)}`, { headers: getAuthHeaders({ Accept: "application/json" }) });
+    const data = await response.json().catch(() => ({}));
+    if (!response.ok || !data.ok) throw new Error(data.detail || "Unable to load student guidance profile.");
+    counsellorState.selectedDetail = data;
+  } catch (error) {
+    counsellorState.selectedDetail = null;
+    showAppToast(error.message || "Unable to load student profile.", "error");
+  } finally {
+    counsellorState.detailLoading = false;
+    renderCounsellorDashboard();
+  }
+}
+
+async function loadCounsellorDashboard() {
+  if (!authToken || (!isCounsellor() && !isAdmin()) || counsellorState.loading) return;
+  counsellorState.loading = true;
+  renderCounsellorDashboard();
+  try {
+    const response = await fetch("/api/counsellor/dashboard", { headers: getAuthHeaders({ Accept: "application/json" }) });
+    const data = await response.json().catch(() => ({}));
+    if (!response.ok || !data.ok) throw new Error(data.detail || "Unable to load counsellor workspace.");
+    counsellorState.students = Array.isArray(data.students) ? data.students : [];
+    counsellorState.summary = data.summary || null;
+    if (counsellorState.selectedStudentId && !counsellorState.students.some((student) => student.id === counsellorState.selectedStudentId)) {
+      counsellorState.selectedStudentId = null;
+      counsellorState.selectedDetail = null;
+    }
+  } catch (error) {
+    showAppToast(error.message || "Unable to load counsellor workspace.", "error");
+  } finally {
+    counsellorState.loading = false;
+    renderCounsellorDashboard();
+  }
 }
 
 function renderPresentationMode() {
@@ -1370,6 +1518,10 @@ function updateUserShell() {
   qsa("[data-institution-only]").forEach((element) => {
     element.hidden = !isInstitutionUser();
     if ("disabled" in element) element.disabled = !isInstitutionUser();
+  });
+  qsa("[data-counsellor-only]").forEach((element) => {
+    element.hidden = !isCounsellor() && !isAdmin();
+    if ("disabled" in element) element.disabled = !isCounsellor() && !isAdmin();
   });
   const testPanel = qs(".admin-test-panel");
   if (testPanel) testPanel.hidden = !isAdmin() && !currentUser?.isDemo;
@@ -8333,7 +8485,7 @@ function renderAdminUsers() {
           const protectedOwner = isOwner(user);
           const canChangeRole = isAdmin() && !self && !protectedOwner;
           const canChangeStatus = isAdmin() && !self && !protectedOwner;
-          const needsReview = !isAdmin(user) && !isInstitutionAdmin(user) && !user.reviewedAt;
+          const needsReview = !isAdmin(user) && !isInstitutionAdmin(user) && !isCounsellor(user) && !user.reviewedAt;
           const managedInstitution = getManagedInstitution(user);
           const roleTone = isAdmin(user) ? "green" : isInstitutionAdmin(user) ? "amber" : "blue";
           return `
@@ -8403,7 +8555,7 @@ function renderAdminUserDetail(panel) {
   }
   const grades = Object.entries(user.grades || {});
   const activities = user.activity || [];
-  const needsReview = !isAdmin(user) && !isInstitutionAdmin(user) && !user.reviewedAt;
+  const needsReview = !isAdmin(user) && !isInstitutionAdmin(user) && !isCounsellor(user) && !user.reviewedAt;
   const managedInstitution = getManagedInstitution(user);
   const roleTone = isAdmin(user) ? "green" : isInstitutionAdmin(user) ? "amber" : "blue";
   const institutionNames = getInstitutionNames();
@@ -8412,6 +8564,8 @@ function renderAdminUserDetail(panel) {
     .map((institution) => `<option value="${escapeHtml(institution)}" ${institution === managedInstitution ? "selected" : ""}>${escapeHtml(institution)}</option>`)
     .join("");
   const canChangeThisUser = user.id !== currentUser?.id && !isOwner(user);
+  const counsellors = authUsers.filter((item) => isCounsellor(item) && item.status === "active");
+  const assignment = counsellorAssignments.find((item) => item.studentId === user.id && item.status === "active");
   panel.innerHTML = `
     <div class="detail-card user-detail-card">
       <div class="detail-card-head">
@@ -8455,6 +8609,16 @@ function renderAdminUserDetail(panel) {
                     : ""
                 }
               </div>
+            </div>`
+          : ""
+      }
+      ${
+        canChangeThisUser && user.role === "student"
+          ? `<div class="detail-section counsellor-assignment-box">
+              <h4>Counsellor assignment</h4>
+              <p class="institution-access-note">Only the assigned counsellor can open this student's guidance record.</p>
+              <label><span>Assigned counsellor</span><select id="user-counsellor-select"><option value="">${counsellors.length ? "Choose counsellor" : "Create a counsellor account first"}</option>${counsellors.map((counsellor) => `<option value="${escapeHtml(counsellor.id)}" ${assignment?.counsellorId === counsellor.id ? "selected" : ""}>${escapeHtml(counsellor.name)}</option>`).join("")}</select></label>
+              <div class="detail-actions"><button class="secondary-action" type="button" data-counsellor-assign-student="${escapeHtml(user.id)}" ${counsellors.length ? "" : "disabled"}><i data-lucide="user-round-check"></i> Assign counsellor</button>${assignment ? `<button class="secondary-action danger" type="button" data-counsellor-unassign="${escapeHtml(assignment.id)}"><i data-lucide="user-round-x"></i> Remove assignment</button>` : ""}</div>
             </div>`
           : ""
       }
@@ -8508,6 +8672,11 @@ function renderAdminUserDetail(panel) {
             : ""
         }
         ${
+          !isCounsellor(user)
+            ? `<button class="secondary-action" type="button" data-user-role="${escapeHtml(user.id)}" data-role="counsellor" ${canChangeThisUser ? "" : "disabled"}><i data-lucide="heart-handshake"></i> Grant Counsellor</button>`
+            : `<button class="secondary-action" type="button" data-user-role="${escapeHtml(user.id)}" data-role="student" ${canChangeThisUser ? "" : "disabled"}><i data-lucide="shield-minus"></i> Remove Counsellor</button>`
+        }
+        ${
           user.status === "suspended"
             ? `<button class="secondary-action" type="button" data-user-status="${escapeHtml(user.id)}" data-status="active">
                 <i data-lucide="user-check"></i>
@@ -8553,9 +8722,25 @@ function printStudentReport(userId) {
     const programme = findProgrammeById(id);
     return programme ? `<li>${index + 1}. ${escapeHtml(programme.name || programme.title || "Programme")} - ${escapeHtml(programme.institution)}</li>` : "";
   }).filter(Boolean).join("");
+  const savedApplicationRows = (user.shortlist || []).map((id) => {
+    const programme = findProgrammeById(id);
+    if (!programme) return "";
+    const deadline = getApplicationDeadlineSummary([programme]);
+    const progress = applicationProgressLabels[user.applicationProgress?.[id] || "researching"] || applicationProgressLabels.researching;
+    const note = user.applicationNotes?.[id] || "No personal note recorded.";
+    return `<li><strong>${escapeHtml(programme.name || programme.title || "Programme")}</strong> - ${escapeHtml(programme.institution || "Institution under review")}<br><span>Status: ${escapeHtml(progress)} · Deadline: ${escapeHtml(deadline.label)} - ${escapeHtml(deadline.detail)}</span><br><span>Note: ${escapeHtml(note)}</span></li>`;
+  }).filter(Boolean).join("");
+  const savedApplicationProgrammes = (user.shortlist || []).map((id) => findProgrammeById(id)).filter(Boolean);
+  const savedDeadlineCounts = { overdue: 0, soon: 0, upcoming: 0, unknown: 0 };
+  savedApplicationProgrammes.forEach((programme) => {
+    savedDeadlineCounts[getApplicationDeadlineSummary([programme]).urgency || "unknown"]++;
+  });
+  const savedDeadlineSummary = savedApplicationProgrammes.length
+    ? `${savedDeadlineCounts.overdue} overdue · ${savedDeadlineCounts.soon} due soon · ${savedDeadlineCounts.upcoming} upcoming · ${savedDeadlineCounts.unknown} untracked`
+    : "No saved programmes.";
   reportWindow.document.write(`<!doctype html><html><head><title>EduGuide LS Student Guidance Report</title><style>
     body{font-family:Arial,sans-serif;color:#1f2a26;max-width:900px;margin:40px auto;padding:0 24px;line-height:1.45}h1{color:#085041;margin-bottom:4px}h2{color:#0f6e56;border-bottom:1px solid #dce6e2;padding-bottom:6px;margin-top:28px}p{color:#65736f}ul{padding-left:22px}li{margin:5px 0}.meta{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;background:#f4f8f6;padding:14px}.meta strong{display:block;color:#085041}.print{float:right;padding:9px 14px;background:#1d9e75;color:#fff;border:0;border-radius:6px}@media print{.print{display:none}body{margin:0}}
-  </style></head><body><button class="print" onclick="print()">Print / Save PDF</button><h1>EduGuide LS</h1><p>Student Guidance Report</p><div class="meta"><div><strong>Name</strong>${escapeHtml(user.name)}</div><div><strong>Email</strong>${escapeHtml(user.email)}</div><div><strong>District</strong>${escapeHtml(user.district || "Not recorded")}</div><div><strong>Leaving year</strong>${escapeHtml(user.leavingYear || "Not recorded")}</div><div><strong>Stream</strong>${escapeHtml(user.stream || "Not recorded")}</div><div><strong>Profile completion</strong>${profileCompletion}%</div></div><h2>Academic Profile</h2><ul>${grades || "<li>No grades captured.</li>"}</ul><p>Academic readiness estimate: <strong>${academicReadiness}%</strong></p><h2>Saved Pathway Summary</h2><p>${escapeHtml(pathwayGroups)}</p><h3>Top Saved Pathways</h3><ul>${topSaved || "<li>No saved programmes.</li>"}</ul><h2>Current Programme Matches</h2><ul>${matchList || "<li>Run matches from the Recommendations page to populate this section.</li>"}</ul><h2>Interests and Guidance</h2><p>${escapeHtml(user.preferenceText || "No preference statement captured.")}</p><p>${escapeHtml((user.needSignals || []).join(", ") || "No funding need signals recorded.")}</p><h2>Saved Programme Pathways</h2><ul>${programmesByPathway || "<li>No saved programmes.</li>"}</ul><h2>Documents</h2><ul>${documents || "<li>No documents uploaded.</li>"}</ul><h2>Recent Activity</h2><ul>${activity || "<li>No recent activity.</li>"}</ul><p>Generated ${escapeHtml(formatDateTime(new Date().toISOString()))} by EduGuide LS.</p></body></html>`);
+  </style></head><body><button class="print" onclick="print()">Print / Save PDF</button><h1>EduGuide LS</h1><p>Student Guidance Report</p><div class="meta"><div><strong>Name</strong>${escapeHtml(user.name)}</div><div><strong>Email</strong>${escapeHtml(user.email)}</div><div><strong>District</strong>${escapeHtml(user.district || "Not recorded")}</div><div><strong>Leaving year</strong>${escapeHtml(user.leavingYear || "Not recorded")}</div><div><strong>Stream</strong>${escapeHtml(user.stream || "Not recorded")}</div><div><strong>Profile completion</strong>${profileCompletion}%</div></div><h2>Academic Profile</h2><ul>${grades || "<li>No grades captured.</li>"}</ul><p>Academic readiness estimate: <strong>${academicReadiness}%</strong></p><h2>Saved Pathway Summary</h2><p>${escapeHtml(pathwayGroups)}</p><h3>Top Saved Pathways</h3><ul>${topSaved || "<li>No saved programmes.</li>"}</ul><h2>Application Planning</h2><p>Deadline summary: <strong>${escapeHtml(savedDeadlineSummary)}</strong></p><ul>${savedApplicationRows || "<li>No saved programmes.</li>"}</ul><h2>Current Programme Matches</h2><ul>${matchList || "<li>Run matches from the Recommendations page to populate this section.</li>"}</ul><h2>Interests and Guidance</h2><p>${escapeHtml(user.preferenceText || "No preference statement captured.")}</p><p>${escapeHtml((user.needSignals || []).join(", ") || "No funding need signals recorded.")}</p><h2>Saved Programme Pathways</h2><ul>${programmesByPathway || "<li>No saved programmes.</li>"}</ul><h2>Documents</h2><ul>${documents || "<li>No documents uploaded.</li>"}</ul><h2>Recent Activity</h2><ul>${activity || "<li>No recent activity.</li>"}</ul><p>Generated ${escapeHtml(formatDateTime(new Date().toISOString()))} by EduGuide LS.</p></body></html>`);
   reportWindow.document.close();
   reportWindow.focus();
 }
@@ -8917,6 +9102,54 @@ async function setGapStatus(id, status) {
 
 function resolveGap(id) {
   return setGapStatus(id, "resolved");
+}
+
+async function loadCounsellorAssignments() {
+  if (!authToken || !isAdmin()) return;
+  try {
+    const response = await fetch("/api/admin/counsellor-assignments", { headers: getAuthHeaders({ Accept: "application/json" }) });
+    const data = await response.json().catch(() => ({}));
+    if (!response.ok || !data.ok) throw new Error(data.detail || "Unable to load counsellor assignments.");
+    counsellorAssignments = Array.isArray(data.assignments) ? data.assignments : [];
+    renderAdminUsers();
+    renderAdminDetail();
+  } catch (error) {
+    lastPersistenceMessage = error.message || "Could not load counsellor assignments";
+  }
+}
+
+async function assignCounsellorToStudent(studentId, counsellorId) {
+  if (!authToken || !isAdmin() || !studentId || !counsellorId) return;
+  try {
+    const response = await fetch("/api/admin/counsellor-assignments", {
+      method: "POST",
+      headers: getAuthHeaders({ "Content-Type": "application/json" }),
+      body: JSON.stringify({ studentId, counsellorId })
+    });
+    const data = await response.json().catch(() => ({}));
+    if (!response.ok || !data.ok) throw new Error(data.detail || "Could not assign counsellor.");
+    counsellorAssignments = Array.isArray(data.assignments) ? data.assignments : counsellorAssignments;
+    renderAdminUsers();
+    renderAdminDetail();
+    showAppToast("Counsellor assigned to student.", "success");
+  } catch (error) {
+    showAppToast(error.message || "Could not assign counsellor.", "error");
+  }
+}
+
+async function removeCounsellorAssignment(assignmentId) {
+  if (!authToken || !isAdmin() || !assignmentId) return;
+  try {
+    const response = await fetch(`/api/admin/counsellor-assignments/${encodeURIComponent(assignmentId)}`, { method: "DELETE", headers: getAuthHeaders() });
+    const data = await response.json().catch(() => ({}));
+    if (!response.ok || !data.ok) throw new Error(data.detail || "Could not remove counsellor assignment.");
+    counsellorAssignments = Array.isArray(data.assignments) ? data.assignments : counsellorAssignments;
+    renderAdminUsers();
+    renderAdminDetail();
+    showAppToast("Counsellor assignment removed.", "success");
+  } catch (error) {
+    showAppToast(error.message || "Could not remove counsellor assignment.", "error");
+  }
 }
 
 async function setUserRole(userId, role, options = {}) {
@@ -9619,6 +9852,63 @@ function bindEvents() {
     event.preventDefault();
     submitInstitutionProposal(event.target);
   });
+  qs("#refresh-counsellor-dashboard")?.addEventListener("click", () => loadCounsellorDashboard());
+  qs("#counsellor-search")?.addEventListener("input", (event) => {
+    counsellorState.search = event.target.value;
+    renderCounsellorDashboard();
+  });
+  qs("#counsellor-status-filter")?.addEventListener("change", (event) => {
+    counsellorState.filter = event.target.value;
+    renderCounsellorDashboard();
+  });
+  qs("#view-counsellor")?.addEventListener("click", async (event) => {
+    const studentButton = event.target.closest("[data-counsellor-student-select]");
+    if (studentButton) {
+      await loadCounsellorStudentDetail(studentButton.dataset.counsellorStudentSelect);
+      return;
+    }
+    const completeButton = event.target.closest("[data-counsellor-followup-complete]");
+    if (!completeButton) return;
+    try {
+      const response = await fetch(`/api/counsellor/followups/${encodeURIComponent(completeButton.dataset.counsellorFollowupComplete)}`, {
+        method: "PUT",
+        headers: getAuthHeaders({ "Content-Type": "application/json" }),
+        body: JSON.stringify({ status: "completed" })
+      });
+      const data = await response.json().catch(() => ({}));
+      if (!response.ok || !data.ok) throw new Error(data.detail || "Could not complete follow-up.");
+      await loadCounsellorDashboard();
+      if (counsellorState.selectedStudentId) await loadCounsellorStudentDetail(counsellorState.selectedStudentId);
+      showAppToast("Follow-up marked complete.", "success");
+    } catch (error) {
+      showAppToast(error.message || "Could not update follow-up.", "error");
+    }
+  });
+  qs("#view-counsellor")?.addEventListener("submit", async (event) => {
+    const noteForm = event.target.closest(".counsellor-note-form");
+    const followupForm = event.target.closest(".counsellor-followup-form");
+    if (!noteForm && !followupForm) return;
+    event.preventDefault();
+    const form = noteForm || followupForm;
+    const studentId = form.dataset.counsellorStudent;
+    try {
+      const payload = noteForm
+        ? { studentId, content: new FormData(noteForm).get("content"), noteType: new FormData(noteForm).get("studentVisible") ? "student_visible" : "private" }
+        : { studentId, title: new FormData(followupForm).get("title"), dueAt: new FormData(followupForm).get("dueAt") };
+      const response = await fetch(noteForm ? "/api/counsellor/notes" : "/api/counsellor/followups", {
+        method: "POST",
+        headers: getAuthHeaders({ "Content-Type": "application/json" }),
+        body: JSON.stringify(payload)
+      });
+      const data = await response.json().catch(() => ({}));
+      if (!response.ok || !data.ok) throw new Error(data.detail || "Could not save counsellor update.");
+      await loadCounsellorDashboard();
+      await loadCounsellorStudentDetail(studentId);
+      showAppToast(noteForm ? "Guidance note saved." : "Follow-up added.", "success");
+    } catch (error) {
+      showAppToast(error.message || "Could not save counsellor update.", "error");
+    }
+  });
   qs("#view-institution")?.addEventListener("click", (event) => {
     const refreshButton = event.target.closest("#refresh-institution-proposals");
     if (refreshButton) {
@@ -9720,6 +10010,18 @@ function bindEvents() {
       adminState.qualityFilter = qualityButton.dataset.qualityFilter || "all";
       adminState.selectedProgrammeId = null;
       renderAdmin();
+      return;
+    }
+
+    const counsellorAssignButton = event.target.closest("[data-counsellor-assign-student]");
+    if (counsellorAssignButton) {
+      assignCounsellorToStudent(counsellorAssignButton.dataset.counsellorAssignStudent, qs("#user-counsellor-select")?.value || "");
+      return;
+    }
+
+    const counsellorUnassignButton = event.target.closest("[data-counsellor-unassign]");
+    if (counsellorUnassignButton) {
+      removeCounsellorAssignment(counsellorUnassignButton.dataset.counsellorUnassign);
       return;
     }
 
