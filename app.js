@@ -669,6 +669,7 @@ function normalizeUser(user = {}) {
     shortlistPathways: user.shortlistPathways && typeof user.shortlistPathways === "object" ? user.shortlistPathways : {},
     applicationProgress: user.applicationProgress && typeof user.applicationProgress === "object" ? user.applicationProgress : {},
     applicationNotes: user.applicationNotes && typeof user.applicationNotes === "object" ? user.applicationNotes : {},
+    applicationRecords: user.applicationRecords && typeof user.applicationRecords === "object" ? user.applicationRecords : {},
     createdAt,
     emailVerifiedAt: user.emailVerifiedAt || createdAt,
     reviewedAt: user.reviewedAt || (role === "admin" || role === "owner" || role === "institution_admin" ? createdAt : null),
@@ -750,7 +751,8 @@ function getCurrentUserPayload() {
     shortlist: currentUser.shortlist || [],
     shortlistPathways: currentUser.shortlistPathways || {},
     applicationProgress: currentUser.applicationProgress || {},
-    applicationNotes: currentUser.applicationNotes || {}
+    applicationNotes: currentUser.applicationNotes || {},
+    applicationRecords: currentUser.applicationRecords || {}
   };
 }
 
@@ -4362,12 +4364,14 @@ function toggleShortlist(programmeId) {
   currentUser.shortlistPathways ||= {};
   currentUser.applicationProgress ||= {};
   currentUser.applicationNotes ||= {};
+  currentUser.applicationRecords ||= {};
   const programme = findProgrammeById(programmeId);
   if (currentUser.shortlist.includes(programmeId)) {
     currentUser.shortlist = currentUser.shortlist.filter((id) => id !== programmeId);
     delete currentUser.shortlistPathways[programmeId];
     delete currentUser.applicationProgress[programmeId];
     delete currentUser.applicationNotes[programmeId];
+    delete currentUser.applicationRecords[programmeId];
     recordCurrentUserActivity("shortlist_updated", "Removed a saved programme", {
       programmeId,
       programmeName: programme?.name,
@@ -4413,6 +4417,42 @@ const applicationProgressLabels = {
   ready: "Ready to apply",
   applied: "Applied"
 };
+
+const applicationRecordStatusLabels = {
+  draft: "Draft",
+  ready: "Ready to apply",
+  submitted: "Submitted",
+  under_review: "Under review",
+  documents_requested: "Documents requested",
+  accepted: "Accepted",
+  unsuccessful: "Unsuccessful",
+  withdrawn: "Withdrawn"
+};
+
+function getApplicationRecordTone(status) {
+  if (status === "accepted") return "green";
+  if (status === "unsuccessful" || status === "withdrawn") return "red";
+  if (status === "submitted" || status === "under_review") return "blue";
+  if (status === "documents_requested") return "amber";
+  return "neutral";
+}
+
+function renderApplicationRecordControl(programme) {
+  const record = currentUser?.applicationRecords?.[programme.id] || {};
+  const status = applicationRecordStatusLabels[record.status] ? record.status : "draft";
+  const statusLabel = applicationRecordStatusLabels[status];
+  return `<details class="application-record-control">
+    <summary>Application record <span class="badge ${getApplicationRecordTone(status)}">${escapeHtml(statusLabel)}</span></summary>
+    <p>Self-recorded only. Confirm every decision and deadline with the institution.</p>
+    <form data-application-record-form="${escapeHtml(programme.id)}">
+      <label><span>Status</span><select name="status" aria-label="Application status for ${escapeHtml(programme.title)}">${Object.entries(applicationRecordStatusLabels).map(([value, label]) => `<option value="${value}" ${status === value ? "selected" : ""}>${label}</option>`).join("")}</select></label>
+      <label><span>Submitted date</span><input name="submittedAt" type="date" value="${escapeHtml(record.submittedAt || "")}" /></label>
+      <label class="application-record-reference"><span>Institution reference number</span><input name="reference" maxlength="120" value="${escapeHtml(record.reference || "")}" placeholder="Optional" /></label>
+      <label class="application-record-note"><span>Private note</span><textarea name="note" maxlength="1200" rows="3" placeholder="Confirmation, document request, or next step...">${escapeHtml(record.note || "")}</textarea></label>
+      <button class="secondary-action" type="submit"><i data-lucide="save"></i> Save record</button>
+    </form>
+  </details>`;
+}
 
 function setApplicationNote(programmeId, note) {
   if (!currentUser || !currentUser.shortlist?.includes(programmeId)) return;
@@ -5052,6 +5092,7 @@ function renderApplicationGroup(group) {
                 <small>${escapeHtml(programmeFee?.lines?.[0] || programmeFee?.label || "Fee under review")}</small>
                 ${isSaved ? `<label class="application-progress-control"><span>Application progress</span><select data-application-progress="${escapeHtml(programme.id)}" aria-label="Application progress for ${escapeHtml(programme.title)}">${Object.entries(applicationProgressLabels).map(([value, label]) => `<option value="${value}" ${progress === value ? "selected" : ""}>${label}</option>`).join("")}</select></label>` : `<small class="application-progress-hint">Save this programme to track its application progress.</small>`}
                 ${isSaved ? `<label class="application-note-control"><span>Personal note</span><textarea data-application-note="${escapeHtml(programme.id)}" maxlength="500" rows="2" placeholder="Add a reminder or question...">${escapeHtml(note)}</textarea></label>` : ""}
+                ${isSaved ? renderApplicationRecordControl(programme) : ""}
               </div>
             `;
             }
@@ -5132,7 +5173,11 @@ function renderApplicationProgressSummary() {
     label: applicationProgressLabels[key],
     count: savedProgrammes.filter((programmeId) => (progress[programmeId] || "researching") === key).length
   }));
-  return `<div class="application-progress-summary" aria-label="Application plan progress">${counts.map((item) => `<span class="application-progress-${item.key}"><strong>${item.count}</strong>${escapeHtml(item.label)}</span>`).join("")}</div>`;
+  const records = currentUser?.applicationRecords || {};
+  const tracked = savedProgrammes.filter((programmeId) => records[programmeId]).length;
+  const submitted = savedProgrammes.filter((programmeId) => ["submitted", "under_review", "documents_requested"].includes(records[programmeId]?.status)).length;
+  const accepted = savedProgrammes.filter((programmeId) => records[programmeId]?.status === "accepted").length;
+  return `<div class="application-progress-summary" aria-label="Application plan progress">${counts.map((item) => `<span class="application-progress-${item.key}"><strong>${item.count}</strong>${escapeHtml(item.label)}</span>`).join("")}<span class="application-record-tracked"><strong>${tracked}</strong> records</span><span class="application-record-submitted"><strong>${submitted}</strong> submitted/review</span>${accepted ? `<span class="application-record-accepted"><strong>${accepted}</strong> accepted</span>` : ""}</div>`;
 }
 
 function renderApplicationDeadlineSummary() {
@@ -8728,7 +8773,10 @@ function printStudentReport(userId) {
     const deadline = getApplicationDeadlineSummary([programme]);
     const progress = applicationProgressLabels[user.applicationProgress?.[id] || "researching"] || applicationProgressLabels.researching;
     const note = user.applicationNotes?.[id] || "No personal note recorded.";
-    return `<li><strong>${escapeHtml(programme.name || programme.title || "Programme")}</strong> - ${escapeHtml(programme.institution || "Institution under review")}<br><span>Status: ${escapeHtml(progress)} · Deadline: ${escapeHtml(deadline.label)} - ${escapeHtml(deadline.detail)}</span><br><span>Note: ${escapeHtml(note)}</span></li>`;
+    const record = user.applicationRecords?.[id] || {};
+    const recordStatus = applicationRecordStatusLabels[record.status] || applicationRecordStatusLabels.draft;
+    const recordDetails = [record.submittedAt ? `Submitted ${record.submittedAt}` : "Not submitted", record.reference ? `Ref: ${record.reference}` : "No reference"].join(" · ");
+    return `<li><strong>${escapeHtml(programme.name || programme.title || "Programme")}</strong> - ${escapeHtml(programme.institution || "Institution under review")}<br><span>Plan: ${escapeHtml(progress)} · Institution status: ${escapeHtml(recordStatus)} · ${escapeHtml(recordDetails)} · Deadline: ${escapeHtml(deadline.label)} - ${escapeHtml(deadline.detail)}</span><br><span>Note: ${escapeHtml(record.note || note)}</span></li>`;
   }).filter(Boolean).join("");
   const savedApplicationProgrammes = (user.shortlist || []).map((id) => findProgrammeById(id)).filter(Boolean);
   const savedDeadlineCounts = { overdue: 0, soon: 0, upcoming: 0, unknown: 0 };
@@ -9102,6 +9150,34 @@ async function setGapStatus(id, status) {
 
 function resolveGap(id) {
   return setGapStatus(id, "resolved");
+}
+
+function setApplicationRecord(programmeId, form) {
+  if (!currentUser || !currentUser.shortlist?.includes(programmeId)) return;
+  const status = applicationRecordStatusLabels[form.status] ? form.status : "draft";
+  currentUser.applicationRecords ||= {};
+  currentUser.applicationProgress ||= {};
+  currentUser.applicationRecords[programmeId] = {
+    status,
+    submittedAt: String(form.submittedAt || "").trim().slice(0, 20),
+    reference: String(form.reference || "").trim().slice(0, 120),
+    note: String(form.note || "").trim().slice(0, 1200),
+    updatedAt: new Date().toISOString()
+  };
+  if (status === "submitted" || status === "under_review" || status === "documents_requested" || status === "accepted" || status === "unsuccessful") {
+    currentUser.applicationProgress[programmeId] = "applied";
+  }
+  const programme = findProgrammeById(programmeId);
+  recordCurrentUserActivity("application_record_updated", `Updated application record for ${programme?.name || "saved programme"}`, {
+    programmeId,
+    programmeName: programme?.name,
+    institution: programme?.institution,
+    status
+  });
+  saveAuthUsers();
+  renderResults();
+  renderStudentDashboard();
+  showAppToast("Application record saved", "success");
 }
 
 async function loadCounsellorAssignments() {
@@ -9646,6 +9722,18 @@ function bindEvents() {
     const noteInput = event.target.closest("[data-application-note]");
     if (noteInput) setApplicationNote(noteInput.dataset.applicationNote, noteInput.value);
   }, true);
+  qs("#view-results")?.addEventListener("submit", (event) => {
+    const form = event.target.closest("[data-application-record-form]");
+    if (!form) return;
+    event.preventDefault();
+    const data = new FormData(form);
+    setApplicationRecord(form.dataset.applicationRecordForm, {
+      status: data.get("status"),
+      submittedAt: data.get("submittedAt"),
+      reference: data.get("reference"),
+      note: data.get("note")
+    });
+  });
   qs("#comparison-tray-open")?.addEventListener("click", () => {
     const comparison = qs(".programme-comparison");
     if (comparison) comparison.scrollIntoView({ behavior: "smooth", block: "start" });

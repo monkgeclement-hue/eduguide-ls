@@ -179,6 +179,7 @@ class AuthProfileRequest(BaseModel):
   shortlistPathways: dict[str, str] = Field(default_factory=dict)
   applicationProgress: dict[str, str] = Field(default_factory=dict)
   applicationNotes: dict[str, str] = Field(default_factory=dict)
+  applicationRecords: dict[str, dict[str, Any]] = Field(default_factory=dict)
 
 
 class UserRoleUpdate(BaseModel):
@@ -557,6 +558,32 @@ def sanitize_profile_payload(payload: AuthProfileRequest) -> AuthProfileRequest:
     for key, value in list((payload.applicationProgress or {}).items())[:25]
     if str(key or "").strip() and value in {"researching", "documents", "ready", "applied"}
   }
+  safe_application_notes = {
+    sanitize_guidance_text(key, 120): sanitize_guidance_text(value, 500)
+    for key, value in list((payload.applicationNotes or {}).items())[:25]
+    if str(key or "").strip() and str(value or "").strip()
+  }
+  application_record_statuses = {
+    "draft", "ready", "submitted", "under_review", "documents_requested",
+    "accepted", "unsuccessful", "withdrawn"
+  }
+  safe_application_records = {}
+  for key, value in list((payload.applicationRecords or {}).items())[:25]:
+    programme_id = sanitize_guidance_text(key, 120)
+    if not programme_id or not isinstance(value, dict):
+      continue
+    status = value.get("status") if value.get("status") in application_record_statuses else "draft"
+    safe_application_records[programme_id] = {
+      "status": status,
+      "submittedAt": sanitize_guidance_text(value.get("submittedAt"), 20),
+      "reference": sanitize_guidance_text(value.get("reference"), 120),
+      "note": sanitize_guidance_text(value.get("note"), 1200),
+      "updatedAt": sanitize_guidance_text(value.get("updatedAt"), 40),
+    }
+  allowed_programme_ids = set(safe_shortlist)
+  safe_application_progress = {key: value for key, value in safe_application_progress.items() if key in allowed_programme_ids}
+  safe_application_notes = {key: value for key, value in safe_application_notes.items() if key in allowed_programme_ids}
+  safe_application_records = {key: value for key, value in safe_application_records.items() if key in allowed_programme_ids}
   return AuthProfileRequest(
     name=safe_name,
     district=safe_district,
@@ -570,6 +597,8 @@ def sanitize_profile_payload(payload: AuthProfileRequest) -> AuthProfileRequest:
     shortlist=safe_shortlist,
     shortlistPathways=safe_pathways,
     applicationProgress=safe_application_progress,
+    applicationNotes=safe_application_notes,
+    applicationRecords=safe_application_records,
   )
 
 
@@ -2272,6 +2301,7 @@ def normalize_auth_user(user: dict[str, Any]) -> dict[str, Any] | None:
     "shortlistPathways": user.get("shortlistPathways") if isinstance(user.get("shortlistPathways"), dict) else {},
     "applicationProgress": user.get("applicationProgress") if isinstance(user.get("applicationProgress"), dict) else {},
     "applicationNotes": user.get("applicationNotes") if isinstance(user.get("applicationNotes"), dict) else {},
+    "applicationRecords": user.get("applicationRecords") if isinstance(user.get("applicationRecords"), dict) else {},
     "createdAt": created_at,
     "emailVerifiedAt": email_verified_at,
     "reviewedAt": user.get("reviewedAt") or (created_at if role in {"owner", "admin", "institution_admin"} else None),
@@ -2375,6 +2405,7 @@ def counsellor_student_summary(student: dict[str, Any], followups: list[dict[str
     "documents": student.get("documents") if isinstance(student.get("documents"), list) else [],
     "shortlist": student.get("shortlist") if isinstance(student.get("shortlist"), list) else [],
     "applicationProgress": student.get("applicationProgress") if isinstance(student.get("applicationProgress"), dict) else {},
+    "applicationRecords": student.get("applicationRecords") if isinstance(student.get("applicationRecords"), dict) else {},
     "lastActiveAt": student.get("lastActiveAt"),
     "flags": flags,
     "followups": active_followups,
@@ -3378,6 +3409,7 @@ def auth_update_me(payload: AuthProfileRequest, authorization: str | None = Head
   user["shortlistPathways"] = safe_payload.shortlistPathways
   user["applicationProgress"] = safe_payload.applicationProgress
   user["applicationNotes"] = safe_payload.applicationNotes
+  user["applicationRecords"] = safe_payload.applicationRecords
   add_user_activity(user, "profile_updated", "Updated profile", user)
   save_auth_users_internal(users)
   return {"ok": True, "user": public_user(user)}

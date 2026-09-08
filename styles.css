@@ -2424,6 +2424,18 @@ textarea:focus {
   border-color: rgba(24, 109, 175, 0.35);
 }
 
+.application-progress-summary .application-record-tracked {
+  border-color: rgba(98, 105, 102, 0.28);
+}
+
+.application-progress-summary .application-record-submitted {
+  border-color: rgba(24, 109, 175, 0.35);
+}
+
+.application-progress-summary .application-record-accepted {
+  border-color: rgba(28, 137, 90, 0.42);
+}
+
 .application-assistant-intro span,
 .application-card-head span,
 .application-programme-list span,
@@ -2696,6 +2708,71 @@ textarea:focus {
   color: var(--ink);
   font: inherit;
   padding: 7px 9px;
+}
+
+.application-record-control {
+  margin-top: 10px;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  background: var(--surface-soft);
+  padding: 0 10px;
+}
+
+.application-record-control summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  min-height: 42px;
+  cursor: pointer;
+  color: var(--brand-deep);
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.application-record-control > p {
+  margin: 0 0 9px;
+  color: var(--muted);
+  font-size: 11px;
+  line-height: 1.4;
+}
+
+.application-record-control form {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 9px;
+  padding-bottom: 10px;
+}
+
+.application-record-control label {
+  display: grid;
+  gap: 5px;
+  color: var(--muted);
+  font-size: 11px;
+}
+
+.application-record-control input,
+.application-record-control select,
+.application-record-control textarea {
+  width: 100%;
+  min-height: 34px;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  background: var(--surface);
+  color: var(--ink);
+  font: inherit;
+  padding: 7px 9px;
+}
+
+.application-record-control textarea {
+  min-height: 64px;
+  resize: vertical;
+}
+
+.application-record-control .application-record-reference,
+.application-record-control .application-record-note,
+.application-record-control button {
+  grid-column: 1 / -1;
 }
 
 .application-document-grid {
@@ -5424,6 +5501,16 @@ textarea:focus {
 
   .counsellor-followup-form {
     grid-template-columns: 1fr;
+  }
+
+  .application-record-control form {
+    grid-template-columns: 1fr;
+  }
+
+  .application-record-control .application-record-reference,
+  .application-record-control .application-record-note,
+  .application-record-control button {
+    grid-column: auto;
   }
 
   .my-pathways-grid {
