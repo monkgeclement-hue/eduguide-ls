@@ -2395,6 +2395,21 @@ def counsellor_student_flags(student: dict[str, Any]) -> list[dict[str, str]]:
 def counsellor_student_summary(student: dict[str, Any], followups: list[dict[str, Any]]) -> dict[str, Any]:
   flags = counsellor_student_flags(student)
   active_followups = [item for item in followups if item.get("studentId") == student.get("id") and item.get("status") == "open"]
+  shortlist = student.get("shortlist") if isinstance(student.get("shortlist"), list) else []
+  allowed_statuses = {
+    "draft", "ready", "submitted", "under_review", "documents_requested",
+    "accepted", "unsuccessful", "withdrawn"
+  }
+  application_records = student.get("applicationRecords") if isinstance(student.get("applicationRecords"), dict) else {}
+  safe_application_records = {
+    str(programme_id): {
+      "status": record.get("status") if record.get("status") in allowed_statuses else "draft",
+      "submittedAt": sanitize_guidance_text(record.get("submittedAt"), 20),
+      "updatedAt": sanitize_guidance_text(record.get("updatedAt"), 40),
+    }
+    for programme_id, record in application_records.items()
+    if programme_id in shortlist and isinstance(record, dict)
+  }
   return {
     "id": student.get("id"),
     "name": student.get("name"),
@@ -2403,9 +2418,9 @@ def counsellor_student_summary(student: dict[str, Any], followups: list[dict[str
     "stream": student.get("stream") or "",
     "grades": student.get("grades") if isinstance(student.get("grades"), dict) else {},
     "documents": student.get("documents") if isinstance(student.get("documents"), list) else [],
-    "shortlist": student.get("shortlist") if isinstance(student.get("shortlist"), list) else [],
+    "shortlist": shortlist,
     "applicationProgress": student.get("applicationProgress") if isinstance(student.get("applicationProgress"), dict) else {},
-    "applicationRecords": student.get("applicationRecords") if isinstance(student.get("applicationRecords"), dict) else {},
+    "applicationRecords": safe_application_records,
     "lastActiveAt": student.get("lastActiveAt"),
     "flags": flags,
     "followups": active_followups,

@@ -2652,6 +2652,45 @@ textarea:focus {
   font-size: 12px;
 }
 
+.counsellor-application-list {
+  display: grid;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.counsellor-application-list li {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 6px 10px;
+  align-items: center;
+  padding: 10px;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  background: var(--surface-soft);
+}
+
+.counsellor-application-list li > span:first-child {
+  display: grid;
+  gap: 3px;
+  min-width: 0;
+}
+
+.counsellor-application-list strong {
+  color: var(--brand-deep);
+  font-size: 12px;
+}
+
+.counsellor-application-list small {
+  color: var(--muted);
+  font-size: 11px;
+}
+
+.counsellor-application-list li > small {
+  grid-column: 1 / -1;
+}
+
 .counsellor-timeline span,
 .counsellor-timeline small {
   color: var(--muted);
@@ -5511,6 +5550,10 @@ textarea:focus {
   .application-record-control .application-record-note,
   .application-record-control button {
     grid-column: auto;
+  }
+
+  .counsellor-application-list li {
+    grid-template-columns: minmax(0, 1fr) auto;
   }
 
   .my-pathways-grid {

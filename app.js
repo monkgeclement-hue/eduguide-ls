@@ -838,6 +838,10 @@ function renderCounsellorStudentDetail() {
   }
   const { student, notes = [], followups = [] } = detail;
   const openFollowups = followups.filter((item) => item.status === "open");
+  const applicationRecords = Object.entries(student.applicationRecords || {})
+    .map(([programmeId, record]) => ({ programme: findProgrammeById(programmeId), record: record || {} }))
+    .filter((item) => item.programme);
+  const activeApplicationCount = applicationRecords.filter(({ record }) => ["submitted", "under_review", "documents_requested"].includes(record.status)).length;
   panel.innerHTML = `
     <div class="detail-card counsellor-detail-card">
       <div class="detail-card-head"><p class="section-kicker">Assigned student</p><span class="badge blue">${escapeHtml(student.district || "District pending")}</span></div>
@@ -847,10 +851,11 @@ function renderCounsellorStudentDetail() {
         <div><span>Stream</span><strong>${escapeHtml(student.stream || "Not set")}</strong></div>
         <div><span>Grades</span><strong>${Object.keys(student.grades || {}).length}</strong></div>
         <div><span>Documents</span><strong>${student.documents?.length || 0}</strong></div>
-        <div><span>Saved pathways</span><strong>${student.shortlist?.length || 0}</strong></div>
+        <div><span>Active applications</span><strong>${activeApplicationCount}</strong></div>
       </div>
       <div class="detail-section"><h4>Intervention flags</h4><div class="badge-row">${(student.flags || []).map((flag) => `<span class="badge ${escapeHtml(flag.tone || "blue")}">${escapeHtml(flag.label)}</span>`).join("")}</div></div>
       <div class="detail-section"><h4>Academic profile</h4>${Object.keys(student.grades || {}).length ? `<div class="user-grade-list">${Object.entries(student.grades).map(([code, grade]) => `<span>${escapeHtml(getSubjectLabel(code))}: <strong>${escapeHtml(grade)}</strong></span>`).join("")}</div>` : `<p class="muted-inline">No grades captured yet.</p>`}</div>
+      <div class="detail-section"><h4>Application overview</h4><p class="detail-muted">Status and dates are shared for guidance. Private student notes and institution reference numbers are not visible here.</p>${applicationRecords.length ? `<ul class="counsellor-application-list">${applicationRecords.map(({ programme, record }) => { const status = applicationRecordStatusLabels[record.status] || applicationRecordStatusLabels.draft; return `<li><span><strong>${escapeHtml(programme.title || programme.name || "Programme")}</strong><small>${escapeHtml(programme.institution || "Institution pending")}</small></span><span class="badge ${getApplicationRecordTone(record.status)}">${escapeHtml(status)}</span><small>${record.submittedAt ? `Submitted ${escapeHtml(record.submittedAt)}` : "No submitted date"}</small></li>`; }).join("")}</ul>` : `<p class="muted-inline">No application records yet. The student can update records from Application Assistant.</p>`}</div>
       <div class="detail-section">
         <h4>Add guidance note</h4>
         <form class="counsellor-note-form" data-counsellor-student="${escapeHtml(student.id)}">
