@@ -5926,7 +5926,7 @@ function renderSelectedSchoolProfile(institution) {
   const meta = getInstitutionProfileMeta(institution);
   const links = meta.links;
   const profileNarrative = getInstitutionProfileNarrative(meta);
-  const topProgrammes = meta.programmes.slice(0, 4);
+  const topProgrammes = meta.programmes.slice(0, 6);
   const sourceStatus = meta.sources.length ? `${meta.sources.length} source${meta.sources.length === 1 ? "" : "s"}` : "sources pending";
   const feeStatus = meta.feeItems.length ? `${meta.feeItems.length} fee item${meta.feeItems.length === 1 ? "" : "s"}` : "fees pending";
   return `
@@ -5967,6 +5967,7 @@ function renderSelectedSchoolProfile(institution) {
               ? `<ul>${topProgrammes.map((programme) => `<li><button class="inline-course-link" type="button" data-explorer-programme="${escapeHtml(programme.id)}">${escapeHtml(getProgrammeDisplayName(programme))}</button></li>`).join("")}</ul>`
               : `<p class="muted-inline">No public programme records captured yet.</p>`
           }
+          ${meta.programmes.length > topProgrammes.length ? `<button class="secondary-action compact-action" type="button" data-explorer-show-courses="${escapeHtml(institution)}"><i data-lucide="list"></i> View all ${meta.programmes.length} courses</button>` : ""}
         </div>
         <div class="detail-block">
           <h5>Study focus</h5>
@@ -5983,6 +5984,18 @@ function renderSelectedSchoolProfile(institution) {
             meta.shortages.length
               ? `<ul>${meta.shortages.map((item) => `<li>${escapeHtml(item)}</li>`).join("")}</ul>`
               : `<p class="muted-inline">No major shortage noted for this school profile.</p>`
+          }
+        </div>
+        <div class="detail-block full">
+          <h5>Source & prospectus evidence</h5>
+          ${
+              meta.sources.length
+                ? `<ul class="course-evidence-list">${meta.sources.slice(0, 6).map((source) => {
+                    const sourceUrl = source.url || source.sourceUrl || source.path;
+                    const sourceLabel = source.label || source.name || source.title || "Institution source";
+                    return `<li>${sourceUrl ? `<a href="${escapeHtml(sourceUrl)}" target="_blank" rel="noreferrer">${escapeHtml(sourceLabel)}</a>` : `<span>${escapeHtml(sourceLabel)}</span>`}</li>`;
+                  }).join("")}</ul>`
+                : `<p class="muted-inline">No institution-level evidence is captured yet. Admin review is still needed.</p>`
           }
         </div>
       </div>
@@ -9171,6 +9184,16 @@ function bindEvents() {
     if (backButton) {
       schoolExplorerState.screen = backButton.dataset.explorerBack || "schools";
       if (schoolExplorerState.screen === "courses") schoolExplorerState.selectedProgrammeId = null;
+      renderSchoolExplorer();
+      return;
+    }
+
+    const showCoursesButton = event.target.closest("[data-explorer-show-courses]");
+    if (showCoursesButton) {
+      schoolExplorerState.selectedInstitution = showCoursesButton.dataset.explorerShowCourses;
+      schoolExplorerState.selectedProgrammeId = null;
+      schoolExplorerState.query = "";
+      schoolExplorerState.screen = "courses";
       renderSchoolExplorer();
       return;
     }
