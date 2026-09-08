@@ -672,6 +672,9 @@ Return concise JSON with exactly these keys:
 - document_checklist: array of short strings
 - scholarship_note: string
 - next_questions: array of short strings
+- qualification_reasons: array of short strings
+- blockers: array of short strings
+- missing_information: array of short strings
 
 Be warm, direct, and practical. If data confidence is low or a requirement is marked
 under review, say the student should verify it with the institution/admin.
@@ -1453,14 +1456,49 @@ def normalize_ai_guidance(guidance: dict[str, Any] | None, payload: GuidanceRequ
       f"Main blocker: {'; '.join(str(item) for item in gaps[:2]) or 'captured requirements are not met yet'}."
     )
 
+  qualification_reasons = []
+  for item in recommendable[:3]:
+    evidence = item.get("evidence") or item.get("reasons") or item.get("requirements") or []
+    if isinstance(evidence, list):
+      evidence = "; ".join(str(value) for value in evidence[:2] if str(value).strip())
+    if evidence:
+      qualification_reasons.append(
+        f"{item.get('programme')} at {item.get('institution')}: {evidence}"
+      )
+
+  blockers = []
+  for item in blocked_matches[:4]:
+    gaps = item.get("hard_gate_failures") or item.get("requirement_gaps") or item.get("cautions") or []
+    if isinstance(gaps, list) and gaps:
+      blockers.append(f"{item.get('programme')} at {item.get('institution')}: {'; '.join(str(gap) for gap in gaps[:2])}")
+
+  missing_information = []
+  profile = payload.profile if isinstance(payload.profile, dict) else {}
+  if not profile.get("grades"):
+    missing_information.append("Enter or confirm your subject grades.")
+  if not profile.get("stream"):
+    missing_information.append("Add your school stream or qualification route.")
+  if not profile.get("district"):
+    missing_information.append("Add your district if you want more relevant funding and access guidance.")
+  if not payload.documents:
+    missing_information.append("Upload or prepare supporting documents, then confirm any machine-read grades.")
+
   response["top_recommendations"] = safe_recommendations[:4]
   response["comparison"] = safe_comparison[:4]
   response["study_plan"] = [str(item)[:240] for item in (response.get("study_plan") or [])[:5]]
   response["document_checklist"] = [str(item)[:240] for item in (response.get("document_checklist") or [])[:8]]
-  response["next_questions"] = [str(item)[:180] for item in (response.get("next_questions") or [])[:3]]
+  follow_ups = [str(item)[:180] for item in (response.get("next_questions") or [])[:3]]
+  if not profile.get("grades"):
+    follow_ups.insert(0, "Which subject grades can you enter or confirm now?")
+  elif not profile.get("stream"):
+    follow_ups.insert(0, "Which school stream or qualification route are you following?")
+  response["next_questions"] = list(dict.fromkeys(follow_ups))[:3]
   response["summary"] = str(response.get("summary") or "Guidance generated from your current matcher evidence.")[:1200]
   response["direct_answer"] = str(response.get("direct_answer") or "Use qualified and almost-qualified matches first; blocked paths are preparation goals, not current application recommendations.")[:1600]
   response["scholarship_note"] = str(response.get("scholarship_note") or "Funding readiness is an estimate only; official sponsorship decisions remain with the sponsor/NMDS process.")[:1200]
+  response["qualification_reasons"] = qualification_reasons[:4]
+  response["blockers"] = blockers[:6]
+  response["missing_information"] = missing_information[:4]
   return response
 
 
@@ -1545,6 +1583,20 @@ def build_fallback(payload: GuidanceRequest, error: str | None = None) -> dict[s
       "Which of the qualified or almost-qualified matches feels most realistic for your marks?",
       "Do you want to compare careers, fees, or requirements first?",
       "Which missing document can you upload next?",
+    ],
+    "qualification_reasons": [
+      f"{item.get('programme')} at {item.get('institution')}: {evidence_text(item)}"
+      for item in top_matches[:3]
+    ],
+    "blockers": [
+      f"{item.get('programme')} at {item.get('institution')}: "
+      + "; ".join(str(gap) for gap in (item.get("requirement_gaps") or item.get("hard_gate_failures") or [])[:2])
+      for item in blocked_matches[:4]
+      if item.get("requirement_gaps") or item.get("hard_gate_failures")
+    ],
+    "missing_information": [
+      "Confirm your captured grades before treating this as an admission decision.",
+      "Verify current requirements and deadlines with the institution.",
     ],
   }
   if error:

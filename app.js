@@ -5260,6 +5260,15 @@ async function handleAiInterviewAnswer(answer) {
 
 function guidanceToConversationText(guidance = {}, { includeRecommendations = true } = {}) {
   const parts = [guidance.summary, guidance.direct_answer, guidance.scholarship_note].filter(Boolean);
+  if (Array.isArray(guidance.qualification_reasons) && guidance.qualification_reasons.length) {
+    parts.push(`Why you qualify: ${guidance.qualification_reasons.join(" | ")}`);
+  }
+  if (Array.isArray(guidance.blockers) && guidance.blockers.length) {
+    parts.push(`What blocks you: ${guidance.blockers.join(" | ")}`);
+  }
+  if (Array.isArray(guidance.missing_information) && guidance.missing_information.length) {
+    parts.push(`Missing information: ${guidance.missing_information.join(" | ")}`);
+  }
   if (includeRecommendations && Array.isArray(guidance.top_recommendations) && guidance.top_recommendations.length) {
     parts.push(`Top recommendations: ${guidance.top_recommendations.map((item) => `${item.programme || "Programme"} at ${item.institution || "Institution"}: ${item.why || item.action || "match"} Evidence: ${item.evidence || "matcher evidence"}`).join(" | ")}`);
   }
@@ -5289,6 +5298,30 @@ function renderAiGuidance(guidance, mode, model, serverChat = null) {
         ? `<article class="ai-answer-card">
             <h4>Answer</h4>
             <p>${escapeHtml(guidance.direct_answer)}</p>
+          </article>`
+        : ""
+    }
+    ${
+      guidance.qualification_reasons?.length
+        ? `<article class="ai-answer-card">
+            <h4>Why you qualify</h4>
+            <ul>${guidance.qualification_reasons.map((item) => `<li>${escapeHtml(item)}</li>`).join("")}</ul>
+          </article>`
+        : ""
+    }
+    ${
+      guidance.blockers?.length
+        ? `<article class="ai-answer-card">
+            <h4>What blocks you</h4>
+            <ul>${guidance.blockers.map((item) => `<li>${escapeHtml(item)}</li>`).join("")}</ul>
+          </article>`
+        : ""
+    }
+    ${
+      guidance.missing_information?.length
+        ? `<article class="ai-answer-card">
+            <h4>Still needed</h4>
+            <ul>${guidance.missing_information.map((item) => `<li>${escapeHtml(item)}</li>`).join("")}</ul>
           </article>`
         : ""
     }
