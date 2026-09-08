@@ -642,6 +642,7 @@ function normalizeUser(user = {}) {
     documents: Array.isArray(user.documents) ? user.documents : [],
     shortlist: Array.isArray(user.shortlist) ? user.shortlist : [],
     shortlistPathways: user.shortlistPathways && typeof user.shortlistPathways === "object" ? user.shortlistPathways : {},
+    applicationProgress: user.applicationProgress && typeof user.applicationProgress === "object" ? user.applicationProgress : {},
     createdAt,
     emailVerifiedAt: user.emailVerifiedAt || createdAt,
     reviewedAt: user.reviewedAt || (role === "admin" || role === "owner" || role === "institution_admin" ? createdAt : null),
@@ -721,7 +722,8 @@ function getCurrentUserPayload() {
     grades: currentUser.grades || {},
     documents: currentUser.documents || [],
     shortlist: currentUser.shortlist || [],
-    shortlistPathways: currentUser.shortlistPathways || {}
+    shortlistPathways: currentUser.shortlistPathways || {},
+    applicationProgress: currentUser.applicationProgress || {}
   };
 }
 
@@ -4104,10 +4106,12 @@ function toggleShortlist(programmeId) {
   if (!currentUser) return;
   currentUser.shortlist ||= [];
   currentUser.shortlistPathways ||= {};
+  currentUser.applicationProgress ||= {};
   const programme = findProgrammeById(programmeId);
   if (currentUser.shortlist.includes(programmeId)) {
     currentUser.shortlist = currentUser.shortlist.filter((id) => id !== programmeId);
     delete currentUser.shortlistPathways[programmeId];
+    delete currentUser.applicationProgress[programmeId];
     recordCurrentUserActivity("shortlist_updated", "Removed a saved programme", {
       programmeId,
       programmeName: programme?.name,
@@ -4146,6 +4150,30 @@ const pathwayLabels = {
   considering: "Considering",
   not_interested: "Not interested"
 };
+
+const applicationProgressLabels = {
+  researching: "Researching",
+  documents: "Preparing documents",
+  ready: "Ready to apply",
+  applied: "Applied"
+};
+
+function setApplicationProgress(programmeId, progress) {
+  if (!currentUser || !currentUser.shortlist?.includes(programmeId) || !applicationProgressLabels[progress]) return;
+  currentUser.applicationProgress ||= {};
+  currentUser.applicationProgress[programmeId] = progress;
+  const programme = findProgrammeById(programmeId);
+  recordCurrentUserActivity("application_progress_updated", `Marked ${programme?.name || "saved programme"} as ${applicationProgressLabels[progress]}`, {
+    programmeId,
+    programmeName: programme?.name,
+    institution: programme?.institution,
+    progress
+  });
+  saveAuthUsers();
+  renderResults();
+  renderStudentDashboard();
+  showAppToast(`Application plan: ${applicationProgressLabels[progress]}`, "success");
+}
 
 function setShortlistPathway(programmeId, pathway) {
   if (!currentUser || !currentUser.shortlist?.includes(programmeId)) return;
@@ -4744,11 +4772,14 @@ function renderApplicationGroup(group) {
           .map(
             (programme) => {
               const programmeFee = programmeFeeSummaries.get(programme.id);
+              const isSaved = currentUser?.shortlist?.includes(programme.id);
+              const progress = currentUser?.applicationProgress?.[programme.id] || "researching";
               return `
               <div>
                 <strong>${escapeHtml(programme.title)}</strong>
                 <span>${escapeHtml(programme.level)} - ${escapeHtml(programme.duration)} - ${escapeHtml(programme.match.tierLabel)}</span>
                 <small>${escapeHtml(programmeFee?.lines?.[0] || programmeFee?.label || "Fee under review")}</small>
+                ${isSaved ? `<label class="application-progress-control"><span>Application progress</span><select data-application-progress="${escapeHtml(programme.id)}" aria-label="Application progress for ${escapeHtml(programme.title)}">${Object.entries(applicationProgressLabels).map(([value, label]) => `<option value="${value}" ${progress === value ? "selected" : ""}>${label}</option>`).join("")}</select></label>` : `<small class="application-progress-hint">Save this programme to track its application progress.</small>`}
               </div>
             `;
             }
@@ -9219,6 +9250,10 @@ function bindEvents() {
         blocked: askAiProgramme.dataset.askAiBlocked === "1"
       });
     }
+  });
+  qs("#view-results")?.addEventListener("change", (event) => {
+    const progressSelect = event.target.closest("[data-application-progress]");
+    if (progressSelect) setApplicationProgress(progressSelect.dataset.applicationProgress, progressSelect.value);
   });
   qs("#comparison-tray-open")?.addEventListener("click", () => {
     const comparison = qs(".programme-comparison");

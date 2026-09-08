@@ -172,6 +172,7 @@ class AuthProfileRequest(BaseModel):
   documents: list[dict[str, Any]] = Field(default_factory=list)
   shortlist: list[str] = Field(default_factory=list)
   shortlistPathways: dict[str, str] = Field(default_factory=dict)
+  applicationProgress: dict[str, str] = Field(default_factory=dict)
 
 
 class UserRoleUpdate(BaseModel):
@@ -524,6 +525,11 @@ def sanitize_profile_payload(payload: AuthProfileRequest) -> AuthProfileRequest:
     for key, value in list((payload.shortlistPathways or {}).items())[:25]
     if str(key or "").strip() and value in {"primary", "backup", "considering", "not_interested"}
   }
+  safe_application_progress = {
+    sanitize_guidance_text(key, 120): value
+    for key, value in list((payload.applicationProgress or {}).items())[:25]
+    if str(key or "").strip() and value in {"researching", "documents", "ready", "applied"}
+  }
   return AuthProfileRequest(
     name=safe_name,
     district=safe_district,
@@ -536,6 +542,7 @@ def sanitize_profile_payload(payload: AuthProfileRequest) -> AuthProfileRequest:
     documents=safe_documents,
     shortlist=safe_shortlist,
     shortlistPathways=safe_pathways,
+    applicationProgress=safe_application_progress,
   )
 
 
@@ -2234,6 +2241,7 @@ def normalize_auth_user(user: dict[str, Any]) -> dict[str, Any] | None:
     "documents": user.get("documents") if isinstance(user.get("documents"), list) else [],
     "shortlist": user.get("shortlist") if isinstance(user.get("shortlist"), list) else [],
     "shortlistPathways": user.get("shortlistPathways") if isinstance(user.get("shortlistPathways"), dict) else {},
+    "applicationProgress": user.get("applicationProgress") if isinstance(user.get("applicationProgress"), dict) else {},
     "createdAt": created_at,
     "emailVerifiedAt": email_verified_at,
     "reviewedAt": user.get("reviewedAt") or (created_at if role in {"owner", "admin", "institution_admin"} else None),
@@ -3160,6 +3168,7 @@ def auth_update_me(payload: AuthProfileRequest, authorization: str | None = Head
   user["documents"] = safe_payload.documents
   user["shortlist"] = safe_payload.shortlist
   user["shortlistPathways"] = safe_payload.shortlistPathways
+  user["applicationProgress"] = safe_payload.applicationProgress
   add_user_activity(user, "profile_updated", "Updated profile", user)
   save_auth_users_internal(users)
   return {"ok": True, "user": public_user(user)}
