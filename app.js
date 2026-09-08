@@ -148,7 +148,11 @@ let schoolExplorerState = {
   query: "",
   selectedInstitution: adminData.institutions?.[0]?.name || adminProgrammes[0]?.institution || "",
   selectedProgrammeId: null,
-  screen: "schools"
+  screen: "schools",
+  institutionFilter: "all",
+  levelFilter: "all",
+  fitFilter: "all",
+  feeFilter: "all"
 };
 let institutionWorkbenchState = {
   search: "",
@@ -5871,11 +5875,26 @@ function renderCourseEvidenceLinks(programme, application) {
 
 function getExplorerSearchMatches() {
   const query = schoolExplorerState.query.trim().toLowerCase();
-  const programmes = getExplorerProgrammes();
+  const programmes = getExplorerProgrammes().filter((programme) => {
+    if (schoolExplorerState.institutionFilter !== "all" && programme.institution !== schoolExplorerState.institutionFilter) return false;
+    if (schoolExplorerState.levelFilter !== "all" && programme.level !== schoolExplorerState.levelFilter) return false;
+    if (schoolExplorerState.feeFilter === "available" && !getProgrammeFeeMatches(programme, 1).length && !programme.feeNote) return false;
+    if (schoolExplorerState.feeFilter === "missing" && (getProgrammeFeeMatches(programme, 1).length || programme.feeNote)) return false;
+    if (schoolExplorerState.fitFilter !== "all") {
+      const matchingProgramme = getMatchingProgrammeFromAdmin(programme);
+      const fit = getCourseFitSummary(matchingProgramme);
+      if (schoolExplorerState.fitFilter === "qualified" && fit.match?.tier !== "qualified") return false;
+      if (schoolExplorerState.fitFilter === "almost" && fit.match?.tier !== "almost") return false;
+      if (schoolExplorerState.fitFilter === "explore" && fit.match?.tier !== "explore") return false;
+    }
+    return true;
+  });
   if (!query) {
     return {
-      schools: getExplorerInstitutionNames(),
-      programmes: getInstitutionProgrammes(schoolExplorerState.selectedInstitution).slice(0, 14)
+      schools: schoolExplorerState.institutionFilter === "all" ? getExplorerInstitutionNames() : [schoolExplorerState.institutionFilter],
+      programmes: (schoolExplorerState.institutionFilter === "all"
+        ? programmes.filter((programme) => programme.institution === schoolExplorerState.selectedInstitution)
+        : programmes).slice(0, 40)
     };
   }
   const searchAliases = {
@@ -5915,6 +5934,27 @@ function getExplorerSelectedProgramme() {
   if (results.length) return results[0];
   if (queryActive) return null;
   return getInstitutionProgrammes(schoolExplorerState.selectedInstitution)[0] || allProgrammes[0] || null;
+}
+
+function populateSchoolExplorerFilters() {
+  const programmes = getExplorerProgrammes();
+  const options = {
+    institution: unique(programmes.map((programme) => programme.institution).filter(Boolean)).sort(),
+    level: unique(programmes.map((programme) => programme.level).filter(Boolean)).sort()
+  };
+  [
+    ["#school-filter-institution", options.institution, "All schools", schoolExplorerState.institutionFilter],
+    ["#school-filter-level", options.level, "All levels", schoolExplorerState.levelFilter]
+  ].forEach(([selector, values, allLabel, selected]) => {
+    const select = qs(selector);
+    if (!select) return;
+    select.innerHTML = `<option value="all">${allLabel}</option>${values.map((value) => `<option value="${escapeHtml(value)}">${escapeHtml(value)}</option>`).join("")}`;
+    select.value = selected;
+  });
+  const fit = qs("#school-filter-fit");
+  const fees = qs("#school-filter-fees");
+  if (fit) fit.value = schoolExplorerState.fitFilter;
+  if (fees) fees.value = schoolExplorerState.feeFilter;
 }
 
 function renderExplorerProgrammeList(programmes) {
@@ -6163,6 +6203,7 @@ function renderSchoolExplorer() {
   if (!schoolExplorerState.selectedInstitution || !institutions.includes(schoolExplorerState.selectedInstitution)) {
     schoolExplorerState.selectedInstitution = institutions[0];
   }
+  populateSchoolExplorerFilters();
   const searchInput = qs("#school-search");
   if (searchInput && searchInput.value !== schoolExplorerState.query) searchInput.value = schoolExplorerState.query;
   const searchMatches = getExplorerSearchMatches();
@@ -9246,7 +9287,29 @@ function bindEvents() {
     }
     renderSchoolExplorer();
   });
+  ["institution", "level", "fit", "fees"].forEach((filterName) => {
+    qs(`#school-filter-${filterName}`)?.addEventListener("change", (event) => {
+      const stateKey = filterName === "institution" ? "institutionFilter" : filterName === "level" ? "levelFilter" : filterName === "fit" ? "fitFilter" : "feeFilter";
+      schoolExplorerState[stateKey] = event.target.value;
+      if (filterName === "institution" && event.target.value !== "all") {
+        schoolExplorerState.selectedInstitution = event.target.value;
+        schoolExplorerState.screen = "courses";
+      }
+      schoolExplorerState.selectedProgrammeId = null;
+      renderSchoolExplorer();
+    });
+  });
   qs("#view-schools")?.addEventListener("click", (event) => {
+    const filterReset = event.target.closest("[data-school-filter-reset]");
+    if (filterReset) {
+      schoolExplorerState.institutionFilter = "all";
+      schoolExplorerState.levelFilter = "all";
+      schoolExplorerState.fitFilter = "all";
+      schoolExplorerState.feeFilter = "all";
+      schoolExplorerState.selectedProgrammeId = null;
+      renderSchoolExplorer();
+      return;
+    }
     const resetButton = event.target.closest("[data-school-search-reset]");
     if (resetButton) {
       schoolExplorerState.query = "";

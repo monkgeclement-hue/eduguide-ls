@@ -1118,6 +1118,13 @@
                 <input id="school-search" type="search" placeholder="Search course, school, career, skill..." autocomplete="off" />
               </label>
             </div>
+            <div class="school-filter-row" aria-label="School and course filters">
+              <label><span>School</span><select id="school-filter-institution"><option value="all">All schools</option></select></label>
+              <label><span>Level</span><select id="school-filter-level"><option value="all">All levels</option></select></label>
+              <label><span>Qualification fit</span><select id="school-filter-fit"><option value="all">Any fit</option><option value="qualified">Qualified</option><option value="almost">Almost</option><option value="explore">Explore</option></select></label>
+              <label><span>Fees</span><select id="school-filter-fees"><option value="all">Any fee status</option><option value="available">Fees captured</option><option value="missing">Fees missing</option></select></label>
+              <button class="secondary-action compact-action" type="button" data-school-filter-reset><i data-lucide="rotate-ccw"></i> Clear filters</button>
+            </div>
             <div class="school-explorer" id="school-explorer"></div>
           </section>
         </section>
