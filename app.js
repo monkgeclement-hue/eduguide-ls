@@ -302,6 +302,7 @@ const titles = {
   schools: "Schools & Courses",
   ai: "EduGuide AI",
   institution: "Institution Workbench",
+  presentation: "Presentation Mode",
   admin: "Admin Dashboard",
   sources: "Data Sources"
 };
@@ -590,7 +591,7 @@ function getPreferredLandingView(user = currentUser, fallback = "student") {
 }
 
 function isStudentWorkspaceView(viewName) {
-  return ["student", "results", "schools", "ai"].includes(viewName);
+  return ["student", "results", "schools", "ai", "presentation"].includes(viewName);
 }
 
 function isViewAllowedForRole(viewName, user = currentUser) {
@@ -767,6 +768,58 @@ function renderViewOnDemand(viewName) {
   if (viewName === "schools") renderSchoolExplorer();
   if (viewName === "results") renderResults();
   if (viewName === "ai") renderAiChatMessages();
+  if (viewName === "presentation") renderPresentationMode();
+}
+
+function renderPresentationMode() {
+  const root = qs("#presentation-mode");
+  if (!root) return;
+  if (!latestMatches.length) calculateMatches();
+  const publicProgrammes = getExplorerProgrammes();
+  const institutions = unique(publicProgrammes.map((programme) => programme.institution).filter(Boolean));
+  const qualified = latestMatches.filter((programme) => programme.match?.tier === "qualified").slice(0, 3);
+  const featured = (qualified.length ? qualified : latestMatches).slice(0, 3);
+  root.innerHTML = `
+    <section class="presentation-hero">
+      <div class="presentation-hero-copy">
+        <span class="hero-badge"><i data-lucide="map-pin"></i> Lesotho higher education</span>
+        <p class="section-kicker">EduGuide LS presentation</p>
+        <h2>From marks to a realistic next step.</h2>
+        <p>EduGuide LS helps students discover programmes, understand entry requirements, and plan their next move using captured Lesotho institution data.</p>
+        <div class="presentation-actions">
+          <button class="primary-button large-action" type="button" data-view-target="results"><i data-lucide="sparkles"></i> See matching engine</button>
+          <button class="secondary-button large-action" type="button" data-view-target="schools"><i data-lucide="school"></i> Browse school profiles</button>
+          <button class="secondary-button large-action" type="button" data-view-target="ai"><i data-lucide="bot"></i> Ask EduGuide AI</button>
+        </div>
+      </div>
+      <div class="presentation-hero-panel">
+        <span class="section-kicker">Live catalogue snapshot</span>
+        <strong>${publicProgrammes.length}</strong>
+        <span>public programme records</span>
+        <div class="presentation-stat-row"><span>${institutions.length}</span><small>institutions</small><span>${latestMatches.length}</span><small>current matches</small></div>
+      </div>
+    </section>
+    <section class="presentation-steps">
+      <article><span>01</span><i data-lucide="user-round-check"></i><h3>Build your profile</h3><p>Capture grades, interests, stream, funding context, and supporting documents.</p></article>
+      <article><span>02</span><i data-lucide="sparkles"></i><h3>See what fits</h3><p>Compare realistic programmes with requirements, qualification fit, fees, and source confidence.</p></article>
+      <article><span>03</span><i data-lucide="route"></i><h3>Plan your next step</h3><p>Use AI explanations, school profiles, application links, and NMDS preparation guidance.</p></article>
+    </section>
+    <section class="surface-panel presentation-featured">
+      <div class="section-head"><div><p class="section-kicker">Live examples</p><h3>What students can explore now</h3></div><span class="badge green">${qualified.length ? "Based on your marks" : "Catalogue preview"}</span></div>
+      <div class="presentation-featured-grid">
+        ${featured.length ? featured.map((programme) => `
+          <article class="presentation-featured-card">
+            <span class="badge ${tierMeta[programme.match?.tier]?.badge || "blue"}">${escapeHtml(programme.match?.tierLabel || "Explore")}</span>
+            <h4>${escapeHtml(programme.title)}</h4>
+            <p>${escapeHtml(programme.institution)} · ${escapeHtml(programme.level || "Programme")}</p>
+            <small>${escapeHtml((programme.requirements || []).slice(0, 2).join("; ") || "Requirements available in the programme profile.")}</small>
+            <button class="secondary-action compact-action" type="button" data-presentation-programme="${escapeHtml(programme.id)}">Open programme</button>
+          </article>
+        `).join("") : `<p class="muted-inline">Run the matching engine or add catalogue records to show featured pathways.</p>`}
+      </div>
+    </section>
+  `;
+  if (window.lucide) window.lucide.createIcons();
 }
 
 function renderStudentProfile() {
@@ -9272,6 +9325,14 @@ function bindEvents() {
       reportSourceButton.textContent = "Report noted";
       reportSourceButton.disabled = true;
     }
+  });
+  qs("#view-presentation")?.addEventListener("click", (event) => {
+    const programmeButton = event.target.closest("[data-presentation-programme]");
+    if (!programmeButton) return;
+    setView("schools");
+    schoolExplorerState.selectedProgrammeId = programmeButton.dataset.presentationProgramme;
+    schoolExplorerState.screen = "course";
+    renderSchoolExplorer();
   });
   qs("#view-institution")?.addEventListener("submit", (event) => {
     if (!event.target.matches("#institution-proposal-form")) return;
