@@ -165,6 +165,7 @@ const persistenceKey = "eduguide-admin-review-state-v1";
 const authUsersKey = "eduguide-auth-users-v1";
 const authSessionKey = "eduguide-auth-session-v1";
 const authTokenKey = "eduguide-auth-token-v1";
+const adminTestSessionKey = "eduguide-admin-test-session-v1";
 const aiChatStoragePrefix = "eduguide-ai-chat-v1";
 const legacyDemoEmails = new Set();
 const legacyDemoIds = new Set(["demo-student", "demo-admin"]);
@@ -620,7 +621,7 @@ function getAuthHeaders(extra = {}) {
 }
 
 function normalizeUser(user = {}) {
-  if (!user?.email || isLegacyDemoUser(user)) return null;
+  if (!user?.email) return null;
   const createdAt = user.createdAt || user.registeredAt || new Date().toISOString();
   const activity = Array.isArray(user.activity) ? user.activity.slice(0, maxActivityItems) : [];
   const role = isAdminRole(user.role) || isInstitutionAdminRole(user.role) ? user.role : "student";
@@ -630,6 +631,7 @@ function normalizeUser(user = {}) {
     email: normalizeEmail(user.email),
     password: String(user.password || ""),
     role,
+    isDemo: Boolean(user.isDemo),
     managedInstitution: role === "institution_admin" ? getManagedInstitution(user) : "",
     status: user.status || "active",
     district: user.district || "",
@@ -1367,6 +1369,19 @@ function updateUserShell() {
     element.hidden = !isInstitutionUser();
     if ("disabled" in element) element.disabled = !isInstitutionUser();
   });
+  const testPanel = qs(".admin-test-panel");
+  if (testPanel) testPanel.hidden = !isAdmin() && !currentUser?.isDemo;
+  const returnButton = qs("#return-to-admin-button");
+  if (returnButton) returnButton.hidden = !currentUser?.isDemo;
+  const demoSelect = qs("#demo-institution-select");
+  if (demoSelect && !demoSelect.options.length) {
+    getInstitutionNames().forEach((institution) => {
+      const option = document.createElement("option");
+      option.value = institution;
+      option.textContent = institution;
+      demoSelect.appendChild(option);
+    });
+  }
   if (!currentUser) return;
   const initials = getInitials(currentUser.name, currentUser.email);
   qs("#user-avatar").textContent = initials;
@@ -1439,6 +1454,67 @@ function signOut() {
   setAuthMode("login");
   setAuthMessage("Signed out. Login again to continue.", "success");
 }
+
+window.openDemoWorkspace = async function openDemoWorkspace(mode, institution = "") {
+  if (!isAdmin() || !authToken) return false;
+  const originalSession = {
+    token: authToken,
+    user: currentUser
+  };
+  try {
+    const response = await fetch("/api/admin/test-session", {
+      method: "POST",
+      headers: getAuthHeaders({ "Content-Type": "application/json" }),
+      body: JSON.stringify({ mode, institution })
+    });
+    const data = await response.json().catch(() => ({}));
+    if (!response.ok || !data.ok || !data.token || !data.user) throw new Error(data.detail || "Could not open demo workspace.");
+    sessionStorage.setItem(adminTestSessionKey, JSON.stringify(originalSession));
+    authToken = data.token;
+    const user = normalizeUser(data.user);
+    if (!user) throw new Error("Demo workspace returned an invalid account.");
+    authUsers = mergeAuthUsersInMemory(authUsers, [user]);
+    setCurrentUser(user, getPreferredLandingView(user));
+    showAppToast(`Opened ${getUserRoleLabel(user)} demo workspace.`, "success");
+    return true;
+  } catch (error) {
+    setAuthMessage(getFriendlyAuthError(error, "Could not open demo workspace."), "error");
+    return false;
+  }
+};
+
+window.returnToAdminWorkspace = async function returnToAdminWorkspace() {
+  let originalSession = null;
+  try {
+    originalSession = JSON.parse(sessionStorage.getItem(adminTestSessionKey) || "null");
+  } catch (error) {
+    sessionStorage.removeItem(adminTestSessionKey);
+  }
+  if (!originalSession?.token) {
+    signOut();
+    return false;
+  }
+  if (authToken) fetch("/api/auth/logout", { method: "POST", headers: getAuthHeaders() }).catch(() => {});
+  try {
+    const response = await fetch("/api/auth/me", {
+      headers: { Authorization: `Bearer ${originalSession.token}`, Accept: "application/json" }
+    });
+    const data = await response.json().catch(() => ({}));
+    if (!response.ok || !data.user) throw new Error(data.detail || "The admin session has expired.");
+    sessionStorage.removeItem(adminTestSessionKey);
+    authToken = originalSession.token;
+    const user = normalizeUser(data.user);
+    if (!user || !isAdmin(user)) throw new Error("The saved session is not a system admin session.");
+    setCurrentUser(user, "admin");
+    showAppToast("Returned to system admin workspace.", "success");
+    return true;
+  } catch (error) {
+    sessionStorage.removeItem(adminTestSessionKey);
+    signOut();
+    setAuthMessage(getFriendlyAuthError(error, "Could not return to the admin workspace."), "error");
+    return false;
+  }
+};
 
 async function loginWithCredentials(email, password, preferredView = "student") {
   try {
@@ -3106,12 +3182,15 @@ function normalizeDeadlineStatus(value) {
   }
 
   if (/(\d{1,2}\s+[a-zA-Z]+\s+\d{4}|\d{4}-\d{2}-\d{2}|\d{1,2}\/\d{1,2}\/\d{4})/i.test(cleaned)) {
+    const dateMatch = cleaned.match(/\d{4}-\d{2}-\d{2}|\d{1,2}\s+[a-zA-Z]+\s+\d{4}|\d{1,2}\/\d{1,2}\/\d{4}/i);
+    const deadlineDate = dateMatch ? new Date(dateMatch[0]) : null;
     return {
       label: "Verified deadline",
       tone: "green",
       detail: cleaned,
       isVerified: true,
       source: "captured deadline",
+      deadlineDate: deadlineDate && !Number.isNaN(deadlineDate.getTime()) ? deadlineDate : null,
       priority: 1
     };
   }
@@ -3183,8 +3262,28 @@ function getApplicationDeadlineSummary(programmes = []) {
     tone: bestMatch.tone,
     detail: bestMatch.detail,
     source: bestMatch.source,
-    isVerified: Boolean(bestMatch.isVerified)
+    isVerified: Boolean(bestMatch.isVerified),
+    deadlineDate: bestMatch.deadlineDate || null,
+    urgency: getDeadlineUrgency(bestMatch.deadlineDate)
   };
+}
+
+function getDeadlineUrgency(deadlineDate) {
+  if (!deadlineDate || Number.isNaN(deadlineDate.getTime())) return "unknown";
+  const days = Math.ceil((deadlineDate.getTime() - Date.now()) / 86400000);
+  if (days < 0) return "overdue";
+  if (days <= 14) return "soon";
+  return "upcoming";
+}
+
+function getDeadlineReminder(summary) {
+  if (summary.urgency === "overdue") return "Deadline may have passed - confirm with the institution before applying.";
+  if (summary.urgency === "soon") return "Deadline is within 14 days - prioritise documents and verify the source.";
+  if (summary.urgency === "upcoming") {
+    const days = Math.max(1, Math.ceil((summary.deadlineDate.getTime() - Date.now()) / 86400000));
+    return `${days} day${days === 1 ? "" : "s"} until the captured deadline.`;
+  }
+  return "No reminder date is available; check the institution source before applying.";
 }
 
 function getApplicationStepList(programmes, checklist, linkPack, feeSummary) {
@@ -4714,6 +4813,10 @@ function renderApplicationGroup(group) {
   const sourceBadge = sourceCount ? "green" : "amber";
   const deadlineBadgeTone = deadlineSummary.label === "Applications closed"
     ? "red"
+    : deadlineSummary.urgency === "overdue"
+      ? "red"
+      : deadlineSummary.urgency === "soon"
+        ? "amber"
     : deadlineSummary.label === "Verified deadline"
       ? "green"
       : deadlineSummary.label === "Open intake / rolling"
@@ -4759,6 +4862,7 @@ function renderApplicationGroup(group) {
           <span>Deadline/status</span>
           <strong>${escapeHtml(deadlineSummary.label)}</strong>
           <small>${escapeHtml(deadlineSummary.detail)}${deadlineSummary.source ? ` · ${escapeHtml(deadlineSummary.source)}` : ""}</small>
+          <small class="application-deadline-reminder">${escapeHtml(getDeadlineReminder(deadlineSummary))}</small>
         </div>
         <div>
           <span>Evidence</span>
@@ -4846,7 +4950,7 @@ function renderApplicationGroup(group) {
           : ""
       }
 
-      <p class="application-deadline-note">${escapeHtml(deadlineSummary.detail)}</p>
+      <p class="application-deadline-note">${escapeHtml(getDeadlineReminder(deadlineSummary))}</p>
     </article>
   `;
 }
@@ -8978,6 +9082,11 @@ function bindEvents() {
   qsa("[data-auth-mode]").forEach((button) => {
     button.addEventListener("click", () => setAuthMode(button.dataset.authMode));
   });
+  qs("#demo-student-button")?.addEventListener("click", () => window.openDemoWorkspace("student"));
+  qs("#demo-institution-button")?.addEventListener("click", () => {
+    window.openDemoWorkspace("institution", qs("#demo-institution-select")?.value || "");
+  });
+  qs("#return-to-admin-button")?.addEventListener("click", window.returnToAdminWorkspace);
   qs("#login-form").addEventListener("submit", async (event) => {
     event.preventDefault();
     await loginWithCredentials(qs("#login-email").value, qs("#login-password").value);

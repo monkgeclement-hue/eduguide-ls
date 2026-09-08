@@ -403,6 +403,43 @@ a {
   background: rgba(255, 255, 255, 0.08);
 }
 
+.sidebar-panel + .sidebar-panel {
+  margin-top: 12px;
+}
+
+.admin-test-panel {
+  display: grid;
+  gap: 10px;
+}
+
+.admin-test-panel .secondary-button {
+  justify-content: flex-start;
+  width: 100%;
+}
+
+.demo-institution-picker {
+  display: grid;
+  gap: 5px;
+  color: rgba(255, 255, 255, 0.72);
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.demo-institution-picker select {
+  width: 100%;
+  min-width: 0;
+  padding: 8px 9px;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  border-radius: 6px;
+  color: #fff;
+  background: rgba(0, 0, 0, 0.18);
+}
+
+.demo-return-button {
+  justify-content: flex-start;
+  color: #8de5c3;
+}
+
 .panel-label,
 .section-kicker,
 .eyebrow {
@@ -2670,6 +2707,13 @@ textarea:focus {
   color: var(--muted);
   font-size: 12px;
   font-weight: 800;
+}
+
+.application-deadline-reminder {
+  display: block;
+  margin-top: 4px;
+  color: var(--brand-deep);
+  font-weight: 700;
 }
 
 .application-links .primary-button,

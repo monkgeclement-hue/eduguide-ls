@@ -138,6 +138,11 @@ class AuthLoginRequest(BaseModel):
   password: str
 
 
+class AdminTestSessionRequest(BaseModel):
+  mode: str
+  institution: str | None = None
+
+
 class AuthRegisterRequest(BaseModel):
   name: str
   email: str
@@ -2214,20 +2219,22 @@ def institutions_match(left: Any, right: Any) -> bool:
 
 def normalize_auth_user(user: dict[str, Any]) -> dict[str, Any] | None:
   email = normalize_email(user.get("email"))
-  if not email or user.get("id") in {"demo-student", "demo-admin"}:
+  if not email:
     return None
+  user_id = user.get("id") or f"user-{uuid.uuid4().hex[:12]}"
   created_at = user.get("createdAt") or now_iso()
   email_verified_at = user.get("emailVerifiedAt") or created_at
   role = user.get("role") if user.get("role") in {"owner", "admin", "student", "institution_admin"} else "student"
   managed_institution = get_user_managed_institution(user)
   return {
-    "id": user.get("id") or f"user-{uuid.uuid4().hex[:12]}",
+    "id": user_id,
     "name": (user.get("name") or email).strip(),
     "email": email,
     "passwordHash": user.get("passwordHash"),
     "passwordSalt": user.get("passwordSalt"),
     "password": user.get("password"),
     "role": role,
+    "isDemo": bool(user.get("isDemo") or user_id in {"demo-student", "demo-admin"} or str(user_id).startswith("demo-institution-")),
     "managedInstitution": managed_institution if role == "institution_admin" else "",
     "status": user.get("status") or "active",
     "district": user.get("district") or "",
@@ -2274,6 +2281,13 @@ def save_auth_users_internal(users: list[dict[str, Any]]) -> None:
 def public_user(user: dict[str, Any]) -> dict[str, Any]:
   safe = {key: value for key, value in user.items() if key not in {"password", "passwordHash", "passwordSalt"}}
   return safe
+
+
+def is_demo_user(user: dict[str, Any] | None) -> bool:
+  if not user:
+    return False
+  user_id = str(user.get("id") or "")
+  return bool(user.get("isDemo") or user_id in {"demo-student", "demo-admin"} or user_id.startswith("demo-institution-"))
 
 
 INSTITUTION_PROPOSAL_STATE_KEY = "institution_proposals"
@@ -2981,6 +2995,102 @@ def auth_login(payload: AuthLoginRequest, request: Request) -> dict[str, Any]:
   return {"ok": True, "token": create_auth_session(stored["id"]), "user": public_user(stored)}
 
 
+def get_or_create_demo_user(mode: str, institution: str | None = None) -> dict[str, Any]:
+  clean_mode = str(mode or "").strip().lower()
+  if clean_mode == "student":
+    user_id = "demo-student"
+    name = "Demo Student"
+    email = "demo-student@eduguide.local"
+    role = "student"
+    managed_institution = ""
+    profile = {
+      "district": "Maseru",
+      "stream": "Science",
+      "leavingYear": "2026",
+      "incomeBand": "mid",
+      "needSignals": [],
+      "preferenceText": "I am testing the student matching and application experience.",
+      "grades": {"ENG": "C", "MATH": "B", "PSCI": "B", "BIO": "C", "CSK": "B"},
+    }
+  elif clean_mode == "institution":
+    managed_institution = normalize_institution_name(institution)
+    if not managed_institution:
+      raise HTTPException(status_code=400, detail="Choose an institution before opening its demo dashboard.")
+    user_id = f"demo-institution-{hashlib.sha256(managed_institution.casefold().encode('utf-8')).hexdigest()[:16]}"
+    name = f"Demo Institution Admin - {managed_institution}"
+    email = f"{user_id}@eduguide.local"
+    role = "institution_admin"
+    profile = {
+      "district": "Maseru",
+      "stream": "",
+      "leavingYear": "",
+      "incomeBand": "mid",
+      "needSignals": [],
+      "preferenceText": "",
+      "grades": {},
+    }
+  else:
+    raise HTTPException(status_code=400, detail="Choose a supported demo workspace.")
+
+  users = get_auth_users_internal()
+  user = next((item for item in users if item["id"] == user_id), None)
+  timestamp = now_iso()
+  if not user:
+    salt, password_hash = hash_password(secrets.token_urlsafe(32))
+    user = {
+      "id": user_id,
+      "name": name,
+      "email": email,
+      "passwordSalt": salt,
+      "passwordHash": password_hash,
+      "role": role,
+      "isDemo": True,
+      "status": "active",
+      "managedInstitution": managed_institution,
+      **profile,
+      "documents": [],
+      "shortlist": [],
+      "shortlistPathways": {},
+      "applicationProgress": {},
+      "createdAt": timestamp,
+      "emailVerifiedAt": timestamp,
+      "reviewedAt": timestamp,
+      "lastActiveAt": timestamp,
+      "lastActivity": "Demo workspace created",
+      "activity": [],
+    }
+    users.append(user)
+  else:
+    user.update({"name": name, "role": role, "isDemo": True, "managedInstitution": managed_institution, "status": "active"})
+    for key, value in profile.items():
+      if key in {"grades", "needSignals", "preferenceText"} and user.get(key):
+        continue
+      user[key] = value
+    user["lastActiveAt"] = timestamp
+  add_user_activity(user, "demo_workspace_login", f"Opened {name}", user)
+  save_auth_users_internal(users)
+  return user
+
+
+@app.post("/api/admin/test-session")
+def admin_test_session(payload: AdminTestSessionRequest, request: Request, authorization: str | None = Header(default=None)) -> dict[str, Any]:
+  actor = require_admin_user(authorization)
+  check_rate_limit(request, "admin_test_session", 30, 3600, actor["id"])
+  demo_user = get_or_create_demo_user(payload.mode, payload.institution)
+  safe_insert_runtime_event(
+    actor["id"],
+    "admin_demo_session_started",
+    "Admin opened a demo workspace",
+    {"mode": payload.mode, "institution": get_user_managed_institution(demo_user), "demoUserId": demo_user["id"], "ip": get_request_ip(request)},
+  )
+  return {
+    "ok": True,
+    "mode": payload.mode,
+    "token": create_auth_session(demo_user["id"]),
+    "user": public_user(demo_user),
+  }
+
+
 @app.post("/api/auth/register/request-code")
 def auth_register_request_code(payload: AuthRegisterRequest, request: Request) -> dict[str, Any]:
   maybe_cleanup_security_records()
@@ -3290,7 +3400,7 @@ def add_admin_programme_signal(signals: dict[str, dict[str, Any]], programme: di
 
 def build_admin_intelligence() -> dict[str, Any]:
   users = get_auth_users_internal()
-  students = [user for user in users if user.get("role") not in {"owner", "admin", "institution_admin"}]
+  students = [user for user in users if user.get("role") not in {"owner", "admin", "institution_admin"} and not is_demo_user(user)]
   student_ids = {str(user["id"]) for user in students}
   users_by_id = {user["id"]: user for user in users}
   signals: dict[str, dict[str, Any]] = {}
@@ -3554,7 +3664,7 @@ def decide_institution_proposal(proposal_id: str, payload: InstitutionProposalDe
 def admin_list_users(request: Request, authorization: str | None = Header(default=None)) -> dict[str, Any]:
   check_rate_limit(request, "admin_users", 120, 3600)
   require_admin_user(authorization)
-  return {"ok": True, "users": [public_user(user) for user in get_auth_users_internal()]}
+  return {"ok": True, "users": [public_user(user) for user in get_auth_users_internal() if not is_demo_user(user)]}
 
 
 @app.get("/api/admin/intelligence")

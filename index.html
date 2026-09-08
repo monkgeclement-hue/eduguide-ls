@@ -14,7 +14,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link rel="preload" href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Playfair+Display:wght@600;700&display=swap" as="style" onload="this.onload=null;this.rel='stylesheet'" />
     <noscript><link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet" /></noscript>
-    <link rel="stylesheet" href="/styles.css?v=39" />
+    <link rel="stylesheet" href="/styles.css?v=41" />
   </head>
   <body>
     <section class="auth-screen" id="auth-screen">
@@ -185,6 +185,26 @@
             <span>Sources</span>
           </button>
         </nav>
+
+        <section class="sidebar-panel admin-test-panel" data-admin-only hidden aria-label="Test workspaces">
+          <div class="panel-label">Test workspaces</div>
+          <button class="secondary-button small" type="button" id="demo-student-button">
+            <i data-lucide="graduation-cap"></i>
+            Log in as a student
+          </button>
+          <label class="demo-institution-picker">
+            <span>Institution dashboard</span>
+            <select id="demo-institution-select"></select>
+          </label>
+          <button class="secondary-button small" type="button" id="demo-institution-button">
+            <i data-lucide="building-2"></i>
+            Log in as institution admin
+          </button>
+          <button class="text-link-button demo-return-button" type="button" id="return-to-admin-button" hidden>
+            Return to system admin
+          </button>
+          <div class="mini-copy">Open safe demo workspaces without changing real user accounts.</div>
+        </section>
 
         <div class="sidebar-panel">
           <div class="panel-label">Data status</div>
@@ -1155,7 +1175,7 @@
     <script src="/data/supabase-config.js" defer></script>
     <script src="/data/catalog.js" defer></script>
     <script src="/data/admin-catalog.js" defer></script>
-    <script src="/app.js?v=44" defer></script>
+    <script src="/app.js?v=48" defer></script>
     <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js" async onload="window.lucide && window.lucide.createIcons()"></script>
     <script src="https://unpkg.com/@supabase/supabase-js@2" async></script>
   </body>
