@@ -3779,6 +3779,39 @@ textarea:focus {
   background: var(--surface-soft);
 }
 
+.proposal-status-notice {
+  padding: 10px 12px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+}
+
+.proposal-status-notice.pending {
+  border-color: #f0d38a;
+  background: #fff9e7;
+}
+
+.proposal-status-notice.rejected {
+  border-color: #efb7aa;
+  background: #fff2ee;
+}
+
+.proposal-status-notice h4,
+.proposal-status-notice p {
+  margin: 0;
+}
+
+.proposal-status-notice p + p {
+  margin-top: 6px;
+}
+
+.proposal-review-note {
+  display: block;
+  margin-top: 8px;
+  color: var(--danger);
+  font-size: 11px;
+  line-height: 1.4;
+}
+
 .proposal-change-list strong {
   color: var(--brand-deep);
   font-size: 12px;

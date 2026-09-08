@@ -6279,12 +6279,14 @@ function renderInstitutionSummary(scope, programmes) {
   if (!summaryRoot) return;
   const visibleProposals = getVisibleInstitutionProposals().filter((proposal) => !scope || normalizeInstitutionName(proposal.institution).toLowerCase() === scope.toLowerCase());
   const pending = visibleProposals.filter((proposal) => proposal.status === "pending_admin_review").length;
+  const rejected = visibleProposals.filter((proposal) => proposal.status === "rejected").length;
   const openGaps = adminGaps.filter((gap) => gap.institution === scope && gap.status !== "resolved").length;
   const feeItems = getInstitutionFeeSchedules(scope).reduce((total, schedule) => total + (schedule.items || []).length, 0);
   summaryRoot.innerHTML = [
     { label: "Institution", value: scope || "Not assigned" },
     { label: "Programmes", value: String(programmes.length) },
     { label: "Pending updates", value: String(pending) },
+    { label: "Rejected updates", value: String(rejected) },
     { label: "Open data gaps", value: String(openGaps) },
     { label: "Fee items", value: String(feeItems) }
   ].map((item) => `
@@ -6384,6 +6386,9 @@ function renderInstitutionDetail(programme) {
   }
   const proposals = getProgrammeProposals(programme.id);
   const links = getApplicationLinkPack(programme.institution, [programme]);
+  const quality = getProgrammeQualityChecks(programme);
+  const rejectedProposals = proposals.filter((proposal) => proposal.status === "rejected" && proposal.reviewNote);
+  const pendingProposals = proposals.filter((proposal) => proposal.status === "pending_admin_review");
   panel.innerHTML = `
     <div class="detail-card">
       <div class="detail-card-head">
@@ -6406,6 +6411,23 @@ function renderInstitutionDetail(programme) {
         </div>
       </div>
       <div class="detail-section">
+        <h4>Record readiness</h4>
+        <div class="admin-quality-checks">
+          ${quality.checks.map((check) => `<span class="${check.ready ? "ready" : "missing"}">${check.ready ? "OK" : "!"} ${escapeHtml(check.ready ? check.label : check.issue)}</span>`).join("")}
+        </div>
+        <p class="detail-muted">${quality.percent}% complete. Submit the missing fields below with a source note so an admin can verify them.</p>
+      </div>
+      ${
+        pendingProposals.length
+          ? `<div class="detail-section proposal-status-notice pending"><strong>Update pending review</strong><p>${pendingProposals.length} submitted update${pendingProposals.length === 1 ? "" : "s"} waiting for admin review.</p></div>`
+          : ""
+      }
+      ${
+        rejectedProposals.length
+          ? `<div class="detail-section proposal-status-notice rejected"><h4>Rejected update reason</h4>${rejectedProposals.slice(0, 2).map((proposal) => `<p><strong>${escapeHtml(formatDateTime(proposal.updatedAt || proposal.createdAt))}</strong> - ${escapeHtml(proposal.reviewNote)}</p>`).join("")}</div>`
+          : ""
+      }
+      <div class="detail-section">
         <h4>Propose catalogue update</h4>
         ${renderInstitutionProposalForm(programme)}
       </div>
@@ -6420,6 +6442,7 @@ function renderInstitutionDetail(programme) {
                     <span>${escapeHtml(formatDateTime(proposal.createdAt))}</span>
                   </div>
                   ${renderProposalChanges(proposal.changes)}
+                  ${proposal.reviewNote ? `<small class="proposal-review-note">${escapeHtml(proposal.reviewNote)}</small>` : ""}
                 </article>
               `).join("")
             : `<p><span class="muted-inline">No proposed updates yet.</span></p>`
