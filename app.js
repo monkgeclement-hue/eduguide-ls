@@ -144,6 +144,7 @@ let adminState = {
   reportTo: ""
 };
 let resultsFilters = { search: "", institution: "all", level: "all", tier: "all", minimumMatch: "all" };
+let applicationSavedOnly = false;
 let schoolExplorerState = {
   query: "",
   selectedInstitution: adminData.institutions?.[0]?.name || adminProgrammes[0]?.institution || "",
@@ -4820,8 +4821,24 @@ function renderApplicationGroup(group) {
 }
 
 function renderApplicationAssistant() {
-  const groups = getInstitutionMatchGroups().filter((group) => group.programmes.some((programme) => programme.match.tier !== "explore"));
+  const groups = getInstitutionMatchGroups()
+    .map((group) => ({
+      ...group,
+      programmes: applicationSavedOnly
+        ? group.programmes.filter((programme) => currentUser?.shortlist?.includes(programme.id))
+        : group.programmes
+    }))
+    .filter((group) => group.programmes.some((programme) => programme.match.tier !== "explore"));
   const fallbackGroups = groups.length ? groups : getInstitutionMatchGroups().slice(0, 6);
+  if (applicationSavedOnly && !groups.length) {
+    return `
+      <div class="application-assistant-intro">
+        <div><p class="section-kicker">Application assistant</p><h4>Your saved application plan</h4><span>Save qualified or almost-qualified programmes from the Programmes tab to build a focused plan here.</span></div>
+        <button class="secondary-action" type="button" data-application-toggle-saved>Show all matches</button>
+      </div>
+      <article class="admin-empty"><h4>No saved programmes yet.</h4><p>Save a programme first, then return here to prepare its documents, fees, evidence, and application route.</p></article>
+    `;
+  }
   if (!fallbackGroups.length) {
     return `
       <article class="admin-empty">
@@ -4837,10 +4854,10 @@ function renderApplicationAssistant() {
         <h4>Prepare before you apply</h4>
         <span>These packs use current matched institutions, uploaded documents, source links, and NMDS readiness. When a deadline is known, it is shown as verified; otherwise the app keeps the source-check warning.</span>
       </div>
-      <a class="primary-button" href="${nmdsPortalUrl}" target="_blank" rel="noreferrer">
-        <i data-lucide="external-link"></i>
-        NMDS Portal
-      </a>
+      <div class="application-assistant-actions">
+        <button class="secondary-action" type="button" data-application-toggle-saved>${applicationSavedOnly ? "Show all matches" : "Saved only"}</button>
+        <a class="primary-button" href="${nmdsPortalUrl}" target="_blank" rel="noreferrer"><i data-lucide="external-link"></i> NMDS Portal</a>
+      </div>
     </div>
     <div class="application-card-list">
       ${fallbackGroups.slice(0, 8).map(renderApplicationGroup).join("")}
@@ -9102,6 +9119,13 @@ function bindEvents() {
     });
   });
   qs("#view-results")?.addEventListener("click", (event) => {
+    const applicationToggle = event.target.closest("[data-application-toggle-saved]");
+    if (applicationToggle) {
+      applicationSavedOnly = !applicationSavedOnly;
+      qs("#tab-applications").innerHTML = renderApplicationAssistant();
+      if (window.lucide) window.lucide.createIcons();
+      return;
+    }
     const resultsBackButton = event.target.closest("[data-results-back]");
     if (resultsBackButton) {
       selectedResultInstitution = null;
