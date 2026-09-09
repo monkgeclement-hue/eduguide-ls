@@ -60,6 +60,56 @@ class RoleWorkflowTests(unittest.TestCase):
     changes = server.sanitize_institution_proposal_changes({"applicationUrl": "https://example.edu/apply"})
     self.assertEqual(changes["applicationUrl"], "https://example.edu/apply")
 
+  def test_institution_admin_cannot_submit_for_another_institution(self):
+    actor = {
+      "id": "institution-1",
+      "name": "Institution Admin",
+      "email": "admin@example.edu",
+      "role": "institution_admin",
+      "managedInstitution": "Example University",
+    }
+    with patch.object(server, "check_rate_limit"), patch.object(server, "require_institution_user", return_value=actor):
+      with self.assertRaises(HTTPException) as error:
+        server.create_institution_proposal(
+          server.InstitutionProposalRequest(
+            programmeId="programme-1",
+            institution="Another University",
+            changes={"applicationDeadline": "31 October 2026"},
+          ),
+          object(),
+        )
+    self.assertEqual(error.exception.status_code, 403)
+
+  def test_institution_proposal_visibility_is_scoped_to_managed_school(self):
+    proposals = [
+      {"id": "example", "institution": "Example University"},
+      {"id": "other", "institution": "Another University"},
+    ]
+    institution_admin = {"role": "institution_admin", "managedInstitution": "Example University"}
+    self.assertEqual(
+      [proposal["id"] for proposal in server.get_visible_institution_proposals(institution_admin, proposals)],
+      ["example"],
+    )
+    admin = {"role": "admin"}
+    self.assertEqual(
+      [proposal["id"] for proposal in server.get_visible_institution_proposals(admin, proposals)],
+      ["example", "other"],
+    )
+
+  def test_public_user_never_exposes_password_material(self):
+    user = {
+      "id": "student-1",
+      "email": "student@example.edu",
+      "password": "plain-text-legacy-value",
+      "passwordHash": "hash",
+      "passwordSalt": "salt",
+    }
+    public = server.public_user(user)
+    self.assertEqual(public["id"], "student-1")
+    self.assertNotIn("password", public)
+    self.assertNotIn("passwordHash", public)
+    self.assertNotIn("passwordSalt", public)
+
   def test_change_request_requires_feedback_and_locks_the_decision(self):
     proposal = {
       "id": "proposal-1",
