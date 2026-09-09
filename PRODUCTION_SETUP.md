@@ -18,7 +18,7 @@ In Supabase, copy:
 - Project URL
 - Service role key
 
-The service role key must stay server-side only. Never place it in `index.html`, `app.js`, `data/supabase-config.js`, screenshots, or Git.
+Supabase credentials must stay server-side only. Never place keys in browser files, screenshots, or Git.
 
 ## 2. Render Environment
 

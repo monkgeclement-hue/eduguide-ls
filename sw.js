@@ -1,13 +1,12 @@
-const CACHE_NAME = "eduguide-ls-shell-v75";
+const CACHE_NAME = "eduguide-ls-shell-v76";
 const APP_SHELL = [
   "/",
   "/index.html",
   "/styles.css?v=50",
-  "/app.js?v=75",
+  "/app.js?v=76",
   "/data/catalog.js",
   "/data/admin-catalog.js",
   "/data/source-manifest.json",
-  "/data/supabase-config.js",
   "/manifest.webmanifest",
   "/icons/icon-192.png",
   "/icons/icon-512.png",
@@ -21,8 +20,7 @@ const CACHE_FIRST_PATHS = new Set([
   "/manifest.webmanifest",
   "/data/catalog.js",
   "/data/admin-catalog.js",
-  "/data/source-manifest.json",
-  "/data/supabase-config.js"
+  "/data/source-manifest.json"
 ]);
 
 function isCacheFirstAsset(url) {

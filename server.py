@@ -79,7 +79,7 @@ SUBJECT_ALIASES = [
 
 app = FastAPI(title="EduGuide LS AI Server")
 app.add_middleware(GZipMiddleware, minimum_size=1024)
-PUBLIC_DATA_FILES = {"admin-catalog.js", "catalog.js", "source-manifest.json", "supabase-config.js"}
+PUBLIC_DATA_FILES = {"admin-catalog.js", "catalog.js", "source-manifest.json"}
 PUBLIC_ICON_FILES = {"icon-192.svg", "icon-512.svg", "icon-192.png", "icon-512.png", "apple-touch-icon.png"}
 PUBLIC_REFERENCE_FILES = {
   "che-list-of-accredited-programmes-december-2017.pdf",
@@ -96,8 +96,8 @@ CSP_POLICY = (
   "object-src 'none'; "
   "frame-ancestors 'none'; "
   "form-action 'self'; "
-  "connect-src 'self' https://*.supabase.co https://unpkg.com https://cdn.jsdelivr.net; "
-  "img-src 'self' data: blob: https://*.supabase.co; "
+  "connect-src 'self'; "
+  "img-src 'self' data: blob:; "
   "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://fonts.gstatic.com; "
   "font-src 'self' data: https://fonts.gstatic.com https://fonts.googleapis.com; "
   "script-src 'self' 'unsafe-inline' https://unpkg.com https://cdn.jsdelivr.net; "
@@ -3257,7 +3257,8 @@ def get_database_state(request: Request, authorization: str | None = Header(defa
 
 @app.put("/api/db/state/{state_key}")
 async def put_database_state(state_key: str, request: Request, authorization: str | None = Header(default=None)) -> dict[str, Any]:
-  require_admin_user(authorization)
+  actor = require_admin_user(authorization)
+  check_rate_limit(request, "admin_review_state_write", 120, 60, actor["id"])
   safe_key = re.sub(r"[^a-zA-Z0-9_-]", "", state_key).strip()
   if not safe_key:
     return {"ok": False, "error": "Invalid state key"}
@@ -3277,8 +3278,9 @@ async def put_database_state(state_key: str, request: Request, authorization: st
 
 
 @app.delete("/api/db/state/{state_key}")
-def delete_database_state(state_key: str, authorization: str | None = Header(default=None)) -> dict[str, Any]:
-  require_admin_user(authorization)
+def delete_database_state(state_key: str, request: Request, authorization: str | None = Header(default=None)) -> dict[str, Any]:
+  actor = require_admin_user(authorization)
+  check_rate_limit(request, "admin_review_state_delete", 20, 60, actor["id"])
   safe_key = re.sub(r"[^a-zA-Z0-9_-]", "", state_key).strip()
   if not safe_key:
     return {"ok": False, "error": "Invalid state key"}
@@ -4657,9 +4659,13 @@ def database_diagnostics(authorization: str | None = Header(default=None)) -> di
 def record_runtime_event(payload: RuntimeEventRequest, request: Request, authorization: str | None = Header(default=None)) -> dict[str, Any]:
   user = require_current_user(authorization)
   check_rate_limit(request, "runtime_event", 360, 3600, user["id"])
-  event_type = payload.event_type or payload.eventType
+  event_type = sanitize_event_type(payload.event_type or payload.eventType)
+  if event_type.startswith("admin_") and user.get("role") not in {"owner", "admin"}:
+    raise HTTPException(status_code=403, detail="Admin access required for this event.")
+  if event_type.startswith("institution_") and user.get("role") not in {"owner", "admin", "institution_admin"}:
+    raise HTTPException(status_code=403, detail="Institution access required for this event.")
   try:
-    event = insert_runtime_event(user["id"], event_type or "", payload.label, payload.payload)
+    event = insert_runtime_event(user["id"], event_type, payload.label, payload.payload)
   except ValueError as exc:
     raise HTTPException(status_code=400, detail=str(exc))
   return {"ok": True, "eventId": event["id"]}

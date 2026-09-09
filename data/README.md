@@ -11,10 +11,9 @@ data/
 ├── source-manifest.json      # Manifest of all data sources
 ├── programmes.seed.json      # Complete seed data
 ├── import-candidates.generated.json  # Import validation data
-├── supabase-config.js        # Supabase configuration
 │
 ├── real/                     # Real, enriched, production data
-│   ├── programmes.flat.json  # **Main programme catalog** (234+ programmes)
+│   ├── programmes.flat.json  # **Main programme catalog** (262 programmes)
 │   ├── programmes.by-institution.json
 │   ├── summary.json          # Statistics and summaries
 │   ├── source-audit.json     # Source quality audit
@@ -155,8 +154,8 @@ See `../data-enrichment.conf` for:
 ## Data Quality Metrics
 
 ### Current Status (as of latest refresh)
-- **Total Programmes**: 233 (after Botho filtering)
-- **Review Status**: 233 approved
+- **Total Programmes**: 262
+- **Review Status**: 232 approved, 30 historical candidates awaiting admin review
 - **Career Paths**: 100% populated (auto-enriched)
 - **Duration Data**: 100% populated
 - **Fee References**: ~40% with fee links

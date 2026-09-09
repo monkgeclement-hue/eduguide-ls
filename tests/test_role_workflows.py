@@ -158,6 +158,38 @@ class RoleWorkflowTests(unittest.TestCase):
     self.assertIn("Historical CHE candidate", app_script)
     self.assertIn("historical_candidates", app_script)
 
+  def test_browser_has_no_direct_supabase_write_path(self):
+    root = Path(__file__).resolve().parents[1]
+    app_script = (root / "app.js").read_text(encoding="utf-8")
+    index = (root / "index.html").read_text(encoding="utf-8")
+    service_worker = (root / "sw.js").read_text(encoding="utf-8")
+    self.assertNotIn("supabaseClient", app_script)
+    self.assertNotIn("EDUGUIDE_SUPABASE_CONFIG", app_script)
+    self.assertNotIn("supabase-js", index)
+    self.assertNotIn("supabase-config", index)
+    self.assertNotIn("supabase-config", service_worker)
+    with self.assertRaises(HTTPException) as error:
+      server.public_data_file("supabase-config.js")
+    self.assertEqual(error.exception.status_code, 404)
+
+  def test_students_cannot_write_privileged_audit_events(self):
+    student = {"id": "student-1", "role": "student"}
+    event = server.RuntimeEventRequest(eventType="admin_programme_approved", label="Forged admin event")
+    with patch.object(server, "require_current_user", return_value=student), patch.object(server, "check_rate_limit"):
+      with self.assertRaises(HTTPException) as error:
+        server.record_runtime_event(event, None, "Bearer test")
+    self.assertEqual(error.exception.status_code, 403)
+
+  def test_admin_can_write_privileged_audit_events(self):
+    admin = {"id": "admin-1", "role": "admin"}
+    event = server.RuntimeEventRequest(eventType="admin_programme_approved", label="Approved programme")
+    saved = {"id": "evt-1"}
+    with patch.object(server, "require_current_user", return_value=admin), patch.object(server, "check_rate_limit"), patch.object(
+      server, "insert_runtime_event", return_value=saved
+    ):
+      result = server.record_runtime_event(event, None, "Bearer test")
+    self.assertEqual(result, {"ok": True, "eventId": "evt-1"})
+
   def test_application_fields_are_kept_in_review_state_snapshots(self):
     app_script = (Path(__file__).resolve().parents[1] / "app.js").read_text(encoding="utf-8")
     persist_fields = app_script.split("const programmePersistFields = [", 1)[1].split("];", 1)[0]

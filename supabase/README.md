@@ -13,19 +13,16 @@ Hosted runtime persistence:
 
 - Run `runtime.sql` in the Supabase SQL editor.
 - In Render, set `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY`, and `SUPABASE_STORAGE_BUCKET=eduguide-documents`.
-- Keep the service role key server-side only. Do not put it in `data/supabase-config.js`.
+- Keep all Supabase credentials server-side only. Do not expose service-role or anon keys in browser files, screenshots, or Git.
 - The FastAPI server stores live accounts, sessions, admin review state, uploaded document metadata, AI chat memory, and AI run history in the `runtime_*` tables.
 - Uploaded files are stored in the private `eduguide-documents` Storage bucket.
 - For the full production checklist, including SMTP email verification, see `../PRODUCTION_SETUP.md`.
 
 Admin dashboard persistence:
 
-- The browser prototype always saves admin review changes to `localStorage`.
-- To sync admin actions to Supabase, edit `data/supabase-config.js` and set:
-  - `url`
-  - `anonKey`
-- The current admin actions update `programmes.review_status`, update `data_gaps.status`, and insert rows into `review_events`.
-- Use normal Supabase RLS/service-role planning before exposing this to public users. The current static prototype is suitable for local development and review workflows.
+- The browser keeps a local resilience copy of the review snapshot, but authenticated FastAPI endpoints are the only production write path.
+- The server applies EduGuide role checks, rate limits, audit events, and historical-evidence safeguards before saving the review snapshot to Supabase.
+- The browser does not load a Supabase client or database key.
 
 `seed.sql` keeps small reference data and shared source links. `seed.normalized.sql` is generated from the real source-derived JSON files and loads the current Lesotho catalogue.
 
@@ -47,10 +44,10 @@ Core table groups:
 
 Current normalized seed coverage:
 
-- 11 institutions
-- 234 programmes
-- 30 faculties
-- 31 source documents
+- 17 institutions
+- 262 programmes
+- 36 faculties
+- 37 source documents
 - 6 fee schedules
 - CAS handbook policies
 - NMDS scholarship score criteria

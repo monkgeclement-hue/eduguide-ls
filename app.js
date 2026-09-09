@@ -281,13 +281,8 @@ let authMode = "login";
 let pendingRegistration = null;
 let pendingPasswordReset = null;
 let deferredInstallPrompt = null;
-const supabaseConfig = window.EDUGUIDE_SUPABASE_CONFIG || {};
-const supabaseClient =
-  supabaseConfig.url && supabaseConfig.anonKey && window.supabase
-    ? window.supabase.createClient(supabaseConfig.url, supabaseConfig.anonKey)
-    : null;
-let persistenceMode = supabaseClient ? "supabase" : "local";
-let lastPersistenceMessage = supabaseClient ? "Supabase sync ready" : "Local prototype mode";
+let persistenceMode = "local";
+let lastPersistenceMessage = "Checking server persistence";
 let serverDatabaseAvailable = false;
 let deploymentStatus = {
   checked: false,
@@ -741,11 +736,19 @@ async function saveServerState(stateKey, payload, { throwOnError = false } = {})
       headers: getAuthHeaders({ "Content-Type": "application/json" }),
       body: JSON.stringify({ payload })
     });
-    if (!response.ok) throw new Error(`Database returned ${response.status}`);
+    if (!response.ok) {
+      const data = await response.json().catch(() => ({}));
+      const error = new Error(data.detail || `Database returned ${response.status}`);
+      error.status = response.status;
+      throw error;
+    }
     lastPersistenceMessage = persistenceMode === "server-supabase" ? "Saved to Supabase" : "Saved to database";
   } catch (error) {
-    serverDatabaseAvailable = false;
-    persistenceMode = supabaseClient ? "supabase" : "local";
+    const isAvailabilityFailure = !Number.isInteger(error?.status) || error.status >= 500;
+    if (isAvailabilityFailure) {
+      serverDatabaseAvailable = false;
+      persistenceMode = "local";
+    }
     lastPersistenceMessage = `Database save failed: ${error.message || "offline"}`;
     if (throwOnError) throw error;
   }
@@ -2024,8 +2027,8 @@ async function loadServerDatabaseState() {
     }
   } catch (error) {
     serverDatabaseAvailable = false;
-    persistenceMode = supabaseClient ? "supabase" : "local";
-    lastPersistenceMessage = supabaseClient ? "Supabase sync ready" : "Local prototype mode";
+    persistenceMode = "local";
+    lastPersistenceMessage = "Server persistence unavailable";
   }
 }
 
@@ -2188,140 +2191,28 @@ function saveLocalReviewState() {
     localStorage.setItem(persistenceKey, JSON.stringify(snapshot));
     saveServerState("review_state", snapshot);
     if (serverDatabaseAvailable) lastPersistenceMessage = persistenceMode === "server-supabase" ? "Saving to Supabase" : "Saving to database";
-    else if (!supabaseClient) lastPersistenceMessage = "Saved locally";
+    else if (!serverDatabaseAvailable) lastPersistenceMessage = "Saved locally";
   } catch (error) {
     lastPersistenceMessage = "Local save failed";
   }
-}
-
-async function recordReviewEvent(entityTable, entityId, action, notes, payload = {}) {
-  if (!supabaseClient) return;
-  await supabaseClient.from("review_events").insert({
-    entity_table: entityTable,
-    entity_id: null,
-    action,
-    notes,
-    new_payload: {
-      external_key: entityId,
-      ...payload
-    }
-  });
 }
 
 async function persistProgrammeStatus(programme, status) {
   const snapshot = getReviewStateSnapshot();
   localStorage.setItem(persistenceKey, JSON.stringify(snapshot));
   await saveServerState("review_state", snapshot, { throwOnError: true });
-  const reviewedAt = ["approved", "flagged", "rejected"].includes(status) ? (programme.reviewedAt || new Date().toISOString()) : null;
-  if (!supabaseClient) return;
-  if (isCustomAdminProgramme(programme)) {
-    await recordReviewEvent("programmes", programme.id, status === "approved" ? "approved" : status === "rejected" ? "rejected" : "flagged", `Admin marked manual programme ${formatStatus(status)}.`, {
-      programme_name: programme.name,
-      institution: programme.institution,
-      review_status: status,
-      reviewed_at: reviewedAt
-    });
-    return;
-  }
-  const { error } = await supabaseClient
-    .from("programmes")
-    .update({ review_status: status, reviewed_at: reviewedAt, updated_at: new Date().toISOString() })
-    .eq("external_key", programme.id);
-  if (error) throw error;
-  await recordReviewEvent("programmes", programme.id, status === "approved" ? "approved" : status === "rejected" ? "rejected" : "flagged", `Admin marked programme ${formatStatus(status)}.`, {
-    programme_name: programme.name,
-    institution: programme.institution,
-    review_status: status,
-    reviewed_at: reviewedAt
-  });
 }
 
 async function persistProgrammeEdit(programme, changes) {
   const snapshot = getReviewStateSnapshot();
   localStorage.setItem(persistenceKey, JSON.stringify(snapshot));
   await saveServerState("review_state", snapshot, { throwOnError: true });
-  if (!supabaseClient) return;
-  if (isCustomAdminProgramme(programme)) {
-    await recordReviewEvent("programmes", programme.id, "created_or_updated", "Admin saved a manual programme record.", {
-      programme_name: programme.name,
-      institution: programme.institution,
-      changes
-    });
-    return;
-  }
-  const updatePayload = {
-    name: programme.name,
-    code: programme.code || null,
-    category: programme.category || null,
-    qualification_level: programme.level || null,
-    duration_text: programme.duration || null,
-    delivery_mode: programme.deliveryMode || null,
-    review_status: programme.reviewStatus || "needs_admin_review",
-    reviewed_at: programme.reviewedAt || null,
-    overview: programme.overview || null,
-    raw_payload: {
-      ...programme,
-      admin_edit: {
-        changed_fields: Object.keys(changes),
-        edited_at: new Date().toISOString()
-      }
-    },
-    updated_at: new Date().toISOString()
-  };
-  const { data, error } = await supabaseClient
-    .from("programmes")
-    .update(updatePayload)
-    .eq("external_key", programme.id)
-    .select("id")
-    .single();
-  if (error) throw error;
-
-  if (programme.requirementsSummary && data?.id) {
-    const { error: requirementError } = await supabaseClient.from("programme_requirement_sets").upsert(
-      {
-        programme_id: data.id,
-        route_name: "General entry",
-        requirement_summary: programme.requirementsSummary,
-        review_status: "needs_admin_review",
-        raw_payload: {
-          source_field: "admin_edit",
-          edited_at: new Date().toISOString()
-        }
-      },
-      { onConflict: "programme_id,route_name" }
-    );
-    if (requirementError) throw requirementError;
-  }
-
-  await recordReviewEvent("programmes", programme.id, "updated", "Admin edited programme details.", {
-    programme_name: programme.name,
-    institution: programme.institution,
-    changes
-  });
 }
 
 async function persistGapStatus(gap, status) {
-  saveLocalReviewState();
-  if (!supabaseClient) return;
-  if (isCustomAdminGap(gap)) {
-    await recordReviewEvent("data_gaps", gap.id, status === "resolved" ? "approved" : "updated", `Admin marked manual data gap ${formatStatus(status)}.`, {
-      gap_type: gap.type,
-      title: gap.title,
-      status
-    });
-    return;
-  }
-  const updatePayload = {
-    status,
-    resolved_at: status === "resolved" ? new Date().toISOString() : null
-  };
-  const { error } = await supabaseClient.from("data_gaps").update(updatePayload).eq("external_key", gap.id);
-  if (error) throw error;
-  await recordReviewEvent("data_gaps", gap.id, status === "resolved" ? "approved" : "updated", `Admin marked data gap ${formatStatus(status)}.`, {
-    gap_type: gap.type,
-    title: gap.title,
-    status
-  });
+  const snapshot = getReviewStateSnapshot();
+  localStorage.setItem(persistenceKey, JSON.stringify(snapshot));
+  await saveServerState("review_state", snapshot, { throwOnError: true });
 }
 
 function getProgrammeEditPayload() {
@@ -2564,7 +2455,7 @@ async function saveProgrammeEdit(id) {
 
   adminState.editingProgrammeId = null;
   adminState.selectedProgrammeId = id;
-  lastPersistenceMessage = supabaseClient ? "Saving edit..." : "Saved locally";
+  lastPersistenceMessage = serverDatabaseAvailable ? "Saving edit..." : "Saved locally";
   saveLocalReviewState();
   renderAdmin();
 
@@ -2573,7 +2464,7 @@ async function saveProgrammeEdit(id) {
     for (const gap of autoResolvedGaps) {
       await persistGapStatus(gap, "resolved");
     }
-    lastPersistenceMessage = supabaseClient ? "Synced programme edit" : "Saved locally";
+    lastPersistenceMessage = serverDatabaseAvailable ? (persistenceMode === "server-supabase" ? "Synced programme edit to Supabase" : "Synced programme edit to database") : "Saved locally";
     recordCurrentUserActivity("admin_programme_edited", "Edited programme record", { programmeId: programme.id, programmeName: programme.name, changedFields: Object.keys(changes) });
   } catch (error) {
     Object.assign(programme, previousProgramme);
@@ -9802,11 +9693,11 @@ async function setProgrammeReviewStatus(id, status) {
   programme.reviewStatus = status;
   programme.reviewedAt = ["approved", "flagged", "rejected"].includes(status) ? nextReviewedAt : null;
   adminState.selectedProgrammeId = id;
-  lastPersistenceMessage = supabaseClient ? "Saving..." : "Saved locally";
+  lastPersistenceMessage = serverDatabaseAvailable ? "Saving..." : "Saved locally";
   renderAdmin();
   try {
     await persistProgrammeStatus(programme, status);
-    lastPersistenceMessage = supabaseClient ? "Synced programme review" : "Saved locally";
+    lastPersistenceMessage = serverDatabaseAvailable ? (persistenceMode === "server-supabase" ? "Synced programme review to Supabase" : "Synced programme review to database") : "Saved locally";
     setAdminActionStatus(`Programme marked ${formatStatus(status)}.`, "success");
     recordCurrentUserActivity("admin_programme_reviewed", `Marked programme ${formatStatus(status)}`, { programmeId: programme.id, programmeName: programme.name, status, reviewedAt: programme.reviewedAt });
   } catch (error) {
@@ -9852,11 +9743,11 @@ async function setGapStatus(id, status) {
   if (!gap) return;
   const previousStatus = gap.status;
   gap.status = status;
-  lastPersistenceMessage = supabaseClient ? "Saving..." : "Saved locally";
+  lastPersistenceMessage = serverDatabaseAvailable ? "Saving..." : "Saved locally";
   renderAdmin();
   try {
     await persistGapStatus(gap, status);
-    lastPersistenceMessage = supabaseClient ? "Synced gap status" : "Saved locally";
+    lastPersistenceMessage = serverDatabaseAvailable ? (persistenceMode === "server-supabase" ? "Synced gap status to Supabase" : "Synced gap status to database") : "Saved locally";
     recordCurrentUserActivity("admin_gap_updated", `Marked data gap ${formatStatus(status)}`, { gapId: gap.id, programmeId: gap.programmeId, status });
   } catch (error) {
     gap.status = previousStatus;
@@ -10033,37 +9924,31 @@ async function deleteProgramme(id) {
   const confirmed = window.confirm("Delete this programme entirely? This cannot be undone.");
   if (!confirmed) return;
   const previousProgrammes = structuredClone(adminProgrammes);
+  const previousGaps = structuredClone(adminGaps);
   try {
-    lastPersistenceMessage = supabaseClient ? "Deleting..." : "Deleted locally";
+    lastPersistenceMessage = serverDatabaseAvailable ? "Saving removal..." : "Deleted locally";
     renderAdmin();
     if (isCustomAdminProgramme(programme)) {
-      // Remove locally and attempt server delete if available
+      // Removing the draft from the reviewed snapshot removes it from server persistence too.
       adminProgrammes = adminProgrammes.filter((p) => p.id !== id);
       adminGaps = adminGaps.filter((g) => g.programmeId !== id);
-      if (supabaseClient) {
-        const { error } = await supabaseClient.from("programmes").delete().eq("external_key", id);
-        if (error) throw error;
-      }
-      await recordReviewEvent("programmes", id, "deleted", "Admin deleted manual programme.", { programme_name: programme.name, institution: programme.institution });
+      await saveServerState("review_state", getReviewStateSnapshot(), { throwOnError: true });
       lastPersistenceMessage = "Deleted programme";
+      recordCurrentUserActivity("admin_programme_deleted", "Deleted manual programme", { programmeId: id, programmeName: programme.name, institution: programme.institution });
     } else {
-      // For catalogue programmes archive instead of hard delete to avoid breaking relations
-      if (!supabaseClient) throw new Error("Server database not available to archive catalogue programme.");
-      const { error } = await supabaseClient
-        .from("programmes")
-        .update({ review_status: "archived", updated_at: new Date().toISOString() })
-        .eq("external_key", id);
-      if (error) throw error;
+      // Catalogue records are archived in the reviewed snapshot instead of hard-deleted.
       const p = adminProgrammes.find((x) => x.id === id);
       if (p) p.reviewStatus = "archived";
-      await recordReviewEvent("programmes", id, "archived", "Admin archived programme record.", { programme_name: programme.name, institution: programme.institution });
+      await saveServerState("review_state", getReviewStateSnapshot(), { throwOnError: true });
       lastPersistenceMessage = "Archived programme";
+      recordCurrentUserActivity("admin_programme_archived", "Archived catalogue programme", { programmeId: id, programmeName: programme.name, institution: programme.institution });
     }
     renderAdmin();
     updateCounts();
     calculateMatches();
   } catch (error) {
     adminProgrammes = previousProgrammes;
+    adminGaps = previousGaps;
     lastPersistenceMessage = `Delete failed: ${error.message || "programme delete"}`;
     renderAdmin();
   }
