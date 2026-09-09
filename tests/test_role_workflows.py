@@ -1,6 +1,7 @@
 import unittest
 from unittest.mock import patch
 from datetime import datetime, timezone
+from pathlib import Path
 
 from fastapi import HTTPException
 
@@ -109,6 +110,12 @@ class RoleWorkflowTests(unittest.TestCase):
     self.assertNotIn("password", public)
     self.assertNotIn("passwordHash", public)
     self.assertNotIn("passwordSalt", public)
+
+  def test_application_fields_are_kept_in_review_state_snapshots(self):
+    app_script = (Path(__file__).resolve().parents[1] / "app.js").read_text(encoding="utf-8")
+    persist_fields = app_script.split("const programmePersistFields = [", 1)[1].split("];", 1)[0]
+    for field in ["applicationUrl", "applicationDeadline", "intakeStatus"]:
+      self.assertIn(f'"{field}"', persist_fields)
 
   def test_change_request_requires_feedback_and_locks_the_decision(self):
     proposal = {
