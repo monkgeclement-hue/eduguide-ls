@@ -2705,6 +2705,67 @@ textarea:focus {
   font-size: 12px;
 }
 
+.document-grade-review {
+  margin-top: 10px;
+  padding: 10px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--surface-soft);
+}
+
+.document-grade-review-head strong,
+.document-grade-review-head span {
+  display: block;
+}
+
+.document-grade-review-head span {
+  margin-top: 2px;
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.document-grade-review-list {
+  display: grid;
+  gap: 6px;
+  margin-top: 10px;
+}
+
+.document-grade-review-row {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) 72px;
+  align-items: center;
+  gap: 8px;
+  color: var(--brand-deep);
+  font-size: 12px;
+}
+
+.document-grade-review-row input {
+  margin: 0;
+}
+
+.document-grade-review-row span small {
+  display: block;
+  margin-top: 1px;
+  color: var(--muted);
+  font-size: 11px;
+}
+
+.document-grade-review-row select {
+  min-height: 32px;
+  padding: 4px 7px;
+}
+
+.document-grade-review-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.document-grade-review-actions .compact-action {
+  margin-top: 0;
+}
+
 .counsellor-application-list {
   display: grid;
   gap: 8px;

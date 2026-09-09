@@ -172,6 +172,7 @@ let counsellorState = {
 };
 let counsellorAssignments = [];
 let studentCounsellorAccess = { assignments: [], loading: false, loaded: false, error: "" };
+let reviewingDocumentGradesId = null;
 
 const counsellorConsentMeta = {
   pending: { label: "Awaiting your approval", tone: "amber" },
@@ -4086,6 +4087,7 @@ function mergeDocuments(existing = [], incoming = []) {
 function renderExtractedGrades(documentItem) {
   const grades = documentItem.extractedGrades || [];
   if (grades.length) {
+    const isReviewing = reviewingDocumentGradesId === documentItem.id;
     return `
       <div class="extracted-grade-list">
         ${grades
@@ -4098,9 +4100,10 @@ function renderExtractedGrades(documentItem) {
           )
           .join("")}
       </div>
-      <button class="secondary-action compact-action" type="button" data-apply-document-grades="${escapeHtml(documentItem.id)}">
-        Apply detected grades
+      <button class="secondary-action compact-action" type="button" data-review-document-grades="${escapeHtml(documentItem.id)}">
+        Review grade suggestions
       </button>
+      ${isReviewing ? renderDocumentGradeReview(documentItem) : ""}
     `;
   }
   if (documentItem.extractionStatus === "failed") {
@@ -4113,6 +4116,37 @@ function renderExtractedGrades(documentItem) {
     return `<small class="document-warning">No readable text was detected.</small>`;
   }
   return "";
+}
+
+function renderDocumentGradeReview(documentItem) {
+  const grades = documentItem.extractedGrades || [];
+  return `
+    <div class="document-grade-review" data-document-grade-review="${escapeHtml(documentItem.id)}">
+      <div class="document-grade-review-head">
+        <strong>Confirm detected grades</strong>
+        <span>Only selected grades will update your profile and matches.</span>
+      </div>
+      <div class="document-grade-review-list">
+        ${grades.map((item) => {
+          const code = String(item.code || "");
+          const currentGrade = gradeState[code] || "";
+          return `
+            <label class="document-grade-review-row">
+              <input type="checkbox" data-ocr-grade-include="${escapeHtml(code)}" checked />
+              <span>${escapeHtml(item.subject || getSubjectLabel(code))}${currentGrade ? `<small>Current: ${escapeHtml(currentGrade)}</small>` : ""}</span>
+              <select data-ocr-grade-value="${escapeHtml(code)}" aria-label="${escapeHtml(item.subject || getSubjectLabel(code))} detected grade">
+                ${gradeValues.filter(Boolean).map((grade) => `<option value="${grade}" ${grade === item.grade ? "selected" : ""}>${grade}</option>`).join("")}
+              </select>
+            </label>
+          `;
+        }).join("")}
+      </div>
+      <div class="document-grade-review-actions">
+        <button class="primary-button compact-action" type="button" data-confirm-document-grades="${escapeHtml(documentItem.id)}">Use selected grades</button>
+        <button class="secondary-action compact-action" type="button" data-cancel-document-grade-review>Cancel</button>
+      </div>
+    </div>
+  `;
 }
 
 function renderDocumentList() {
@@ -4321,15 +4355,31 @@ function applyExtractedGrades(documentId) {
     qs("#dropzone-text").textContent = "No detected grades to apply";
     return;
   }
-  grades.forEach((item) => {
-    if (item.code && gradePoints[item.grade] !== undefined) gradeState[item.code] = item.grade;
+  const review = qs(`[data-document-grade-review="${CSS.escape(documentId)}"]`);
+  const selectedGrades = review
+    ? grades.flatMap((item) => {
+      const code = String(item.code || "");
+      const included = review.querySelector(`[data-ocr-grade-include="${CSS.escape(code)}"]`)?.checked;
+      const grade = review.querySelector(`[data-ocr-grade-value="${CSS.escape(code)}"]`)?.value;
+      return included && code && gradePoints[grade] !== undefined ? [{ code, grade }] : [];
+    })
+    : [];
+  if (!selectedGrades.length) {
+    showAppToast("Select at least one detected grade to use it.", "warning");
+    return;
+  }
+  selectedGrades.forEach((item) => {
+    gradeState[item.code] = item.grade;
   });
+  reviewingDocumentGradesId = null;
   persistCurrentGrades();
+  saveAuthUsers();
   renderGrades();
   calculateMatches();
   renderStudentDashboard();
-  recordCurrentUserActivity("document_grades_applied", "Applied detected document grades", { count: grades.length });
-  qs("#dropzone-text").textContent = `${grades.length} detected grade(s) applied`;
+  recordCurrentUserActivity("document_grades_applied", "Confirmed detected document grades", { count: selectedGrades.length, document: documentItem.name || documentId });
+  qs("#dropzone-text").textContent = `${selectedGrades.length} confirmed grade(s) applied`;
+  showAppToast(`${selectedGrades.length} grade suggestion(s) added to your profile.`, "success");
 }
 
 async function rerunDocumentOcr(documentId) {
@@ -9683,6 +9733,22 @@ function bindEvents() {
     const applyButton = event.target.closest("[data-apply-document-grades]");
     if (applyButton) {
       applyExtractedGrades(applyButton.dataset.applyDocumentGrades);
+      return;
+    }
+    const reviewButton = event.target.closest("[data-review-document-grades]");
+    if (reviewButton) {
+      reviewingDocumentGradesId = reviewButton.dataset.reviewDocumentGrades;
+      renderStudentDashboard();
+      return;
+    }
+    const confirmButton = event.target.closest("[data-confirm-document-grades]");
+    if (confirmButton) {
+      applyExtractedGrades(confirmButton.dataset.confirmDocumentGrades);
+      return;
+    }
+    if (event.target.closest("[data-cancel-document-grade-review]")) {
+      reviewingDocumentGradesId = null;
+      renderStudentDashboard();
       return;
     }
     const rerunButton = event.target.closest("[data-rerun-document-ocr]");
