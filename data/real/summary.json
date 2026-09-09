@@ -1,22 +1,29 @@
 {
   "generated_at": "2026-06-09T18:03:08Z",
-  "programme_count": 234,
-  "institution_count": 11,
+  "programme_count": 262,
+  "institution_count": 17,
   "institutions": {
-    "Botho University Lesotho": 21,
+    "Botho University Lesotho": 20,
     "Centre for Accounting Studies": 8,
     "Imperial Business College": 2,
+    "Institute of Development Management": 11,
     "Lerotholi Polytechnic": 22,
     "Lesotho Agricultural College": 5,
+    "Lesotho Boston Health Alliance (LeBoHA)": 1,
     "Lesotho College of Education": 6,
+    "Lesotho Institute of Public Administration and Management": 2,
     "Limkokwing University Lesotho": 29,
+    "Maluti Adventist College": 2,
     "NUL Institute of Extra Mural Studies (IEMS)": 7,
-    "National University of Lesotho": 129,
+    "National Health Training College": 11,
+    "National University of Lesotho": 128,
     "Paray School of Nursing": 3,
-    "Roma College of Nursing": 2
+    "Roma College of Nursing": 2,
+    "Scott Hospital School of Nursing": 3
   },
   "review_status_counts": {
-    "needs_admin_review": 234
+    "approved": 232,
+    "needs_admin_review": 30
   },
-  "update_note": "Manual repair: Paray upgraded to supplied PDF data, IEMS remains split from NUL, and IBC visual prospectus records added for admin scope review."
+  "update_note": "CHE 2017 historical candidates imported to the private admin-review queue; they require current institution/CHE verification before publication."
 }

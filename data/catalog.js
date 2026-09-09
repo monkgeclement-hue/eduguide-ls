@@ -78,6 +78,13 @@ window.EDUGUIDE_DATA = {
       status: "verified-core",
       url: "https://finance.gov.ls/PDFDocuments/2024%20LFS%20REPORT%2002_JULY%202025%20608-638874863136847407.pdf",
       tags: ["labour", "employment", "sectors"]
+    },
+    {
+      name: "LTEN guide to higher education institutions in Lesotho",
+      type: "2026 sector context guide",
+      status: "context-reference",
+      url: "https://lten.org.ls/blog/a-complete-guide-to-higher-education-institutions-in-lesotho",
+      tags: ["institution landscape", "official links", "context only"]
     }
   ],
   programmes: [

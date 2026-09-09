@@ -24,6 +24,12 @@ INSTITUTION_META = {
     "Paray School of Nursing": {"short_name": "Paray", "type": "college", "district": "Thaba-Tseka", "website": "https://www.parayson.ac.ls/"},
     "Centre for Accounting Studies": {"short_name": "CAS", "type": "college", "district": "Maseru", "website": "https://cas.ac.ls/"},
     "Imperial Business College": {"short_name": "IBC", "type": "international_college", "district": "Kathmandu, Nepal", "website": "https://www.imperialcollege.edu.np/", "country": "Nepal", "verification_status": "needs_review"},
+    "National Health Training College": {"short_name": "NHTC", "type": "college", "district": "Maseru", "verification_status": "needs_review"},
+    "Maluti Adventist College": {"short_name": "MAC", "type": "college", "district": "Mapoteng", "verification_status": "needs_review"},
+    "Scott Hospital School of Nursing": {"short_name": "SSN", "type": "college", "district": "Morija", "verification_status": "needs_review"},
+    "Institute of Development Management": {"short_name": "IDM", "type": "institute", "district": "Maseru", "verification_status": "needs_review"},
+    "Lesotho Institute of Public Administration and Management": {"short_name": "LIPAM", "type": "institute", "district": "Maseru", "verification_status": "needs_review"},
+    "Lesotho Boston Health Alliance (LeBoHA)": {"short_name": "LeBoHA", "type": "health_training", "district": "Maseru and Leribe", "verification_status": "needs_review"},
 }
 
 SUBJECTS = [

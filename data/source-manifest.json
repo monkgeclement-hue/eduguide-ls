@@ -217,5 +217,28 @@
     "url": "https://finance.gov.ls/PDFDocuments/2024%20LFS%20REPORT%2002_JULY%202025%20608-638874863136847407.pdf",
     "priority": 2,
     "extract": ["labour_market_notes", "employment_sectors"]
+  },
+  {
+    "name": "LTEN guide to higher education institutions in Lesotho",
+    "kind": "sector_context_guide",
+    "url": "https://lten.org.ls/blog/a-complete-guide-to-higher-education-institutions-in-lesotho",
+    "priority": 3,
+    "extract": ["institution_context", "official_link_discovery"]
+  },
+  {
+    "name": "CHE list of accredited programmes (December 2017)",
+    "kind": "official_regulator_historical_pdf",
+    "local_path": "data/references/che-list-of-accredited-programmes-december-2017.pdf",
+    "priority": 2,
+    "extract": ["historical_programme_names", "historical_accreditation_context"],
+    "note": "Historical cross-check only. Its accreditation periods ended by 2023 and must not be presented as current status."
+  },
+  {
+    "name": "CHE profiles of higher education institutions (2017)",
+    "kind": "official_regulator_historical_pdf",
+    "local_path": "data/references/che-profiles-of-heis-2017.pdf",
+    "priority": 2,
+    "extract": ["historical_institution_profiles", "historical_programme_lists"],
+    "note": "Historical cross-check only. Do not use this document for current admissions, fees, or programme availability."
   }
 ]

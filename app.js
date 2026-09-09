@@ -8793,6 +8793,17 @@ function getAllAdminSources() {
   return [...adminSources, ...getDerivedAdminSources()];
 }
 
+function getSourceAuditOpenUrl(source = {}) {
+  const externalUrl = getSafeExternalUrl(source.source_url);
+  if (externalUrl) return externalUrl;
+  const localPath = String(source.source_path || "").replace(/\\/g, "/");
+  const referenceFiles = {
+    "data/references/che-list-of-accredited-programmes-december-2017.pdf": "/source-documents/che-list-of-accredited-programmes-december-2017.pdf",
+    "data/references/che-profiles-of-heis-2017.pdf": "/source-documents/che-profiles-of-heis-2017.pdf"
+  };
+  return referenceFiles[localPath] || "";
+}
+
 function getFilteredAdminSources() {
   return getAllAdminSources().filter((source) => {
     const institutionMatch = adminState.institution === "all" || source.institution === adminState.institution;
@@ -8956,7 +8967,7 @@ function renderAdminSources() {
   qs("#admin-source-list").innerHTML = filteredSources.length
     ? filteredSources
         .map((source) => {
-          const href = source.source_url || "";
+          const href = getSourceAuditOpenUrl(source);
           const label = source.source_url || source.source_path || "Local evidence";
           return `
             <article class="admin-row source-audit-row">

@@ -80,5 +80,29 @@
     "coverage_type": "international_prospectus_document",
     "status": "visual_extract_added",
     "note": "PDF uses outlined fonts; BBA/BHCM facts were visually reviewed and need scope confirmation for EduGuide LS."
+  },
+  {
+    "name": "CHE list of accredited programmes (December 2017)",
+    "local_path": "data/references/che-list-of-accredited-programmes-december-2017.pdf",
+    "institution": null,
+    "coverage_type": "historical_regulator_programme_list",
+    "status": "private_admin_candidates_only",
+    "note": "Historical CHE programme names were imported into the admin-review queue only. Validity periods in the document ended by 2023 and require current verification before publication."
+  },
+  {
+    "name": "CHE profiles of higher education institutions (2017)",
+    "local_path": "data/references/che-profiles-of-heis-2017.pdf",
+    "institution": null,
+    "coverage_type": "historical_regulator_institution_profiles",
+    "status": "historical_context_only",
+    "note": "Used to cross-check historical institution names, locations, and programme lists; not current admissions or accreditation evidence."
+  },
+  {
+    "name": "LTEN higher education institutions guide (2026)",
+    "url": "https://lten.org.ls/blog/a-complete-guide-to-higher-education-institutions-in-lesotho",
+    "institution": null,
+    "coverage_type": "sector_context_and_official_link_discovery",
+    "status": "current_context_reference",
+    "note": "Useful current landscape context and official-link discovery. Institution pages and regulator sources remain required for programme facts."
   }
 ]

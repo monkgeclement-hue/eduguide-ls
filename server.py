@@ -81,6 +81,10 @@ app = FastAPI(title="EduGuide LS AI Server")
 app.add_middleware(GZipMiddleware, minimum_size=1024)
 PUBLIC_DATA_FILES = {"admin-catalog.js", "catalog.js", "source-manifest.json", "supabase-config.js"}
 PUBLIC_ICON_FILES = {"icon-192.svg", "icon-512.svg", "icon-192.png", "icon-512.png", "apple-touch-icon.png"}
+PUBLIC_REFERENCE_FILES = {
+  "che-list-of-accredited-programmes-december-2017.pdf",
+  "che-profiles-of-heis-2017.pdf",
+}
 mimetypes.add_type("application/manifest+json", ".webmanifest")
 mimetypes.add_type("image/svg+xml", ".svg")
 CSP_POLICY = (
@@ -4813,3 +4817,13 @@ def public_data_file(file_name: str) -> FileResponse:
     raise HTTPException(status_code=404, detail="File not found.")
   media_type = "application/javascript" if file_name.endswith(".js") else "application/json"
   return cached_file_response(path, media_type=media_type)
+
+
+@app.get("/source-documents/{file_name}")
+def public_reference_document(file_name: str) -> FileResponse:
+  if file_name not in PUBLIC_REFERENCE_FILES:
+    raise HTTPException(status_code=404, detail="Reference document is not public.")
+  path = ROOT / "data" / "references" / file_name
+  if not path.exists():
+    raise HTTPException(status_code=404, detail="Reference document not found.")
+  return cached_file_response(path, media_type="application/pdf", headers=STATIC_CACHE_HEADERS)

@@ -122,6 +122,13 @@ class RoleWorkflowTests(unittest.TestCase):
     self.assertNotIn("passwordHash", public)
     self.assertNotIn("passwordSalt", public)
 
+  def test_historical_reference_documents_are_allowlisted(self):
+    response = server.public_reference_document("che-list-of-accredited-programmes-december-2017.pdf")
+    self.assertTrue(str(response.path).endswith("che-list-of-accredited-programmes-december-2017.pdf"))
+    with self.assertRaises(HTTPException) as error:
+      server.public_reference_document("../../server.py")
+    self.assertEqual(error.exception.status_code, 404)
+
   def test_application_fields_are_kept_in_review_state_snapshots(self):
     app_script = (Path(__file__).resolve().parents[1] / "app.js").read_text(encoding="utf-8")
     persist_fields = app_script.split("const programmePersistFields = [", 1)[1].split("];", 1)[0]
