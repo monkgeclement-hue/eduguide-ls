@@ -2335,6 +2335,9 @@ function getProgrammeEditPayload() {
     sourceUrl: values.get("sourceUrl")?.trim() || null,
     supportingSourcePath: values.get("supportingSourcePath")?.trim() || null,
     supportingFeeSourcePath: values.get("supportingFeeSourcePath")?.trim() || null,
+    applicationUrl: getSafeExternalUrl(values.get("applicationUrl")) || null,
+    applicationDeadline: values.get("applicationDeadline")?.trim() || null,
+    intakeStatus: values.get("intakeStatus")?.trim() || null,
     sourceNote: values.get("sourceNote")?.trim() || null,
     feeNote: values.get("feeNote")?.trim() || null
   };
@@ -2404,6 +2407,17 @@ function getManualProgrammeGaps(programme) {
       programmeName: programme.name,
       title: "Missing fee evidence",
       description: "Add fee notes or the source that confirms application, tuition, or other fees."
+    },
+    {
+      id: `${gapBase}-application`,
+      type: "application_info_missing",
+      priority: "medium",
+      status: programme.applicationUrl || programme.applicationDeadline || programme.intakeStatus ? "resolved" : "open",
+      institution: programme.institution,
+      programmeId: programme.id,
+      programmeName: programme.name,
+      title: "Missing application information",
+      description: "Add a verified apply-online route, intake status, or closing date when the institution confirms it."
     }
   ];
 }
@@ -2436,6 +2450,9 @@ function createAdminProgramme() {
     sourcePath: null,
     supportingSourcePath: null,
     supportingFeeSourcePath: null,
+    applicationUrl: null,
+    applicationDeadline: null,
+    intakeStatus: null,
     sourceType: "manual_admin_entry",
     extractionMethod: "admin_dashboard",
     reviewStatus: "needs_admin_review",
@@ -2522,6 +2539,14 @@ async function saveProgrammeEdit(id) {
   if (programme.supportingFeeSourcePath || programme.feeNote) {
     adminGaps
       .filter((gap) => gap.programmeId === programme.id && gap.type === "fee_missing" && gap.status === "open")
+      .forEach((gap) => {
+        gap.status = "resolved";
+        autoResolvedGaps.push(gap);
+      });
+  }
+  if (programme.applicationUrl || programme.applicationDeadline || programme.intakeStatus) {
+    adminGaps
+      .filter((gap) => gap.programmeId === programme.id && gap.type === "application_info_missing" && gap.status === "open")
       .forEach((gap) => {
         gap.status = "resolved";
         autoResolvedGaps.push(gap);
@@ -9343,6 +9368,18 @@ function renderAdminDetail() {
               <span>Evidence file/path</span>
               <input name="supportingSourcePath" value="${escapeHtml(programme.supportingSourcePath || "")}" placeholder="data/... or local PDF name">
             </label>
+            <label>
+              <span>Official apply-online URL</span>
+              <input name="applicationUrl" type="url" value="${escapeHtml(programme.applicationUrl || "")}" placeholder="https://...">
+            </label>
+            <label>
+              <span>Application deadline / closing date</span>
+              <input name="applicationDeadline" value="${escapeHtml(programme.applicationDeadline || "")}" placeholder="Example: 31 October 2026">
+            </label>
+            <label class="full">
+              <span>Intake status</span>
+              <input name="intakeStatus" value="${escapeHtml(programme.intakeStatus || "")}" placeholder="Example: Open for 2027 intake">
+            </label>
             <label class="full">
               <span>Careers</span>
               <textarea name="careers" placeholder="One career per line">${escapeHtml(formatListText(programme.careers || []))}</textarea>
@@ -9430,6 +9467,11 @@ function renderAdminDetail() {
             ? `<ul class="detail-list">${careerItems.map((career) => `<li>${escapeHtml(career)}</li>`).join("")}</ul>`
             : `<p><span class="muted-inline">Career alignment will be inferred until admin adds it.</span></p>`
         }
+      </div>
+      <div class="detail-section">
+        <h4>Application route</h4>
+        <p>${escapeHtml(programme.intakeStatus || programme.applicationDeadline || "No institution-confirmed intake status or closing date captured yet.")}</p>
+        ${getSafeExternalUrl(programme.applicationUrl) ? `<a class="detail-source-link" href="${escapeHtml(getSafeExternalUrl(programme.applicationUrl))}" target="_blank" rel="noopener noreferrer">Open official application route <i data-lucide="external-link"></i></a>` : ""}
       </div>
       <div class="detail-section">
         <h4>Evidence</h4>
