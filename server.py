@@ -232,6 +232,7 @@ class InstitutionProposalRequest(BaseModel):
   programmeId: str
   programmeName: str | None = None
   institution: str | None = None
+  proposalType: str | None = None
   changes: dict[str, Any] = Field(default_factory=dict)
   note: str | None = None
 
@@ -2494,6 +2495,7 @@ INSTITUTION_PROPOSAL_FIELDS = {
   "careers",
 }
 INSTITUTION_PROPOSAL_STATUSES = {"pending_admin_review", "approved", "rejected"}
+INSTITUTION_PROPOSAL_TYPES = {"update", "new_programme"}
 
 
 def sanitize_proposal_text(value: Any, limit: int = 1600) -> str:
@@ -2527,6 +2529,17 @@ def sanitize_institution_proposal_changes(changes: dict[str, Any] | None) -> dic
   return clean
 
 
+def normalize_institution_proposal_type(value: Any) -> str:
+  proposal_type = sanitize_proposal_text(value, 40).lower().replace("-", "_")
+  return proposal_type if proposal_type in INSTITUTION_PROPOSAL_TYPES else "update"
+
+
+def new_programme_proposal_is_complete(changes: dict[str, Any]) -> bool:
+  required = {"name", "level", "requirementsSummary"}
+  has_source_evidence = bool(changes.get("sourceUrl") or changes.get("supportingSourcePath") or changes.get("sourceNote"))
+  return required.issubset(changes) and has_source_evidence
+
+
 def normalize_institution_proposal(proposal: dict[str, Any]) -> dict[str, Any] | None:
   if not isinstance(proposal, dict):
     return None
@@ -2536,6 +2549,9 @@ def normalize_institution_proposal(proposal: dict[str, Any]) -> dict[str, Any] |
   changes = sanitize_institution_proposal_changes(proposal.get("changes"))
   if not programme_id or not institution or not changes:
     return None
+  proposal_type = normalize_institution_proposal_type(proposal.get("proposalType") or proposal.get("proposal_type"))
+  if proposal_type == "new_programme" and not new_programme_proposal_is_complete(changes):
+    return None
   status = sanitize_proposal_text(proposal.get("status"), 80) or "pending_admin_review"
   if status not in INSTITUTION_PROPOSAL_STATUSES:
     status = "pending_admin_review"
@@ -2544,6 +2560,7 @@ def normalize_institution_proposal(proposal: dict[str, Any]) -> dict[str, Any] |
     "programmeId": programme_id,
     "programmeName": sanitize_proposal_text(proposal.get("programmeName"), 220),
     "institution": institution,
+    "proposalType": proposal_type,
     "changes": changes,
     "note": sanitize_proposal_text(proposal.get("note"), 1200),
     "status": status,
@@ -3770,6 +3787,9 @@ def create_institution_proposal(payload: InstitutionProposalRequest, request: Re
   changes = sanitize_institution_proposal_changes(payload.changes)
   if not changes:
     raise HTTPException(status_code=400, detail="At least one proposed change is required.")
+  proposal_type = normalize_institution_proposal_type(payload.proposalType)
+  if proposal_type == "new_programme" and not new_programme_proposal_is_complete(changes):
+    raise HTTPException(status_code=400, detail="New programme requests need a name, level, entry requirements, and an official source URL, evidence path, or source note.")
   programme_id = sanitize_proposal_text(payload.programmeId, 140)
   if not programme_id:
     raise HTTPException(status_code=400, detail="Programme is required.")
@@ -3780,6 +3800,7 @@ def create_institution_proposal(payload: InstitutionProposalRequest, request: Re
     "programmeId": programme_id,
     "programmeName": sanitize_proposal_text(payload.programmeName, 220),
     "institution": institution,
+    "proposalType": proposal_type,
     "changes": changes,
     "note": sanitize_proposal_text(payload.note, 1200),
     "status": "pending_admin_review",
@@ -3799,12 +3820,13 @@ def create_institution_proposal(payload: InstitutionProposalRequest, request: Re
   safe_insert_runtime_event(
     actor["id"],
     "institution_proposal_submitted",
-    "Institution submitted catalogue update",
+    "Institution submitted new programme request" if proposal_type == "new_programme" else "Institution submitted catalogue update",
     {
       "proposalId": proposal["id"],
       "programmeId": proposal["programmeId"],
       "programmeName": proposal["programmeName"],
       "institution": proposal["institution"],
+      "proposalType": proposal_type,
       "fields": list(changes.keys()),
       "ip": get_request_ip(request),
     },

@@ -158,7 +158,8 @@ let schoolExplorerState = {
 let institutionWorkbenchState = {
   search: "",
   institution: "",
-  selectedProgrammeId: null
+  selectedProgrammeId: null,
+  newProgrammeDraft: false
 };
 let counsellorState = {
   students: [],
@@ -6093,7 +6094,7 @@ function getExplorerProgrammes() {
 function isPublicProgramme(programme = {}) {
   const statuses = [programme.reviewStatus, programme.status, programme.publicationStatus]
     .map((status) => String(status || "").toLowerCase());
-  return !statuses.includes("rejected") && !statuses.includes("archived");
+  return statuses.includes("approved") || statuses.includes("verified");
 }
 
 function getPublicProgrammeCount() {
@@ -6789,11 +6790,13 @@ function renderSchoolExplorer() {
 
 function normalizeInstitutionProposal(proposal = {}) {
   const changes = proposal.changes && typeof proposal.changes === "object" ? proposal.changes : {};
+  const proposalType = proposal.proposalType === "new_programme" || proposal.proposal_type === "new_programme" ? "new_programme" : "update";
   return {
     id: String(proposal.id || `local-proposal-${Date.now()}`),
     programmeId: String(proposal.programmeId || proposal.programme_id || ""),
     programmeName: String(proposal.programmeName || ""),
     institution: normalizeInstitutionName(proposal.institution),
+    proposalType,
     changes,
     note: String(proposal.note || ""),
     status: proposal.status || "pending_admin_review",
@@ -6805,6 +6808,10 @@ function normalizeInstitutionProposal(proposal = {}) {
   };
 }
 
+function isNewProgrammeProposal(proposal = {}) {
+  return proposal.proposalType === "new_programme";
+}
+
 function getVisibleInstitutionProposals() {
   if (isAdmin()) return institutionProposals;
   const managedInstitution = getManagedInstitution();
@@ -6813,6 +6820,10 @@ function getVisibleInstitutionProposals() {
 
 function getProposalFieldLabel(field) {
   return institutionProposalEditableFields.find((item) => item.name === field)?.label || formatStatus(field);
+}
+
+function getProposalTypeLabel(proposal = {}) {
+  return isNewProgrammeProposal(proposal) ? "New programme" : "Catalogue update";
 }
 
 function getProposalStatusTone(status) {
@@ -6902,6 +6913,7 @@ function renderInstitutionSummary(scope, programmes) {
   if (!summaryRoot) return;
   const visibleProposals = getVisibleInstitutionProposals().filter((proposal) => !scope || normalizeInstitutionName(proposal.institution).toLowerCase() === scope.toLowerCase());
   const pending = visibleProposals.filter((proposal) => proposal.status === "pending_admin_review").length;
+  const newProgrammeRequests = visibleProposals.filter((proposal) => isNewProgrammeProposal(proposal) && proposal.status === "pending_admin_review").length;
   const rejected = visibleProposals.filter((proposal) => proposal.status === "rejected").length;
   const openGaps = adminGaps.filter((gap) => gap.institution === scope && gap.status !== "resolved").length;
   const feeItems = getInstitutionFeeSchedules(scope).reduce((total, schedule) => total + (schedule.items || []).length, 0);
@@ -6909,6 +6921,7 @@ function renderInstitutionSummary(scope, programmes) {
     { label: "Institution", value: scope || "Not assigned" },
     { label: "Programmes", value: String(programmes.length) },
     { label: "Pending updates", value: String(pending) },
+    { label: "New programme requests", value: String(newProgrammeRequests) },
     { label: "Rejected updates", value: String(rejected) },
     { label: "Open data gaps", value: String(openGaps) },
     { label: "Fee items", value: String(feeItems) }
@@ -6991,6 +7004,31 @@ function renderInstitutionProposalForm(programme) {
   `;
 }
 
+function renderNewInstitutionProgrammeForm(institution) {
+  return `
+    <form class="edit-form institution-proposal-form" id="institution-new-programme-form" data-institution="${escapeHtml(institution)}">
+      <p class="detail-muted">This request remains private until an EduGuide admin verifies and creates the programme record.</p>
+      <div class="edit-grid">
+        ${institutionProposalEditableFields.map((field) => {
+          const required = ["name", "level", "requirementsSummary"].includes(field.name);
+          const input = field.type === "textarea"
+            ? `<textarea name="${escapeHtml(field.name)}" ${required ? "required" : ""} placeholder="${escapeHtml(field.label)}"></textarea>`
+            : `<input name="${escapeHtml(field.name)}" ${required ? "required" : ""} placeholder="${escapeHtml(field.label)}" />`;
+          return `<label class="${field.full ? "full" : ""}"><span>${escapeHtml(field.label)}${required ? " *" : ""}</span>${input}</label>`;
+        }).join("")}
+        <label class="full">
+          <span>Note for EduGuide admin *</span>
+          <textarea name="note" required placeholder="Give the official page, prospectus section, or context that confirms this programme."></textarea>
+        </label>
+      </div>
+      <div class="detail-actions">
+        <button class="primary-button small" type="submit"><i data-lucide="send"></i> Submit new programme</button>
+        <button class="secondary-action" type="button" data-cancel-new-institution-programme>Cancel</button>
+      </div>
+    </form>
+  `;
+}
+
 function renderInstitutionDetail(programme) {
   const panel = qs("#institution-detail-panel");
   if (!panel) return;
@@ -7001,6 +7039,17 @@ function renderInstitutionDetail(programme) {
   const scope = getInstitutionWorkbenchScope();
   if (!scope) {
     panel.innerHTML = `<article class="admin-empty"><h4>No institution assigned.</h4><p>Open Admin Users and attach this account to a school.</p></article>`;
+    return;
+  }
+  if (institutionWorkbenchState.newProgrammeDraft) {
+    panel.innerHTML = `
+      <div class="detail-card">
+        <div class="detail-card-head"><p class="section-kicker">Institution request</p><span class="badge amber">Admin review</span></div>
+        <h3>Propose a new programme</h3>
+        <p class="detail-muted">${escapeHtml(scope)} can submit a new programme with evidence. It will not be shown to students until an admin approves it.</p>
+        ${renderNewInstitutionProgrammeForm(scope)}
+      </div>
+    `;
     return;
   }
   if (!programme) {
@@ -7132,6 +7181,7 @@ function renderAdminInstitutionProposals() {
     ? proposals.map((proposal) => {
         const active = proposal.id === adminState.selectedProposalId;
         const pending = proposal.status === "pending_admin_review";
+        const proposalType = getProposalTypeLabel(proposal);
         return `
           <article class="admin-row ${active ? "selected" : ""}" data-institution-proposal-id="${escapeHtml(proposal.id)}">
             <div class="admin-row-main">
@@ -7139,7 +7189,7 @@ function renderAdminInstitutionProposals() {
                 <h4>${escapeHtml(proposal.programmeName || proposal.programmeId)}</h4>
                 <span>${escapeHtml(proposal.institution)}</span>
               </div>
-              <p>${escapeHtml(Object.keys(proposal.changes || {}).map(getProposalFieldLabel).join(", ") || "Catalogue update")}</p>
+              <p>${escapeHtml(proposalType)} - ${escapeHtml(Object.keys(proposal.changes || {}).map(getProposalFieldLabel).join(", ") || "Catalogue update")}</p>
               <div class="admin-row-meta">
                 <span>${escapeHtml(proposal.requestedBy?.name || "Institution user")}</span>
                 <span>${escapeHtml(formatDateTime(proposal.createdAt))}</span>
@@ -7147,6 +7197,7 @@ function renderAdminInstitutionProposals() {
               </div>
             </div>
             <div class="admin-row-actions">
+              <span class="badge blue">${escapeHtml(proposalType)}</span>
               <span class="badge ${getProposalStatusTone(proposal.status)}">${escapeHtml(formatStatus(proposal.status))}</span>
               <button type="button" title="Apply update" data-institution-proposal-apply="${escapeHtml(proposal.id)}" ${pending ? "" : "disabled"}>
                 <i data-lucide="check"></i>
@@ -7172,13 +7223,13 @@ function renderAdminInstitutionProposalDetail(panel) {
   panel.innerHTML = `
     <div class="detail-card">
       <div class="detail-card-head">
-        <p class="section-kicker">Institution update</p>
+        <p class="section-kicker">${escapeHtml(getProposalTypeLabel(proposal))}</p>
         <span class="badge ${getProposalStatusTone(proposal.status)}">${escapeHtml(formatStatus(proposal.status))}</span>
       </div>
-      <h3>${escapeHtml(proposal.programmeName || programme?.name || "Programme update")}</h3>
+      <h3>${escapeHtml(proposal.programmeName || programme?.name || "Programme request")}</h3>
       <p class="detail-muted">${escapeHtml(proposal.institution)} - ${escapeHtml(formatDateTime(proposal.createdAt))}</p>
       <div class="detail-meta-grid">
-        <div><span>Programme ID</span><strong>${escapeHtml(proposal.programmeId)}</strong></div>
+        <div><span>${isNewProgrammeProposal(proposal) ? "Request ID" : "Programme ID"}</span><strong>${escapeHtml(proposal.programmeId)}</strong></div>
         <div><span>Submitted by</span><strong>${escapeHtml(proposal.requestedBy?.name || "Institution user")}</strong></div>
         <div><span>Status</span><strong>${escapeHtml(formatStatus(proposal.status))}</strong></div>
         <div><span>Current record</span><strong>${escapeHtml(programme ? "Found" : "Missing")}</strong></div>
@@ -7197,9 +7248,9 @@ function renderAdminInstitutionProposalDetail(panel) {
           : ""
       }
       <div class="detail-actions">
-        <button class="primary-button small" type="button" data-institution-proposal-apply="${escapeHtml(proposal.id)}" ${proposal.status === "pending_admin_review" && programme ? "" : "disabled"}>
+        <button class="primary-button small" type="button" data-institution-proposal-apply="${escapeHtml(proposal.id)}" ${proposal.status === "pending_admin_review" && (programme || isNewProgrammeProposal(proposal)) ? "" : "disabled"}>
           <i data-lucide="check"></i>
-          Apply update
+          ${isNewProgrammeProposal(proposal) ? "Create programme" : "Apply update"}
         </button>
         <button class="secondary-action danger" type="button" data-institution-proposal-reject="${escapeHtml(proposal.id)}" ${proposal.status === "pending_admin_review" ? "" : "disabled"}>
           <i data-lucide="x"></i>
@@ -7228,6 +7279,24 @@ function getInstitutionProposalPayload(form, programme) {
     programmeId: programme.id,
     programmeName: programme.name,
     institution: programme.institution,
+    note: String(values.get("note") || "").trim(),
+    changes
+  };
+}
+
+function getNewInstitutionProgrammePayload(form) {
+  const values = new FormData(form);
+  const changes = {};
+  institutionProposalEditableFields.forEach((field) => {
+    const rawValue = values.get(field.name);
+    const value = field.name === "careers" ? parseListText(rawValue) : String(rawValue || "").trim();
+    if (Array.isArray(value) ? value.length : value) changes[field.name] = value;
+  });
+  return {
+    proposalType: "new_programme",
+    programmeId: `new-${Date.now()}-${Math.random().toString(16).slice(2, 8)}`,
+    programmeName: String(changes.name || "").trim(),
+    institution: form.dataset.institution || "",
     note: String(values.get("note") || "").trim(),
     changes
   };
@@ -7287,6 +7356,41 @@ async function submitInstitutionProposal(form) {
   }
 }
 
+async function submitNewInstitutionProgramme(form) {
+  if (!authToken || !isInstitutionUser()) return;
+  const payload = getNewInstitutionProgrammePayload(form);
+  const missing = [
+    !payload.changes.name ? "programme name" : "",
+    !payload.changes.level ? "level" : "",
+    !payload.changes.requirementsSummary ? "entry requirements" : "",
+    !(payload.changes.sourceUrl || payload.changes.supportingSourcePath || payload.changes.sourceNote) ? "source evidence" : ""
+  ].filter(Boolean);
+  if (missing.length) {
+    setAdminActionStatus(`Add ${missing.join(", ")} before submitting.`, "warning");
+    return;
+  }
+  try {
+    const response = await fetch("/api/institution/proposals", {
+      method: "POST",
+      headers: getAuthHeaders({ "Content-Type": "application/json", Accept: "application/json" }),
+      body: JSON.stringify(payload)
+    });
+    const data = await response.json().catch(() => ({}));
+    if (!response.ok || !data.ok) throw new Error(data.detail || "Could not submit new programme");
+    institutionProposals = Array.isArray(data.proposals)
+      ? data.proposals.map(normalizeInstitutionProposal)
+      : [normalizeInstitutionProposal(data.proposal), ...institutionProposals].filter(Boolean);
+    institutionProposalsLoaded = true;
+    institutionWorkbenchState.newProgrammeDraft = false;
+    setAdminActionStatus("New programme submitted for private admin review.", "success");
+    recordCurrentUserActivity("institution_programme_submitted", `Submitted new programme: ${payload.programmeName}`, { institution: payload.institution, proposalType: payload.proposalType });
+    renderInstitutionWorkbench();
+    renderAdminInstitutionProposals();
+  } catch (error) {
+    setAdminActionStatus(error.message || "Could not submit new programme", "danger");
+  }
+}
+
 async function setInstitutionProposalStatus(proposalId, status, note = "") {
   if (!isAdmin() || !authToken) return null;
   const response = await fetch(`/api/institution/proposals/${encodeURIComponent(proposalId)}`, {
@@ -7303,7 +7407,58 @@ async function setInstitutionProposalStatus(proposalId, status, note = "") {
 async function applyInstitutionProposal(proposalId) {
   const proposal = institutionProposals.find((item) => item.id === proposalId);
   const programme = proposal ? findProgrammeById(proposal.programmeId) : null;
-  if (!proposal || !programme || proposal.status !== "pending_admin_review") return;
+  if (!proposal || proposal.status !== "pending_admin_review") return;
+  if (isNewProgrammeProposal(proposal)) {
+    const changes = proposal.changes || {};
+    const programmeName = String(changes.name || proposal.programmeName || "").trim();
+    if (!programmeName || !changes.level || !changes.requirementsSummary) {
+      setAdminActionStatus("This new programme request is missing required catalogue fields.", "danger");
+      return;
+    }
+    const createdProgramme = {
+      id: `manual-institution-${Date.now()}`,
+      institution: proposal.institution,
+      name: programmeName,
+      code: changes.code || null,
+      category: changes.category || "Institution submission",
+      faculty: changes.faculty || "Faculty under review",
+      level: changes.level,
+      duration: changes.duration || null,
+      deliveryMode: changes.deliveryMode || "Full-time",
+      overview: changes.overview || "Institution-submitted programme approved by EduGuide admin.",
+      requirementsSummary: changes.requirementsSummary,
+      careers: Array.isArray(changes.careers) ? changes.careers : [],
+      sourceUrl: changes.sourceUrl || null,
+      sourcePath: null,
+      supportingSourcePath: changes.supportingSourcePath || null,
+      supportingFeeSourcePath: changes.supportingFeeSourcePath || null,
+      sourceType: "institution_submission",
+      extractionMethod: "institution_portal",
+      reviewStatus: "approved",
+      reviewedAt: new Date().toISOString(),
+      sourceNote: changes.sourceNote || proposal.note || "Submitted by assigned institution administrator.",
+      feeNote: changes.feeNote || null
+    };
+    try {
+      adminProgrammes.unshift(createdProgramme);
+      adminGaps.unshift(...getManualProgrammeGaps(createdProgramme));
+      adminState.selectedProgrammeId = createdProgramme.id;
+      await persistProgrammeEdit(createdProgramme, changes);
+      await setInstitutionProposalStatus(proposal.id, "approved", `Created programme record ${createdProgramme.id} in the catalogue.`);
+      setAdminActionStatus("New institution programme approved and added to the catalogue.", "success");
+      recordCurrentUserActivity("admin_institution_programme_created", `Created programme from institution request: ${createdProgramme.name}`, { proposalId: proposal.id, programmeId: createdProgramme.id, institution: createdProgramme.institution });
+    } catch (error) {
+      adminProgrammes = adminProgrammes.filter((item) => item.id !== createdProgramme.id);
+      adminGaps = adminGaps.filter((gap) => gap.programmeId !== createdProgramme.id);
+      setAdminActionStatus(error.message || "Could not create institution programme", "danger");
+    }
+    renderAdmin();
+    renderInstitutionWorkbench();
+    updateCounts();
+    calculateMatches();
+    return;
+  }
+  if (!programme) return;
   const previousValues = {};
   Object.keys(proposal.changes || {}).forEach((field) => {
     previousValues[field] = Array.isArray(programme[field]) ? [...programme[field]] : programme[field];
@@ -10097,9 +10252,10 @@ function bindEvents() {
     renderSchoolExplorer();
   });
   qs("#view-institution")?.addEventListener("submit", (event) => {
-    if (!event.target.matches("#institution-proposal-form")) return;
+    if (!event.target.matches("#institution-proposal-form, #institution-new-programme-form")) return;
     event.preventDefault();
-    submitInstitutionProposal(event.target);
+    if (event.target.matches("#institution-new-programme-form")) submitNewInstitutionProgramme(event.target);
+    else submitInstitutionProposal(event.target);
   });
   qs("#refresh-counsellor-dashboard")?.addEventListener("click", () => loadCounsellorDashboard());
   qs("#counsellor-search")?.addEventListener("input", (event) => {
@@ -10167,8 +10323,20 @@ function bindEvents() {
       return;
     }
 
+    if (event.target.closest("#institution-new-programme")) {
+      institutionWorkbenchState.newProgrammeDraft = true;
+      renderInstitutionWorkbench();
+      return;
+    }
+    if (event.target.closest("[data-cancel-new-institution-programme]")) {
+      institutionWorkbenchState.newProgrammeDraft = false;
+      renderInstitutionWorkbench();
+      return;
+    }
+
     const row = event.target.closest("[data-institution-programme]");
     if (row) {
+      institutionWorkbenchState.newProgrammeDraft = false;
       institutionWorkbenchState.selectedProgrammeId = row.dataset.institutionProgramme;
       renderInstitutionWorkbench();
     }
