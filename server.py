@@ -3654,11 +3654,39 @@ def add_admin_programme_signal(signals: dict[str, dict[str, Any]], programme: di
     current["programmeName"] = programme_name
 
 
+def build_counsellor_workloads(users: list[dict[str, Any]], assignments: list[dict[str, Any]], followups: list[dict[str, Any]]) -> list[dict[str, Any]]:
+  student_ids = {str(user.get("id")) for user in users if user.get("role") == "student" and not is_demo_user(user)}
+  counsellors = [user for user in users if user.get("role") == "counsellor" and user.get("status") == "active" and not is_demo_user(user)]
+  workloads = []
+  for counsellor in counsellors:
+    counsellor_id = str(counsellor.get("id"))
+    active_assignments = [item for item in assignments if item.get("counsellorId") == counsellor_id and item.get("status") == "active" and str(item.get("studentId")) in student_ids]
+    granted_ids = {str(item.get("studentId")) for item in active_assignments if item.get("consentStatus") == "granted"}
+    pending_access = sum(1 for item in active_assignments if item.get("consentStatus", "pending") == "pending")
+    paused_access = sum(1 for item in active_assignments if item.get("consentStatus") == "paused")
+    open_followups = [counsellor_followup_view(item) for item in followups if item.get("counsellorId") == counsellor_id and item.get("status") == "open" and str(item.get("studentId")) in granted_ids]
+    workloads.append(
+      {
+        "counsellor": admin_public_user_summary(counsellor),
+        "assignedStudents": len(active_assignments),
+        "grantedStudents": len(granted_ids),
+        "pendingAccess": pending_access,
+        "pausedAccess": paused_access,
+        "openFollowups": len(open_followups),
+        "overdueFollowups": sum(1 for item in open_followups if item.get("dueStatus") == "overdue"),
+        "dueSoonFollowups": sum(1 for item in open_followups if item.get("dueStatus") == "due_soon"),
+      }
+    )
+  return sorted(workloads, key=lambda item: (-item["overdueFollowups"], -item["openFollowups"], -item["assignedStudents"], str(item["counsellor"].get("name") or "")))
+
+
 def build_admin_intelligence() -> dict[str, Any]:
   users = get_auth_users_internal()
   students = [user for user in users if user.get("role") == "student" and not is_demo_user(user)]
   student_ids = {str(user["id"]) for user in students}
   users_by_id = {user["id"]: user for user in users}
+  counsellor_assignments = get_counsellor_state(COUNSELLOR_ASSIGNMENTS_STATE_KEY)
+  counsellor_followups = get_counsellor_state(COUNSELLOR_FOLLOWUPS_STATE_KEY)
   signals: dict[str, dict[str, Any]] = {}
   active_ai_user_ids: set[str] = set()
   runtime_events = safe_list_runtime_events(1500)
@@ -3809,6 +3837,7 @@ def build_admin_intelligence() -> dict[str, Any]:
     "ocrFailures": ocr_failures[:12],
     "newUsers": [admin_public_user_summary(user) for user in students if not user.get("reviewedAt")][:12],
     "recentQuestions": recent_questions[:8],
+    "counsellorWorkloads": build_counsellor_workloads(users, counsellor_assignments, counsellor_followups),
   }
 
 

@@ -166,6 +166,27 @@ class RoleWorkflowTests(unittest.TestCase):
       result = server.student_counsellor_access(object(), "Bearer test")
     self.assertEqual([item["id"] for item in result["followups"]], ["visible"])
 
+  def test_counsellor_workload_counts_only_granted_student_actions(self):
+    users = [
+      {"id": "counsellor-1", "name": "Counsellor One", "email": "counsellor@example.edu", "role": "counsellor", "status": "active"},
+      {"id": "student-granted", "role": "student", "name": "Granted Student"},
+      {"id": "student-paused", "role": "student", "name": "Paused Student"},
+    ]
+    assignments = [
+      {"counsellorId": "counsellor-1", "studentId": "student-granted", "status": "active", "consentStatus": "granted"},
+      {"counsellorId": "counsellor-1", "studentId": "student-paused", "status": "active", "consentStatus": "paused"},
+    ]
+    followups = [
+      {"id": "overdue", "counsellorId": "counsellor-1", "studentId": "student-granted", "status": "open", "title": "Upload results", "dueAt": "2020-01-01"},
+      {"id": "hidden", "counsellorId": "counsellor-1", "studentId": "student-paused", "status": "open", "title": "Do not count", "dueAt": "2020-01-01"},
+    ]
+    workload = server.build_counsellor_workloads(users, assignments, followups)[0]
+    self.assertEqual(workload["assignedStudents"], 2)
+    self.assertEqual(workload["grantedStudents"], 1)
+    self.assertEqual(workload["pausedAccess"], 1)
+    self.assertEqual(workload["openFollowups"], 1)
+    self.assertEqual(workload["overdueFollowups"], 1)
+
 
 if __name__ == "__main__":
   unittest.main(verbosity=2)

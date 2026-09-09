@@ -7721,6 +7721,7 @@ function mergeAdminIntelligence(localData) {
     ocrFailures: serverAdminIntelligence.ocrFailures?.length ? serverAdminIntelligence.ocrFailures : localData.ocrFailures,
     newUsers: serverAdminIntelligence.newUsers?.length ? serverAdminIntelligence.newUsers : localData.newUsers,
     recentQuestions: serverAdminIntelligence.recentQuestions || [],
+    counsellorWorkloads: serverAdminIntelligence.counsellorWorkloads || [],
     generatedAt: serverAdminIntelligence.generatedAt,
     database: serverAdminIntelligence.database
   };
@@ -7797,6 +7798,17 @@ function renderAdminIntelligence() {
   const recentQuestions = data.recentQuestions?.length
     ? data.recentQuestions.slice(0, 5).map((item) => `<li><strong>${escapeHtml(item.question || "AI guidance")}</strong><span>${escapeHtml(item.profileName || "Student")} - ${escapeHtml(formatStatus(item.mode || "guidance"))}</span></li>`).join("")
     : `<li><strong>No AI questions yet</strong><span>Recent guidance requests will appear here.</span></li>`;
+  const counsellorWorkloads = data.counsellorWorkloads?.length
+    ? data.counsellorWorkloads.slice(0, 6).map((item) => {
+        const counsellor = item.counsellor || {};
+        const urgency = Number(item.overdueFollowups || 0);
+        const access = [
+          item.pendingAccess ? `${item.pendingAccess} awaiting consent` : "",
+          item.pausedAccess ? `${item.pausedAccess} paused` : ""
+        ].filter(Boolean).join(", ");
+        return `<li><strong>${escapeHtml(counsellor.name || "Counsellor")}</strong><span>${Number(item.assignedStudents || 0)} assigned, ${Number(item.openFollowups || 0)} open${urgency ? `, ${urgency} overdue` : ""}${access ? ` - ${escapeHtml(access)}` : ""}</span></li>`;
+      }).join("")
+    : `<li><strong>No active counsellors yet</strong><span>Add counsellor accounts and assign students to begin workload tracking.</span></li>`;
 
   grid.innerHTML = `
     <article class="admin-insight-card">
@@ -7822,6 +7834,10 @@ function renderAdminIntelligence() {
     <article class="admin-insight-card">
       <div><i data-lucide="message-circle-question"></i><strong>Recent AI questions</strong></div>
       <ul>${recentQuestions}</ul>
+    </article>
+    <article class="admin-insight-card">
+      <div><i data-lucide="users-round"></i><strong>Counsellor workload</strong></div>
+      <ul>${counsellorWorkloads}</ul>
     </article>
   `;
 }
