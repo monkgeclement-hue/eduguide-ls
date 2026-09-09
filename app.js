@@ -202,6 +202,9 @@ const institutionProposalEditableFields = [
   { name: "deliveryMode", label: "Delivery mode", type: "input" },
   { name: "sourceUrl", label: "Official source URL", type: "input" },
   { name: "supportingSourcePath", label: "Evidence file/path", type: "input" },
+  { name: "applicationUrl", label: "Official apply-online URL", type: "input" },
+  { name: "applicationDeadline", label: "Application deadline / closing date", type: "input" },
+  { name: "intakeStatus", label: "Intake status", type: "input" },
   { name: "careers", label: "Careers", type: "textarea", full: true },
   { name: "requirementsSummary", label: "Requirements", type: "textarea", full: true },
   { name: "overview", label: "Overview", type: "textarea", full: true },
@@ -3370,6 +3373,7 @@ function getApplicationLinkPack(institution, programmes = []) {
   const programmeLinks = programmes.flatMap((programme) => {
     const title = getMatchProgrammeTitle(programme);
     return [
+      { label: `${title} apply online`, url: programme.applicationUrl },
       { label: `${title} source`, url: programme.sourceUrl || programme.source },
       { label: `${title} supporting source`, url: programme.supportingSourcePath },
       { label: `${title} fee evidence`, url: programme.supportingFeeSourcePath }
@@ -3533,6 +3537,7 @@ function getApplicationDeadlineSummary(programmes = []) {
   const candidates = programmes
     .flatMap((programme) => [
       programme.applicationDeadline,
+      programme.intakeStatus,
       programme.deadline,
       programme.deadlineStatus,
       programme.applicationStatus,
@@ -7539,6 +7544,9 @@ async function applyInstitutionProposal(proposalId) {
       sourcePath: null,
       supportingSourcePath: changes.supportingSourcePath || null,
       supportingFeeSourcePath: changes.supportingFeeSourcePath || null,
+      applicationUrl: changes.applicationUrl || null,
+      applicationDeadline: changes.applicationDeadline || null,
+      intakeStatus: changes.intakeStatus || null,
       sourceType: "institution_submission",
       extractionMethod: "institution_portal",
       reviewStatus: "approved",

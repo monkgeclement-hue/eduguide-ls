@@ -47,6 +47,19 @@ class RoleWorkflowTests(unittest.TestCase):
     incomplete["changes"]["sourceUrl"] = "https://example.edu/programmes/example-studies"
     self.assertEqual(server.normalize_institution_proposal(incomplete)["proposalType"], "new_programme")
 
+  def test_institution_application_updates_keep_only_safe_apply_links(self):
+    changes = server.sanitize_institution_proposal_changes({
+      "applicationUrl": "javascript:alert('unsafe')",
+      "applicationDeadline": "Applications close 31 October 2026.",
+      "intakeStatus": "Open for the 2027 intake.",
+    })
+    self.assertNotIn("applicationUrl", changes)
+    self.assertEqual(changes["applicationDeadline"], "Applications close 31 October 2026.")
+    self.assertEqual(changes["intakeStatus"], "Open for the 2027 intake.")
+
+    changes = server.sanitize_institution_proposal_changes({"applicationUrl": "https://example.edu/apply"})
+    self.assertEqual(changes["applicationUrl"], "https://example.edu/apply")
+
   def test_change_request_requires_feedback_and_locks_the_decision(self):
     proposal = {
       "id": "proposal-1",

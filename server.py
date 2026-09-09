@@ -2540,6 +2540,9 @@ INSTITUTION_PROPOSAL_FIELDS = {
   "overview",
   "sourceUrl",
   "supportingSourcePath",
+  "applicationUrl",
+  "applicationDeadline",
+  "intakeStatus",
   "sourceNote",
   "feeNote",
   "supportingFeeSourcePath",
@@ -2572,6 +2575,11 @@ def sanitize_institution_proposal_changes(changes: dict[str, Any] | None) -> dic
       clean_items = [item for item in clean_items if item][:20]
       if clean_items:
         clean[field] = clean_items
+      continue
+    if field == "applicationUrl":
+      text = sanitize_proposal_text(value, 600)
+      if text and re.match(r"^https?://", text, re.IGNORECASE):
+        clean[field] = text
       continue
     limit = 2600 if field in {"requirementsSummary", "overview", "sourceNote", "feeNote"} else 600
     text = sanitize_proposal_text(value, limit)
