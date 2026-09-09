@@ -3734,33 +3734,44 @@ function getApplicationDocumentChecklist(programmes = []) {
     note: "Confirmed in the approved institution catalogue record. Verify the latest wording before submission.",
     institutionConfirmed: true
   }));
-  const checklist = [
-    ...confirmedDocuments,
+  const confirmedCategories = new Set(
+    confirmedDocuments.map((item) => getApplicationDocumentCategory(item.label)).filter(Boolean)
+  );
+  const commonDocuments = [
     {
       label: "COSC/LGCSE statement of results or certificate",
       ready: signals.hasResults || signals.extractedGradeCount > 0,
-      note: "Needed before serious programme matching and application decisions."
+      note: "Needed before serious programme matching and application decisions.",
+      category: "results"
     },
     {
       label: "National ID, passport, or birth certificate",
       ready: signals.hasIdentity,
-      note: "Usually needed by institutions and sponsorship applications."
+      note: "Usually needed by institutions and sponsorship applications.",
+      category: "identity"
     },
     {
       label: "Institution application/admission evidence",
       ready: signals.hasApplicationEvidence,
-      note: "Keep proof of application, admission, or registration for funding follow-up."
+      note: "Keep proof of application, admission, or registration for funding follow-up.",
+      category: "application"
     },
     {
       label: "Bank account confirmation",
       ready: signals.hasBankDetails,
-      note: "Prepare this for sponsorship/payment readiness when requested."
+      note: "Prepare this for sponsorship/payment readiness when requested.",
+      category: "bank"
     },
     {
       label: "Residence, chief letter, guardian, or need evidence",
       ready: signals.hasResidenceGuarantor || signals.hasNeedEvidence,
-      note: "Useful for need/background verification. Requirement may vary."
+      note: "Useful for need/background verification. Requirement may vary.",
+      category: "need"
     }
+  ];
+  const checklist = [
+    ...confirmedDocuments,
+    ...commonDocuments.filter((item) => !confirmedCategories.has(item.category))
   ];
   if (/nursing|midwifery|health|medical|clinical/.test(allProgrammeText)) {
     checklist.push({
@@ -3780,13 +3791,24 @@ function getApplicationDocumentChecklist(programmes = []) {
 }
 
 function getInstitutionDocumentReadiness(label, signals) {
+  const category = getApplicationDocumentCategory(label);
+  if (category === "results") return signals.hasResults || signals.extractedGradeCount > 0;
+  if (category === "identity") return signals.hasIdentity;
+  if (category === "bank") return signals.hasBankDetails;
+  if (category === "need") return signals.hasResidenceGuarantor || signals.hasNeedEvidence;
+  if (category === "application") return signals.hasApplicationEvidence;
+  if (category === "conditional") return signals.hasConditionalEvidence;
+  return null;
+}
+
+function getApplicationDocumentCategory(label) {
   const text = String(label || "").toLowerCase();
-  if (/result|transcript|grade|certificate|lgcse|cosc/.test(text)) return signals.hasResults || signals.extractedGradeCount > 0;
-  if (/\bid\b|identity|passport|birth/.test(text)) return signals.hasIdentity;
-  if (/bank|account confirmation|banking/.test(text)) return signals.hasBankDetails;
-  if (/chief|residence|guardian|parent|household|need|income|payslip|affidavit/.test(text)) return signals.hasResidenceGuarantor || signals.hasNeedEvidence;
-  if (/admission|offer|acceptance|application|registration|student number/.test(text)) return signals.hasApplicationEvidence;
-  if (/nmds|loan|bursary|curriculum vitae|\bcv\b|study leave|employment|\bche\b/.test(text)) return signals.hasConditionalEvidence;
+  if (/result|transcript|grade|certificate|lgcse|cosc/.test(text)) return "results";
+  if (/\bid\b|identity|passport|birth/.test(text)) return "identity";
+  if (/bank|account confirmation|banking/.test(text)) return "bank";
+  if (/chief|residence|guardian|parent|household|need|income|payslip|affidavit/.test(text)) return "need";
+  if (/admission|offer|acceptance|application|registration|student number/.test(text)) return "application";
+  if (/nmds|loan|bursary|curriculum vitae|\bcv\b|study leave|employment|\bche\b/.test(text)) return "conditional";
   return null;
 }
 

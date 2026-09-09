@@ -129,6 +129,7 @@ class RoleWorkflowTests(unittest.TestCase):
       self.assertIn(f'"{field}"', persist_fields)
     self.assertIn("function getProgrammeApplicationDetails", app_script)
     self.assertIn("Needs application details", app_script)
+    self.assertIn("confirmedCategories.has(item.category)", app_script)
 
   def test_programme_apply_link_is_prioritised_over_a_general_institution_link(self):
     app_script = (Path(__file__).resolve().parents[1] / "app.js").read_text(encoding="utf-8")
