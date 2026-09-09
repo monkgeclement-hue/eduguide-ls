@@ -123,6 +123,8 @@ class RoleWorkflowTests(unittest.TestCase):
     persist_fields = app_script.split("const programmePersistFields = [", 1)[1].split("];", 1)[0]
     for field in ["applicationUrl", "applicationDeadline", "intakeStatus", "applicationDocuments"]:
       self.assertIn(f'"{field}"', persist_fields)
+    self.assertIn("function getProgrammeApplicationDetails", app_script)
+    self.assertIn("Needs application details", app_script)
 
   def test_programme_apply_link_is_prioritised_over_a_general_institution_link(self):
     app_script = (Path(__file__).resolve().parents[1] / "app.js").read_text(encoding="utf-8")

@@ -3681,6 +3681,40 @@ function getProgrammeApplicationSummary(programme) {
   };
 }
 
+function getProgrammeApplicationDetails(programme = {}) {
+  const documents = Array.isArray(programme.applicationDocuments)
+    ? programme.applicationDocuments
+    : parseListText(programme.applicationDocuments);
+  const checks = [
+    {
+      key: "route",
+      label: "Apply-online route",
+      ready: Boolean(getSafeExternalUrl(programme.applicationUrl)),
+      issue: "Add official apply-online URL"
+    },
+    {
+      key: "timing",
+      label: "Intake or closing date",
+      ready: Boolean(String(programme.intakeStatus || "").trim() || String(programme.applicationDeadline || "").trim()),
+      issue: "Add intake status or closing date"
+    },
+    {
+      key: "documents",
+      label: "Required documents",
+      ready: documents.length > 0,
+      issue: "Add institution-confirmed documents"
+    }
+  ];
+  const readyCount = checks.filter((check) => check.ready).length;
+  return {
+    checks,
+    readyCount,
+    total: checks.length,
+    complete: readyCount === checks.length,
+    documents
+  };
+}
+
 function getApplicationDocumentChecklist(programmes = []) {
   const signals = getUploadedDocumentSignals();
   const allProgrammeText = programmes.map((programme) => `${programme.title} ${programme.institution} ${programme.faculty} ${programme.level}`).join(" ").toLowerCase();
@@ -7095,6 +7129,9 @@ function renderInstitutionSummary(scope, programmes) {
   const rejected = visibleProposals.filter((proposal) => proposal.status === "rejected").length;
   const openGaps = adminGaps.filter((gap) => gap.institution === scope && gap.status !== "resolved").length;
   const feeItems = getInstitutionFeeSchedules(scope).reduce((total, schedule) => total + (schedule.items || []).length, 0);
+  const applicationDetails = programmes.map(getProgrammeApplicationDetails);
+  const applicationComplete = applicationDetails.filter((details) => details.complete).length;
+  const applicationNeedsAttention = applicationDetails.length - applicationComplete;
   summaryRoot.innerHTML = [
     { label: "Institution", value: scope || "Not assigned" },
     { label: "Programmes", value: String(programmes.length) },
@@ -7102,6 +7139,8 @@ function renderInstitutionSummary(scope, programmes) {
     { label: "New programme requests", value: String(newProgrammeRequests) },
     { label: "Rejected updates", value: String(rejected) },
     { label: "Open data gaps", value: String(openGaps) },
+    { label: "Need application details", value: String(applicationNeedsAttention) },
+    { label: "Application details complete", value: String(applicationComplete) },
     { label: "Fee items", value: String(feeItems) }
   ].map((item) => `
     <article class="admin-stat">
@@ -7159,6 +7198,7 @@ function renderInstitutionProgrammeList(programmes) {
   }
   list.innerHTML = programmes.map((programme) => {
     const quality = getProgrammeQualityChecks(programme);
+    const applicationDetails = getProgrammeApplicationDetails(programme);
     const proposals = getProgrammeProposals(programme.id);
     const pending = proposals.filter((proposal) => proposal.status === "pending_admin_review").length;
     const active = institutionWorkbenchState.selectedProgrammeId === programme.id;
@@ -7173,12 +7213,14 @@ function renderInstitutionProgrammeList(programmes) {
             <span>${escapeHtml(programme.level || "Level missing")}</span>
             <span>${escapeHtml(programme.duration || "Duration missing")}</span>
             <span>${quality.percent}% data ready</span>
+            <span>${applicationDetails.readyCount}/${applicationDetails.total} application details</span>
             <span>${pending} pending update${pending === 1 ? "" : "s"}</span>
           </div>
         </div>
         <div class="admin-row-actions">
           <span class="badge ${badgeClassForStatus(programme.reviewStatus)}">${escapeHtml(formatStatus(programme.reviewStatus))}</span>
           <span class="badge ${pending ? "amber" : "green"}">${pending ? "Update pending" : "Ready"}</span>
+          <span class="badge ${applicationDetails.complete ? "green" : "amber"}">${applicationDetails.complete ? "Application details complete" : "Needs application details"}</span>
         </div>
       </article>
     `;
@@ -7273,6 +7315,7 @@ function renderInstitutionDetail(programme) {
   }
   const proposals = getProgrammeProposals(programme.id);
   const links = getApplicationLinkPack(programme.institution, [programme]);
+  const applicationDetails = getProgrammeApplicationDetails(programme);
   const quality = getProgrammeQualityChecks(programme);
   const reviewFeedbackProposals = proposals.filter((proposal) => ["changes_requested", "rejected"].includes(proposal.status) && proposal.reviewNote);
   const pendingProposals = proposals.filter((proposal) => proposal.status === "pending_admin_review");
@@ -7296,6 +7339,13 @@ function renderInstitutionDetail(programme) {
           ${links.application ? `<a class="primary-button small" href="${escapeHtml(links.application.url)}" target="_blank" rel="noreferrer"><i data-lucide="external-link"></i>${escapeHtml(links.application.label)}</a>` : `<span class="badge amber">Apply link missing</span>`}
           ${links.prospectus ? `<a class="secondary-action" href="${escapeHtml(links.prospectus.url)}" target="_blank" rel="noreferrer"><i data-lucide="download"></i>${escapeHtml(links.prospectus.label)}</a>` : `<span class="badge amber">Prospectus missing</span>`}
         </div>
+      </div>
+      <div class="detail-section">
+        <h4>Application information</h4>
+        <div class="admin-quality-checks">
+          ${applicationDetails.checks.map((check) => `<span class="${check.ready ? "ready" : "missing"}">${check.ready ? "OK" : "!"} ${escapeHtml(check.ready ? check.label : check.issue)}</span>`).join("")}
+        </div>
+        <p class="detail-muted">Add only confirmed details. Every change stays private until an EduGuide admin reviews it.</p>
       </div>
       <div class="detail-section">
         <h4>Record readiness</h4>
