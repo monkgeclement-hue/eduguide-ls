@@ -4307,6 +4307,11 @@ textarea:focus {
   background: #fff2ee;
 }
 
+.proposal-status-notice.feedback {
+  border-color: #b9d3ec;
+  background: #f1f8ff;
+}
+
 .proposal-status-notice h4,
 .proposal-status-notice p {
   margin: 0;

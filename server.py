@@ -2494,7 +2494,7 @@ INSTITUTION_PROPOSAL_FIELDS = {
   "supportingFeeSourcePath",
   "careers",
 }
-INSTITUTION_PROPOSAL_STATUSES = {"pending_admin_review", "approved", "rejected"}
+INSTITUTION_PROPOSAL_STATUSES = {"pending_admin_review", "changes_requested", "approved", "rejected"}
 INSTITUTION_PROPOSAL_TYPES = {"update", "new_programme"}
 
 
@@ -3838,14 +3838,19 @@ def create_institution_proposal(payload: InstitutionProposalRequest, request: Re
 def decide_institution_proposal(proposal_id: str, payload: InstitutionProposalDecisionRequest, request: Request, authorization: str | None = Header(default=None)) -> dict[str, Any]:
   check_rate_limit(request, "institution_proposals_decide", 80, 3600)
   actor = require_admin_user(authorization)
-  if payload.status not in {"approved", "rejected"}:
-    raise HTTPException(status_code=400, detail="Proposal status must be approved or rejected.")
+  if payload.status not in {"approved", "changes_requested", "rejected"}:
+    raise HTTPException(status_code=400, detail="Proposal status must be approved, changes_requested, or rejected.")
+  review_note = sanitize_proposal_text(payload.note, 1200)
+  if payload.status == "changes_requested" and not review_note:
+    raise HTTPException(status_code=400, detail="Explain the changes the institution should make before resubmitting.")
   proposals = load_institution_proposals()
   proposal = next((item for item in proposals if item.get("id") == proposal_id), None)
   if not proposal:
     raise HTTPException(status_code=404, detail="Proposal not found.")
+  if proposal.get("status") != "pending_admin_review":
+    raise HTTPException(status_code=409, detail="Only pending institution proposals can be reviewed.")
   proposal["status"] = payload.status
-  proposal["reviewNote"] = sanitize_proposal_text(payload.note, 1200)
+  proposal["reviewNote"] = review_note
   proposal["reviewedBy"] = {
     "id": actor.get("id"),
     "name": actor.get("name"),
@@ -3857,7 +3862,7 @@ def decide_institution_proposal(proposal_id: str, payload: InstitutionProposalDe
   safe_insert_runtime_event(
     actor["id"],
     "institution_proposal_reviewed",
-    "Admin reviewed institution update",
+    "Admin requested changes to institution update" if payload.status == "changes_requested" else "Admin reviewed institution update",
     {
       "proposalId": proposal.get("id"),
       "programmeId": proposal.get("programmeId"),

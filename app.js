@@ -6829,6 +6829,7 @@ function getProposalTypeLabel(proposal = {}) {
 function getProposalStatusTone(status) {
   if (status === "approved") return "green";
   if (status === "rejected") return "red";
+  if (status === "changes_requested") return "blue";
   return "amber";
 }
 
@@ -6931,6 +6932,39 @@ function renderInstitutionSummary(scope, programmes) {
       <strong>${escapeHtml(item.value)}</strong>
     </article>
   `).join("");
+}
+
+function renderInstitutionNewProgrammeHistory(scope) {
+  const root = qs("#institution-new-programme-history");
+  if (!root) return;
+  const proposals = getVisibleInstitutionProposals()
+    .filter((proposal) => isNewProgrammeProposal(proposal))
+    .filter((proposal) => !scope || normalizeInstitutionName(proposal.institution).toLowerCase() === scope.toLowerCase())
+    .slice(0, 5);
+  if (!proposals.length) {
+    root.innerHTML = "";
+    return;
+  }
+  root.innerHTML = `
+    <div class="section-head compact-section-head">
+      <div>
+        <p class="section-kicker">Institution requests</p>
+        <h4>New programme requests</h4>
+      </div>
+      <span class="badge blue">${proposals.length} recent</span>
+    </div>
+    <div class="proposal-history-list">
+      ${proposals.map((proposal) => `
+        <article class="proposal-history-item">
+          <div>
+            <strong>${escapeHtml(proposal.programmeName || proposal.changes?.name || "Programme request")}</strong>
+            <span>${escapeHtml(formatStatus(proposal.status))} - ${escapeHtml(formatDateTime(proposal.updatedAt || proposal.createdAt))}</span>
+          </div>
+          ${proposal.reviewNote ? `<small class="proposal-review-note">${escapeHtml(proposal.reviewNote)}</small>` : ""}
+        </article>
+      `).join("")}
+    </div>
+  `;
 }
 
 function renderInstitutionProgrammeList(programmes) {
@@ -7059,7 +7093,7 @@ function renderInstitutionDetail(programme) {
   const proposals = getProgrammeProposals(programme.id);
   const links = getApplicationLinkPack(programme.institution, [programme]);
   const quality = getProgrammeQualityChecks(programme);
-  const rejectedProposals = proposals.filter((proposal) => proposal.status === "rejected" && proposal.reviewNote);
+  const reviewFeedbackProposals = proposals.filter((proposal) => ["changes_requested", "rejected"].includes(proposal.status) && proposal.reviewNote);
   const pendingProposals = proposals.filter((proposal) => proposal.status === "pending_admin_review");
   panel.innerHTML = `
     <div class="detail-card">
@@ -7095,8 +7129,8 @@ function renderInstitutionDetail(programme) {
           : ""
       }
       ${
-        rejectedProposals.length
-          ? `<div class="detail-section proposal-status-notice rejected"><h4>Rejected update reason</h4>${rejectedProposals.slice(0, 2).map((proposal) => `<p><strong>${escapeHtml(formatDateTime(proposal.updatedAt || proposal.createdAt))}</strong> - ${escapeHtml(proposal.reviewNote)}</p>`).join("")}</div>`
+        reviewFeedbackProposals.length
+          ? `<div class="detail-section proposal-status-notice feedback"><h4>Admin feedback</h4>${reviewFeedbackProposals.slice(0, 2).map((proposal) => `<p><strong>${escapeHtml(formatStatus(proposal.status))}</strong> - ${escapeHtml(proposal.reviewNote)}</p>`).join("")}</div>`
           : ""
       }
       <div class="detail-section">
@@ -7134,6 +7168,7 @@ function renderInstitutionWorkbench() {
   }
   const selected = programmes.find((programme) => programme.id === institutionWorkbenchState.selectedProgrammeId) || programmes[0] || null;
   renderInstitutionSummary(scope, programmes);
+  renderInstitutionNewProgrammeHistory(scope);
   renderInstitutionProgrammeList(programmes);
   renderInstitutionDetail(selected);
   if (window.lucide) window.lucide.createIcons();
@@ -7251,6 +7286,10 @@ function renderAdminInstitutionProposalDetail(panel) {
         <button class="primary-button small" type="button" data-institution-proposal-apply="${escapeHtml(proposal.id)}" ${proposal.status === "pending_admin_review" && (programme || isNewProgrammeProposal(proposal)) ? "" : "disabled"}>
           <i data-lucide="check"></i>
           ${isNewProgrammeProposal(proposal) ? "Create programme" : "Apply update"}
+        </button>
+        <button class="secondary-action" type="button" data-institution-proposal-request-changes="${escapeHtml(proposal.id)}" ${proposal.status === "pending_admin_review" ? "" : "disabled"}>
+          <i data-lucide="message-square-more"></i>
+          Request changes
         </button>
         <button class="secondary-action danger" type="button" data-institution-proposal-reject="${escapeHtml(proposal.id)}" ${proposal.status === "pending_admin_review" ? "" : "disabled"}>
           <i data-lucide="x"></i>
@@ -9485,6 +9524,26 @@ async function loadCounsellorAssignments() {
   }
 }
 
+async function requestChangesForInstitutionProposal(proposalId) {
+  const proposal = institutionProposals.find((item) => item.id === proposalId);
+  if (!proposal || proposal.status !== "pending_admin_review") return;
+  const note = window.prompt("Tell the institution exactly what to correct before resubmitting:", "");
+  if (note === null) return;
+  if (!note.trim()) {
+    setAdminActionStatus("Add a correction note before requesting changes.", "warning");
+    return;
+  }
+  try {
+    await setInstitutionProposalStatus(proposal.id, "changes_requested", note.trim());
+    setAdminActionStatus("Changes requested from the institution.", "success");
+    recordCurrentUserActivity("admin_institution_changes_requested", `Requested changes for ${proposal.programmeName || proposal.programmeId}`, { proposalId: proposal.id, institution: proposal.institution });
+    renderAdmin();
+    renderInstitutionWorkbench();
+  } catch (error) {
+    setAdminActionStatus(error.message || "Could not request changes", "danger");
+  }
+}
+
 async function assignCounsellorToStudent(studentId, counsellorId) {
   if (!authToken || !isAdmin() || !studentId || !counsellorId) return;
   try {
@@ -10411,6 +10470,13 @@ function bindEvents() {
     if (proposalReject) {
       event.preventDefault();
       rejectInstitutionProposal(proposalReject.dataset.institutionProposalReject);
+      return;
+    }
+
+    const proposalChanges = event.target.closest("[data-institution-proposal-request-changes]");
+    if (proposalChanges) {
+      event.preventDefault();
+      requestChangesForInstitutionProposal(proposalChanges.dataset.institutionProposalRequestChanges);
       return;
     }
 
