@@ -87,6 +87,53 @@ class RoleWorkflowTests(unittest.TestCase):
         )
       self.assertEqual(completed_review.exception.status_code, 409)
 
+  def test_new_programme_revision_links_only_to_requested_changes(self):
+    prior = {
+      "id": "proposal-prior",
+      "programmeId": "new-prior",
+      "programmeName": "Bachelor of Example Studies",
+      "institution": "Example University",
+      "proposalType": "new_programme",
+      "changes": {
+        "name": "Bachelor of Example Studies",
+        "level": "Degree",
+        "requirementsSummary": "Five credits including English.",
+        "sourceUrl": "https://example.edu/prospectus",
+      },
+      "note": "Official prospectus.",
+      "status": "changes_requested",
+      "requestedBy": {},
+      "reviewedBy": {},
+      "reviewNote": "Add the current programme duration.",
+      "createdAt": server.now_iso(),
+      "updatedAt": server.now_iso(),
+    }
+    actor = {"id": "institution-1", "name": "Institution Admin", "email": "admin@example.edu", "role": "institution_admin", "managedInstitution": "Example University"}
+    submitted = []
+    with patch.object(server, "check_rate_limit"), patch.object(server, "require_institution_user", return_value=actor), patch.object(
+      server, "load_institution_proposals", return_value=[prior]
+    ), patch.object(server, "save_institution_proposals", side_effect=lambda proposals: submitted.extend(proposals)), patch.object(
+      server, "safe_insert_runtime_event"), patch.object(server, "get_request_ip", return_value="127.0.0.1"):
+      result = server.create_institution_proposal(
+        server.InstitutionProposalRequest(
+          programmeId="new-revision",
+          programmeName="Bachelor of Example Studies",
+          institution="Example University",
+          proposalType="new_programme",
+          resubmissionOf="proposal-prior",
+          changes={
+            "name": "Bachelor of Example Studies",
+            "level": "Degree",
+            "duration": "4 years",
+            "requirementsSummary": "Five credits including English.",
+            "sourceUrl": "https://example.edu/prospectus",
+          },
+        ),
+        object(),
+      )
+    self.assertEqual(result["proposal"]["resubmissionOf"], "proposal-prior")
+    self.assertEqual(submitted[0]["resubmissionOf"], "proposal-prior")
+
 
 if __name__ == "__main__":
   unittest.main(verbosity=2)

@@ -233,6 +233,7 @@ class InstitutionProposalRequest(BaseModel):
   programmeName: str | None = None
   institution: str | None = None
   proposalType: str | None = None
+  resubmissionOf: str | None = None
   changes: dict[str, Any] = Field(default_factory=dict)
   note: str | None = None
 
@@ -2561,6 +2562,7 @@ def normalize_institution_proposal(proposal: dict[str, Any]) -> dict[str, Any] |
     "programmeName": sanitize_proposal_text(proposal.get("programmeName"), 220),
     "institution": institution,
     "proposalType": proposal_type,
+    "resubmissionOf": sanitize_proposal_text(proposal.get("resubmissionOf") or proposal.get("resubmission_of"), 80),
     "changes": changes,
     "note": sanitize_proposal_text(proposal.get("note"), 1200),
     "status": status,
@@ -3795,12 +3797,20 @@ def create_institution_proposal(payload: InstitutionProposalRequest, request: Re
     raise HTTPException(status_code=400, detail="Programme is required.")
 
   proposals = load_institution_proposals()
+  resubmission_of = sanitize_proposal_text(payload.resubmissionOf, 80)
+  if resubmission_of:
+    prior = next((item for item in proposals if item.get("id") == resubmission_of), None)
+    if not prior or prior.get("proposalType") != "new_programme" or not institutions_match(prior.get("institution"), institution):
+      raise HTTPException(status_code=400, detail="The programme revision must reference a new-programme request from this institution.")
+    if prior.get("status") != "changes_requested":
+      raise HTTPException(status_code=409, detail="Only new-programme requests with changes requested can be revised.")
   proposal = {
     "id": f"iprop-{uuid.uuid4().hex[:14]}",
     "programmeId": programme_id,
     "programmeName": sanitize_proposal_text(payload.programmeName, 220),
     "institution": institution,
     "proposalType": proposal_type,
+    "resubmissionOf": resubmission_of,
     "changes": changes,
     "note": sanitize_proposal_text(payload.note, 1200),
     "status": "pending_admin_review",

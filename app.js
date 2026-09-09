@@ -159,7 +159,8 @@ let institutionWorkbenchState = {
   search: "",
   institution: "",
   selectedProgrammeId: null,
-  newProgrammeDraft: false
+  newProgrammeDraft: false,
+  newProgrammeSeed: null
 };
 let counsellorState = {
   students: [],
@@ -6797,6 +6798,7 @@ function normalizeInstitutionProposal(proposal = {}) {
     programmeName: String(proposal.programmeName || ""),
     institution: normalizeInstitutionName(proposal.institution),
     proposalType,
+    resubmissionOf: String(proposal.resubmissionOf || proposal.resubmission_of || ""),
     changes,
     note: String(proposal.note || ""),
     status: proposal.status || "pending_admin_review",
@@ -6961,6 +6963,7 @@ function renderInstitutionNewProgrammeHistory(scope) {
             <span>${escapeHtml(formatStatus(proposal.status))} - ${escapeHtml(formatDateTime(proposal.updatedAt || proposal.createdAt))}</span>
           </div>
           ${proposal.reviewNote ? `<small class="proposal-review-note">${escapeHtml(proposal.reviewNote)}</small>` : ""}
+          ${proposal.status === "changes_requested" ? `<button class="secondary-action compact-action" type="button" data-revise-institution-programme="${escapeHtml(proposal.id)}"><i data-lucide="pencil"></i> Revise request</button>` : ""}
         </article>
       `).join("")}
     </div>
@@ -7038,21 +7041,24 @@ function renderInstitutionProposalForm(programme) {
   `;
 }
 
-function renderNewInstitutionProgrammeForm(institution) {
+function renderNewInstitutionProgrammeForm(institution, seed = null) {
+  const changes = seed?.changes || {};
   return `
-    <form class="edit-form institution-proposal-form" id="institution-new-programme-form" data-institution="${escapeHtml(institution)}">
+    <form class="edit-form institution-proposal-form" id="institution-new-programme-form" data-institution="${escapeHtml(institution)}" data-resubmission-of="${escapeHtml(seed?.id || "")}">
       <p class="detail-muted">This request remains private until an EduGuide admin verifies and creates the programme record.</p>
+      ${seed?.reviewNote ? `<div class="proposal-status-notice feedback"><strong>Admin requested changes</strong><p>${escapeHtml(seed.reviewNote)}</p></div>` : ""}
       <div class="edit-grid">
         ${institutionProposalEditableFields.map((field) => {
           const required = ["name", "level", "requirementsSummary"].includes(field.name);
+          const value = field.name === "careers" ? formatListText(changes.careers || []) : changes[field.name] || "";
           const input = field.type === "textarea"
-            ? `<textarea name="${escapeHtml(field.name)}" ${required ? "required" : ""} placeholder="${escapeHtml(field.label)}"></textarea>`
-            : `<input name="${escapeHtml(field.name)}" ${required ? "required" : ""} placeholder="${escapeHtml(field.label)}" />`;
+            ? `<textarea name="${escapeHtml(field.name)}" ${required ? "required" : ""} placeholder="${escapeHtml(field.label)}">${escapeHtml(value)}</textarea>`
+            : `<input name="${escapeHtml(field.name)}" ${required ? "required" : ""} placeholder="${escapeHtml(field.label)}" value="${escapeHtml(value)}" />`;
           return `<label class="${field.full ? "full" : ""}"><span>${escapeHtml(field.label)}${required ? " *" : ""}</span>${input}</label>`;
         }).join("")}
         <label class="full">
           <span>Note for EduGuide admin *</span>
-          <textarea name="note" required placeholder="Give the official page, prospectus section, or context that confirms this programme."></textarea>
+          <textarea name="note" required placeholder="Give the official page, prospectus section, or context that confirms this programme.">${escapeHtml(seed?.note || "")}</textarea>
         </label>
       </div>
       <div class="detail-actions">
@@ -7081,7 +7087,7 @@ function renderInstitutionDetail(programme) {
         <div class="detail-card-head"><p class="section-kicker">Institution request</p><span class="badge amber">Admin review</span></div>
         <h3>Propose a new programme</h3>
         <p class="detail-muted">${escapeHtml(scope)} can submit a new programme with evidence. It will not be shown to students until an admin approves it.</p>
-        ${renderNewInstitutionProgrammeForm(scope)}
+        ${renderNewInstitutionProgrammeForm(scope, institutionWorkbenchState.newProgrammeSeed)}
       </div>
     `;
     return;
@@ -7333,6 +7339,7 @@ function getNewInstitutionProgrammePayload(form) {
   });
   return {
     proposalType: "new_programme",
+    resubmissionOf: form.dataset.resubmissionOf || "",
     programmeId: `new-${Date.now()}-${Math.random().toString(16).slice(2, 8)}`,
     programmeName: String(changes.name || "").trim(),
     institution: form.dataset.institution || "",
@@ -7420,8 +7427,10 @@ async function submitNewInstitutionProgramme(form) {
       ? data.proposals.map(normalizeInstitutionProposal)
       : [normalizeInstitutionProposal(data.proposal), ...institutionProposals].filter(Boolean);
     institutionProposalsLoaded = true;
+    const isRevision = Boolean(payload.resubmissionOf);
     institutionWorkbenchState.newProgrammeDraft = false;
-    setAdminActionStatus("New programme submitted for private admin review.", "success");
+    institutionWorkbenchState.newProgrammeSeed = null;
+    setAdminActionStatus(isRevision ? "Revised programme request submitted for private admin review." : "New programme submitted for private admin review.", "success");
     recordCurrentUserActivity("institution_programme_submitted", `Submitted new programme: ${payload.programmeName}`, { institution: payload.institution, proposalType: payload.proposalType });
     renderInstitutionWorkbench();
     renderAdminInstitutionProposals();
@@ -10384,11 +10393,23 @@ function bindEvents() {
 
     if (event.target.closest("#institution-new-programme")) {
       institutionWorkbenchState.newProgrammeDraft = true;
+      institutionWorkbenchState.newProgrammeSeed = null;
       renderInstitutionWorkbench();
       return;
     }
     if (event.target.closest("[data-cancel-new-institution-programme]")) {
       institutionWorkbenchState.newProgrammeDraft = false;
+      institutionWorkbenchState.newProgrammeSeed = null;
+      renderInstitutionWorkbench();
+      return;
+    }
+
+    const reviseRequest = event.target.closest("[data-revise-institution-programme]");
+    if (reviseRequest) {
+      const proposal = institutionProposals.find((item) => item.id === reviseRequest.dataset.reviseInstitutionProgramme);
+      if (!proposal || !isNewProgrammeProposal(proposal) || proposal.status !== "changes_requested") return;
+      institutionWorkbenchState.newProgrammeDraft = true;
+      institutionWorkbenchState.newProgrammeSeed = proposal;
       renderInstitutionWorkbench();
       return;
     }
@@ -10396,6 +10417,7 @@ function bindEvents() {
     const row = event.target.closest("[data-institution-programme]");
     if (row) {
       institutionWorkbenchState.newProgrammeDraft = false;
+      institutionWorkbenchState.newProgrammeSeed = null;
       institutionWorkbenchState.selectedProgrammeId = row.dataset.institutionProgramme;
       renderInstitutionWorkbench();
     }
