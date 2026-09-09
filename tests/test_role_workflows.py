@@ -61,6 +61,13 @@ class RoleWorkflowTests(unittest.TestCase):
     changes = server.sanitize_institution_proposal_changes({"applicationUrl": "https://example.edu/apply"})
     self.assertEqual(changes["applicationUrl"], "https://example.edu/apply")
 
+  def test_institution_application_document_list_is_sanitized(self):
+    changes = server.sanitize_institution_proposal_changes({
+      "applicationDocuments": ["National ID", "", "  COSC certificate  ", "x" * 200],
+    })
+    self.assertEqual(changes["applicationDocuments"][:2], ["National ID", "COSC certificate"])
+    self.assertEqual(len(changes["applicationDocuments"][2]), 160)
+
   def test_institution_admin_cannot_submit_for_another_institution(self):
     actor = {
       "id": "institution-1",
@@ -114,7 +121,7 @@ class RoleWorkflowTests(unittest.TestCase):
   def test_application_fields_are_kept_in_review_state_snapshots(self):
     app_script = (Path(__file__).resolve().parents[1] / "app.js").read_text(encoding="utf-8")
     persist_fields = app_script.split("const programmePersistFields = [", 1)[1].split("];", 1)[0]
-    for field in ["applicationUrl", "applicationDeadline", "intakeStatus"]:
+    for field in ["applicationUrl", "applicationDeadline", "intakeStatus", "applicationDocuments"]:
       self.assertIn(f'"{field}"', persist_fields)
 
   def test_programme_apply_link_is_prioritised_over_a_general_institution_link(self):

@@ -2543,6 +2543,7 @@ INSTITUTION_PROPOSAL_FIELDS = {
   "applicationUrl",
   "applicationDeadline",
   "intakeStatus",
+  "applicationDocuments",
   "sourceNote",
   "feeNote",
   "supportingFeeSourcePath",
@@ -2564,14 +2565,14 @@ def sanitize_institution_proposal_changes(changes: dict[str, Any] | None) -> dic
     if field not in changes:
       continue
     value = changes.get(field)
-    if field == "careers":
+    if field in {"careers", "applicationDocuments"}:
       if isinstance(value, str):
-        items = re.split(r"[\n,]+", value)
+        items = re.split(r"[\n,;]+", value)
       elif isinstance(value, list):
         items = value
       else:
         items = []
-      clean_items = [sanitize_proposal_text(item, 120) for item in items]
+      clean_items = [sanitize_proposal_text(item, 160) for item in items]
       clean_items = [item for item in clean_items if item][:20]
       if clean_items:
         clean[field] = clean_items

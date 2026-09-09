@@ -205,7 +205,8 @@ const institutionProposalEditableFields = [
   { name: "applicationUrl", label: "Official apply-online URL", type: "input" },
   { name: "applicationDeadline", label: "Application deadline / closing date", type: "input" },
   { name: "intakeStatus", label: "Intake status", type: "input" },
-  { name: "careers", label: "Careers", type: "textarea", full: true },
+  { name: "careers", label: "Careers", type: "list", full: true },
+  { name: "applicationDocuments", label: "Institution-confirmed application documents", type: "list", full: true },
   { name: "requirementsSummary", label: "Requirements", type: "textarea", full: true },
   { name: "overview", label: "Overview", type: "textarea", full: true },
   { name: "sourceNote", label: "Source note", type: "textarea", full: true },
@@ -534,7 +535,7 @@ function parseListText(value) {
 }
 
 function formatListText(values = []) {
-  return (values || []).join("\n");
+  return (Array.isArray(values) ? values : parseListText(values)).join("\n");
 }
 
 function normalizeEmail(value) {
@@ -1914,6 +1915,7 @@ const programmePersistFields = [
   "applicationUrl",
   "applicationDeadline",
   "intakeStatus",
+  "applicationDocuments",
   "sourceType",
   "extractionMethod",
   "sourceNote",
@@ -2336,6 +2338,7 @@ function getProgrammeEditPayload() {
     requirementsSummary: values.get("requirementsSummary")?.trim() || null,
     overview: values.get("overview")?.trim() || null,
     careers: parseListText(values.get("careers")),
+    applicationDocuments: parseListText(values.get("applicationDocuments")),
     sourceUrl: values.get("sourceUrl")?.trim() || null,
     supportingSourcePath: values.get("supportingSourcePath")?.trim() || null,
     supportingFeeSourcePath: values.get("supportingFeeSourcePath")?.trim() || null,
@@ -2457,6 +2460,7 @@ function createAdminProgramme() {
     applicationUrl: null,
     applicationDeadline: null,
     intakeStatus: null,
+    applicationDocuments: [],
     sourceType: "manual_admin_entry",
     extractionMethod: "admin_dashboard",
     reviewStatus: "needs_admin_review",
@@ -3680,7 +3684,24 @@ function getProgrammeApplicationSummary(programme) {
 function getApplicationDocumentChecklist(programmes = []) {
   const signals = getUploadedDocumentSignals();
   const allProgrammeText = programmes.map((programme) => `${programme.title} ${programme.institution} ${programme.faculty} ${programme.level}`).join(" ").toLowerCase();
+  const documentsByLabel = new Map();
+  programmes.forEach((programme) => {
+    const applicationDocuments = Array.isArray(programme.applicationDocuments)
+      ? programme.applicationDocuments
+      : parseListText(programme.applicationDocuments);
+    applicationDocuments.forEach((item) => {
+      const label = String(item || "").trim();
+      if (label) documentsByLabel.set(label.toLowerCase(), label);
+    });
+  });
+  const confirmedDocuments = Array.from(documentsByLabel.values()).map((label) => ({
+    label,
+    ready: getInstitutionDocumentReadiness(label, signals),
+    note: "Confirmed in the approved institution catalogue record. Verify the latest wording before submission.",
+    institutionConfirmed: true
+  }));
   const checklist = [
+    ...confirmedDocuments,
     {
       label: "COSC/LGCSE statement of results or certificate",
       ready: signals.hasResults || signals.extractedGradeCount > 0,
@@ -3722,6 +3743,17 @@ function getApplicationDocumentChecklist(programmes = []) {
     });
   }
   return checklist;
+}
+
+function getInstitutionDocumentReadiness(label, signals) {
+  const text = String(label || "").toLowerCase();
+  if (/result|transcript|grade|certificate|lgcse|cosc/.test(text)) return signals.hasResults || signals.extractedGradeCount > 0;
+  if (/\bid\b|identity|passport|birth/.test(text)) return signals.hasIdentity;
+  if (/bank|account confirmation|banking/.test(text)) return signals.hasBankDetails;
+  if (/chief|residence|guardian|parent|household|need|income|payslip|affidavit/.test(text)) return signals.hasResidenceGuarantor || signals.hasNeedEvidence;
+  if (/admission|offer|acceptance|application|registration|student number/.test(text)) return signals.hasApplicationEvidence;
+  if (/nmds|loan|bursary|curriculum vitae|\bcv\b|study leave|employment|\bche\b/.test(text)) return signals.hasConditionalEvidence;
+  return null;
 }
 
 function getApplicationReadiness(checklist = []) {
@@ -3814,6 +3846,12 @@ function getMatchingProgrammeFromAdmin(programme) {
     sourcePath: programme.sourcePath || null,
     supportingSourcePath: programme.supportingSourcePath || null,
     supportingFeeSourcePath: programme.supportingFeeSourcePath || null,
+    applicationUrl: programme.applicationUrl || null,
+    applicationDeadline: programme.applicationDeadline || null,
+    intakeStatus: programme.intakeStatus || null,
+    applicationDocuments: Array.isArray(programme.applicationDocuments)
+      ? programme.applicationDocuments
+      : parseListText(programme.applicationDocuments),
     sourceNote: programme.sourceNote || null,
     feeNote: programme.feeNote || null,
     overview: programme.overview || null
@@ -5344,7 +5382,7 @@ function renderApplicationGroup(group) {
                 <i data-lucide="${item.ready ? "check-circle-2" : item.ready === null ? "help-circle" : "circle"}"></i>
                 <span>
                   <strong>${escapeHtml(item.label)}</strong>
-                  <small>${escapeHtml(item.note)}</small>
+                  <small>${item.institutionConfirmed ? "Institution-confirmed. " : ""}${escapeHtml(item.note)}</small>
                 </span>
               </div>
             `
@@ -6797,7 +6835,7 @@ function renderExplorerCourseProfile(programme) {
             ${checklist.slice(0, 6).map((item) => `
               <div class="${item.ready === true ? "complete" : "verify"}">
                 <i data-lucide="${item.ready === true ? "check-circle-2" : "circle-dashed"}"></i>
-                <span><strong>${escapeHtml(item.label)}</strong><small>${escapeHtml(item.note)}</small></span>
+                <span><strong>${escapeHtml(item.label)}</strong><small>${item.institutionConfirmed ? "Institution-confirmed. " : ""}${escapeHtml(item.note)}</small></span>
               </div>
             `).join("")}
           </div>
@@ -7152,8 +7190,8 @@ function renderInstitutionProposalForm(programme) {
     <form class="edit-form institution-proposal-form" id="institution-proposal-form" data-programme-id="${escapeHtml(programme.id)}">
       <div class="edit-grid">
         ${institutionProposalEditableFields.map((field) => {
-          const value = field.name === "careers" ? formatListText(programme.careers || []) : programme[field] || "";
-          const input = field.type === "textarea"
+          const value = field.type === "list" ? formatListText(programme[field.name] || []) : programme[field.name] || "";
+          const input = field.type === "textarea" || field.type === "list"
             ? `<textarea name="${escapeHtml(field.name)}">${escapeHtml(value)}</textarea>`
             : `<input name="${escapeHtml(field.name)}" value="${escapeHtml(value)}">`;
           return `
@@ -7187,8 +7225,8 @@ function renderNewInstitutionProgrammeForm(institution, seed = null) {
       <div class="edit-grid">
         ${institutionProposalEditableFields.map((field) => {
           const required = ["name", "level", "requirementsSummary"].includes(field.name);
-          const value = field.name === "careers" ? formatListText(changes.careers || []) : changes[field.name] || "";
-          const input = field.type === "textarea"
+          const value = field.type === "list" ? formatListText(changes[field.name] || []) : changes[field.name] || "";
+          const input = field.type === "textarea" || field.type === "list"
             ? `<textarea name="${escapeHtml(field.name)}" ${required ? "required" : ""} placeholder="${escapeHtml(field.label)}">${escapeHtml(value)}</textarea>`
             : `<input name="${escapeHtml(field.name)}" ${required ? "required" : ""} placeholder="${escapeHtml(field.label)}" value="${escapeHtml(value)}" />`;
           return `<label class="${field.full ? "full" : ""}"><span>${escapeHtml(field.label)}${required ? " *" : ""}</span>${input}</label>`;
@@ -7449,9 +7487,9 @@ function getInstitutionProposalPayload(form, programme) {
   const changes = {};
   institutionProposalEditableFields.forEach((field) => {
     const rawValue = values.get(field.name);
-    const value = field.name === "careers" ? parseListText(rawValue) : String(rawValue || "").trim();
-    const current = field.name === "careers" ? (programme.careers || []) : (programme[field.name] || "");
-    if (field.name === "careers") {
+    const value = field.type === "list" ? parseListText(rawValue) : String(rawValue || "").trim();
+    const current = field.type === "list" ? (programme[field.name] || []) : (programme[field.name] || "");
+    if (field.type === "list") {
       if (value.length && !valuesAreEqual(current, value)) changes[field.name] = value;
       return;
     }
@@ -7471,7 +7509,7 @@ function getNewInstitutionProgrammePayload(form) {
   const changes = {};
   institutionProposalEditableFields.forEach((field) => {
     const rawValue = values.get(field.name);
-    const value = field.name === "careers" ? parseListText(rawValue) : String(rawValue || "").trim();
+    const value = field.type === "list" ? parseListText(rawValue) : String(rawValue || "").trim();
     if (Array.isArray(value) ? value.length : value) changes[field.name] = value;
   });
   return {
@@ -7620,6 +7658,7 @@ async function applyInstitutionProposal(proposalId) {
       applicationUrl: changes.applicationUrl || null,
       applicationDeadline: changes.applicationDeadline || null,
       intakeStatus: changes.intakeStatus || null,
+      applicationDocuments: Array.isArray(changes.applicationDocuments) ? changes.applicationDocuments : [],
       sourceType: "institution_submission",
       extractionMethod: "institution_portal",
       reviewStatus: "approved",
@@ -9443,6 +9482,10 @@ function renderAdminDetail() {
             <label class="full">
               <span>Intake status</span>
               <input name="intakeStatus" value="${escapeHtml(programme.intakeStatus || "")}" placeholder="Example: Open for 2027 intake">
+            </label>
+            <label class="full">
+              <span>Institution-confirmed application documents (one per line)</span>
+              <textarea name="applicationDocuments" placeholder="One document per line">${escapeHtml(formatListText(programme.applicationDocuments || []))}</textarea>
             </label>
             <label class="full">
               <span>Careers</span>
