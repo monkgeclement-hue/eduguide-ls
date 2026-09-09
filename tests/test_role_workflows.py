@@ -129,6 +129,35 @@ class RoleWorkflowTests(unittest.TestCase):
       server.public_reference_document("../../server.py")
     self.assertEqual(error.exception.status_code, 404)
 
+  def test_historical_candidates_need_current_evidence_before_approval(self):
+    candidate_id = next(iter(server.get_historical_candidate_ids()))
+    incomplete_state = {
+      "programmeStatuses": {candidate_id: "approved"},
+      "programmeEdits": {candidate_id: {"reviewStatus": "approved"}},
+    }
+    with self.assertRaises(HTTPException) as error:
+      server.sanitize_database_state_payload("review_state", incomplete_state)
+    self.assertEqual(error.exception.status_code, 400)
+    self.assertIn("current official source URL", error.exception.detail)
+
+    reviewed_state = {
+      "programmeStatuses": {candidate_id: "approved"},
+      "programmeEdits": {
+        candidate_id: {
+          "reviewStatus": "approved",
+          "sourceUrl": "https://example.edu/programmes/current-offering",
+          "requirementsSummary": "Five credits including English.",
+        }
+      },
+    }
+    self.assertEqual(server.sanitize_database_state_payload("review_state", reviewed_state), reviewed_state)
+
+  def test_historical_candidate_approval_guard_is_visible_to_admins(self):
+    app_script = (Path(__file__).resolve().parents[1] / "app.js").read_text(encoding="utf-8")
+    self.assertIn("function getProgrammeApprovalBlocker", app_script)
+    self.assertIn("Historical CHE candidate", app_script)
+    self.assertIn("historical_candidates", app_script)
+
   def test_application_fields_are_kept_in_review_state_snapshots(self):
     app_script = (Path(__file__).resolve().parents[1] / "app.js").read_text(encoding="utf-8")
     persist_fields = app_script.split("const programmePersistFields = [", 1)[1].split("];", 1)[0]

@@ -215,6 +215,7 @@ const institutionProposalEditableFields = [
 ];
 const maxActivityItems = 45;
 const catalogueDataVersion = "2026-08-enrichment-1";
+const historicalCandidateSourceTypes = new Set(["official_regulator_historical_pdf"]);
 const maxAiChatMessages = 24;
 const calibrationProfiles = {
   arts: {
@@ -6293,6 +6294,33 @@ function isPublicProgramme(programme = {}) {
   return statuses.includes("approved") || statuses.includes("verified");
 }
 
+function isHistoricalCatalogueCandidate(programme = {}) {
+  return historicalCandidateSourceTypes.has(String(programme.sourceType || "").trim());
+}
+
+function getHistoricalCandidateEvidenceStatus(programme = {}) {
+  const requiresCurrentEvidence = isHistoricalCatalogueCandidate(programme);
+  const hasCurrentSource = Boolean(getSafeExternalUrl(programme.sourceUrl));
+  const currentDetailFields = ["duration", "requirementsSummary", "overview", "applicationUrl", "applicationDeadline", "intakeStatus"];
+  const hasCurrentDetail = currentDetailFields.some((field) => String(programme[field] || "").trim());
+  return {
+    requiresCurrentEvidence,
+    hasCurrentSource,
+    hasCurrentDetail,
+    ready: !requiresCurrentEvidence || (hasCurrentSource && hasCurrentDetail)
+  };
+}
+
+function getProgrammeApprovalBlocker(programme = {}) {
+  const evidence = getHistoricalCandidateEvidenceStatus(programme);
+  if (!evidence.requiresCurrentEvidence || evidence.ready) return "";
+  if (!evidence.hasCurrentSource && !evidence.hasCurrentDetail) {
+    return "Add a current official source URL and at least one current programme detail before approving this historical candidate.";
+  }
+  if (!evidence.hasCurrentSource) return "Add a current official source URL before approving this historical candidate.";
+  return "Add at least one current programme detail before approving this historical candidate.";
+}
+
 function getPublicProgrammeCount() {
   return getExplorerProgrammes().length;
 }
@@ -8618,6 +8646,7 @@ function adminSearchMatches(values) {
 
 function getProgrammeQualityChecks(programme) {
   const openGaps = adminGaps.filter((gap) => gap.programmeId === programme.id && gap.status !== "resolved");
+  const historicalEvidence = getHistoricalCandidateEvidenceStatus(programme);
   const checks = [
     {
       key: "requirements",
@@ -8632,10 +8661,12 @@ function getProgrammeQualityChecks(programme) {
       issue: "Missing duration"
     },
     {
-      key: "source",
-      label: "Source",
-      ready: Boolean(programme.sourceUrl || programme.supportingSourcePath || programme.sourcePath),
-      issue: "Missing source"
+      key: historicalEvidence.requiresCurrentEvidence ? "current_source" : "source",
+      label: historicalEvidence.requiresCurrentEvidence ? "Current evidence" : "Source",
+      ready: historicalEvidence.requiresCurrentEvidence
+        ? historicalEvidence.ready
+        : Boolean(programme.sourceUrl || programme.supportingSourcePath || programme.sourcePath),
+      issue: historicalEvidence.requiresCurrentEvidence ? "Current official evidence required" : "Missing source"
     },
     {
       key: "fees",
@@ -8682,6 +8713,7 @@ function programmeMatchesQualityFilter(programme) {
   if (filter === "ready") return quality.percent >= 85 && programme.reviewStatus === "approved";
   if (filter === "open_gaps") return quality.openGaps.length > 0;
   if (filter === "needs_review") return programme.reviewStatus === "needs_admin_review" || programme.reviewStatus === "flagged";
+  if (filter === "historical_candidates") return isHistoricalCatalogueCandidate(programme);
   return quality.missingKeys.includes(filter.replace("missing_", ""));
 }
 
@@ -8691,6 +8723,7 @@ function getAdminQualityFilterOptions() {
   return [
     { key: "all", label: "All", count: visibleByInstitution.length },
     { key: "needs_review", label: "Needs review", count: count((programme) => programme.reviewStatus === "needs_admin_review" || programme.reviewStatus === "flagged") },
+    { key: "historical_candidates", label: "Historical candidates", count: count(isHistoricalCatalogueCandidate) },
     { key: "missing_requirements", label: "Missing requirements", count: count((programme) => !programme.requirementsSummary) },
     { key: "missing_duration", label: "Missing duration", count: count((programme) => !programme.duration) },
     { key: "missing_fees", label: "Missing fees", count: count((programme) => !(programme.feeNote || programme.supportingFeeSourcePath || getInstitutionFeeSchedules(programme.institution).length)) },
@@ -8842,6 +8875,7 @@ function renderAdminCatalogue() {
           const quality = getProgrammeQualityChecks(programme);
           const openGaps = quality.openGaps.filter((gap) => gap.status === "open").length;
           const qualityTone = quality.percent >= 85 ? "green" : quality.percent >= 55 ? "amber" : "red";
+          const approvalBlocker = getProgrammeApprovalBlocker(programme);
           return `
             <article class="admin-row ${programme.id === adminState.selectedProgrammeId ? "selected" : ""}" data-programme-id="${escapeHtml(programme.id)}">
               <div class="admin-row-main">
@@ -8868,7 +8902,8 @@ function renderAdminCatalogue() {
               <div class="admin-row-actions">
                 <span class="badge ${qualityTone}">Data ${quality.percent}%</span>
                 <span class="badge ${badgeClassForStatus(programme.reviewStatus)}">${formatStatus(programme.reviewStatus)}</span>
-                <button type="button" title="Approve" data-admin-action="approve" data-programme-id="${escapeHtml(programme.id)}">
+                ${isHistoricalCatalogueCandidate(programme) ? `<span class="badge amber" title="Historical CHE candidate">Historical</span>` : ""}
+                <button type="button" title="${escapeHtml(approvalBlocker || "Approve")}" data-admin-action="approve" data-programme-id="${escapeHtml(programme.id)}" ${approvalBlocker ? "disabled" : ""}>
                   <i data-lucide="check"></i>
                 </button>
                 <button type="button" title="Flag" data-admin-action="flag" data-programme-id="${escapeHtml(programme.id)}">
@@ -9505,6 +9540,8 @@ function renderAdminDetail() {
   ].filter(Boolean);
   const careerItems = programme.careers?.length ? programme.careers : [];
   const isEditing = adminState.editingProgrammeId === programme.id;
+  const approvalBlocker = getProgrammeApprovalBlocker(programme);
+  const historicalEvidence = getHistoricalCandidateEvidenceStatus(programme);
 
   if (isEditing) {
     panel.innerHTML = `
@@ -9514,6 +9551,11 @@ function renderAdminDetail() {
           <span class="badge ${badgeClassForStatus(programme.reviewStatus)}">${formatStatus(programme.reviewStatus)}</span>
         </div>
         <h3>${escapeHtml(programme.name)}</h3>
+        ${
+          historicalEvidence.requiresCurrentEvidence
+            ? `<div class="historical-review-notice"><i data-lucide="history"></i><div><strong>Historical CHE candidate</strong><p>Keep this record private until you add a current official source URL and at least one confirmed current detail.</p></div></div>`
+            : ""
+        }
         <form class="edit-form" id="admin-edit-form" data-programme-id="${escapeHtml(programme.id)}">
           <div class="edit-grid">
             <label>
@@ -9549,7 +9591,7 @@ function renderAdminDetail() {
               <input name="deliveryMode" value="${escapeHtml(programme.deliveryMode || "")}" placeholder="Full-time">
             </label>
             <label>
-              <span>Official source URL</span>
+              <span>${historicalEvidence.requiresCurrentEvidence ? "Current official source URL" : "Official source URL"}</span>
               <input name="sourceUrl" value="${escapeHtml(programme.sourceUrl || "")}" placeholder="https://...">
             </label>
             <label>
@@ -9636,6 +9678,11 @@ function renderAdminDetail() {
           </div>
         </div>`;
       })()}
+      ${
+        historicalEvidence.requiresCurrentEvidence
+          ? `<div class="historical-review-notice ${historicalEvidence.ready ? "ready" : ""}"><i data-lucide="${historicalEvidence.ready ? "badge-check" : "triangle-alert"}"></i><div><strong>${historicalEvidence.ready ? "Current evidence attached" : "Historical CHE candidate"}</strong><p>${escapeHtml(approvalBlocker || "This record now has a current official source and programme detail. Review it before publishing.")}</p></div></div>`
+          : ""
+      }
       <div class="detail-meta-grid">
         <div><span>Institution</span><strong>${escapeHtml(programme.institution)}</strong></div>
         <div><span>Code</span><strong>${escapeHtml(programme.code || "Missing")}</strong></div>
@@ -9702,7 +9749,7 @@ function renderAdminDetail() {
           <i data-lucide="pencil"></i>
           Edit
         </button>
-        <button class="primary-button small" type="button" data-admin-action="approve" data-programme-id="${escapeHtml(programme.id)}">
+        <button class="primary-button small" type="button" title="${escapeHtml(approvalBlocker || "Approve")}" data-admin-action="approve" data-programme-id="${escapeHtml(programme.id)}" ${approvalBlocker ? "disabled" : ""}>
           <i data-lucide="check"></i>
           Approve
         </button>
@@ -9743,6 +9790,12 @@ function setAdminTab(tabName) {
 async function setProgrammeReviewStatus(id, status) {
   const programme = adminProgrammes.find((item) => item.id === id);
   if (!programme) return;
+  const approvalBlocker = status === "approved" ? getProgrammeApprovalBlocker(programme) : "";
+  if (approvalBlocker) {
+    setAdminActionStatus(approvalBlocker, "warning");
+    renderAdmin();
+    return;
+  }
   const previousStatus = programme.reviewStatus;
   const previousReviewedAt = programme.reviewedAt || null;
   const nextReviewedAt = new Date().toISOString();
@@ -9772,17 +9825,26 @@ async function publishSelectedInstitution() {
     setAdminActionStatus("Choose an institution filter before publishing.", "warning");
     return;
   }
-  const records = getFilteredAdminProgrammes().filter((programme) => !isPublicProgramme(programme) && programme.reviewStatus !== "rejected");
+  const pendingRecords = getFilteredAdminProgrammes().filter((programme) => !isPublicProgramme(programme) && programme.reviewStatus !== "rejected");
+  const blockedRecords = pendingRecords.filter((programme) => getProgrammeApprovalBlocker(programme));
+  const records = pendingRecords.filter((programme) => !getProgrammeApprovalBlocker(programme));
   if (!records.length) {
-    setAdminActionStatus("No pending records match this institution filter.", "neutral");
+    const historicalMessage = blockedRecords.length
+      ? `${blockedRecords.length} historical candidate${blockedRecords.length === 1 ? " requires" : "s require"} current official evidence before publication.`
+      : "No pending records match this institution filter.";
+    setAdminActionStatus(historicalMessage, blockedRecords.length ? "warning" : "neutral");
+    renderAdmin();
     return;
   }
-  const confirmed = window.confirm(`Publish ${records.length} record(s) for ${adminState.institution}? Students will see them after this action.`);
+  const skippedNote = blockedRecords.length
+    ? ` ${blockedRecords.length} historical candidate${blockedRecords.length === 1 ? " will" : "s will"} remain private until current evidence is added.`
+    : "";
+  const confirmed = window.confirm(`Publish ${records.length} record(s) for ${adminState.institution}? Students will see them after this action.${skippedNote}`);
   if (!confirmed) return;
   for (const programme of records) {
     await setProgrammeReviewStatus(programme.id, "approved");
   }
-  setAdminActionStatus(`Published ${records.length} record(s) for ${adminState.institution}.`, "success");
+  setAdminActionStatus(`Published ${records.length} record(s) for ${adminState.institution}.${skippedNote}`, "success");
 }
 
 async function setGapStatus(id, status) {

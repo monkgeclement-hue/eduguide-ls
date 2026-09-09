@@ -4581,6 +4581,46 @@ textarea:focus {
   margin-top: 0;
 }
 
+.historical-review-notice {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 10px;
+  align-items: start;
+  margin: 0 0 12px;
+  padding: 11px;
+  border: 1px solid #eccf85;
+  border-radius: 8px;
+  background: #fff8e7;
+  color: #714b00;
+}
+
+.historical-review-notice.ready {
+  border-color: #a9dbc8;
+  background: #eefaf4;
+  color: var(--brand-deep);
+}
+
+.historical-review-notice svg {
+  width: 18px;
+  height: 18px;
+  margin-top: 1px;
+}
+
+.historical-review-notice strong,
+.historical-review-notice p {
+  display: block;
+}
+
+.historical-review-notice strong {
+  font-size: 13px;
+}
+
+.historical-review-notice p {
+  margin: 3px 0 0;
+  font-size: 13px;
+  line-height: 1.45;
+}
+
 .detail-meta-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
