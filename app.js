@@ -3399,6 +3399,10 @@ function getApplicationLinkPack(institution, programmes = []) {
   const explorerLinks = institution
     ? getInstitutionExplorerLinks(institution)
     : { application: null, prospectusLinks: [], sourceLinks: [], allLinks: [] };
+  const directProgrammeApplicationLinks = dedupeLinks(programmes.map((programme) => ({
+    label: `${getMatchProgrammeTitle(programme)} apply online`,
+    url: programme.applicationUrl
+  })));
   const programmeLinks = programmes.flatMap((programme) => {
     const title = getMatchProgrammeTitle(programme);
     return [
@@ -3409,11 +3413,15 @@ function getApplicationLinkPack(institution, programmes = []) {
     ];
   });
   const allLinks = dedupeLinks([
+    ...directProgrammeApplicationLinks,
     explorerLinks.application ? { label: explorerLinks.application.label || "Apply / visit institution", url: explorerLinks.application.url } : null,
     ...programmeLinks,
     ...explorerLinks.allLinks
   ].filter(Boolean));
-  const applicationLink = allLinks.find((link) => /apply|application|portal|admission|course|programmes|official website/i.test(`${link.label} ${link.url}`)) || allLinks[0] || null;
+  const applicationLink = directProgrammeApplicationLinks[0]
+    || allLinks.find((link) => /apply|application|portal|admission|course|programmes|official website/i.test(`${link.label} ${link.url}`))
+    || allLinks[0]
+    || null;
   const prospectusLinks = allLinks.filter((link) => isProspectusLike(`${link.label} ${link.url}`));
   const sourceLinks = allLinks.filter((link) => link !== applicationLink && !prospectusLinks.includes(link));
   const localEvidence = unique(programmes.flatMap((programme) => [

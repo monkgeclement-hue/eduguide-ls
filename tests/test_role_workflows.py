@@ -117,6 +117,12 @@ class RoleWorkflowTests(unittest.TestCase):
     for field in ["applicationUrl", "applicationDeadline", "intakeStatus"]:
       self.assertIn(f'"{field}"', persist_fields)
 
+  def test_programme_apply_link_is_prioritised_over_a_general_institution_link(self):
+    app_script = (Path(__file__).resolve().parents[1] / "app.js").read_text(encoding="utf-8")
+    link_pack = app_script.split("function getApplicationLinkPack", 1)[1].split("function normalizeFeeText", 1)[0]
+    self.assertIn("const directProgrammeApplicationLinks", link_pack)
+    self.assertIn("const applicationLink = directProgrammeApplicationLinks[0]", link_pack)
+
   def test_change_request_requires_feedback_and_locks_the_decision(self):
     proposal = {
       "id": "proposal-1",
