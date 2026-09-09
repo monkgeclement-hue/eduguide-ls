@@ -68,6 +68,10 @@ class RoleWorkflowTests(unittest.TestCase):
     self.assertEqual(changes["applicationDocuments"][:2], ["National ID", "COSC certificate"])
     self.assertEqual(len(changes["applicationDocuments"][2]), 160)
 
+  def test_institution_can_request_removal_of_application_documents(self):
+    changes = server.sanitize_institution_proposal_changes({"applicationDocuments": []})
+    self.assertEqual(changes, {"applicationDocuments": []})
+
   def test_institution_admin_cannot_submit_for_another_institution(self):
     actor = {
       "id": "institution-1",

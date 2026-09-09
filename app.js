@@ -7045,7 +7045,7 @@ function getProposalStatusTone(status) {
 }
 
 function formatProposalValue(value) {
-  if (Array.isArray(value)) return value.join(", ");
+  if (Array.isArray(value)) return value.length ? value.join(", ") : "Remove all listed items";
   if (value && typeof value === "object") return JSON.stringify(value);
   return String(value ?? "");
 }
@@ -7538,9 +7538,11 @@ function getInstitutionProposalPayload(form, programme) {
   institutionProposalEditableFields.forEach((field) => {
     const rawValue = values.get(field.name);
     const value = field.type === "list" ? parseListText(rawValue) : String(rawValue || "").trim();
-    const current = field.type === "list" ? (programme[field.name] || []) : (programme[field.name] || "");
+    const current = field.type === "list"
+      ? (Array.isArray(programme[field.name]) ? programme[field.name] : parseListText(programme[field.name]))
+      : (programme[field.name] || "");
     if (field.type === "list") {
-      if (value.length && !valuesAreEqual(current, value)) changes[field.name] = value;
+      if (!valuesAreEqual(current, value)) changes[field.name] = value;
       return;
     }
     if (value && !valuesAreEqual(current, value)) changes[field.name] = value;

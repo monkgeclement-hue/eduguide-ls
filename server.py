@@ -2574,8 +2574,7 @@ def sanitize_institution_proposal_changes(changes: dict[str, Any] | None) -> dic
         items = []
       clean_items = [sanitize_proposal_text(item, 160) for item in items]
       clean_items = [item for item in clean_items if item][:20]
-      if clean_items:
-        clean[field] = clean_items
+      clean[field] = clean_items
       continue
     if field == "applicationUrl":
       text = sanitize_proposal_text(value, 600)
