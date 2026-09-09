@@ -5871,6 +5871,7 @@ function renderAiGuidance(guidance, mode, model, serverChat = null) {
                     <em>${escapeHtml(item.tier || "Match")}</em>
                     <p>${escapeHtml(item.why || "This matches your current profile signals.")}</p>
                     ${item.evidence ? `<b class="ai-evidence">Evidence: ${escapeHtml(item.evidence)}</b>` : ""}
+                    <small class="ai-evidence-source">Source: ${escapeHtml(item.evidence_source || "Captured catalogue record")}</small>
                     <span>${escapeHtml(item.caution || "Verify final requirements before applying.")}</span>
                     <small>${escapeHtml(item.action || "Compare this option with your other matches.")}</small>
                   </div>
@@ -5892,6 +5893,7 @@ function renderAiGuidance(guidance, mode, model, serverChat = null) {
                     <em>${escapeHtml(item.tier || "Match")}</em>
                     <p>${escapeHtml(item.strength || "Strong profile alignment.")}</p>
                     ${item.evidence ? `<b class="ai-evidence">Evidence: ${escapeHtml(item.evidence)}</b>` : ""}
+                    <small class="ai-evidence-source">Source: ${escapeHtml(item.evidence_source || "Captured catalogue record")}</small>
                     <span>${escapeHtml(item.concern || "Confirm final requirements before applying.")}</span>
                   </div>
                 `

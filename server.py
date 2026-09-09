@@ -1423,9 +1423,23 @@ def compact_match(match: dict[str, Any]) -> dict[str, Any]:
   }
 
 
+def canonical_match_tier(match: dict[str, Any]) -> str:
+  raw_tier = str(match.get("tier") or "").strip().lower().replace("-", " ").replace("_", " ")
+  raw_label = str(match.get("tier_label") or "").strip().lower().replace("-", " ").replace("_", " ")
+  if raw_tier in {"qualified", "almost"}:
+    return raw_tier
+  if raw_label == "qualified":
+    return "qualified"
+  if raw_label in {"almost", "almost qualified", "nearly qualified"}:
+    return "almost"
+  return ""
+
+
 def is_recommendable_match(match: dict[str, Any]) -> bool:
-  tier = str(match.get("tier_label") or match.get("tier") or "").lower()
-  return "qualified" in tier or "almost" in tier
+  # Treat hard-gate evidence as authoritative, even when a malformed client payload labels a match favourably.
+  if match.get("hard_gate_passed") is False or match.get("hard_gate_failures"):
+    return False
+  return canonical_match_tier(match) in {"qualified", "almost"}
 
 
 def guidance_match_key(programme: Any, institution: Any) -> str:
@@ -1453,6 +1467,7 @@ def recommendation_from_match(match: dict[str, Any]) -> dict[str, Any]:
     "institution": match.get("institution"),
     "tier": match.get("tier_label") or match.get("tier") or "Match",
     "evidence": evidence_text(match),
+    "evidence_source": match.get("source") or "Captured catalogue record",
     "why": "; ".join(match.get("reasons") or ["This is supported by the matcher using your current grades, interests, and captured requirements."]),
     "caution": "; ".join(caution_parts[:2]) if caution_parts else "Verify final requirements with the institution before applying.",
     "action": "Open the programme or institution profile, check requirements and documents, then apply only through the captured official/source link.",
@@ -1474,11 +1489,10 @@ def normalize_ai_guidance(guidance: dict[str, Any] | None, payload: GuidanceRequ
     if not matched:
       continue
     merged = recommendation_from_match(matched)
+    # The model may choose ordering, but factual recommendation fields stay anchored to matcher/catalogue evidence.
     merged.update({
-      "why": str(item.get("why") or merged["why"])[:900],
-      "caution": str(item.get("caution") or merged["caution"])[:900],
-      "action": str(item.get("action") or merged["action"])[:900],
       "evidence": evidence_text(matched),
+      "evidence_source": matched.get("source") or "Captured catalogue record",
       "tier": matched.get("tier_label") or matched.get("tier") or merged["tier"],
     })
     safe_recommendations.append(merged)
@@ -1498,8 +1512,9 @@ def normalize_ai_guidance(guidance: dict[str, Any] | None, payload: GuidanceRequ
       "institution": matched.get("institution"),
       "tier": matched.get("tier_label") or matched.get("tier") or "Match",
       "evidence": evidence_text(matched),
-      "strength": str(item.get("strength") or "; ".join(matched.get("reasons") or ["Supported by current matcher evidence."]))[:900],
-      "concern": str(item.get("concern") or "; ".join(matched.get("cautions") or matched.get("requirement_gaps") or ["Confirm final entry requirements."]))[:900],
+      "evidence_source": matched.get("source") or "Captured catalogue record",
+      "strength": "; ".join(matched.get("reasons") or ["Supported by current matcher evidence."])[:900],
+      "concern": "; ".join(matched.get("cautions") or matched.get("requirement_gaps") or ["Confirm final entry requirements."])[:900],
     })
   if not safe_comparison and safe_recommendations:
     safe_comparison = [
@@ -1508,6 +1523,7 @@ def normalize_ai_guidance(guidance: dict[str, Any] | None, payload: GuidanceRequ
         "institution": item["institution"],
         "tier": item["tier"],
         "evidence": item["evidence"],
+        "evidence_source": item.get("evidence_source") or "Captured catalogue record",
         "strength": item["why"],
         "concern": item["caution"],
       }
@@ -1566,6 +1582,7 @@ def normalize_ai_guidance(guidance: dict[str, Any] | None, payload: GuidanceRequ
   response["qualification_reasons"] = qualification_reasons[:4]
   response["blockers"] = blockers[:6]
   response["missing_information"] = missing_information[:4]
+  response["evidence_policy"] = "Recommendation facts are locked to your current matcher results and captured catalogue evidence."
   return response
 
 
@@ -1622,6 +1639,7 @@ def build_fallback(payload: GuidanceRequest, error: str | None = None) -> dict[s
         "institution": item.get("institution"),
         "tier": item.get("tier_label") or item.get("tier") or "Explore",
         "evidence": evidence_text(item),
+        "evidence_source": item.get("source") or "Captured catalogue record",
         "why": "; ".join(item.get("reasons") or ["It aligns with your selected profile signals."]),
         "caution": "; ".join(item.get("cautions") or ["Confirm requirements with the institution."]),
         "action": "Compare requirements, duration, careers, and funding readiness before shortlisting.",
@@ -1634,6 +1652,7 @@ def build_fallback(payload: GuidanceRequest, error: str | None = None) -> dict[s
         "institution": item.get("institution"),
         "tier": item.get("tier_label") or item.get("tier") or "Explore",
         "evidence": evidence_text(item),
+        "evidence_source": item.get("source") or "Captured catalogue record",
         "strength": "; ".join(item.get("reasons") or ["Good profile alignment."]),
         "concern": "; ".join(item.get("requirement_gaps") or item.get("cautions") or ["Confirm final entry requirements."]),
       }
@@ -4574,7 +4593,10 @@ def ai_guidance(payload: GuidanceRequest, request: Request, authorization: str |
   else:
     result = call_gemini(safe_payload, request_payload)
 
-  guidance = result.get("guidance") if isinstance(result, dict) else {}
+  if not isinstance(result, dict):
+    result = {"mode": "local_fallback", "model": None, "guidance": build_fallback(safe_payload, "The AI service returned an invalid response.")}
+  guidance = normalize_ai_guidance(result.get("guidance"), safe_payload)
+  result["guidance"] = guidance
   assistant_message = {
     "id": f"ai-{uuid.uuid4().hex[:12]}",
     "role": "assistant",

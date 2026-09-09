@@ -3451,6 +3451,12 @@ textarea:focus {
   line-height: 1.45;
 }
 
+.ai-rec .ai-evidence-source {
+  color: var(--muted);
+  font-size: 11px;
+  overflow-wrap: anywhere;
+}
+
 .ai-rec small {
   color: var(--muted);
   line-height: 1.45;
