@@ -173,7 +173,7 @@ let counsellorState = {
   search: ""
 };
 let counsellorAssignments = [];
-let studentCounsellorAccess = { assignments: [], loading: false, loaded: false, error: "" };
+let studentCounsellorAccess = { assignments: [], followups: [], loading: false, loaded: false, error: "" };
 let reviewingDocumentGradesId = null;
 
 const counsellorConsentMeta = {
@@ -837,6 +837,24 @@ function getCounsellorFilteredStudents() {
   });
 }
 
+function getFollowupTimingMeta(followup = {}) {
+  if (followup.dueStatus === "overdue") return { tone: "red", label: "Overdue" };
+  if (followup.dueStatus === "due_soon") return { tone: "amber", label: "Due soon" };
+  if (followup.dueStatus === "scheduled") return { tone: "blue", label: "Scheduled" };
+  return { tone: "muted", label: "No due date" };
+}
+
+function formatFollowupDue(followup = {}) {
+  return followup.dueAt ? `Due ${followup.dueAt}` : "No due date";
+}
+
+function sortOpenFollowups(followups = []) {
+  const rank = { overdue: 0, due_soon: 1, scheduled: 2, undated: 3 };
+  return [...followups]
+    .filter((followup) => followup.status === "open")
+    .sort((left, right) => (rank[left.dueStatus] ?? 4) - (rank[right.dueStatus] ?? 4) || String(left.dueAt || "9999-12-31").localeCompare(String(right.dueAt || "9999-12-31")));
+}
+
 function renderCounsellorStudentDetail() {
   const panel = qs("#counsellor-student-detail");
   if (!panel) return;
@@ -850,7 +868,7 @@ function renderCounsellorStudentDetail() {
     return;
   }
   const { student, notes = [], followups = [] } = detail;
-  const openFollowups = followups.filter((item) => item.status === "open");
+  const openFollowups = sortOpenFollowups(followups);
   const applicationRecords = Object.entries(student.applicationRecords || {})
     .map(([programmeId, record]) => ({ programme: findProgrammeById(programmeId), record: record || {} }))
     .filter((item) => item.programme);
@@ -880,7 +898,7 @@ function renderCounsellorStudentDetail() {
       <div class="detail-section">
         <h4>Follow-ups</h4>
         <form class="counsellor-followup-form" data-counsellor-student="${escapeHtml(student.id)}"><input name="title" maxlength="240" placeholder="Follow-up action" required /><input name="dueAt" type="date" /><button class="secondary-action" type="submit"><i data-lucide="calendar-plus"></i> Add</button></form>
-        ${openFollowups.length ? `<ul class="counsellor-timeline">${openFollowups.map((followup) => `<li><strong>${escapeHtml(followup.title)}</strong><small>${followup.dueAt ? `Due ${escapeHtml(followup.dueAt)}` : "No due date"}</small><button class="text-link-button" type="button" data-counsellor-followup-complete="${escapeHtml(followup.id)}">Mark complete</button></li>`).join("")}</ul>` : `<p class="muted-inline">No open follow-ups.</p>`}
+        ${openFollowups.length ? `<ul class="counsellor-timeline">${openFollowups.map((followup) => { const timing = getFollowupTimingMeta(followup); return `<li><div class="timeline-item-head"><strong>${escapeHtml(followup.title)}</strong><span class="badge ${timing.tone}">${escapeHtml(timing.label)}</span></div><small>${escapeHtml(formatFollowupDue(followup))}</small><button class="text-link-button" type="button" data-counsellor-followup-complete="${escapeHtml(followup.id)}">Mark complete</button></li>`; }).join("")}</ul>` : `<p class="muted-inline">No open follow-ups.</p>`}
       </div>
     </div>`;
   if (window.lucide) window.lucide.createIcons();
@@ -891,19 +909,24 @@ function renderCounsellorDashboard() {
   const list = qs("#counsellor-student-list");
   const count = qs("#counsellor-student-count");
   if (!grid || !list || !count) return;
-  const summary = counsellorState.summary || { assigned: 0, needsAttention: 0, ready: 0, followupsOpen: 0 };
+  const summary = counsellorState.summary || { assigned: 0, needsAttention: 0, ready: 0, followupsOpen: 0, followupsOverdue: 0, followupsDueSoon: 0 };
   grid.innerHTML = [
     ["Assigned students", summary.assigned, "users-round"],
     ["Need attention", summary.needsAttention, "triangle-alert"],
     ["Profile ready", summary.ready, "circle-check"],
-    ["Open follow-ups", summary.followupsOpen, "calendar-clock"]
+    ["Open follow-ups", summary.followupsOpen, "calendar-clock"],
+    ["Overdue", summary.followupsOverdue, "triangle-alert"],
+    ["Due soon", summary.followupsDueSoon, "calendar-days"]
   ].map(([label, value, icon]) => `<article class="admin-stat"><span>${label}</span><strong>${value}</strong><small><i data-lucide="${icon}"></i> Current counsellor scope</small></article>`).join("");
   const students = getCounsellorFilteredStudents();
   count.textContent = counsellorState.loading ? "Loading students..." : `${students.length} student${students.length === 1 ? "" : "s"}`;
   list.innerHTML = students.length ? students.map((student) => {
     const active = student.id === counsellorState.selectedStudentId;
     const flags = (student.flags || []).slice(0, 3);
-    return `<article class="admin-row counsellor-student-row ${active ? "selected" : ""}" data-counsellor-student-select="${escapeHtml(student.id)}"><div class="admin-row-main"><div class="admin-row-title"><h4>${escapeHtml(student.name)}</h4><span>${escapeHtml(student.email)}</span></div><p>${escapeHtml(student.district || "District pending")} ${student.stream ? `- ${escapeHtml(student.stream)}` : ""}</p><div class="badge-row">${flags.map((flag) => `<span class="badge ${escapeHtml(flag.tone || "blue")}">${escapeHtml(flag.label)}</span>`).join("")}</div></div><div class="admin-row-actions"><span class="badge blue">${student.shortlist?.length || 0} saved</span><span class="badge ${student.followups?.length ? "amber" : "green"}">${student.followups?.length || 0} follow-ups</span></div></article>`;
+    const overdue = (student.followups || []).filter((followup) => followup.dueStatus === "overdue").length;
+    const followupLabel = overdue ? `${overdue} overdue` : `${student.followups?.length || 0} follow-ups`;
+    const followupTone = overdue ? "red" : student.followups?.length ? "amber" : "green";
+    return `<article class="admin-row counsellor-student-row ${active ? "selected" : ""}" data-counsellor-student-select="${escapeHtml(student.id)}"><div class="admin-row-main"><div class="admin-row-title"><h4>${escapeHtml(student.name)}</h4><span>${escapeHtml(student.email)}</span></div><p>${escapeHtml(student.district || "District pending")} ${student.stream ? `- ${escapeHtml(student.stream)}` : ""}</p><div class="badge-row">${flags.map((flag) => `<span class="badge ${escapeHtml(flag.tone || "blue")}">${escapeHtml(flag.label)}</span>`).join("")}</div></div><div class="admin-row-actions"><span class="badge blue">${student.shortlist?.length || 0} saved</span><span class="badge ${followupTone}">${followupLabel}</span></div></article>`;
   }).join("") : `<article class="admin-empty"><h4>${counsellorState.loading ? "Loading assigned students..." : "No students match this view."}</h4><p>${isAdmin() ? "Assign student accounts to counsellors from the Users panel." : "Ask an administrator to assign students to your counsellor account."}</p></article>`;
   renderCounsellorStudentDetail();
   if (window.lucide) window.lucide.createIcons();
@@ -1022,6 +1045,7 @@ function renderStudentProfile() {
     if ((currentUser.shortlist || []).length) notifications.push({ icon: "bookmark-check", title: "Your saved pathways are ready", detail: `${currentUser.shortlist.length} programme(s) are saved for comparison.` });
     if ((currentUser.documents || []).some((item) => item.extractionStatus === "completed" || item.extractionStatus === "processed")) notifications.push({ icon: "file-check-2", title: "Document processing completed", detail: "Review extracted results in your Student dashboard." });
     if ((currentUser.activity || []).some((item) => item.type === "source_outdated_reported")) notifications.push({ icon: "triangle-alert", title: "Source report received", detail: "An admin can review the reported programme source." });
+    if ((currentUser.activity || []).some((item) => item.type === "counsellor_followup_created")) notifications.push({ icon: "list-checks", title: "New counsellor follow-up", detail: "Open your profile to review your current guidance actions." });
     notificationList.innerHTML = notifications.length
       ? notifications.slice(0, 6).map((item) => `<li><i data-lucide="${item.icon}"></i><span><strong>${escapeHtml(item.title)}</strong><small>${escapeHtml(item.detail)}</small></span></li>`).join("")
       : `<li><i data-lucide="check-circle-2"></i><span><strong>No new notifications</strong><small>Your account is up to date.</small></span></li>`;
@@ -1034,6 +1058,7 @@ function renderStudentProfile() {
   qs("#profile-shortlist-count")?.replaceChildren(document.createTextNode(String(currentUser.shortlist?.length || 0)));
   qs("#profile-document-count")?.replaceChildren(document.createTextNode(String(currentUser.documents?.length || 0)));
   renderStudentCounsellorAccess();
+  renderStudentCounsellorFollowups();
   if (window.lucide) window.lucide.createIcons();
 }
 
@@ -1064,22 +1089,54 @@ function renderStudentCounsellorAccess() {
   if (window.lucide) window.lucide.createIcons();
 }
 
+function renderStudentCounsellorFollowups() {
+  const panel = qs("#student-guidance-actions-panel");
+  const root = qs("#student-guidance-actions");
+  if (!panel || !root) return;
+  if (!isStudentUser()) {
+    panel.hidden = true;
+    return;
+  }
+  const hasGrantedCounsellor = (studentCounsellorAccess.assignments || []).some((assignment) => assignment.consentStatus === "granted");
+  if (!hasGrantedCounsellor) {
+    panel.hidden = true;
+    return;
+  }
+  panel.hidden = false;
+  if (studentCounsellorAccess.loading) {
+    root.innerHTML = `<p class="muted-inline">Loading your guidance actions...</p>`;
+    return;
+  }
+  if (studentCounsellorAccess.error) {
+    root.innerHTML = `<p class="muted-inline">Your guidance actions could not be loaded.</p>`;
+    return;
+  }
+  const followups = sortOpenFollowups(studentCounsellorAccess.followups || []);
+  root.innerHTML = followups.length
+    ? `<ul class="student-followup-list">${followups.map((followup) => { const timing = getFollowupTimingMeta(followup); return `<li><div><strong>${escapeHtml(followup.title)}</strong><small>${escapeHtml(formatFollowupDue(followup))}</small></div><span class="badge ${timing.tone}">${escapeHtml(timing.label)}</span></li>`; }).join("")}</ul>`
+    : `<div class="consent-access-empty"><p>No open follow-ups right now.</p><small>Your counsellor will add practical actions here when needed.</small></div>`;
+  if (window.lucide) window.lucide.createIcons();
+}
+
 async function loadStudentCounsellorAccess({ force = false } = {}) {
   if (!authToken || !isStudentUser() || studentCounsellorAccess.loading || (studentCounsellorAccess.loaded && !force)) return;
   studentCounsellorAccess.loading = true;
   studentCounsellorAccess.error = "";
   renderStudentCounsellorAccess();
+  renderStudentCounsellorFollowups();
   try {
     const response = await fetch("/api/student/counsellor-access", { headers: getAuthHeaders({ Accept: "application/json" }) });
     const data = await response.json().catch(() => ({}));
     if (!response.ok || !data.ok) throw new Error(data.detail || "Unable to load guidance access.");
     studentCounsellorAccess.assignments = Array.isArray(data.assignments) ? data.assignments : [];
+    studentCounsellorAccess.followups = Array.isArray(data.followups) ? data.followups : [];
     studentCounsellorAccess.loaded = true;
   } catch (error) {
     studentCounsellorAccess.error = error.message || "Unable to load guidance access.";
   } finally {
     studentCounsellorAccess.loading = false;
     renderStudentCounsellorAccess();
+    renderStudentCounsellorFollowups();
   }
 }
 
@@ -1095,6 +1152,8 @@ async function updateStudentCounsellorConsent(assignmentId, consentStatus) {
     if (!response.ok || !data.ok) throw new Error(data.detail || "Could not update counsellor access.");
     studentCounsellorAccess.assignments = (studentCounsellorAccess.assignments || []).map((item) => item.id === assignmentId ? data.assignment : item);
     renderStudentCounsellorAccess();
+    renderStudentCounsellorFollowups();
+    await loadStudentCounsellorAccess({ force: true });
     showAppToast(consentStatus === "granted" ? "Counsellor access granted." : "Counsellor access paused.", "success");
   } catch (error) {
     showAppToast(error.message || "Could not update counsellor access.", "error");
@@ -1637,7 +1696,7 @@ function updateUserShell() {
 
 function setCurrentUser(user, preferredView = "student") {
   currentUser = user;
-  studentCounsellorAccess = { assignments: [], loading: false, loaded: false, error: "" };
+  studentCounsellorAccess = { assignments: [], followups: [], loading: false, loaded: false, error: "" };
   aiChatLoadedFromServer = false;
   aiInterviewState = { active: false, step: 0, answers: [] };
   if (currentUser) {
@@ -1686,7 +1745,7 @@ function signOut() {
     fetch("/api/auth/logout", { method: "POST", headers: getAuthHeaders() }).catch(() => {});
   }
   currentUser = null;
-  studentCounsellorAccess = { assignments: [], loading: false, loaded: false, error: "" };
+  studentCounsellorAccess = { assignments: [], followups: [], loading: false, loaded: false, error: "" };
   authToken = null;
   aiChatMessages = [];
   aiInterviewState = { active: false, step: 0, answers: [] };
@@ -1823,7 +1882,7 @@ async function restoreAuthSession() {
     } catch (error) {
       authToken = null;
       currentUser = null;
-      studentCounsellorAccess = { assignments: [], loading: false, loaded: false, error: "" };
+      studentCounsellorAccess = { assignments: [], followups: [], loading: false, loaded: false, error: "" };
       saveAuthSession();
       setAuthMessage("Session expired. Login again to continue.", "error");
     }

@@ -2393,6 +2393,56 @@ def counsellor_has_student_access(counsellor_id: str, student_id: str) -> bool:
   )
 
 
+def normalize_followup_due_date(value: Any) -> str:
+  date_value = sanitize_guidance_text(value, 40)
+  if not date_value:
+    return ""
+  try:
+    return datetime.strptime(date_value, "%Y-%m-%d").date().isoformat()
+  except ValueError:
+    raise HTTPException(status_code=400, detail="Use a valid follow-up due date.")
+
+
+def safe_followup_due_date(value: Any) -> str:
+  date_value = sanitize_guidance_text(value, 40)
+  if not date_value:
+    return ""
+  try:
+    return datetime.strptime(date_value, "%Y-%m-%d").date().isoformat()
+  except ValueError:
+    return ""
+
+
+def followup_due_state(followup: dict[str, Any], today: datetime | None = None) -> str:
+  due_at = str(followup.get("dueAt") or "")
+  if not due_at:
+    return "undated"
+  try:
+    due_date = datetime.strptime(due_at, "%Y-%m-%d").date()
+  except ValueError:
+    return "undated"
+  current_date = (today or datetime.now(timezone.utc)).date()
+  if due_date < current_date:
+    return "overdue"
+  if due_date <= current_date + timedelta(days=7):
+    return "due_soon"
+  return "scheduled"
+
+
+def counsellor_followup_view(followup: dict[str, Any]) -> dict[str, Any]:
+  return {
+    "id": followup.get("id"),
+    "studentId": followup.get("studentId"),
+    "counsellorId": followup.get("counsellorId"),
+    "title": sanitize_guidance_text(followup.get("title"), 240),
+    "dueAt": safe_followup_due_date(followup.get("dueAt")),
+    "dueStatus": followup_due_state(followup),
+    "status": followup.get("status") if followup.get("status") in {"open", "completed"} else "open",
+    "createdAt": sanitize_guidance_text(followup.get("createdAt"), 40),
+    "completedAt": sanitize_guidance_text(followup.get("completedAt"), 40),
+  }
+
+
 def student_counsellor_assignment_view(assignment: dict[str, Any], counsellor: dict[str, Any]) -> dict[str, Any]:
   consent_status = assignment.get("consentStatus", "pending")
   if consent_status not in {"pending", "granted", "paused"}:
@@ -2437,7 +2487,7 @@ def counsellor_student_flags(student: dict[str, Any]) -> list[dict[str, str]]:
 
 def counsellor_student_summary(student: dict[str, Any], followups: list[dict[str, Any]]) -> dict[str, Any]:
   flags = counsellor_student_flags(student)
-  active_followups = [item for item in followups if item.get("studentId") == student.get("id") and item.get("status") == "open"]
+  active_followups = [counsellor_followup_view(item) for item in followups if item.get("studentId") == student.get("id") and item.get("status") == "open"]
   shortlist = student.get("shortlist") if isinstance(student.get("shortlist"), list) else []
   allowed_statuses = {
     "draft", "ready", "submitted", "under_review", "documents_requested",
@@ -3971,7 +4021,14 @@ def student_counsellor_access(request: Request, authorization: str | None = Head
     for item in get_counsellor_state(COUNSELLOR_ASSIGNMENTS_STATE_KEY)
     if item.get("studentId") == actor["id"] and item.get("status") == "active" and item.get("counsellorId") in counsellors
   ]
-  return {"ok": True, "assignments": assignments}
+  granted_counsellor_ids = {item["counsellor"]["id"] for item in assignments if item.get("consentStatus") == "granted"}
+  followups = [
+    counsellor_followup_view(item)
+    for item in get_counsellor_state(COUNSELLOR_FOLLOWUPS_STATE_KEY)
+    if item.get("studentId") == actor["id"] and item.get("counsellorId") in granted_counsellor_ids and item.get("status") == "open"
+  ]
+  followups.sort(key=lambda item: ({"overdue": 0, "due_soon": 1, "scheduled": 2, "undated": 3}.get(item["dueStatus"], 4), item.get("dueAt") or "9999-12-31", item.get("createdAt") or ""))
+  return {"ok": True, "assignments": assignments, "followups": followups}
 
 
 @app.put("/api/student/counsellor-access/{assignment_id}")
@@ -4020,6 +4077,8 @@ def counsellor_dashboard(request: Request, authorization: str | None = Header(de
       "needsAttention": sum(1 for student in students if any(flag["tone"] in {"red", "amber"} for flag in student["flags"])),
       "ready": sum(1 for student in students if not any(flag["tone"] in {"red", "amber"} for flag in student["flags"])),
       "followupsOpen": sum(len(student["followups"]) for student in students),
+      "followupsOverdue": sum(1 for student in students for followup in student["followups"] if followup.get("dueStatus") == "overdue"),
+      "followupsDueSoon": sum(1 for student in students for followup in student["followups"] if followup.get("dueStatus") == "due_soon"),
     },
   }
 
@@ -4060,9 +4119,15 @@ def counsellor_add_followup(payload: CounsellorFollowupRequest, request: Request
   if not title:
     raise HTTPException(status_code=400, detail="Enter a follow-up title.")
   followups = get_counsellor_state(COUNSELLOR_FOLLOWUPS_STATE_KEY)
-  followup = {"id": f"cfollow-{uuid.uuid4().hex[:12]}", "studentId": payload.studentId, "counsellorId": actor["id"], "title": title, "dueAt": sanitize_guidance_text(payload.dueAt, 40), "status": "open", "createdAt": now_iso()}
+  timestamp = now_iso()
+  followup = {"id": f"cfollow-{uuid.uuid4().hex[:12]}", "studentId": payload.studentId, "counsellorId": actor["id"], "title": title, "dueAt": normalize_followup_due_date(payload.dueAt), "status": "open", "createdAt": timestamp, "updatedAt": timestamp}
   followups.append(followup)
   save_counsellor_state(COUNSELLOR_FOLLOWUPS_STATE_KEY, followups)
+  users = get_auth_users_internal()
+  student = next((user for user in users if user.get("id") == payload.studentId and user.get("role") == "student"), None)
+  if student:
+    add_user_activity(student, "counsellor_followup_created", "Your counsellor added a follow-up action", actor, {"followupId": followup["id"], "dueAt": followup["dueAt"]})
+    save_auth_users_internal(users)
   safe_insert_runtime_event(actor["id"], "counsellor_followup_created", "Counsellor created follow-up", {"studentId": payload.studentId, "ip": get_request_ip(request)})
   return {"ok": True, "followup": followup}
 
@@ -4080,8 +4145,10 @@ def counsellor_update_followup(followup_id: str, payload: CounsellorFollowupUpda
     raise HTTPException(status_code=403, detail="You can only update your own follow-ups.")
   followup["status"] = payload.status
   followup["completedAt"] = now_iso() if payload.status == "completed" else None
+  followup["updatedAt"] = now_iso()
   save_counsellor_state(COUNSELLOR_FOLLOWUPS_STATE_KEY, followups)
-  return {"ok": True, "followup": followup}
+  safe_insert_runtime_event(actor["id"], "counsellor_followup_updated", "Counsellor updated follow-up", {"followupId": followup_id, "studentId": followup.get("studentId"), "status": payload.status, "ip": get_request_ip(request)})
+  return {"ok": True, "followup": counsellor_followup_view(followup)}
 
 
 @app.get("/api/admin/intelligence")

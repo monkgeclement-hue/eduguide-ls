@@ -1,5 +1,6 @@
 import unittest
 from unittest.mock import patch
+from datetime import datetime, timezone
 
 from fastapi import HTTPException
 
@@ -133,6 +134,37 @@ class RoleWorkflowTests(unittest.TestCase):
       )
     self.assertEqual(result["proposal"]["resubmissionOf"], "proposal-prior")
     self.assertEqual(submitted[0]["resubmissionOf"], "proposal-prior")
+
+  def test_followup_due_states_prioritise_student_actions(self):
+    today = datetime(2026, 9, 9, tzinfo=timezone.utc)
+    self.assertEqual(server.followup_due_state({"dueAt": "2026-09-08"}, today), "overdue")
+    self.assertEqual(server.followup_due_state({"dueAt": "2026-09-16"}, today), "due_soon")
+    self.assertEqual(server.followup_due_state({"dueAt": "2026-09-17"}, today), "scheduled")
+    self.assertEqual(server.followup_due_state({"dueAt": ""}, today), "undated")
+    self.assertEqual(server.safe_followup_due_date("not-a-date"), "")
+
+  def test_student_followups_only_include_granted_counsellors(self):
+    actor = {"id": "student-1", "role": "student"}
+    assignments = [
+      {"id": "assignment-granted", "studentId": "student-1", "counsellorId": "counsellor-granted", "status": "active", "consentStatus": "granted"},
+      {"id": "assignment-paused", "studentId": "student-1", "counsellorId": "counsellor-paused", "status": "active", "consentStatus": "paused"},
+    ]
+    followups = [
+      {"id": "visible", "studentId": "student-1", "counsellorId": "counsellor-granted", "title": "Upload results", "dueAt": "2026-09-10", "status": "open"},
+      {"id": "hidden", "studentId": "student-1", "counsellorId": "counsellor-paused", "title": "Private to paused access", "dueAt": "2026-09-10", "status": "open"},
+    ]
+    users = [
+      {"id": "counsellor-granted", "role": "counsellor", "status": "active", "name": "Granted Counsellor"},
+      {"id": "counsellor-paused", "role": "counsellor", "status": "active", "name": "Paused Counsellor"},
+    ]
+    def state_for(key):
+      return assignments if key == server.COUNSELLOR_ASSIGNMENTS_STATE_KEY else followups
+
+    with patch.object(server, "require_current_user", return_value=actor), patch.object(server, "check_rate_limit"), patch.object(
+      server, "get_auth_users_internal", return_value=users
+    ), patch.object(server, "get_counsellor_state", side_effect=state_for):
+      result = server.student_counsellor_access(object(), "Bearer test")
+    self.assertEqual([item["id"] for item in result["followups"]], ["visible"])
 
 
 if __name__ == "__main__":
