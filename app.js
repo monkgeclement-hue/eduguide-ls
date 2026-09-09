@@ -1044,6 +1044,7 @@ function renderStudentProfile() {
   const notificationList = qs("#profile-notification-list");
   if (notificationList) {
     const notifications = [];
+    notifications.push(...getStudentApplicationNotifications());
     if (getProfileCompletion() < 85) notifications.push({ icon: "user-round-check", title: "Complete your profile", detail: `${getProfileCompletion()}% complete - add details to improve recommendations.` });
     if ((currentUser.shortlist || []).length) notifications.push({ icon: "bookmark-check", title: "Your saved pathways are ready", detail: `${currentUser.shortlist.length} programme(s) are saved for comparison.` });
     if ((currentUser.documents || []).some((item) => item.extractionStatus === "completed" || item.extractionStatus === "processed")) notifications.push({ icon: "file-check-2", title: "Document processing completed", detail: "Review extracted results in your Student dashboard." });
@@ -6897,6 +6898,42 @@ function normalizeInstitutionProposal(proposal = {}) {
     createdAt: proposal.createdAt || new Date().toISOString(),
     updatedAt: proposal.updatedAt || proposal.createdAt || new Date().toISOString()
   };
+}
+
+function getStudentApplicationNotifications() {
+  const savedProgrammes = (currentUser?.shortlist || [])
+    .map((programmeId) => findProgrammeById(programmeId))
+    .filter(Boolean);
+  const records = currentUser?.applicationRecords || {};
+  const notifications = [];
+
+  savedProgrammes.forEach((programme) => {
+    const deadline = getApplicationDeadlineSummary([programme]);
+    const programmeName = getMatchProgrammeTitle(programme);
+    if (deadline.isVerified && deadline.urgency === "soon") {
+      notifications.push({
+        icon: "calendar-clock",
+        title: `Deadline approaching: ${programmeName}`,
+        detail: `${deadline.detail} Confirm the latest date with ${programme.institution || "the institution"} before submitting.`
+      });
+    } else if (deadline.label === "Applications closed") {
+      notifications.push({
+        icon: "calendar-x-2",
+        title: `Application status needs checking: ${programmeName}`,
+        detail: `${deadline.detail} Check directly with ${programme.institution || "the institution"} in case the status has changed.`
+      });
+    }
+
+    if (records[programme.id]?.status === "documents_requested") {
+      notifications.push({
+        icon: "file-warning",
+        title: `Documents requested: ${programmeName}`,
+        detail: "You recorded that the institution asked for documents. Review your application record and confirm the next step."
+      });
+    }
+  });
+
+  return notifications.slice(0, 3);
 }
 
 function isNewProgrammeProposal(proposal = {}) {
