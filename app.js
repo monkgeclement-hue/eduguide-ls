@@ -7712,7 +7712,11 @@ function getAdminIntelligence() {
     ...adminProgrammes
       .filter((programme) => !programme.feeNote && !programme.supportingFeeSourcePath)
       .slice(0, 3)
-      .map((programme) => `${programme.institution}: fee evidence missing for ${programme.name}`)
+      .map((programme) => `${programme.institution}: fee evidence missing for ${programme.name}`),
+    ...adminProgrammes
+      .filter((programme) => !(programme.applicationUrl || programme.applicationDeadline || programme.intakeStatus))
+      .slice(0, 3)
+      .map((programme) => `${programme.institution}: application route/status missing for ${programme.name}`)
   ].slice(0, 5);
   const blockedByMathScience = students
     .filter((user) => {
@@ -8479,6 +8483,12 @@ function getProgrammeQualityChecks(programme) {
       issue: "Missing fee evidence"
     },
     {
+      key: "application",
+      label: "Application",
+      ready: Boolean(programme.applicationUrl || programme.applicationDeadline || programme.intakeStatus),
+      issue: "Missing application information"
+    },
+    {
       key: "careers",
       label: "Careers",
       ready: Boolean(programme.careers?.length),
@@ -8523,6 +8533,7 @@ function getAdminQualityFilterOptions() {
     { key: "missing_requirements", label: "Missing requirements", count: count((programme) => !programme.requirementsSummary) },
     { key: "missing_duration", label: "Missing duration", count: count((programme) => !programme.duration) },
     { key: "missing_fees", label: "Missing fees", count: count((programme) => !(programme.feeNote || programme.supportingFeeSourcePath || getInstitutionFeeSchedules(programme.institution).length)) },
+    { key: "missing_application", label: "Missing application info", count: count((programme) => !(programme.applicationUrl || programme.applicationDeadline || programme.intakeStatus)) },
     { key: "missing_source", label: "Missing source", count: count((programme) => !(programme.sourceUrl || programme.supportingSourcePath || programme.sourcePath)) },
     { key: "open_gaps", label: "Open gaps", count: count((programme) => getProgrammeQualityChecks(programme).openGaps.length > 0) },
     { key: "ready", label: "Ready", count: count((programme) => {
@@ -8559,6 +8570,9 @@ function getFilteredAdminProgrammes() {
       programme.duration,
       programme.requirementsSummary,
       programme.sourceUrl,
+      programme.applicationUrl,
+      programme.applicationDeadline,
+      programme.intakeStatus,
       programme.sourceNote,
       programme.feeNote,
       (programme.careers || []).join(" ")
@@ -8589,7 +8603,7 @@ function getFilteredAdminFees() {
 
 function getDerivedAdminSources() {
   return adminProgrammes
-    .filter((programme) => isCustomAdminProgramme(programme) || programme.sourceNote || programme.feeNote || programme.supportingSourcePath || programme.supportingFeeSourcePath)
+    .filter((programme) => isCustomAdminProgramme(programme) || programme.sourceNote || programme.feeNote || programme.supportingSourcePath || programme.supportingFeeSourcePath || programme.applicationUrl || programme.applicationDeadline || programme.intakeStatus)
     .map((programme) => ({
       institution: programme.institution,
       source_url: programme.sourceUrl || "",
@@ -8600,13 +8614,15 @@ function getDerivedAdminSources() {
         "programme record",
         programme.requirementsSummary ? "requirements" : null,
         programme.duration ? "duration" : null,
-        programme.feeNote || programme.supportingFeeSourcePath ? "fee note/evidence" : null
+        programme.feeNote || programme.supportingFeeSourcePath ? "fee note/evidence" : null,
+        programme.applicationUrl || programme.applicationDeadline || programme.intakeStatus ? "application route/status" : null
       ].filter(Boolean),
       shortage: [
         programme.requirementsSummary ? null : "requirements missing",
         programme.duration ? null : "duration missing",
         programme.feeNote || programme.supportingFeeSourcePath ? null : "fee evidence missing",
-        programme.sourceUrl || programme.supportingSourcePath ? null : "official source missing"
+        programme.sourceUrl || programme.supportingSourcePath ? null : "official source missing",
+        programme.applicationUrl || programme.applicationDeadline || programme.intakeStatus ? null : "application route/status missing"
       ].filter(Boolean),
       programmeName: programme.name
     }));
