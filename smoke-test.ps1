@@ -191,11 +191,16 @@ try {
   $hasVersionedApp = $indexResponse.Content -match '/app\.js\?v=\d+'
   $hasVersionedStyles = $indexResponse.Content -match '/styles\.css\?v=\d+'
   $hasVersionedShell = $serviceWorkerResponse.Content -match 'eduguide-ls-shell-v\d+'
-  if ($hasVersionedApp -and $hasVersionedStyles -and $hasVersionedShell) {
-    Write-TestPass "Frontend assets and service worker use cache-busting versions"
+  $appVersion = [regex]::Match($indexResponse.Content, '/app\.js\?v=(\d+)').Groups[1].Value
+  $styleVersion = [regex]::Match($indexResponse.Content, '/styles\.css\?v=(\d+)').Groups[1].Value
+  $shellVersion = [regex]::Match($serviceWorkerResponse.Content, 'eduguide-ls-shell-v(\d+)').Groups[1].Value
+  $shellHasCurrentApp = $serviceWorkerResponse.Content -match [regex]::Escape("/app.js?v=$appVersion")
+  $shellHasCurrentStyles = $serviceWorkerResponse.Content -match [regex]::Escape("/styles.css?v=$styleVersion")
+  if ($hasVersionedApp -and $hasVersionedStyles -and $hasVersionedShell -and $shellVersion -eq $appVersion -and $shellHasCurrentApp -and $shellHasCurrentStyles) {
+    Write-TestPass "Frontend and PWA shell cache the current versioned assets"
   }
   else {
-    Write-TestFail "Frontend cache-busting version contract is incomplete"
+    Write-TestFail "PWA shell cache does not match the current frontend asset versions"
   }
 }
 catch {

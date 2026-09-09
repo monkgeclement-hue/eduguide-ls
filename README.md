@@ -80,7 +80,11 @@ Useful checks:
 ```powershell
 Invoke-RestMethod http://127.0.0.1:8765/health
 Invoke-RestMethod http://127.0.0.1:8765/api/db/diagnostics
+python -m unittest -v tests.test_role_workflows
+.\smoke-test.ps1 -BaseUrl http://127.0.0.1:8765
 ```
+
+`tests/test_role_workflows.py` protects the counsellor-consent boundary and the institution proposal workflow. The smoke test verifies hosted-style routes, security headers, public catalogue visibility, and that the PWA cache matches the versioned frontend assets.
 
 For public testing and hosting steps, see `DEPLOYMENT.md`. For the Supabase + SMTP launch checklist, see `PRODUCTION_SETUP.md`. The project now includes a `Dockerfile`, `.dockerignore`, and `render.yaml` so the same FastAPI app can be deployed without exposing `.env` secrets.
 
