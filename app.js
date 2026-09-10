@@ -6275,18 +6275,21 @@ async function requestAiGuidance(mode = "guidance") {
 }
 function renderSources() {
   qs("#source-grid").innerHTML = sources
-    .map((source) => `
-      <article class="source-card">
-        <div>
-          <h4>${source.name}</h4>
-          <p class="programme-meta">${source.type}</p>
-        </div>
-        <a href="${source.url}" target="_blank" rel="noreferrer">${source.url}</a>
-        <div class="source-tags">
-          ${source.tags.map((tag) => `<span class="badge green">${tag}</span>`).join("")}
-        </div>
-      </article>
-    `)
+    .map((source) => {
+      const sourceUrl = getSafeExternalUrl(source.url);
+      return `
+        <article class="source-card">
+          <div>
+            <h4>${escapeHtml(source.name)}</h4>
+            <p class="programme-meta">${escapeHtml(source.type)}</p>
+          </div>
+          ${sourceUrl ? `<a href="${escapeHtml(sourceUrl)}" target="_blank" rel="noreferrer">${escapeHtml(sourceUrl)}</a>` : `<span class="muted-inline">Source link is unavailable.</span>`}
+          <div class="source-tags">
+            ${(source.tags || []).map((tag) => `<span class="badge green">${escapeHtml(tag)}</span>`).join("")}
+          </div>
+        </article>
+      `;
+    })
     .join("");
 }
 
@@ -6844,7 +6847,7 @@ function renderSelectedSchoolProfile(institution) {
           ${
               meta.sources.length
                 ? `<ul class="course-evidence-list">${meta.sources.slice(0, 6).map((source) => {
-                    const sourceUrl = source.url || source.sourceUrl || source.path;
+                    const sourceUrl = getSafeExternalUrl(source.url || source.sourceUrl || source.path);
                     const sourceLabel = source.label || source.name || source.title || "Institution source";
                     return `<li>${sourceUrl ? `<a href="${escapeHtml(sourceUrl)}" target="_blank" rel="noreferrer">${escapeHtml(sourceLabel)}</a>` : `<span>${escapeHtml(sourceLabel)}</span>`}</li>`;
                   }).join("")}</ul>`
@@ -6863,6 +6866,7 @@ function renderExplorerCourseProfile(programme) {
   const matchingProgramme = getMatchingProgrammeFromAdmin(programme);
   const title = getProgrammeDisplayName(programme);
   const application = getProgrammeApplicationSummary(matchingProgramme);
+  const courseSourceUrl = getSafeExternalUrl(programme.sourceUrl);
   const saved = currentUser?.shortlist?.includes(programme.id);
   const profile = getDomainProfile(programme);
   const requirementItems = matchingProgramme.requirements?.length ? matchingProgramme.requirements : [programme.requirementsSummary || "Entry requirements need confirmation."];
@@ -6936,7 +6940,7 @@ function renderExplorerCourseProfile(programme) {
         </div>
       </div>
       <div class="application-links explorer-link-row">
-        ${programme.sourceUrl ? `<a class="secondary-link" href="${escapeHtml(programme.sourceUrl)}" target="_blank" rel="noreferrer">Open course source</a>` : ""}
+        ${courseSourceUrl ? `<a class="secondary-link" href="${escapeHtml(courseSourceUrl)}" target="_blank" rel="noreferrer">Open course source</a>` : ""}
         ${application.links?.prospectusLinks?.[0]?.url ? `<a class="secondary-link" href="${escapeHtml(application.links.prospectusLinks[0].url)}" target="_blank" rel="noreferrer">Download prospectus/source</a>` : ""}
         <a class="secondary-link" href="${nmdsPortalUrl}" target="_blank" rel="noreferrer">Open NMDS sponsorship portal</a>
         <button class="secondary-action" type="button" data-report-source="${escapeHtml(programme.id)}"><i data-lucide="flag"></i> Report outdated source</button>

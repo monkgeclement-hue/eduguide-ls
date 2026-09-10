@@ -308,6 +308,12 @@ class RoleWorkflowTests(unittest.TestCase):
     self.assertIn('fetch("/api/student/source-reports"', app_script)
     self.assertIn('await recordCurrentUserActivity("source_outdated_reported"', app_script)
 
+  def test_source_links_are_validated_before_they_are_rendered(self):
+    app_script = (Path(__file__).resolve().parents[1] / "app.js").read_text(encoding="utf-8")
+    self.assertIn("const sourceUrl = getSafeExternalUrl(source.url);", app_script)
+    self.assertIn("const courseSourceUrl = getSafeExternalUrl(programme.sourceUrl);", app_script)
+    self.assertIn("getSafeExternalUrl(source.url || source.sourceUrl || source.path)", app_script)
+
   def test_application_fields_are_kept_in_review_state_snapshots(self):
     app_script = (Path(__file__).resolve().parents[1] / "app.js").read_text(encoding="utf-8")
     persist_fields = app_script.split("const programmePersistFields = [", 1)[1].split("];", 1)[0]
