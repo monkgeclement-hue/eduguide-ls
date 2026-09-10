@@ -3235,6 +3235,37 @@ def sanitize_source_report_resolutions(payload: dict[str, Any]) -> dict[str, Any
   return {**payload, "sourceReportResolutions": clean_resolutions}
 
 
+def build_student_source_reports(student_id: str, limit: int = 100) -> list[dict[str, Any]]:
+  """Return a student's own source feedback with only the public review state."""
+  capped_limit = max(1, min(limit, 150))
+  review_state = load_state_payload("review_state", {})
+  sanitized_state = sanitize_source_report_resolutions(review_state) if isinstance(review_state, dict) else {}
+  resolutions = sanitized_state.get("sourceReportResolutions", {}) if isinstance(sanitized_state, dict) else {}
+  reports: list[dict[str, Any]] = []
+  for event in safe_list_runtime_events(1200):
+    if str(event.get("user_id") or "") != str(student_id) or event.get("event_type") != "source_outdated_reported":
+      continue
+    payload = sanitize_event_payload(event.get("payload") if isinstance(event.get("payload"), dict) else parse_jsonish(event.get("payload"), {}))
+    payload = payload if isinstance(payload, dict) else {}
+    report_id = str(event.get("id") or "")[:160]
+    resolution = resolutions.get(report_id, {}) if isinstance(resolutions, dict) else {}
+    status = resolution.get("status") if isinstance(resolution, dict) else ""
+    reports.append(
+      {
+        "id": report_id,
+        "programmeId": str(payload.get("programmeId") or "")[:160],
+        "programmeName": str(payload.get("programmeName") or "Programme source")[:220],
+        "institution": str(payload.get("institution") or "")[:180],
+        "status": status if status in SOURCE_REPORT_RESOLUTION_STATUSES else "open",
+        "createdAt": str(event.get("created_at") or "")[:64],
+        "reviewedAt": str(resolution.get("reviewedAt") or "")[:64] if isinstance(resolution, dict) else "",
+      }
+    )
+    if len(reports) >= capped_limit:
+      break
+  return reports
+
+
 def sanitize_database_state_payload(state_key: str, payload: Any) -> Any:
   if state_key == "review_state" and isinstance(payload, dict):
     validate_historical_catalogue_review_state(payload)
@@ -4159,6 +4190,15 @@ def student_counsellor_access(request: Request, authorization: str | None = Head
   ]
   followups.sort(key=lambda item: ({"overdue": 0, "due_soon": 1, "scheduled": 2, "undated": 3}.get(item["dueStatus"], 4), item.get("dueAt") or "9999-12-31", item.get("createdAt") or ""))
   return {"ok": True, "assignments": assignments, "followups": followups}
+
+
+@app.get("/api/student/source-reports")
+def student_source_reports(request: Request, authorization: str | None = Header(default=None)) -> dict[str, Any]:
+  actor = require_current_user(authorization)
+  if actor.get("role") != "student":
+    raise HTTPException(status_code=403, detail="Student access required.")
+  check_rate_limit(request, "student_source_reports", 120, 3600, actor["id"])
+  return {"ok": True, "reports": build_student_source_reports(actor["id"])}
 
 
 @app.put("/api/student/counsellor-access/{assignment_id}")

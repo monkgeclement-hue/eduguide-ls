@@ -14,7 +14,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link rel="preload" href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Playfair+Display:wght@600;700&display=swap" as="style" onload="this.onload=null;this.rel='stylesheet'" />
     <noscript><link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet" /></noscript>
-    <link rel="stylesheet" href="/styles.css?v=52" />
+    <link rel="stylesheet" href="/styles.css?v=53" />
   </head>
   <body>
     <section class="auth-screen" id="auth-screen">
@@ -700,6 +700,16 @@
               </div>
               <ul class="profile-activity-list" id="profile-notification-list"></ul>
             </section>
+            <section class="surface-panel profile-activity-panel" id="student-source-reports-panel" hidden>
+              <div class="section-head">
+                <div>
+                  <p class="section-kicker">Catalogue feedback</p>
+                  <h3>My source reports</h3>
+                </div>
+                <i class="profile-section-icon" data-lucide="message-square-warning"></i>
+              </div>
+              <div id="student-source-reports"></div>
+            </section>
             <section class="surface-panel profile-activity-panel" id="student-counsellor-access-panel" hidden>
               <div class="section-head">
                 <div>
@@ -1261,7 +1271,7 @@
 
     <script src="/data/catalog.js" defer></script>
     <script src="/data/admin-catalog.js" defer></script>
-    <script src="/app.js?v=78" defer></script>
+    <script src="/app.js?v=79" defer></script>
     <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js" async onload="window.lucide && window.lucide.createIcons()"></script>
   </body>
 </html>

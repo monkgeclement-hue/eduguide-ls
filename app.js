@@ -174,12 +174,19 @@ let counsellorState = {
 };
 let counsellorAssignments = [];
 let studentCounsellorAccess = { assignments: [], followups: [], loading: false, loaded: false, error: "" };
+let studentSourceReports = { reports: [], loading: false, loaded: false, error: "" };
 let reviewingDocumentGradesId = null;
 
 const counsellorConsentMeta = {
   pending: { label: "Awaiting your approval", tone: "amber" },
   granted: { label: "Access granted", tone: "green" },
   paused: { label: "Access paused", tone: "blue" }
+};
+
+const studentSourceReportStatusMeta = {
+  open: { label: "Open", tone: "amber" },
+  in_progress: { label: "In progress", tone: "blue" },
+  resolved: { label: "Resolved", tone: "green" }
 };
 
 const persistenceKey = "eduguide-admin-review-state-v1";
@@ -812,6 +819,7 @@ function renderViewOnDemand(viewName) {
   if (viewName === "profile") {
     renderStudentProfile();
     loadStudentCounsellorAccess();
+    loadStudentSourceReports();
   }
   if (viewName === "admin") {
     renderAdmin();
@@ -1070,7 +1078,58 @@ function renderStudentProfile() {
   qs("#profile-document-count")?.replaceChildren(document.createTextNode(String(currentUser.documents?.length || 0)));
   renderStudentCounsellorAccess();
   renderStudentCounsellorFollowups();
+  renderStudentSourceReports();
   if (window.lucide) window.lucide.createIcons();
+}
+
+function renderStudentSourceReports() {
+  const panel = qs("#student-source-reports-panel");
+  const root = qs("#student-source-reports");
+  if (!panel || !root) return;
+  if (!isStudentUser()) {
+    panel.hidden = true;
+    return;
+  }
+  panel.hidden = false;
+  if (studentSourceReports.loading) {
+    root.innerHTML = `<p class="muted-inline">Loading your submitted reports...</p>`;
+    return;
+  }
+  if (studentSourceReports.error) {
+    root.innerHTML = `<div class="consent-access-empty"><p>Your source reports could not be loaded.</p><button class="secondary-action" type="button" data-refresh-student-source-reports><i data-lucide="refresh-cw"></i> Retry</button></div>`;
+    if (window.lucide) window.lucide.createIcons();
+    return;
+  }
+  const reports = studentSourceReports.reports || [];
+  root.innerHTML = reports.length
+    ? `<ul class="student-source-report-list">${reports.map((report) => {
+      const status = studentSourceReportStatusMeta[report.status] || studentSourceReportStatusMeta.open;
+      const programme = report.programmeName || "Programme source";
+      const institution = report.institution || "Institution not recorded";
+      const reviewed = report.reviewedAt ? `Updated ${formatDateTime(report.reviewedAt)}` : `Reported ${formatDateTime(report.createdAt)}`;
+      return `<li><div><strong>${escapeHtml(programme)}</strong><small>${escapeHtml(institution)} - ${escapeHtml(reviewed)}</small></div><span class="badge ${status.tone}">${escapeHtml(status.label)}</span></li>`;
+    }).join("")}</ul>`
+    : `<div class="consent-access-empty"><p>You have not reported a source yet.</p><small>Use “Report outdated source” on a programme page when something needs review.</small></div>`;
+  if (window.lucide) window.lucide.createIcons();
+}
+
+async function loadStudentSourceReports({ force = false } = {}) {
+  if (!authToken || !isStudentUser() || studentSourceReports.loading || (studentSourceReports.loaded && !force)) return;
+  studentSourceReports.loading = true;
+  studentSourceReports.error = "";
+  renderStudentSourceReports();
+  try {
+    const response = await fetch("/api/student/source-reports", { headers: getAuthHeaders({ Accept: "application/json" }) });
+    const data = await response.json().catch(() => ({}));
+    if (!response.ok || !data.ok) throw new Error(data.detail || "Unable to load source reports.");
+    studentSourceReports.reports = Array.isArray(data.reports) ? data.reports : [];
+    studentSourceReports.loaded = true;
+  } catch (error) {
+    studentSourceReports.error = error.message || "Unable to load source reports.";
+  } finally {
+    studentSourceReports.loading = false;
+    renderStudentSourceReports();
+  }
 }
 
 function renderStudentCounsellorAccess() {
@@ -1327,12 +1386,13 @@ function addActivityToUser(user, type, label, metadata = {}, options = {}) {
 }
 
 function recordCurrentUserActivity(type, label, metadata = {}, options = {}) {
-  if (!currentUser) return;
+  if (!currentUser) return Promise.resolve(null);
   const changed = addActivityToUser(currentUser, type, label, metadata, options);
   if (changed || options.saveEvenWhenThrottled) {
     saveAuthUsers();
-    recordServerEvent(type, label, metadata);
+    return recordServerEvent(type, label, metadata);
   }
+  return Promise.resolve(null);
 }
 
 function recordTargetUserActivity(user, type, label, metadata = {}) {
@@ -1341,12 +1401,12 @@ function recordTargetUserActivity(user, type, label, metadata = {}) {
 }
 
 function recordServerEvent(type, label, payload = {}) {
-  if (!authToken || !serverDatabaseAvailable || !currentUser) return;
-  fetch("/api/events", {
+  if (!authToken || !serverDatabaseAvailable || !currentUser) return Promise.resolve(null);
+  return fetch("/api/events", {
     method: "POST",
     headers: getAuthHeaders({ "Content-Type": "application/json" }),
     body: JSON.stringify({ eventType: type, label, payload })
-  }).catch(() => {});
+  }).then((response) => response.ok ? response.json().catch(() => null) : null).catch(() => null);
 }
 
 function recordAnalyticsEvent(type, label, payload = {}, options = {}) {
@@ -1745,6 +1805,7 @@ function updateUserShell() {
 function setCurrentUser(user, preferredView = "student") {
   currentUser = user;
   studentCounsellorAccess = { assignments: [], followups: [], loading: false, loaded: false, error: "" };
+  studentSourceReports = { reports: [], loading: false, loaded: false, error: "" };
   aiChatLoadedFromServer = false;
   aiInterviewState = { active: false, step: 0, answers: [] };
   if (currentUser) {
@@ -1794,6 +1855,7 @@ function signOut() {
   }
   currentUser = null;
   studentCounsellorAccess = { assignments: [], followups: [], loading: false, loaded: false, error: "" };
+  studentSourceReports = { reports: [], loading: false, loaded: false, error: "" };
   authToken = null;
   aiChatMessages = [];
   aiInterviewState = { active: false, step: 0, answers: [] };
@@ -1941,6 +2003,7 @@ async function restoreAuthSession() {
       authToken = null;
       currentUser = null;
       studentCounsellorAccess = { assignments: [], followups: [], loading: false, loaded: false, error: "" };
+      studentSourceReports = { reports: [], loading: false, loaded: false, error: "" };
       saveAuthSession();
       setAuthMessage("Session expired. Login again to continue.", "error");
     }
@@ -10305,6 +10368,9 @@ function bindEvents() {
     const consentButton = event.target.closest("[data-student-counsellor-consent]");
     if (consentButton) updateStudentCounsellorConsent(consentButton.dataset.studentCounsellorConsent, consentButton.dataset.consentStatus);
   });
+  qs("#student-source-reports")?.addEventListener("click", (event) => {
+    if (event.target.closest("[data-refresh-student-source-reports]")) loadStudentSourceReports({ force: true });
+  });
   qs("#app-toast-close")?.addEventListener("click", () => {
     const toast = qs("#app-toast");
     if (toast) toast.hidden = true;
@@ -10674,7 +10740,7 @@ function bindEvents() {
       renderSchoolExplorer();
     });
   });
-  qs("#view-schools")?.addEventListener("click", (event) => {
+  qs("#view-schools")?.addEventListener("click", async (event) => {
     const filterReset = event.target.closest("[data-school-filter-reset]");
     if (filterReset) {
       schoolExplorerState.institutionFilter = "all";
@@ -10755,7 +10821,7 @@ function bindEvents() {
     const reportSourceButton = event.target.closest("[data-report-source]");
     if (reportSourceButton) {
       const programme = getExplorerProgrammes().find((item) => item.id === reportSourceButton.dataset.reportSource);
-      recordCurrentUserActivity("source_outdated_reported", "Reported a potentially outdated programme source", {
+      await recordCurrentUserActivity("source_outdated_reported", "Reported a potentially outdated programme source", {
         programmeId: programme?.id,
         programmeName: getProgrammeDisplayName(programme),
         institution: programme?.institution,
@@ -10763,6 +10829,8 @@ function bindEvents() {
       }, { throttleMs: 45000 });
       reportSourceButton.textContent = "Report noted";
       reportSourceButton.disabled = true;
+      studentSourceReports.loaded = false;
+      if (qs("#view-profile")?.classList.contains("active")) loadStudentSourceReports({ force: true });
     }
   });
   qs("#view-presentation")?.addEventListener("click", (event) => {

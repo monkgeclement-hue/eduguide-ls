@@ -266,6 +266,48 @@ class RoleWorkflowTests(unittest.TestCase):
     self.assertIn("data-source-report-status", app_script)
     self.assertIn("sourceUrl: programme?.sourceUrl", app_script)
 
+  def test_student_source_reports_are_scoped_and_include_review_status(self):
+    student = {"id": "student-1", "role": "student"}
+    events = [
+      {
+        "id": "evt-mine",
+        "user_id": "student-1",
+        "event_type": "source_outdated_reported",
+        "created_at": "2026-09-10T10:00:00Z",
+        "payload": {"programmeId": "programme-1", "programmeName": "Bachelor of Example", "institution": "Example University"},
+      },
+      {
+        "id": "evt-other",
+        "user_id": "student-2",
+        "event_type": "source_outdated_reported",
+        "created_at": "2026-09-10T09:00:00Z",
+        "payload": {"programmeName": "Private report"},
+      },
+    ]
+    review_state = {"sourceReportResolutions": {"evt-mine": {"status": "resolved", "reviewedAt": "2026-09-10T11:00:00Z"}}}
+    with patch.object(server, "require_current_user", return_value=student), patch.object(server, "check_rate_limit"), patch.object(
+      server, "safe_list_runtime_events", return_value=events
+    ), patch.object(server, "load_state_payload", return_value=review_state):
+      result = server.student_source_reports(object(), "Bearer test")
+    self.assertEqual(result["reports"], [{
+      "id": "evt-mine",
+      "programmeId": "programme-1",
+      "programmeName": "Bachelor of Example",
+      "institution": "Example University",
+      "status": "resolved",
+      "createdAt": "2026-09-10T10:00:00Z",
+      "reviewedAt": "2026-09-10T11:00:00Z",
+    }])
+
+  def test_student_source_report_profile_contract_is_present(self):
+    root = Path(__file__).resolve().parents[1]
+    index = (root / "index.html").read_text(encoding="utf-8")
+    app_script = (root / "app.js").read_text(encoding="utf-8")
+    self.assertIn('id="student-source-reports"', index)
+    self.assertIn("function loadStudentSourceReports", app_script)
+    self.assertIn('fetch("/api/student/source-reports"', app_script)
+    self.assertIn('await recordCurrentUserActivity("source_outdated_reported"', app_script)
+
   def test_application_fields_are_kept_in_review_state_snapshots(self):
     app_script = (Path(__file__).resolve().parents[1] / "app.js").read_text(encoding="utf-8")
     persist_fields = app_script.split("const programmePersistFields = [", 1)[1].split("];", 1)[0]

@@ -804,6 +804,41 @@ a {
   font-size: 12px;
 }
 
+.student-source-report-list {
+  display: grid;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.student-source-report-list li {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 11px 12px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--surface-soft);
+}
+
+.student-source-report-list li > div {
+  display: grid;
+  gap: 3px;
+  min-width: 0;
+}
+
+.student-source-report-list strong {
+  color: var(--brand-deep);
+  font-size: 13px;
+}
+
+.student-source-report-list small {
+  color: var(--muted);
+  font-size: 12px;
+}
+
 .consent-access-empty {
   display: grid;
   gap: 8px;
