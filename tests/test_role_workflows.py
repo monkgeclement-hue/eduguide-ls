@@ -122,6 +122,39 @@ class RoleWorkflowTests(unittest.TestCase):
     self.assertNotIn("passwordHash", public)
     self.assertNotIn("passwordSalt", public)
 
+  def test_login_creates_a_server_session_for_valid_credentials(self):
+    password_salt, password_hash = server.hash_password("StudentPass1")
+    user = {
+      "id": "student-1",
+      "name": "Student",
+      "email": "student@example.edu",
+      "passwordSalt": password_salt,
+      "passwordHash": password_hash,
+      "role": "student",
+      "status": "active",
+      "activity": [],
+    }
+    with patch.object(server, "maybe_cleanup_security_records"), patch.object(server, "check_rate_limit"), patch.object(
+      server, "seed_bootstrap_admin"
+    ), patch.object(server, "get_auth_users_internal", return_value=[user]), patch.object(server, "save_auth_users_internal"), patch.object(
+      server, "safe_insert_runtime_event"
+    ), patch.object(server, "create_auth_session", return_value="session-token"), patch.object(server, "get_request_ip", return_value="127.0.0.1"):
+      result = server.auth_login(server.AuthLoginRequest(email="student@example.edu", password="StudentPass1"), object())
+    self.assertEqual(result["token"], "session-token")
+    self.assertEqual(result["user"]["id"], "student-1")
+    self.assertNotIn("passwordHash", result["user"])
+
+  def test_login_ui_has_email_creation_and_live_server_feedback(self):
+    root = Path(__file__).resolve().parents[1]
+    index = (root / "index.html").read_text(encoding="utf-8")
+    app_script = (root / "app.js").read_text(encoding="utf-8")
+    self.assertIn("https://accounts.google.com/signup", index)
+    self.assertIn('id="auth-connection"', index)
+    self.assertIn('id="login-submit-button"', index)
+    self.assertIn("function refreshAuthConnectionStatus", app_script)
+    self.assertIn('fetch("/health", { cache: "no-store" })', app_script)
+    self.assertIn("function setLoginSubmitBusy", app_script)
+
   def test_historical_reference_documents_are_allowlisted(self):
     response = server.public_reference_document("che-list-of-accredited-programmes-december-2017.pdf")
     self.assertTrue(str(response.path).endswith("che-list-of-accredited-programmes-december-2017.pdf"))

@@ -278,6 +278,7 @@ let authUsers = structuredClone(defaultUsers);
 let currentUser = null;
 let authToken = localStorage.getItem(authTokenKey) || null;
 let authMode = "login";
+let authConnectionRequestId = 0;
 let pendingRegistration = null;
 let pendingPasswordReset = null;
 let deferredInstallPrompt = null;
@@ -1412,8 +1413,45 @@ function updateAuthContext() {
   if (context) {
     context.textContent = "";
   }
+  refreshAuthConnectionStatus();
   updateRegisterVerificationUi();
   updatePasswordResetUi();
+}
+
+function setAuthConnectionStatus(message, tone = "checking") {
+  const status = qs("#auth-connection");
+  if (!status) return;
+  status.dataset.tone = tone;
+  const label = status.querySelector("span");
+  if (label) label.textContent = message;
+}
+
+async function refreshAuthConnectionStatus() {
+  const requestId = ++authConnectionRequestId;
+  if (!navigator.onLine) {
+    setAuthConnectionStatus("You are offline. Connect to the internet to log in or register.", "error");
+    return;
+  }
+  setAuthConnectionStatus("Checking secure connection...", "checking");
+  try {
+    const response = await fetch("/health", { cache: "no-store" });
+    const health = await response.json().catch(() => ({}));
+    if (!response.ok || !health.ok) throw new Error("The EduGuide server is unavailable.");
+    if (requestId !== authConnectionRequestId) return;
+    setAuthConnectionStatus("Secure connection ready. Your login is checked immediately.", "ready");
+  } catch (error) {
+    if (requestId !== authConnectionRequestId) return;
+    setAuthConnectionStatus("EduGuide cannot be reached right now. Check your connection and try again.", "error");
+  }
+}
+
+function setLoginSubmitBusy(busy) {
+  const form = qs("#login-form");
+  const button = qs("#login-submit-button");
+  const label = qs("#login-submit-label");
+  if (form) form.setAttribute("aria-busy", String(busy));
+  if (button) button.disabled = busy;
+  if (label) label.textContent = busy ? "Signing in..." : "Login";
 }
 
 function getRegistrationPayload(name, email, password, district) {
@@ -1828,11 +1866,18 @@ window.returnToAdminWorkspace = async function returnToAdminWorkspace() {
 };
 
 async function loginWithCredentials(email, password, preferredView = "student") {
+  const normalizedEmail = normalizeEmail(email);
+  if (!normalizedEmail || !password) {
+    setAuthMessage("Enter your email and password to log in.", "error");
+    return false;
+  }
+  setLoginSubmitBusy(true);
+  setAuthMessage("Signing in securely...", "neutral");
   try {
     const response = await fetch("/api/auth/login", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ email, password })
+      body: JSON.stringify({ email: normalizedEmail, password })
     });
     const data = await response.json().catch(() => ({}));
     if (!response.ok || !data.ok) throw new Error(data.detail || "Email or password is not correct.");
@@ -1841,10 +1886,13 @@ async function loginWithCredentials(email, password, preferredView = "student") 
     authUsers = mergeAuthUsersInMemory(authUsers, [user]);
     saveAuthUsers();
     setCurrentUser(user, getPreferredLandingView(user, preferredView));
+    showAppToast("Signed in successfully.", "success");
     return true;
   } catch (error) {
     setAuthMessage(getFriendlyAuthError(error, "Email or password is not correct."), "error");
     return false;
+  } finally {
+    setLoginSubmitBusy(false);
   }
 }
 
@@ -10182,6 +10230,8 @@ function setupDropzone() {
 }
 
 function bindEvents() {
+  window.addEventListener("online", refreshAuthConnectionStatus);
+  window.addEventListener("offline", refreshAuthConnectionStatus);
   qsa("[data-auth-mode]").forEach((button) => {
     button.addEventListener("click", () => setAuthMode(button.dataset.authMode));
   });
@@ -11047,6 +11097,7 @@ function bindEvents() {
 
 async function init() {
   loadDeploymentStatus({ silent: true });
+  refreshAuthConnectionStatus();
   loadAuthUsers();
   loadLocalReviewState();
   renderGrades();

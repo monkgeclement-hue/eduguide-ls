@@ -227,6 +227,77 @@ a {
   font-weight: 800;
 }
 
+.auth-email-help {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  padding: 13px;
+  border: 1px solid #c7eadf;
+  border-radius: 8px;
+  background: var(--brand-soft);
+}
+
+.auth-email-help > div {
+  display: grid;
+  gap: 3px;
+}
+
+.auth-email-help strong {
+  color: var(--brand-deep);
+  font-size: 14px;
+}
+
+.auth-email-help span {
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.4;
+}
+
+.auth-email-link {
+  display: inline-flex;
+  flex: 0 0 auto;
+  align-items: center;
+  gap: 6px;
+  min-height: 38px;
+  padding: 0 12px;
+  border: 1px solid #8ee6c8;
+  border-radius: 8px;
+  color: var(--brand-deep);
+  background: #fff;
+  font-size: 13px;
+  font-weight: 900;
+  text-decoration: none;
+}
+
+.auth-email-link svg {
+  width: 15px;
+  height: 15px;
+}
+
+.auth-connection {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  margin: -6px 0 0;
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.auth-connection svg {
+  width: 15px;
+  height: 15px;
+}
+
+.auth-connection[data-tone="ready"] {
+  color: var(--brand-mid);
+}
+
+.auth-connection[data-tone="error"] {
+  color: var(--danger);
+}
+
 .email-code-panel {
   display: grid;
   gap: 12px;
@@ -5545,6 +5616,15 @@ textarea:focus {
   body {
     min-width: 320px;
     overflow-x: hidden;
+  }
+
+  .auth-email-help {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .auth-email-link {
+    justify-content: center;
   }
 
   .app-shell {
