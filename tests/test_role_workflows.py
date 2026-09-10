@@ -190,6 +190,49 @@ class RoleWorkflowTests(unittest.TestCase):
       result = server.record_runtime_event(event, None, "Bearer test")
     self.assertEqual(result, {"ok": True, "eventId": "evt-1"})
 
+  def test_student_source_feedback_is_included_in_the_admin_audit(self):
+    self.assertTrue(server.is_audit_event("source_outdated_reported"))
+    self.assertFalse(server.is_audit_event("profile_updated"))
+    event = {
+      "id": "evt-source",
+      "user_id": "student-1",
+      "event_type": "source_outdated_reported",
+      "label": "Reported a potentially outdated programme source",
+      "created_at": server.now_iso(),
+      "payload": {"programmeId": "programme-1", "institution": "Example University"},
+    }
+    with patch.object(server, "safe_list_runtime_events", return_value=[event]), patch.object(
+      server, "get_auth_users_internal", return_value=[{"id": "student-1", "name": "Student", "email": "student@example.edu", "role": "student"}]
+    ):
+      audit = server.build_admin_audit_log()
+    self.assertEqual(audit[0]["id"], "evt-source")
+    self.assertEqual(audit[0]["eventType"], "source_outdated_reported")
+
+  def test_source_report_resolution_state_is_sanitized(self):
+    state = server.sanitize_database_state_payload(
+      "review_state",
+      {
+        "sourceReportResolutions": {
+          "evt-123": {"status": "resolved", "reviewedAt": "2026-09-10T12:00:00Z", "ignored": "value"},
+          "evt-456": {"status": "open"},
+          "bad id!": {"status": "in_progress"},
+        }
+      },
+    )
+    self.assertEqual(
+      state["sourceReportResolutions"],
+      {
+        "evt-123": {"status": "resolved", "reviewedAt": "2026-09-10T12:00:00Z"},
+      },
+    )
+
+  def test_source_reports_have_an_admin_queue_and_server_persistence(self):
+    app_script = (Path(__file__).resolve().parents[1] / "app.js").read_text(encoding="utf-8")
+    self.assertIn("function getFilteredAdminSourceReports", app_script)
+    self.assertIn("function setSourceReportStatus", app_script)
+    self.assertIn("data-source-report-status", app_script)
+    self.assertIn("sourceUrl: programme?.sourceUrl", app_script)
+
   def test_application_fields_are_kept_in_review_state_snapshots(self):
     app_script = (Path(__file__).resolve().parents[1] / "app.js").read_text(encoding="utf-8")
     persist_fields = app_script.split("const programmePersistFields = [", 1)[1].split("];", 1)[0]

@@ -309,6 +309,7 @@ let adminIntelligenceError = "";
 let adminAuditEvents = [];
 let adminAuditLoading = false;
 let adminAuditError = "";
+let sourceReportResolutions = {};
 let institutionProposals = [];
 let institutionProposalsLoading = false;
 let institutionProposalsLoaded = false;
@@ -1980,6 +1981,7 @@ function getReviewStateSnapshot() {
     programmeEdits,
     customGaps: adminGaps.filter(isCustomAdminGap).map((gap) => ({ ...gap })),
     gapStatuses: Object.fromEntries(adminGaps.map((gap) => [gap.id, gap.status])),
+    sourceReportResolutions,
     savedAt: new Date().toISOString()
   };
 }
@@ -1988,6 +1990,7 @@ function applyReviewState(snapshot) {
   if (!snapshot) return false;
   applyCustomProgrammes(snapshot.customProgrammes || []);
   applyCustomGaps(snapshot.customGaps || []);
+  sourceReportResolutions = normalizeSourceReportResolutions(snapshot.sourceReportResolutions);
   const isCurrentCatalogue = snapshot.catalogueDataVersion === catalogueDataVersion;
   if (!isCurrentCatalogue) return false;
   const programmeStatuses = snapshot.programmeStatuses || {};
@@ -2481,6 +2484,7 @@ function resetLocalReviewState() {
   localStorage.removeItem(persistenceKey);
   adminProgrammes = structuredClone(adminData.programmes || []);
   adminGaps = structuredClone(adminData.dataGaps || []);
+  sourceReportResolutions = {};
   adminState.selectedProgrammeId = adminProgrammes[0]?.id || null;
   adminState.editingProgrammeId = null;
   saveServerState("review_state", getReviewStateSnapshot());
@@ -8744,6 +8748,50 @@ function getFilteredAdminSources() {
   });
 }
 
+function normalizeSourceReportResolutions(resolutions = {}) {
+  if (!resolutions || typeof resolutions !== "object" || Array.isArray(resolutions)) return {};
+  return Object.fromEntries(
+    Object.entries(resolutions)
+      .filter(([id, value]) => id?.startsWith("evt-") && value && ["in_progress", "resolved"].includes(value.status))
+      .slice(0, 300)
+      .map(([id, value]) => [id, {
+        status: value.status,
+        reviewedAt: value.reviewedAt || ""
+      }])
+  );
+}
+
+function getSourceReportStatus(reportId) {
+  return sourceReportResolutions[reportId]?.status || "open";
+}
+
+function getFilteredAdminSourceReports() {
+  return adminAuditEvents
+    .filter((event) => event.eventType === "source_outdated_reported")
+    .map((event) => {
+      const programme = adminProgrammes.find((item) => item.id === event.payload?.programmeId);
+      return {
+        ...event,
+        programme,
+        status: getSourceReportStatus(event.id),
+        reviewedAt: sourceReportResolutions[event.id]?.reviewedAt || ""
+      };
+    })
+    .filter((report) => {
+      const institution = report.payload?.institution || report.programme?.institution || "";
+      const institutionMatch = adminState.institution === "all" || institution === adminState.institution;
+      const searchMatch = adminSearchMatches([
+        report.payload?.programmeName,
+        report.payload?.programmeId,
+        institution,
+        report.actor?.name,
+        report.actor?.email,
+        report.label
+      ]);
+      return institutionMatch && searchMatch;
+    });
+}
+
 function badgeClassForStatus(status) {
   if (status === "approved" || status === "resolved" || status === "scraped" || status === "manual_extract") return "green";
   if (status === "rejected" || status === "blocked_or_locked" || status === "blocked_or_unstable") return "red";
@@ -8889,8 +8937,63 @@ function renderAdminFees() {
 
 function renderAdminSources() {
   const filteredSources = getFilteredAdminSources();
-  qs("#source-audit-count").textContent = `${filteredSources.length} sources`;
-  qs("#admin-source-list").innerHTML = filteredSources.length
+  const sourceReports = getFilteredAdminSourceReports();
+  const openReports = sourceReports.filter((report) => report.status === "open").length;
+  qs("#source-audit-count").textContent = `${openReports} open report${openReports === 1 ? "" : "s"} - ${filteredSources.length} sources`;
+  const reportQueue = sourceReports.length
+    ? `
+      <section class="source-report-queue" aria-label="Student source reports">
+        <div class="source-report-queue-head">
+          <div>
+            <strong>Student source reports</strong>
+            <span>${sourceReports.length} report${sourceReports.length === 1 ? "" : "s"} need${sourceReports.length === 1 ? "s" : ""} review</span>
+          </div>
+          <button class="secondary-action compact-action" type="button" data-source-reports-refresh title="Refresh source reports">
+            <i data-lucide="refresh-cw"></i>
+            Refresh
+          </button>
+        </div>
+        <div class="source-report-list">
+          ${sourceReports.map((report) => {
+            const programmeName = report.payload?.programmeName || report.programme?.name || "Programme source";
+            const institution = report.payload?.institution || report.programme?.institution || "Institution not recorded";
+            const status = report.status;
+            const sourceUrl = getSafeExternalUrl(report.payload?.sourceUrl);
+            return `
+              <article class="source-report-row">
+                <div class="admin-row-main">
+                  <div class="admin-row-title">
+                    <h4>${escapeHtml(programmeName)}</h4>
+                    <span class="badge ${badgeClassForStatus(status)}">${escapeHtml(formatStatus(status))}</span>
+                  </div>
+                  <p>${escapeHtml(institution)}</p>
+                  <div class="admin-row-meta">
+                    <span>Reported ${escapeHtml(formatDateTime(report.createdAt))}</span>
+                    <span>${escapeHtml(report.actor?.name || "Student")}</span>
+                    ${report.reviewedAt ? `<span>Updated ${escapeHtml(formatDateTime(report.reviewedAt))}</span>` : ""}
+                    ${sourceUrl ? `<a class="source-report-link" href="${escapeHtml(sourceUrl)}" target="_blank" rel="noreferrer">Open reported source</a>` : ""}
+                  </div>
+                </div>
+                <div class="admin-row-actions source-report-actions">
+                  <button type="button" title="Inspect programme" data-source-report-programme="${escapeHtml(report.payload?.programmeId || "")}" ${report.programme ? "" : "disabled"}>
+                    <i data-lucide="search"></i>
+                  </button>
+                  <button type="button" title="Mark in progress" data-source-report-status="in_progress" data-source-report-id="${escapeHtml(report.id || "")}" ${status === "in_progress" ? "disabled" : ""}>
+                    <i data-lucide="clock-3"></i>
+                  </button>
+                  <button type="button" title="Resolve report" data-source-report-status="resolved" data-source-report-id="${escapeHtml(report.id || "")}" ${status === "resolved" ? "disabled" : ""}>
+                    <i data-lucide="check-check"></i>
+                  </button>
+                  ${status !== "open" ? `<button type="button" title="Reopen report" data-source-report-status="open" data-source-report-id="${escapeHtml(report.id || "")}"><i data-lucide="rotate-ccw"></i></button>` : ""}
+                </div>
+              </article>
+            `;
+          }).join("")}
+        </div>
+      </section>
+    `
+    : "";
+  const sourceList = filteredSources.length
     ? filteredSources
         .map((source) => {
           const href = getSourceAuditOpenUrl(source);
@@ -8919,6 +9022,7 @@ function renderAdminSources() {
         })
         .join("")
     : `<article class="admin-empty"><h4>No sources match the filters.</h4><p>Try another institution.</p></article>`;
+  qs("#admin-source-list").innerHTML = `${reportQueue}${sourceList}`;
 }
 
 async function loadAdminIntelligence() {
@@ -9064,6 +9168,7 @@ async function loadAdminAudit({ silent = false } = {}) {
   } finally {
     adminAuditLoading = false;
     renderAdminAudit();
+    renderAdminSources();
     renderAdminDetail();
     if (window.lucide) window.lucide.createIcons();
   }
@@ -9666,7 +9771,7 @@ function setAdminTab(tabName) {
   if (tabName === "users" && !adminState.selectedUserId) {
     adminState.selectedUserId = getVisibleUsers()[0]?.id || null;
   }
-  if (tabName === "audit" && !adminAuditEvents.length) {
+  if ((tabName === "audit" || tabName === "sources") && !adminAuditEvents.length) {
     loadAdminAudit({ silent: true });
   }
   if (tabName === "institution" && !institutionProposalsLoaded) {
@@ -9755,6 +9860,40 @@ async function setGapStatus(id, status) {
   }
   renderAdmin();
   updateCounts();
+}
+
+async function setSourceReportStatus(reportId, status) {
+  if (!isAdmin() || !reportId || !["open", "in_progress", "resolved"].includes(status)) return;
+  const report = adminAuditEvents.find((event) => event.id === reportId && event.eventType === "source_outdated_reported");
+  if (!report) return;
+  const previousResolutions = { ...sourceReportResolutions };
+  if (status === "open") delete sourceReportResolutions[reportId];
+  else sourceReportResolutions[reportId] = { status, reviewedAt: new Date().toISOString() };
+  lastPersistenceMessage = serverDatabaseAvailable ? "Saving..." : "Saved locally";
+  renderAdmin();
+  try {
+    await saveServerState("review_state", getReviewStateSnapshot(), { throwOnError: true });
+    lastPersistenceMessage = serverDatabaseAvailable
+      ? (persistenceMode === "server-supabase" ? "Saved source report to Supabase" : "Saved source report to database")
+      : "Saved locally";
+    recordCurrentUserActivity(
+      "admin_source_report_reviewed",
+      `Marked source report ${formatStatus(status)}`,
+      {
+        sourceReportId: reportId,
+        programmeId: report.payload?.programmeId,
+        programmeName: report.payload?.programmeName,
+        institution: report.payload?.institution,
+        status
+      }
+    );
+    setAdminActionStatus(`Source report marked ${formatStatus(status)}.`, "success");
+  } catch (error) {
+    sourceReportResolutions = previousResolutions;
+    lastPersistenceMessage = `Source report sync failed: ${error.message || "database update"}`;
+    setAdminActionStatus(lastPersistenceMessage, "danger");
+  }
+  renderAdmin();
 }
 
 function resolveGap(id) {
@@ -10569,7 +10708,8 @@ function bindEvents() {
       recordCurrentUserActivity("source_outdated_reported", "Reported a potentially outdated programme source", {
         programmeId: programme?.id,
         programmeName: getProgrammeDisplayName(programme),
-        institution: programme?.institution
+        institution: programme?.institution,
+        sourceUrl: programme?.sourceUrl || programme?.source || programme?.supportingSourcePath || null
       }, { throttleMs: 45000 });
       reportSourceButton.textContent = "Report noted";
       reportSourceButton.disabled = true;
@@ -10715,6 +10855,13 @@ function bindEvents() {
       return;
     }
 
+    const sourceReportsRefresh = event.target.closest("[data-source-reports-refresh]");
+    if (sourceReportsRefresh) {
+      event.preventDefault();
+      loadAdminAudit();
+      return;
+    }
+
     const reportRefresh = event.target.closest("[data-admin-report-refresh]");
     if (reportRefresh) {
       event.preventDefault();
@@ -10770,6 +10917,22 @@ function bindEvents() {
     if (auditRow && auditRow.classList.contains("admin-row")) {
       adminState.selectedAuditId = auditRow.dataset.auditId;
       setAdminTab("audit");
+      renderAdmin();
+      return;
+    }
+
+    const sourceReportStatus = event.target.closest("[data-source-report-status]");
+    if (sourceReportStatus) {
+      event.preventDefault();
+      setSourceReportStatus(sourceReportStatus.dataset.sourceReportId, sourceReportStatus.dataset.sourceReportStatus);
+      return;
+    }
+
+    const sourceReportProgramme = event.target.closest("[data-source-report-programme]");
+    if (sourceReportProgramme?.dataset.sourceReportProgramme) {
+      adminState.selectedProgrammeId = sourceReportProgramme.dataset.sourceReportProgramme;
+      adminState.editingProgrammeId = null;
+      setAdminTab("catalogue");
       renderAdmin();
       return;
     }

@@ -2677,6 +2677,7 @@ AUDIT_EVENT_TYPES = {
   "course_search",
   "course_profile_viewed",
   "school_profile_viewed",
+  "source_outdated_reported",
 }
 
 
@@ -3208,9 +3209,36 @@ def validate_historical_catalogue_review_state(payload: dict[str, Any]) -> None:
     )
 
 
+SOURCE_REPORT_RESOLUTION_STATUSES = {"in_progress", "resolved"}
+
+
+def sanitize_source_report_resolutions(payload: dict[str, Any]) -> dict[str, Any]:
+  """Keep the admin-owned source feedback workflow compact and predictable."""
+  raw_resolutions = payload.get("sourceReportResolutions")
+  if raw_resolutions is None:
+    return payload
+  if not isinstance(raw_resolutions, dict):
+    return {**payload, "sourceReportResolutions": {}}
+
+  clean_resolutions: dict[str, dict[str, str]] = {}
+  for report_id, resolution in list(raw_resolutions.items())[:300]:
+    clean_id = re.sub(r"[^a-zA-Z0-9_-]", "", str(report_id or ""))[:160]
+    if not clean_id.startswith("evt-") or not isinstance(resolution, dict):
+      continue
+    status = str(resolution.get("status") or "").strip().lower()
+    if status not in SOURCE_REPORT_RESOLUTION_STATUSES:
+      continue
+    clean_resolutions[clean_id] = {
+      "status": status,
+      "reviewedAt": str(resolution.get("reviewedAt") or "").strip()[:64],
+    }
+  return {**payload, "sourceReportResolutions": clean_resolutions}
+
+
 def sanitize_database_state_payload(state_key: str, payload: Any) -> Any:
   if state_key == "review_state" and isinstance(payload, dict):
     validate_historical_catalogue_review_state(payload)
+    payload = sanitize_source_report_resolutions(payload)
   if state_key != "auth_users" or not isinstance(payload, dict):
     return payload
   users = payload.get("users")
