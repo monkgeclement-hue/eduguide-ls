@@ -274,6 +274,48 @@ class EndToEndRoleWorkflowTests(unittest.TestCase):
       200,
     )
 
+  def test_login_rate_limit_blocks_even_a_correct_password_after_repeated_guesses(self):
+    for _ in range(8):
+      rejected = self.client.post(
+        "/api/auth/login",
+        json={"email": "student1@eduguide.test", "password": "incorrect-password"},
+      )
+      self.assertEqual(rejected.status_code, 401, rejected.text)
+
+    limited = self.client.post(
+      "/api/auth/login",
+      json={"email": "student1@eduguide.test", "password": "RoleTestPass1"},
+    )
+    self.assertEqual(limited.status_code, 429, limited.text)
+    self.assertIn("Retry-After", limited.headers)
+
+  @patch.object(server, "send_verification_email")
+  @patch.object(server.secrets, "randbelow", return_value=123456)
+  def test_registration_code_is_locked_after_too_many_incorrect_entries(self, _random_code, _send_email):
+    payload = {
+      "name": "Careful Student",
+      "email": "careful@eduguide.test",
+      "password": "CarefulPass1",
+      "district": "Maseru",
+    }
+    requested = self.client.post("/api/auth/register/request-code", json=payload)
+    self.assertEqual(requested.status_code, 200, requested.text)
+
+    for _ in range(server.EMAIL_VERIFICATION_MAX_ATTEMPTS):
+      rejected = self.client.post("/api/auth/register/verify", json={**payload, "code": "000000"})
+      self.assertEqual(rejected.status_code, 400, rejected.text)
+
+    locked = self.client.post("/api/auth/register/verify", json={**payload, "code": "123456"})
+    self.assertEqual(locked.status_code, 400, locked.text)
+    self.assertIn("Too many incorrect attempts", locked.json()["detail"])
+    self.assertEqual(
+      self.client.post(
+        "/api/auth/login",
+        json={"email": payload["email"], "password": payload["password"]},
+      ).status_code,
+      401,
+    )
+
   def test_temporary_sqlite_database_is_released_after_role_requests(self):
     self.login_headers("student1@eduguide.test")
     database_path = server.DB_PATH
