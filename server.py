@@ -8,10 +8,11 @@ import sqlite3
 import secrets
 import tempfile
 import uuid
+from contextlib import contextmanager
 from datetime import datetime, timedelta, timezone
 from email.message import EmailMessage
 from pathlib import Path
-from typing import Any
+from typing import Any, Iterator
 from urllib import error as urlerror
 from urllib import request as urlrequest
 from urllib.parse import quote
@@ -259,13 +260,22 @@ def get_gemini_model_candidates() -> list[str]:
   seen = set()
   return [model for model in candidates if model and not (model in seen or seen.add(model))]
 
-def get_db_connection() -> sqlite3.Connection:
+@contextmanager
+def get_db_connection() -> Iterator[sqlite3.Connection]:
+  """Open a short-lived SQLite connection and always release its file handle."""
   DB_PATH.parent.mkdir(parents=True, exist_ok=True)
   connection = sqlite3.connect(DB_PATH)
   connection.row_factory = sqlite3.Row
   connection.execute("pragma busy_timeout = 5000")
   connection.execute("pragma journal_mode = wal")
-  return connection
+  try:
+    yield connection
+    connection.commit()
+  except Exception:
+    connection.rollback()
+    raise
+  finally:
+    connection.close()
 
 
 def init_database() -> None:
