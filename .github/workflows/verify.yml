@@ -1,0 +1,44 @@
+name: Verify EduGuide LS
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    name: Backend and browser checks
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out the source
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+
+      - name: Install Python dependencies
+        run: python -m pip install --upgrade pip && python -m pip install -r requirements.txt
+
+      - name: Validate backend syntax
+        run: python -m py_compile server.py
+
+      - name: Run workflow tests
+        run: python -m unittest -v tests.test_role_workflows tests.test_e2e_role_workflows
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+
+      - name: Validate browser and PWA syntax
+        run: |
+          node --check app.js
+          node --check sw.js

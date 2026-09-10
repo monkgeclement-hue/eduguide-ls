@@ -87,6 +87,8 @@ python -m unittest -v tests.test_e2e_role_workflows
 
 `tests/test_role_workflows.py` protects key workflow rules. `tests/test_e2e_role_workflows.py` runs real HTTP role journeys against a disposable SQLite database: student counsellor consent, institution-scoped proposals and admin review, and private source-feedback resolution. The smoke test verifies hosted-style routes, security headers, public catalogue visibility, and that the PWA cache matches the versioned frontend assets.
 
+GitHub Actions runs the backend syntax check, both workflow suites, and the browser/PWA syntax checks for every pull request and every push to `main`.
+
 For public testing and hosting steps, see `DEPLOYMENT.md`. For the Supabase + SMTP launch checklist, see `PRODUCTION_SETUP.md`. The project now includes a `Dockerfile`, `.dockerignore`, and `render.yaml` so the same FastAPI app can be deployed without exposing `.env` secrets.
 
 In VS Code, use **Run and Debug** and choose **Run EduGuide LS** after installing `requirements.txt`. The `.vscode` task starts the FastAPI server before opening Chrome.
