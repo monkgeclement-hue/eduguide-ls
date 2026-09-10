@@ -198,6 +198,82 @@ class EndToEndRoleWorkflowTests(unittest.TestCase):
     resolved_report = self.client.get("/api/student/source-reports", headers=student_headers)
     self.assertEqual(resolved_report.json()["reports"][0]["status"], "resolved")
 
+  @patch.object(server, "send_verification_email")
+  @patch.object(server.secrets, "randbelow", return_value=123456)
+  def test_registration_requires_email_verification_before_creating_a_student(self, _random_code, send_email):
+    payload = {
+      "name": "Verified Student",
+      "email": "verified@eduguide.test",
+      "password": "VerifiedPass1",
+      "district": "Maseru",
+    }
+
+    requested = self.client.post("/api/auth/register/request-code", json=payload)
+    self.assertEqual(requested.status_code, 200, requested.text)
+    self.assertTrue(requested.json()["emailSent"])
+    send_email.assert_called_once_with("verified@eduguide.test", "Verified Student", "123456")
+
+    before_verification = self.client.post(
+      "/api/auth/login",
+      json={"email": payload["email"], "password": payload["password"]},
+    )
+    self.assertEqual(before_verification.status_code, 401)
+
+    verified = self.client.post("/api/auth/register/verify", json={**payload, "code": "123456"})
+    self.assertEqual(verified.status_code, 200, verified.text)
+    self.assertEqual(verified.json()["user"]["role"], "student")
+    self.assertTrue(verified.json()["user"]["emailVerifiedAt"])
+
+    authenticated = self.client.get(
+      "/api/auth/me",
+      headers={"Authorization": f"Bearer {verified.json()['token']}"},
+    )
+    self.assertEqual(authenticated.status_code, 200, authenticated.text)
+    self.assertEqual(authenticated.json()["user"]["email"], payload["email"])
+
+  @patch.object(server, "send_password_reset_email")
+  @patch.object(server.secrets, "randbelow", return_value=654321)
+  def test_password_reset_invalidates_existing_sessions_end_to_end(self, _random_code, send_email):
+    old_token = self.client.post(
+      "/api/auth/login",
+      json={"email": "student1@eduguide.test", "password": "RoleTestPass1"},
+    ).json()["token"]
+
+    requested = self.client.post("/api/auth/password-reset/request-code", json={"email": "student1@eduguide.test"})
+    self.assertEqual(requested.status_code, 200, requested.text)
+    self.assertTrue(requested.json()["emailSent"])
+    send_email.assert_called_once_with("student1@eduguide.test", "Student One", "654321")
+
+    reset = self.client.post(
+      "/api/auth/password-reset/confirm",
+      json={"email": "student1@eduguide.test", "code": "654321", "password": "NewSecurePass2"},
+    )
+    self.assertEqual(reset.status_code, 200, reset.text)
+    new_token = reset.json()["token"]
+
+    self.assertEqual(
+      self.client.get("/api/auth/me", headers={"Authorization": f"Bearer {old_token}"}).status_code,
+      401,
+    )
+    self.assertEqual(
+      self.client.get("/api/auth/me", headers={"Authorization": f"Bearer {new_token}"}).status_code,
+      200,
+    )
+    self.assertEqual(
+      self.client.post(
+        "/api/auth/login",
+        json={"email": "student1@eduguide.test", "password": "RoleTestPass1"},
+      ).status_code,
+      401,
+    )
+    self.assertEqual(
+      self.client.post(
+        "/api/auth/login",
+        json={"email": "student1@eduguide.test", "password": "NewSecurePass2"},
+      ).status_code,
+      200,
+    )
+
   def test_temporary_sqlite_database_is_released_after_role_requests(self):
     self.login_headers("student1@eduguide.test")
     database_path = server.DB_PATH
