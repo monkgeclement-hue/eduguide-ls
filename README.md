@@ -82,12 +82,13 @@ Invoke-RestMethod http://127.0.0.1:8765/health
 Invoke-RestMethod http://127.0.0.1:8765/api/db/diagnostics
 python -m unittest -v tests.test_role_workflows
 python -m unittest -v tests.test_e2e_role_workflows
+python -m unittest -v tests.test_pwa_assets
 .\smoke-test.ps1 -BaseUrl http://127.0.0.1:8765
 ```
 
 `tests/test_role_workflows.py` protects key workflow rules. `tests/test_e2e_role_workflows.py` runs real HTTP role journeys against a disposable SQLite database: student counsellor consent, institution-scoped proposals and admin review, and private source-feedback resolution. The smoke test verifies hosted-style routes, security headers, public catalogue visibility, and that the PWA cache matches the versioned frontend assets.
 
-GitHub Actions runs the backend syntax check, both workflow suites, and the browser/PWA syntax checks for every pull request and every push to `main`.
+GitHub Actions runs the backend syntax check, role and end-to-end workflow suites, PWA cache checks, and browser/PWA syntax checks for every pull request and every push to `main`.
 
 For public testing and hosting steps, see `DEPLOYMENT.md`. For the Supabase + SMTP launch checklist, see `PRODUCTION_SETUP.md`. The project now includes a `Dockerfile`, `.dockerignore`, and `render.yaml` so the same FastAPI app can be deployed without exposing `.env` secrets.
 
