@@ -193,6 +193,7 @@ const persistenceKey = "eduguide-admin-review-state-v1";
 const authUsersKey = "eduguide-auth-users-v1";
 const authSessionKey = "eduguide-auth-session-v1";
 const authTokenKey = "eduguide-auth-token-v1";
+const pendingProfileSyncKey = "eduguide-pending-profile-sync-v1";
 const adminTestSessionKey = "eduguide-admin-test-session-v1";
 const aiChatStoragePrefix = "eduguide-ai-chat-v1";
 const legacyDemoEmails = new Set();
@@ -785,26 +786,80 @@ function getCurrentUserPayload() {
   };
 }
 
-function syncCurrentUserToServer({ revision = null } = {}) {
-  if (!authToken || !currentUser) return;
-  const payload = getCurrentUserPayload();
-  if (!payload) return;
-  fetch("/api/auth/me", {
+function getPendingProfileSync() {
+  try {
+    const pending = JSON.parse(localStorage.getItem(pendingProfileSyncKey) || "null");
+    if (!pending?.userId || !pending?.payload || typeof pending.payload !== "object") return null;
+    return pending;
+  } catch (error) {
+    localStorage.removeItem(pendingProfileSyncKey);
+    return null;
+  }
+}
+
+function queuePendingProfileSync({ payload = getCurrentUserPayload(), revision = null } = {}) {
+  if (!currentUser?.id || !payload) return null;
+  const syncRevision = revision ?? ++profileSyncRevision;
+  const pending = {
+    userId: currentUser.id,
+    revision: syncRevision,
+    queuedAt: new Date().toISOString(),
+    payload
+  };
+  localStorage.setItem(pendingProfileSyncKey, JSON.stringify(pending));
+  return pending;
+}
+
+function clearPendingProfileSync(userId, revision = null) {
+  const pending = getPendingProfileSync();
+  if (!pending || pending.userId !== userId) return;
+  if (revision !== null && Number(pending.revision || 0) > revision) return;
+  localStorage.removeItem(pendingProfileSyncKey);
+}
+
+function mergePendingProfileIntoCurrentUser(pending = getPendingProfileSync()) {
+  if (!pending || pending.userId !== currentUser?.id) return false;
+  const merged = normalizeUser({ ...currentUser, ...pending.payload });
+  if (!merged) return false;
+  currentUser = merged;
+  authUsers = mergeAuthUsersInMemory(authUsers, [merged]);
+  saveAuthUsers({ sync: false });
+  return true;
+}
+
+function syncCurrentUserToServer({ revision = null, payload = null, queue = true } = {}) {
+  if (!authToken || !currentUser) return Promise.resolve(false);
+  const syncPayload = payload || getCurrentUserPayload();
+  if (!syncPayload) return Promise.resolve(false);
+  const syncRevision = revision ?? ++profileSyncRevision;
+  const userId = currentUser.id;
+  if (queue) queuePendingProfileSync({ payload: syncPayload, revision: syncRevision });
+
+  return fetch("/api/auth/me", {
     method: "PUT",
     headers: getAuthHeaders({ "Content-Type": "application/json" }),
-    body: JSON.stringify(payload)
+    body: JSON.stringify(syncPayload)
   })
-    .then((response) => response.ok ? response.json() : null)
+    .then((response) => response.ok ? response.json() : Promise.reject(new Error(`Profile update returned ${response.status}`)))
     .then((data) => {
-      if (!data?.user) return;
-      if (revision !== null && revision !== profileSyncRevision) return;
+      clearPendingProfileSync(userId, syncRevision);
+      if (!data?.user || currentUser?.id !== userId || syncRevision !== profileSyncRevision) return true;
       const updated = normalizeUser(data.user);
-      if (!updated) return;
+      if (!updated) return true;
       currentUser = updated;
       authUsers = mergeAuthUsersInMemory(authUsers, [updated]);
-      localStorage.setItem(authUsersKey, JSON.stringify(authUsers));
+      saveAuthUsers({ sync: false });
+      return true;
     })
-    .catch(() => {});
+    .catch(() => false);
+}
+
+function flushPendingProfileSync() {
+  const pending = getPendingProfileSync();
+  if (!pending || !authToken || pending.userId !== currentUser?.id) return Promise.resolve(false);
+  profileSyncRevision = Math.max(profileSyncRevision, Number(pending.revision || 0));
+  mergePendingProfileIntoCurrentUser(pending);
+  return syncCurrentUserToServer({ revision: pending.revision, payload: pending.payload, queue: false });
 }
 
 function saveAuthUsers({ sync = true } = {}) {
@@ -822,6 +877,7 @@ function scheduleCurrentUserProfileSync() {
   if (!currentUser) return;
   saveAuthUsers({ sync: false });
   const revision = ++profileSyncRevision;
+  queuePendingProfileSync({ revision });
   if (profileSyncTimer) clearTimeout(profileSyncTimer);
   profileSyncTimer = setTimeout(() => {
     profileSyncTimer = null;
@@ -1265,6 +1321,7 @@ async function refreshAppData() {
         if (data.user) {
           currentUser = normalizeUser(data.user);
           authUsers = mergeAuthUsersInMemory(authUsers, [currentUser]);
+          mergePendingProfileIntoCurrentUser();
           saveAuthSession();
           updateUserShell();
         }
@@ -1818,6 +1875,7 @@ function updateUserShell() {
 
 function setCurrentUser(user, preferredView = "student") {
   currentUser = user;
+  mergePendingProfileIntoCurrentUser();
   studentCounsellorAccess = { assignments: [], followups: [], loading: false, loaded: false, error: "" };
   studentSourceReports = { reports: [], loading: false, loaded: false, error: "" };
   aiChatLoadedFromServer = false;
@@ -1837,36 +1895,41 @@ function setCurrentUser(user, preferredView = "student") {
       currentUser.grades = { ...gradeState };
     }
   }
-saveAuthSession();
-loadAiChatMessages();
-updateUserShell();
-renderInterviewControls();
-renderAiChatMessages();
-renderStudentDashboard();
-renderAdminUsers();
-calculateMatches();
-setView(getPreferredLandingView(currentUser, preferredView));
+  saveAuthSession();
+  loadAiChatMessages();
+  updateUserShell();
+  renderInterviewControls();
+  renderAiChatMessages();
+  renderStudentDashboard();
+  renderAdminUsers();
+  calculateMatches();
+  setView(getPreferredLandingView(currentUser, preferredView));
 
-if (currentUser && authToken) {
-  loadServerDatabaseState().then(() => {
-    if (!serverDatabaseAvailable) return;
+  if (currentUser && authToken) {
+    flushPendingProfileSync();
+    loadServerDatabaseState().then(() => {
+      if (!serverDatabaseAvailable) return;
 
-    seedServerDatabaseState();
-    loadServerAiChatMessages();
-    loadCurrentUserDocuments();
+      seedServerDatabaseState();
+      loadServerAiChatMessages();
+      loadCurrentUserDocuments();
 
-    renderStudentDashboard();
-    renderAdminUsers();
-    calculateMatches();
-  });
-}
+      renderStudentDashboard();
+      renderAdminUsers();
+      calculateMatches();
+    });
+  }
 }
 
 
 function signOut() {
+  const signingOutUserId = currentUser?.id;
   if (authToken) {
     fetch("/api/auth/logout", { method: "POST", headers: getAuthHeaders() }).catch(() => {});
   }
+  if (profileSyncTimer) clearTimeout(profileSyncTimer);
+  profileSyncTimer = null;
+  clearPendingProfileSync(signingOutUserId);
   currentUser = null;
   studentCounsellorAccess = { assignments: [], followups: [], loading: false, loaded: false, error: "" };
   studentSourceReports = { reports: [], loading: false, loaded: false, error: "" };
@@ -1960,7 +2023,7 @@ async function loginWithCredentials(email, password, preferredView = "student") 
     authToken = data.token;
     const user = normalizeUser(data.user);
     authUsers = mergeAuthUsersInMemory(authUsers, [user]);
-    saveAuthUsers();
+    saveAuthUsers({ sync: false });
     setCurrentUser(user, getPreferredLandingView(user, preferredView));
     showAppToast("Signed in successfully.", "success");
     return true;
@@ -2010,7 +2073,7 @@ async function restoreAuthSession() {
       if (!response.ok || !data.ok || !data.user) throw new Error(data.detail || "Session expired");
       const user = normalizeUser(data.user);
       authUsers = mergeAuthUsersInMemory(authUsers, [user]);
-      saveAuthUsers();
+      saveAuthUsers({ sync: false });
       setCurrentUser(user, getPreferredLandingView(user, "student"));
       return true;
     } catch (error) {
@@ -10324,7 +10387,10 @@ function setupDropzone() {
 }
 
 function bindEvents() {
-  window.addEventListener("online", refreshAuthConnectionStatus);
+  window.addEventListener("online", () => {
+    refreshAuthConnectionStatus();
+    flushPendingProfileSync();
+  });
   window.addEventListener("offline", refreshAuthConnectionStatus);
   qsa("[data-auth-mode]").forEach((button) => {
     button.addEventListener("click", () => setAuthMode(button.dataset.authMode));
