@@ -79,6 +79,8 @@
 .app-toast[data-tone="success"] { border-color: #9bd8c6; background: #f2fcf8; }
 .app-toast[data-tone="warning"] { border-color: #f0d7a8; background: #fff9ef; }
 .app-toast[data-tone="error"] { border-color: #f0b4b4; background: #fff5f5; }
+.app-toast-action { margin-left: auto; min-height: 32px; padding: 0 10px; border: 1px solid var(--brand); border-radius: 6px; background: var(--brand-deep); color: #fff; cursor: pointer; font: inherit; font-weight: 800; white-space: nowrap; }
+.app-toast-action:hover, .app-toast-action:focus-visible { background: var(--brand); }
 .app-toast-close { margin-left: 4px; border: 0; background: transparent; color: var(--muted); cursor: pointer; display: inline-flex; padding: 2px; }
 
 .presentation-hero {

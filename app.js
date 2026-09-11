@@ -2147,15 +2147,22 @@ async function loadServerDatabaseState() {
 }
 
 let appToastTimer = null;
+let appToastAction = null;
 
-function showAppToast(message, tone = "neutral", durationMs = 3200) {
+function showAppToast(message, tone = "neutral", durationMs = 3200, action = null) {
   const toast = qs("#app-toast");
   const text = qs("#app-toast-message");
   const icon = qs("#app-toast-icon");
+  const actionButton = qs("#app-toast-action");
   if (!toast || !text || !message) return;
   text.textContent = message;
   toast.dataset.tone = tone || "neutral";
   toast.hidden = false;
+  appToastAction = action?.handler || null;
+  if (actionButton) {
+    actionButton.hidden = !action?.label;
+    actionButton.textContent = action?.label || "";
+  }
   if (icon) {
     const iconName = tone === "success" ? "circle-check" : tone === "warning" ? "triangle-alert" : tone === "error" ? "circle-x" : "info";
     icon.setAttribute("data-lucide", iconName);
@@ -10379,6 +10386,13 @@ function bindEvents() {
     const toast = qs("#app-toast");
     if (toast) toast.hidden = true;
   });
+  qs("#app-toast-action")?.addEventListener("click", () => {
+    const handler = appToastAction;
+    const toast = qs("#app-toast");
+    if (toast) toast.hidden = true;
+    appToastAction = null;
+    handler?.();
+  });
   qs("#user-chip")?.addEventListener("click", () => setView("profile"));
   qs("#view-student")?.addEventListener("click", (event) => {
     const focusButton = event.target.closest("[data-student-focus]");
@@ -11193,8 +11207,27 @@ async function init() {
 
 function registerServiceWorker() {
   if (!("serviceWorker" in navigator) || window.location.protocol === "file:") return;
+  const hadActiveServiceWorker = Boolean(navigator.serviceWorker.controller);
+  let updateNoticeShown = false;
+  const showUpdateNotice = () => {
+    if (!hadActiveServiceWorker || updateNoticeShown) return;
+    updateNoticeShown = true;
+    showAppToast("A newer EduGuide LS version is ready.", "success", 0, {
+      label: "Reload",
+      handler: () => window.location.reload()
+    });
+  };
   window.addEventListener("load", () => {
-    navigator.serviceWorker.register("/sw.js").catch(() => {});
+    navigator.serviceWorker.addEventListener("controllerchange", showUpdateNotice, { once: true });
+    navigator.serviceWorker.register("/sw.js").then((registration) => {
+      if (registration.waiting) showUpdateNotice();
+      registration.addEventListener("updatefound", () => {
+        const worker = registration.installing;
+        worker?.addEventListener("statechange", () => {
+          if (worker.state === "installed") showUpdateNotice();
+        });
+      });
+    }).catch(() => {});
   });
 }
 

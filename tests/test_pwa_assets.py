@@ -35,6 +35,14 @@ class PwaAssetTests(unittest.TestCase):
     self.assertIn("self.skipWaiting()", self.service_worker)
     self.assertIn("self.clients.claim()", self.service_worker)
 
+  def test_installed_app_offers_a_reload_when_a_new_service_worker_arrives(self):
+    app_bundle = (PROJECT_ROOT / "app.js").read_text(encoding="utf-8")
+
+    self.assertIn('id="app-toast-action"', self.index_html)
+    self.assertIn('addEventListener("updatefound"', app_bundle)
+    self.assertIn('addEventListener("controllerchange"', app_bundle)
+    self.assertIn('label: "Reload"', app_bundle)
+
 
 if __name__ == "__main__":
   unittest.main()
