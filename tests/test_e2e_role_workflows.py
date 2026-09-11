@@ -316,6 +316,28 @@ class EndToEndRoleWorkflowTests(unittest.TestCase):
       401,
     )
 
+  def test_expired_session_is_rejected_and_removed_from_storage(self):
+    token = self.client.post(
+      "/api/auth/login",
+      json={"email": "student1@eduguide.test", "password": "RoleTestPass1"},
+    ).json()["token"]
+    expired_at = (server.datetime.now(server.timezone.utc) - server.timedelta(days=server.AUTH_SESSION_TTL_DAYS + 1)).isoformat()
+    stored_token = server.hash_session_token(token)
+    with server.get_db_connection() as connection:
+      connection.execute(
+        "update auth_sessions set last_seen_at = ? where token = ?",
+        (expired_at, stored_token),
+      )
+
+    rejected = self.client.get("/api/auth/me", headers={"Authorization": f"Bearer {token}"})
+    self.assertEqual(rejected.status_code, 401, rejected.text)
+    with server.get_db_connection() as connection:
+      remaining = connection.execute(
+        "select count(*) from auth_sessions where token = ?",
+        (stored_token,),
+      ).fetchone()[0]
+    self.assertEqual(remaining, 0)
+
   def test_temporary_sqlite_database_is_released_after_role_requests(self):
     self.login_headers("student1@eduguide.test")
     database_path = server.DB_PATH
