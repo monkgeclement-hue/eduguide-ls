@@ -284,6 +284,8 @@ const calibrationProfiles = {
 let authUsers = structuredClone(defaultUsers);
 let currentUser = null;
 let authToken = localStorage.getItem(authTokenKey) || null;
+let profileSyncTimer = null;
+let profileSyncRevision = 0;
 let authMode = "login";
 let authConnectionRequestId = 0;
 let pendingRegistration = null;
@@ -783,7 +785,7 @@ function getCurrentUserPayload() {
   };
 }
 
-function syncCurrentUserToServer() {
+function syncCurrentUserToServer({ revision = null } = {}) {
   if (!authToken || !currentUser) return;
   const payload = getCurrentUserPayload();
   if (!payload) return;
@@ -795,6 +797,7 @@ function syncCurrentUserToServer() {
     .then((response) => response.ok ? response.json() : null)
     .then((data) => {
       if (!data?.user) return;
+      if (revision !== null && revision !== profileSyncRevision) return;
       const updated = normalizeUser(data.user);
       if (!updated) return;
       currentUser = updated;
@@ -804,7 +807,7 @@ function syncCurrentUserToServer() {
     .catch(() => {});
 }
 
-function saveAuthUsers() {
+function saveAuthUsers({ sync = true } = {}) {
   localStorage.setItem(authUsersKey, JSON.stringify(authUsers.map((user) => {
     const safe = { ...user };
     delete safe.password;
@@ -812,7 +815,18 @@ function saveAuthUsers() {
     delete safe.passwordSalt;
     return safe;
   })));
-  syncCurrentUserToServer();
+  if (sync) syncCurrentUserToServer();
+}
+
+function scheduleCurrentUserProfileSync() {
+  if (!currentUser) return;
+  saveAuthUsers({ sync: false });
+  const revision = ++profileSyncRevision;
+  if (profileSyncTimer) clearTimeout(profileSyncTimer);
+  profileSyncTimer = setTimeout(() => {
+    profileSyncTimer = null;
+    syncCurrentUserToServer({ revision });
+  }, 650);
 }
 
 function renderViewOnDemand(viewName) {
@@ -4246,11 +4260,17 @@ function syncCurrentUserProfile() {
   currentUser.needSignals = getSelectedNeedSignals();
   currentUser.preferenceText = qs("#preference-text")?.value.trim() || "";
   currentUser.grades = { ...gradeState };
-  recordCurrentUserActivity("profile_updated", "Updated student profile", {
+  const activityRecorded = addActivityToUser(currentUser, "profile_updated", "Updated student profile", {
     subjects: Object.keys(gradeState).length,
     interests: interestState.size,
     hasPreferenceText: currentUser.preferenceText.length > 0
   }, { throttleMs: 120000 });
+  if (activityRecorded) recordServerEvent("profile_updated", "Updated student profile", {
+    subjects: Object.keys(gradeState).length,
+    interests: interestState.size,
+    hasPreferenceText: currentUser.preferenceText.length > 0
+  });
+  scheduleCurrentUserProfileSync();
   updateUserShell();
 }
 

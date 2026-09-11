@@ -155,6 +155,15 @@ class RoleWorkflowTests(unittest.TestCase):
     self.assertIn('fetch("/health", { cache: "no-store" })', app_script)
     self.assertIn("function setLoginSubmitBusy", app_script)
 
+  def test_profile_edits_are_saved_locally_before_the_debounced_server_sync(self):
+    root = Path(__file__).resolve().parents[1]
+    app_script = (root / "app.js").read_text(encoding="utf-8")
+
+    self.assertIn("function scheduleCurrentUserProfileSync", app_script)
+    self.assertIn("saveAuthUsers({ sync: false })", app_script)
+    self.assertIn("syncCurrentUserToServer({ revision })", app_script)
+    self.assertIn("scheduleCurrentUserProfileSync();", app_script)
+
   def test_historical_reference_documents_are_allowlisted(self):
     response = server.public_reference_document("che-list-of-accredited-programmes-december-2017.pdf")
     self.assertTrue(str(response.path).endswith("che-list-of-accredited-programmes-december-2017.pdf"))
