@@ -12,11 +12,11 @@
     <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link rel="preload" href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Playfair+Display:wght@600;700&display=swap" as="style" onload="this.onload=null;this.rel='stylesheet'" />
-    <noscript><link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet" /></noscript>
-    <link rel="stylesheet" href="/styles.css?v=54" />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Playfair+Display:wght@600;700&display=swap" />
+    <link rel="stylesheet" href="/styles.css?v=55" />
   </head>
   <body>
+    <a href="/privacy" class="privacy-link" style="display:block;text-align:center;padding:8px">Privacy and data use</a>
     <section class="auth-screen" id="auth-screen">
       <div class="auth-panel">
         <div class="brand auth-brand">
@@ -495,14 +495,14 @@
             </details>
 
             <details class="dashboard-disclosure">
-              <summary><span><strong>Funding and documents</strong><small>Scholarship estimate and upload readiness</small></span><i data-lucide="chevron-down"></i></summary>
+              <summary><span><strong>Funding and documents</strong><small>Sponsorship preparation and document checklist</small></span><i data-lucide="chevron-down"></i></summary>
             <aside class="surface-panel guidance-panel">
               <div class="section-head">
                 <div>
                   <p class="section-kicker">Funding</p>
-                  <h3>Scholarship estimate</h3>
+                  <h3>Document preparation</h3>
                 </div>
-                <div class="score-pill" id="nmds-score">74%</div>
+                <div class="score-pill" id="nmds-score">0%</div>
               </div>
 
               <label class="wide-label">
@@ -535,7 +535,7 @@
 
               <div class="readiness-box">
                 <div class="readiness-status">
-                  <strong id="nmds-estimate-label">Estimate only</strong>
+                  <strong id="nmds-estimate-label">Documents still needed</strong>
                   <span id="nmds-income-label">LSL 2,500 - 7,500</span>
                 </div>
                 <div class="readiness-row">
@@ -547,7 +547,7 @@
                   <strong id="need-fit">76%</strong>
                 </div>
                 <div class="readiness-row">
-                  <span>Priority alignment</span>
+                  <span>Sector fit (internal estimate)</span>
                   <strong id="priority-fit">68%</strong>
                 </div>
                 <div class="readiness-row">
@@ -589,7 +589,7 @@
 
               <div class="source-note">
                 <i data-lucide="info"></i>
-                <span>NMDS score is an estimate for guidance, not an approval decision.</span>
+                <span>The percentage shows document checklist completion, not the chance of sponsorship. Confirm current requirements with the sponsor.</span>
                 <a href="https://www.scholarships.manp.gov.ls" target="_blank" rel="noreferrer">Open sponsorship portal</a>
               </div>
             </aside>
@@ -622,7 +622,7 @@
               <article>
                 <span>2</span>
                 <strong>Upload documents</strong>
-                <p>Add results, ID, and supporting files. Text extraction can suggest grades when the backend server is running.</p>
+                <p>Add only documents needed for guidance. Scanned documents and images may be sent to Google Gemini for text extraction. Check every suggested grade before saving. <a href="/privacy">Read how your data is used</a>.</p>
               </article>
               <article>
                 <span>3</span>
@@ -632,7 +632,7 @@
               <article>
                 <span>4</span>
                 <strong>Prepare funding</strong>
-                <p>Use the scholarship score as a guide and keep evidence ready for NMDS or other sponsors.</p>
+                <p>Use the document checklist to prepare for NMDS or other sponsors. Eligibility and approval are separate decisions.</p>
               </article>
             </div>
           </section>
@@ -667,6 +667,8 @@
                   <i data-lucide="share-2"></i>
                   Share summary
                 </button>
+                <button class="secondary-button small" type="button" id="profile-export-button">Export my data</button>
+                <button class="secondary-button small" type="button" id="profile-delete-button" data-student-only>Delete my account</button>
                 <button class="secondary-button small" type="button" id="profile-logout-button">
                   <i data-lucide="log-out"></i>
                   Log out
@@ -1270,9 +1272,20 @@
       </button>
     </div>
 
+    <dialog id="delete-account-dialog" aria-labelledby="delete-account-title">
+      <form id="delete-account-form">
+        <h2 id="delete-account-title">Delete your student account?</h2>
+        <p>This removes your active profile, documents, and chat. Download anything you need first.</p>
+        <p>Older records and backups follow the <a href="/privacy">privacy notice</a>.</p>
+        <label>Password <input type="password" id="delete-account-password" autocomplete="current-password" required /></label>
+        <p id="delete-account-error" role="alert"></p>
+        <button type="button" class="secondary-button" id="delete-account-cancel">Cancel</button>
+        <button type="submit" class="primary-button" id="delete-account-submit">Permanently delete my account</button>
+      </form>
+    </dialog>
+    <script src="/vendor/lucide.min.js" defer></script>
     <script src="/data/catalog.js" defer></script>
     <script src="/data/admin-catalog.js" defer></script>
-    <script src="/app.js?v=85" defer></script>
-    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js" async onload="window.lucide && window.lucide.createIcons()"></script>
+    <script src="/app.js?v=86" defer></script>
   </body>
 </html>

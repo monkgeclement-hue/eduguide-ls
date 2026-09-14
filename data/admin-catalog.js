@@ -114,10 +114,10 @@ window.EDUGUIDE_ADMIN_DATA = {
         "Retail Manager"
       ],
       "skills": [
-        "News writing",
-        "Content production",
-        "Media research",
-        "Public communication"
+        "Fashion design",
+        "Textile selection",
+        "Visual merchandising",
+        "Retail planning"
       ],
       "sourceUrl": "https://www.portal.co.ls/apply/courses",
       "sourcePath": null,
@@ -127,7 +127,7 @@ window.EDUGUIDE_ADMIN_DATA = {
       "sourceType": "official_course_portal",
       "extractionMethod": "html_course_cards",
       "reviewStatus": "approved",
-      "sourceNote": "Auto-enriched from repository evidence and institution rules."
+      "sourceNote": "Career and skill mappings are guidance suggestions, not verified curriculum outcomes."
     },
     {
       "id": "limkokwing-university-lesotho-bachelor-of-architectural-studies",
@@ -2206,7 +2206,7 @@ window.EDUGUIDE_ADMIN_DATA = {
     {
       "id": "national-university-of-lesotho-bachelor-of-science-in-biotechnology-9-semesters-4-years",
       "institution": "National University of Lesotho",
-      "name": "Bachelor Of Science In Biotechnology - 9 Semesters (4 \u00bd Years)",
+      "name": "Bachelor Of Science In Biotechnology - 9 Semesters (4 ½ Years)",
       "code": null,
       "category": "Science & Technology",
       "faculty": "Science & Technology",
@@ -2274,7 +2274,7 @@ window.EDUGUIDE_ADMIN_DATA = {
     {
       "id": "national-university-of-lesotho-bachelor-of-science-in-chemical-technology-9-semesters-4-years",
       "institution": "National University of Lesotho",
-      "name": "Bachelor Of Science In Chemical Technology - 9 Semesters (4 \u00bd Years)",
+      "name": "Bachelor Of Science In Chemical Technology - 9 Semesters (4 ½ Years)",
       "code": null,
       "category": "Science & Technology",
       "faculty": "Science & Technology",
@@ -4458,7 +4458,7 @@ window.EDUGUIDE_ADMIN_DATA = {
       "duration": "4 years with project",
       "deliveryMode": null,
       "overview": null,
-      "requirementsSummary": ": To be considered for admission, candidates must have: sat for a minimum of six (6) subjects in LGCSE Examination LGCSE or its equivalent with a minimum achievement rating of a \"C\" or better in four subjects including English Language and Mathematics. A \"D\" or better in the remaining two subjects. Indirect Entry The normal entry requirements for candidates shall be: \uf0b7 A Diploma in Business Management from the Institute of Extra Mural Studies (IEMS) achieved with distinction. OR",
+      "requirementsSummary": ": To be considered for admission, candidates must have: sat for a minimum of six (6) subjects in LGCSE Examination LGCSE or its equivalent with a minimum achievement rating of a \"C\" or better in four subjects including English Language and Mathematics. A \"D\" or better in the remaining two subjects. Indirect Entry The normal entry requirements for candidates shall be:  A Diploma in Business Management from the Institute of Extra Mural Studies (IEMS) achieved with distinction. OR",
       "careers": [
         "Human Resources Officer",
         "Talent Acquisition Specialist",

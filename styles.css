@@ -6253,3 +6253,15 @@ textarea:focus {
     overflow-x: auto;
   }
 }
+/* Account privacy actions use the same controls as the surrounding profile. */
+#delete-account-dialog {
+  width: min(560px, calc(100vw - 32px));
+  box-sizing: border-box;
+  border: 1px solid #c7d9d2;
+  border-radius: 18px;
+  padding: 24px;
+  color: #173c34;
+}
+#delete-account-dialog::backdrop { background: rgba(5, 35, 27, .45); }
+#delete-account-dialog button { min-height: 44px; margin: 8px 6px 0 0; }
+#delete-account-error { color: #9b2424; }

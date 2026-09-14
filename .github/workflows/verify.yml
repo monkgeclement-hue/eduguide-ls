@@ -31,7 +31,7 @@ jobs:
         run: python -m py_compile server.py
 
       - name: Run workflow tests
-        run: python -m unittest -v tests.test_role_workflows tests.test_e2e_role_workflows tests.test_pwa_assets
+        run: python -m unittest discover -s tests -p 'test_*.py' -v
 
       - name: Set up Node
         uses: actions/setup-node@v4
@@ -42,3 +42,4 @@ jobs:
         run: |
           node --check app.js
           node --check sw.js
+          node --test tests/matching.test.cjs

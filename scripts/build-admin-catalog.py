@@ -45,6 +45,8 @@ def compact_programme(record: dict[str, Any]) -> dict[str, Any]:
         "extractionMethod": record.get("extraction_method"),
         "reviewStatus": record.get("review_status", "needs_admin_review"),
         "sourceNote": record.get("source_note"),
+        "mappingStatus": record.get("mapping_status", "suggested"),
+        "durationStatus": record.get("duration_status"),
     }
 
 

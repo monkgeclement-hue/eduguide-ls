@@ -284,7 +284,8 @@ const calibrationProfiles = {
 
 let authUsers = structuredClone(defaultUsers);
 let currentUser = null;
-let authToken = localStorage.getItem(authTokenKey) || null;
+localStorage.removeItem(authTokenKey);
+let authToken = sessionStorage.getItem(authTokenKey) || null;
 let profileSyncTimer = null;
 let profileSyncRevision = 0;
 let authMode = "login";
@@ -798,6 +799,8 @@ function getPendingProfileSync() {
 }
 
 function queuePendingProfileSync({ payload = getCurrentUserPayload(), revision = null } = {}) {
+  const existing = getPendingProfileSync();
+  if (existing?.conflict && existing.userId === currentUser?.id) return existing;
   if (!currentUser?.id || !payload) return null;
   const syncRevision = revision ?? ++profileSyncRevision;
   const pending = {
@@ -828,7 +831,7 @@ function mergePendingProfileIntoCurrentUser(pending = getPendingProfileSync()) {
 }
 
 function syncCurrentUserToServer({ revision = null, payload = null, queue = true } = {}) {
-  if (!authToken || !currentUser) return Promise.resolve(false);
+  if (!authToken || !currentUser || getPendingProfileSync()?.conflict) return Promise.resolve(false);
   const syncPayload = payload || getCurrentUserPayload();
   if (!syncPayload) return Promise.resolve(false);
   const syncRevision = revision ?? ++profileSyncRevision;
@@ -840,7 +843,16 @@ function syncCurrentUserToServer({ revision = null, payload = null, queue = true
     headers: getAuthHeaders({ "Content-Type": "application/json" }),
     body: JSON.stringify(syncPayload)
   })
-    .then((response) => response.ok ? response.json() : Promise.reject(new Error(`Profile update returned ${response.status}`)))
+    .then((response) => {
+      if (response.status === 409) {
+        const pending = getPendingProfileSync();
+        if (pending?.userId === userId) localStorage.setItem(pendingProfileSyncKey, JSON.stringify({ ...pending, conflict: true }));
+        showAppToast("Your profile changed elsewhere. Saving is paused; copy any unsaved edits before reloading.", "warning", 0, {
+          label: "Discard edits & reload", handler: () => { clearPendingProfileSync(userId); window.location.reload(); }
+        });
+      }
+      return response.ok ? response.json() : Promise.reject(new Error(`Profile update returned ${response.status}`));
+    })
     .then((data) => {
       clearPendingProfileSync(userId, syncRevision);
       if (!data?.user || currentUser?.id !== userId || syncRevision !== profileSyncRevision) return true;
@@ -1352,8 +1364,8 @@ async function refreshAppData() {
 function saveAuthSession() {
   if (currentUser) localStorage.setItem(authSessionKey, currentUser.id);
   else localStorage.removeItem(authSessionKey);
-  if (authToken) localStorage.setItem(authTokenKey, authToken);
-  else localStorage.removeItem(authTokenKey);
+  if (authToken) sessionStorage.setItem(authTokenKey, authToken);
+  else sessionStorage.removeItem(authTokenKey);
 }
 
 function formatDateTime(value) {
@@ -1920,8 +1932,47 @@ function setCurrentUser(user, preferredView = "student") {
 }
 
 
+async function exportMyData() {
+  try {
+    const response = await fetch("/api/auth/me/export", { headers: getAuthHeaders() });
+    const data = await response.json();
+    if (!response.ok) throw new Error(data.detail || "Export failed.");
+    const url = URL.createObjectURL(new Blob([JSON.stringify(data, null, 2)], { type: "application/json" }));
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = "eduguide-my-data.json";
+    link.click();
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
+  } catch (error) { showAppToast(error.message || "Export failed.", "error"); }
+}
+
+async function deleteMyAccount(event) {
+  event.preventDefault();
+  const button = qs("#delete-account-submit");
+  button.disabled = true;
+  try {
+    const response = await fetch("/api/auth/me/delete", {
+      method: "POST", headers: getAuthHeaders({ "Content-Type": "application/json" }),
+      body: JSON.stringify({ password: qs("#delete-account-password").value })
+    });
+    const data = await response.json();
+    if (!response.ok) throw new Error(data.detail || "Deletion failed. Please try again.");
+    qs("#delete-account-dialog").close();
+    signOut();
+    showAppToast("Your account and active records were deleted.", "success");
+  } catch (error) { qs("#delete-account-error").textContent = error.message; }
+  finally { qs("#delete-account-password").value = ""; button.disabled = false; }
+}
+
 function signOut() {
   const signingOutUserId = currentUser?.id;
+  // Shared-device default: discard sensitive offline copies on sign-out.
+  for (const key of Object.keys(localStorage)) {
+    if (key.startsWith("eduguide")) localStorage.removeItem(key);
+  }
+  sessionStorage.removeItem(adminTestSessionKey);
+  authUsers = structuredClone(defaultUsers);
+
   if (authToken) {
     fetch("/api/auth/logout", { method: "POST", headers: getAuthHeaders() }).catch(() => {});
   }
@@ -3403,18 +3454,8 @@ function getFundingDocumentChecklist(signals = getUploadedDocumentSignals()) {
 }
 
 function getDocumentReadinessScore() {
-  const signals = getUploadedDocumentSignals();
-  let score = 10;
-  if (signals.hasResults) score += 26;
-  else if (signals.extractedGradeCount) score += 22;
-  if (signals.hasIdentity) score += 18;
-  if (signals.hasApplicationEvidence) score += 16;
-  if (signals.hasBankDetails) score += 10;
-  if (signals.hasResidenceGuarantor) score += 8;
-  if (signals.hasNeedEvidence) score += 8;
-  if (signals.hasConditionalEvidence) score += 6;
-  score += Math.min(signals.total, 3) * 4;
-  return clamp(score);
+  const checklist = getFundingDocumentChecklist();
+  return checklist.length ? Math.round(100 * checklist.filter((item) => item.complete).length / checklist.length) : 0;
 }
 
 function isNulFamilyProgramme(programme) {
@@ -3980,6 +4021,8 @@ function getMatchingProgrammeFromAdmin(programme) {
     subjects: inferredSubjects.length ? inferredSubjects : profile.subjects,
     interests: unique(profile.interests),
     requirements,
+    requirementsSummary: programme.requirementsSummary || "",
+    requirementEvidenceAvailable: Boolean(String(programme.requirementsSummary || "").trim()),
     requirementRules,
     careers: programme.careers?.length ? programme.careers : profile.careers,
     skills: programme.skills?.length ? programme.skills : profile.skills,
@@ -4042,6 +4085,7 @@ function formatRequirementGap(detail) {
 }
 
 function getMatchTier(scores, evaluation, programme, strictGateEvaluation) {
+  if (programme.requirementEvidenceAvailable === false) return "explore";
   if (hasEnteredGradesBelowPass()) return "blocked";
   if (strictGateEvaluation?.failures?.length) return "blocked";
   if (!evaluation.total) return programme.dataConfidence >= 75 && scores.academic >= 65 ? "almost" : "explore";
@@ -4069,13 +4113,14 @@ function getMatchTierCounts(matches = latestMatches) {
 function getMatchExplanations(programme, scores, evaluation, tier, strictGateEvaluation) {
   const reasons = [];
   const cautions = [];
+  if (programme.requirementEvidenceAvailable === false) cautions.push("Entry requirements are not captured. Eligibility cannot be assessed; confirm with the institution.");
   const matchingInterests = (programme.interests || []).filter((interest) => interestState.has(interest));
   const tierLabel = tierMeta[tier]?.label || "Explore";
   reasons.push(`${tierLabel} pathway based on current marks and captured requirements.`);
   if (matchingInterests.length) reasons.push(`Interest fit: ${matchingInterests.slice(0, 2).join(", ")}`);
   if (scores.academic >= 70) reasons.push("Your selected grades are strong for the inferred subject profile.");
-  if (scores.funding >= 78 && scores.fundingBreakdown?.policy?.eligible !== false) reasons.push("Funding readiness is promising for this pathway.");
-  if (scores.priority >= 82 && scores.fundingBreakdown?.policy?.eligible !== false) reasons.push("This sits in a high-priority development area.");
+  if (scores.funding >= 78 && scores.fundingBreakdown?.policy?.eligible !== false) reasons.push("Review the funding checklist for this pathway; approval is decided by the sponsor.");
+  if (scores.priority >= 82 && scores.fundingBreakdown?.policy?.eligible !== false) reasons.push("Career-sector priority is an internal guidance assumption, not a verified sponsorship ranking.");
   if (!reasons.length) reasons.push("This is a possible exploratory match, but it needs closer checking.");
 
   const strictGateGaps = (strictGateEvaluation?.failures || []).map(formatStrictGateFailure);
@@ -4273,7 +4318,7 @@ function getNmdsReadiness() {
     documents,
     confidence,
     readiness,
-    label: readiness >= 78 ? "Strong estimate" : readiness >= 62 ? "Moderate estimate" : "Needs preparation",
+    label: documents >= 100 ? "Checklist complete — verify with sponsor" : "Documents still needed",
     incomeBand: getIncomeBandLabel(),
     selectedNeedSignals,
     signals,
@@ -4290,8 +4335,8 @@ function updateReadiness() {
   qs("#document-fit").textContent = `${readiness.documents}%`;
   qs("#nmds-estimate-label").textContent = readiness.label;
   qs("#nmds-income-label").textContent = readiness.incomeBand;
-  qs("#nmds-score").textContent = `${readiness.readiness}%`;
-  qs("#nmds-bar").style.width = `${readiness.readiness}%`;
+  qs("#nmds-score").textContent = `${readiness.documents}%`;
+  qs("#nmds-bar").style.width = `${readiness.documents}%`;
   const notesEl = qs("#nmds-notes");
   if (notesEl) {
     notesEl.innerHTML = readiness.notes.map((note) => `<li>${escapeHtml(note)}</li>`).join("");
@@ -4999,7 +5044,7 @@ function renderProgrammeCard(programme) {
           <div class="badge-row">
             <span class="badge green">${escapeHtml(programme.level)}</span>
             <span class="badge blue">${escapeHtml(programme.shortInstitution)}</span>
-            <span class="badge amber">NMDS ${programme.match.priority}%</span>
+            <span class="badge amber">Funding preparation</span>
             ${showFundingPolicy ? `<span class="badge ${fundingPolicyBadge}">${escapeHtml(fundingPolicy.status)}</span>` : ""}
             <span class="badge ${tier.badge}">${tier.label}</span>
             <span class="badge ${eligibilityBadge}">Eligibility ${programme.match.eligibility}%</span>
@@ -7004,11 +7049,11 @@ function renderExplorerCourseProfile(programme) {
           ${renderProgrammeFeeSummary(programme, 5)}
         </div>
         <div class="detail-block">
-          <h5>Careers / alumni work fields</h5>
+          <h5>Suggested career paths</h5><p>Guidance mappings; confirm professional requirements and actual graduate outcomes.</p>
           <ul>${careers.map((item) => `<li>${escapeHtml(item)}</li>`).join("") || "<li>Career links need confirmation.</li>"}</ul>
         </div>
         <div class="detail-block">
-          <h5>Skills</h5>
+          <h5>Suggested skills</h5><p>These mappings are not verified curriculum outcomes.</p>
           <ul>${skills.map((item) => `<li>${escapeHtml(item)}</li>`).join("") || "<li>Skill mapping needs confirmation.</li>"}</ul>
         </div>
         <div class="detail-block full">
@@ -10440,6 +10485,17 @@ function bindEvents() {
     });
   });
   qs("#profile-logout-button")?.addEventListener("click", signOut);
+  qs("#profile-export-button")?.addEventListener("click", exportMyData);
+  qs("#profile-delete-button")?.addEventListener("click", () => {
+    qs("#delete-account-error").textContent = "";
+    qs("#delete-account-dialog").showModal();
+  });
+  qs("#delete-account-cancel")?.addEventListener("click", () => {
+    qs("#delete-account-password").value = "";
+    qs("#delete-account-dialog").close();
+  });
+  qs("#delete-account-form")?.addEventListener("submit", deleteMyAccount);
+
   qs("#profile-print-report")?.addEventListener("click", () => {
     if (currentUser) printStudentReport(currentUser.id);
   });

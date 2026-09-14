@@ -1,4 +1,8 @@
 import json
+import zipfile
+from copy import deepcopy
+from threading import BoundedSemaphore
+from state_store import StateSnapshot, StateConflict, merge_records
 import hashlib
 import smtplib
 import mimetypes
@@ -20,17 +24,19 @@ from urllib.parse import quote
 from dotenv import load_dotenv
 from fastapi import FastAPI, File, Form, Header, HTTPException, Request, UploadFile
 from fastapi.middleware.gzip import GZipMiddleware
-from fastapi.responses import FileResponse, Response
+from fastapi.responses import FileResponse, Response, JSONResponse
+from starlette.concurrency import run_in_threadpool
 from openai import OpenAI
 from pydantic import BaseModel, Field
 
 
 ROOT = Path(__file__).resolve().parent
 load_dotenv(ROOT / ".env")
-DB_PATH = ROOT / "data" / "eduguide.db"
+DB_PATH = Path(os.getenv("EDUGUIDE_DB_PATH") or ROOT / "data" / "eduguide.db")
 UPLOAD_ROOT = ROOT / "data" / "uploads"
 MAX_UPLOAD_BYTES = 10 * 1024 * 1024
 MAX_FILES_PER_UPLOAD = 5
+EXTRACTION_SLOTS = BoundedSemaphore(2)
 ALLOWED_UPLOAD_EXTENSIONS = {".pdf", ".docx", ".jpg", ".jpeg", ".png"}
 DEFAULT_SUPABASE_STORAGE_BUCKET = "eduguide-documents"
 AI_CHAT_HISTORY_LIMIT = 24
@@ -101,8 +107,8 @@ CSP_POLICY = (
   "img-src 'self' data: blob:; "
   "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://fonts.gstatic.com; "
   "font-src 'self' data: https://fonts.gstatic.com https://fonts.googleapis.com; "
-  "script-src 'self' 'unsafe-inline' https://unpkg.com https://cdn.jsdelivr.net; "
-  "script-src-elem 'self' 'unsafe-inline' https://unpkg.com https://cdn.jsdelivr.net; "
+  "script-src 'self'; "
+  "script-src-elem 'self'; "
   "media-src 'self' blob:; "
   "manifest-src 'self'; "
   "worker-src 'self' blob:;"
@@ -127,6 +133,8 @@ async def add_security_headers(request: Request, call_next):
   response = await call_next(request)
   for header_name, header_value in SECURITY_HEADERS.items():
     response.headers.setdefault(header_name, header_value)
+  if request.url.path.startswith("/api/"):
+    response.headers["Cache-Control"] = "no-store"
   return response
 
 
@@ -144,6 +152,10 @@ class GuidanceRequest(BaseModel):
 class AuthLoginRequest(BaseModel):
   email: str
   password: str
+
+
+class DeleteAccountRequest(BaseModel):
+  password: str = Field(min_length=1, max_length=1024)
 
 
 class AdminTestSessionRequest(BaseModel):
@@ -953,10 +965,10 @@ def supabase_configured() -> bool:
 
 def get_data_backend() -> str:
   requested = os.getenv("DATA_BACKEND", "auto").strip().lower()
-  if requested == "sqlite":
+  if requested == "sqlite" and os.getenv("RENDER") != "true":
     return "sqlite"
-  if requested == "supabase" and not supabase_configured():
-    return "sqlite"
+  if (requested == "supabase" or os.getenv("RENDER") == "true") and not supabase_configured():
+    raise RuntimeError("Production persistence requires configured Supabase credentials.")
   return "supabase" if supabase_configured() else "sqlite"
 
 
@@ -1056,10 +1068,15 @@ def extract_text_locally(path: Path, content_type: str | None = None) -> str:
     from pypdf import PdfReader
 
     reader = PdfReader(str(path))
+    if len(reader.pages) > 30:
+      raise ValueError("Documents may contain at most 30 pages.")
     return normalize_ocr_text("\n".join(page.extract_text() or "" for page in reader.pages))
   if suffix == ".docx" or mime_type == "application/vnd.openxmlformats-officedocument.wordprocessingml.document":
     from docx import Document
 
+    with zipfile.ZipFile(path) as archive:
+      if len(archive.infolist()) > 1000 or sum(item.file_size for item in archive.infolist()) > 40 * 1024 * 1024:
+        raise ValueError("The uncompressed document is too large.")
     document = Document(str(path))
     lines = [paragraph.text for paragraph in document.paragraphs]
     for table in document.tables:
@@ -1338,6 +1355,15 @@ def update_document_extraction(document_id: str, status: str, text: str = "", gr
 
 
 def extract_document(document_id: str) -> sqlite3.Row | dict[str, Any]:
+  if not EXTRACTION_SLOTS.acquire(blocking=False):
+    return update_document_extraction(document_id, "failed", error="Document processing is busy. Please retry extraction shortly.")
+  try:
+    return extract_document_content(document_id)
+  finally:
+    EXTRACTION_SLOTS.release()
+
+
+def extract_document_content(document_id: str) -> sqlite3.Row | dict[str, Any]:
   row = get_document_record(document_id)
   if not row:
     raise HTTPException(status_code=404, detail="Document not found.")
@@ -1362,6 +1388,8 @@ def extract_document(document_id: str) -> sqlite3.Row | dict[str, Any]:
     local_error = None
     try:
       local_text = extract_text_locally(path, row_get(row, "content_type"))
+    except ValueError:
+      raise
     except Exception as exc:
       local_text = ""
       local_error = str(exc)
@@ -1973,6 +2001,63 @@ def save_state_payload(state_key: str, payload: Any) -> None:
     connection.commit()
 
 
+def atomic_update_state(state_key: str, update):
+  """Run a retryable pure update, atomically across workers and app instances."""
+  if not using_supabase():
+    with get_db_connection() as connection:
+      connection.execute("BEGIN IMMEDIATE")
+      row = connection.execute("SELECT payload FROM app_state WHERE state_key = ?", (state_key,)).fetchone()
+      payload = json.loads(row["payload"]) if row else {}
+      result = update(payload)
+      connection.execute("INSERT INTO app_state (state_key, payload, updated_at) VALUES (?, ?, ?) ON CONFLICT(state_key) DO UPDATE SET payload=excluded.payload, updated_at=excluded.updated_at",
+        (state_key, json.dumps(result, ensure_ascii=False), datetime.now(timezone.utc).isoformat()))
+      connection.commit()
+      return result
+  query = f"state_key=eq.{supabase_filter_value(state_key)}"
+  # Insert-if-absent cannot overwrite another worker's state.
+  supabase_request("POST", supabase_table_path("runtime_app_state", "on_conflict=state_key"),
+    {"state_key": state_key, "payload": {}}, prefer="resolution=ignore-duplicates,return=minimal")
+  for _ in range(12):
+    rows = supabase_request("GET", supabase_table_path("runtime_app_state", f"{query}&select=payload,updated_at&limit=1"))
+    if not rows:
+      break
+    row = rows[0]
+    result = update(parse_jsonish(row.get("payload"), {}))
+    version = row["updated_at"]
+    timestamp = datetime.now(timezone.utc)
+    old_timestamp = parse_iso_datetime(version)
+    if old_timestamp and timestamp <= old_timestamp:
+      timestamp = old_timestamp + timedelta(microseconds=1)
+    changed = supabase_request("PATCH", supabase_table_path("runtime_app_state", f"{query}&updated_at=eq.{supabase_filter_value(version)}"),
+      {"payload": result, "updated_at": timestamp.isoformat()}, prefer="return=representation")
+    if changed:
+      return result
+  raise HTTPException(status_code=409, detail="Another request changed this record. Please retry.")
+
+
+def save_record_snapshot(state_key, field, records, normalize=None):
+  if not isinstance(records, StateSnapshot):
+    # Explicit initialization/import callers provide a fresh list.
+    records = StateSnapshot([]) if not records else make_initial_snapshot(records)
+  def merge(payload):
+    current = payload.get(field, [])
+    if normalize:
+      current = [item for raw in current if (item := normalize(raw))]
+    try:
+      return {**payload, field: merge_records(current, records)}
+    except StateConflict as exc:
+      raise HTTPException(status_code=409, detail=str(exc)) from exc
+  saved = atomic_update_state(state_key, merge)
+  records[:] = deepcopy(saved[field])
+  records.original = deepcopy(saved[field])
+
+
+def make_initial_snapshot(records):
+  snapshot = StateSnapshot([])
+  snapshot.extend(records)
+  return snapshot
+
+
 def list_state_payloads() -> list[dict[str, Any]]:
   if using_supabase():
     rows = supabase_request(
@@ -2192,32 +2277,26 @@ def minutes_from_now(minutes: int) -> str:
 
 
 def get_request_ip(request: Request | None) -> str:
-  if not request:
-    return "unknown"
-  forwarded_for = request.headers.get("x-forwarded-for", "")
-  if forwarded_for:
-    return forwarded_for.split(",", 1)[0].strip()[:80] or "unknown"
-  return (request.client.host if request.client else "unknown")[:80]
+  # Uvicorn handles trusted proxy headers. Never trust raw client-supplied XFF.
+  return (request.client.host if request and request.client else "unknown")[:80]
 
 
 def check_rate_limit(request: Request | None, bucket: str, limit: int, window_seconds: int, identifier: str | None = None) -> None:
-  now = datetime.now(timezone.utc)
-  cutoff = now - timedelta(seconds=window_seconds)
-  key = f"{bucket}:{identifier or ''}:{get_request_ip(request)}"
-  hits = [hit for hit in RATE_LIMIT_STATE.get(key, []) if hit > cutoff]
-  if len(hits) >= limit:
-    retry_after = max(1, int((hits[0] + timedelta(seconds=window_seconds) - now).total_seconds()))
-    raise HTTPException(
-      status_code=429,
-      detail=f"Too many requests. Try again in {retry_after} seconds.",
-      headers={"Retry-After": str(retry_after)},
-    )
-  hits.append(now)
-  RATE_LIMIT_STATE[key] = hits
-  if len(RATE_LIMIT_STATE) > 5000:
-    stale_keys = [item_key for item_key, item_hits in RATE_LIMIT_STATE.items() if not any(hit > cutoff for hit in item_hits)]
-    for stale_key in stale_keys[:1000]:
-      RATE_LIMIT_STATE.pop(stale_key, None)
+  now = datetime.now(timezone.utc).timestamp()
+  scopes = [f"ip:{get_request_ip(request)}"]
+  if identifier:
+    scopes.append(f"account:{identifier}")
+  for scope in scopes:
+    digest = hashlib.sha256(f"{bucket}:{scope}".encode()).hexdigest()
+    def consume(payload):
+      hits = [value for value in payload.get("hits", []) if value > now - window_seconds]
+      # Shared school networks can contain many accounts; account limits stay strict.
+      scope_limit = max(80, limit * 10) if identifier and scope.startswith("ip:") else limit
+      if len(hits) >= scope_limit:
+        retry_after = max(1, int(hits[0] + window_seconds - now))
+        raise HTTPException(status_code=429, detail="Too many requests. Please try again later.", headers={"Retry-After": str(retry_after)})
+      return {"hits": [*hits, now], "expiresAt": now + window_seconds}
+    atomic_update_state(f"rate-{digest}", consume)
 
 
 def cleanup_expired_security_records(force: bool = False) -> dict[str, int]:
@@ -2229,8 +2308,11 @@ def cleanup_expired_security_records(force: bool = False) -> dict[str, int]:
   session_cutoff = (now - timedelta(days=AUTH_SESSION_TTL_DAYS)).isoformat(timespec="milliseconds").replace("+00:00", "Z")
   verification_cutoff = (now - timedelta(days=2)).isoformat(timespec="milliseconds").replace("+00:00", "Z")
   removed = {"sessions": 0, "codes": 0}
+  history_cutoff = (now - timedelta(days=30)).isoformat()
   try:
     if using_supabase():
+      supabase_request("DELETE", supabase_table_path("runtime_recommendation_runs", f"created_at=lt.{supabase_filter_value(history_cutoff)}"), prefer="return=minimal")
+      supabase_request("DELETE", supabase_table_path("runtime_app_state", f"state_key=like.rate-*&updated_at=lt.{supabase_filter_value(verification_cutoff)}"), prefer="return=minimal")
       supabase_request(
         "DELETE",
         supabase_table_path("runtime_auth_sessions", f"last_seen_at=lt.{supabase_filter_value(session_cutoff)}"),
@@ -2244,6 +2326,8 @@ def cleanup_expired_security_records(force: bool = False) -> dict[str, int]:
       return removed
 
     with get_db_connection() as connection:
+      connection.execute("DELETE FROM recommendation_runs WHERE datetime(created_at) < datetime(?)", (history_cutoff,))
+      connection.execute("DELETE FROM app_state WHERE state_key LIKE 'rate-%' AND datetime(updated_at) < datetime(?)", (verification_cutoff,))
       cursor = connection.execute(
         "delete from auth_sessions where datetime(last_seen_at) < datetime(?)",
         (session_cutoff,),
@@ -2366,11 +2450,11 @@ def get_auth_users_internal() -> list[dict[str, Any]]:
       continue
     seen.add(item["email"])
     normalized.append(item)
-  return normalized
+  return StateSnapshot(normalized)
 
 
 def save_auth_users_internal(users: list[dict[str, Any]]) -> None:
-  save_state_payload("auth_users", {"users": users})
+  save_record_snapshot("auth_users", "users", users, normalize_auth_user)
 
 
 def public_user(user: dict[str, Any]) -> dict[str, Any]:
@@ -2386,11 +2470,11 @@ COUNSELLOR_FOLLOWUPS_STATE_KEY = "counsellor_followups"
 def get_counsellor_state(state_key: str) -> list[dict[str, Any]]:
   payload = load_state_payload(state_key, {"items": []})
   items = payload.get("items", []) if isinstance(payload, dict) else []
-  return [item for item in items if isinstance(item, dict)]
+  return StateSnapshot([item for item in items if isinstance(item, dict)])
 
 
 def save_counsellor_state(state_key: str, items: list[dict[str, Any]]) -> None:
-  save_state_payload(state_key, {"items": items[-1000:]})
+  save_record_snapshot(state_key, "items", items)
 
 
 def require_counsellor_user(authorization: str | None) -> dict[str, Any]:
@@ -2657,17 +2741,11 @@ def load_institution_proposals() -> list[dict[str, Any]]:
     proposal = normalize_institution_proposal(item)
     if proposal:
       proposals.append(proposal)
-  return sorted(proposals, key=lambda item: item.get("createdAt") or "", reverse=True)
+  return StateSnapshot(sorted(proposals, key=lambda item: item.get("createdAt") or "", reverse=True))
 
 
 def save_institution_proposals(proposals: list[dict[str, Any]]) -> None:
-  save_state_payload(
-    INSTITUTION_PROPOSAL_STATE_KEY,
-    {
-      "proposals": proposals,
-      "savedAt": now_iso(),
-    },
-  )
+  save_record_snapshot(INSTITUTION_PROPOSAL_STATE_KEY, "proposals", proposals, normalize_institution_proposal)
 
 
 def get_visible_institution_proposals(actor: dict[str, Any], proposals: list[dict[str, Any]]) -> list[dict[str, Any]]:
@@ -2955,6 +3033,8 @@ def seed_bootstrap_admin() -> None:
     return
   users = get_auth_users_internal()
   existing = next((user for user in users if user["email"] == admin_email), None)
+  if existing:
+    return
   salt, password_hash = hash_password(admin_password)
   timestamp = now_iso()
   admin_payload = {
@@ -2969,30 +3049,25 @@ def seed_bootstrap_admin() -> None:
     "emailVerifiedAt": timestamp,
     "reviewedAt": timestamp,
   }
-  if existing:
-    existing.update(admin_payload)
-    existing.pop("password", None)
-    add_user_activity(existing, "admin_bootstrap", "System admin synced from server environment", existing)
-  else:
-    admin_user = {
-      "id": "admin-owner",
-      **admin_payload,
-      "stream": "",
-      "leavingYear": "",
-      "incomeBand": "mid",
-      "needSignals": [],
-      "preferenceText": "",
-      "grades": {},
-      "documents": [],
-      "shortlist": [],
-      "createdAt": timestamp,
-      "emailVerifiedAt": timestamp,
-      "lastActiveAt": timestamp,
-      "lastActivity": "System admin created from server environment",
-      "activity": [],
-    }
-    add_user_activity(admin_user, "admin_bootstrap", "System admin created from server environment", admin_user)
-    users.insert(0, admin_user)
+  admin_user = {
+    "id": "admin-owner",
+    **admin_payload,
+    "stream": "",
+    "leavingYear": "",
+    "incomeBand": "mid",
+    "needSignals": [],
+    "preferenceText": "",
+    "grades": {},
+    "documents": [],
+    "shortlist": [],
+    "createdAt": timestamp,
+    "emailVerifiedAt": timestamp,
+    "lastActiveAt": timestamp,
+    "lastActivity": "System admin created from server environment",
+    "activity": [],
+  }
+  add_user_activity(admin_user, "admin_bootstrap", "System admin created from server environment", admin_user)
+  users.insert(0, admin_user)
   for user in users:
     if user["email"] != admin_email and user.get("role") == "owner":
       user["role"] = "student"
@@ -4452,6 +4527,8 @@ async def upload_documents(request: Request, user_id: str = Form(...), files: li
     raise HTTPException(status_code=400, detail="No documents were uploaded.")
   if len(files) > MAX_FILES_PER_UPLOAD:
     raise HTTPException(status_code=400, detail=f"Maximum {MAX_FILES_PER_UPLOAD} files per upload allowed.")
+  if len(list_document_records(user_id)) + len(files) > 25:
+    raise HTTPException(status_code=409, detail="Keep at most 25 documents. Remove unneeded files before uploading more.")
 
   saved_documents = []
 
@@ -4514,7 +4591,7 @@ async def upload_documents(request: Request, user_id: str = Form(...), files: li
         "extracted_grades": [],
       }
     )
-    row = extract_document(document_id)
+    row = await run_in_threadpool(extract_document, document_id)
     saved_documents.append(document_response(row))
 
   return {"ok": True, "documents": saved_documents}
@@ -4567,16 +4644,20 @@ def delete_document(document_id: str, authorization: str | None = Header(default
   existing = get_document_record(safe_document_id)
   if existing:
     require_user_access(str(row_get(existing, "user_id")), authorization)
-  row = delete_document_record(safe_document_id)
+  else:
+    require_current_user(authorization)
+  row = existing
   if not row:
     return {"ok": True, "deleted": 0}
   if using_supabase():
     delete_supabase_storage_object(str(row_get(row, "storage_path")))
+    delete_document_record(safe_document_id)
     return {"ok": True, "deleted": 1}
 
   path = ROOT / str(row_get(row, "storage_path"))
   if path.exists() and UPLOAD_ROOT in path.resolve().parents:
     path.unlink(missing_ok=True)
+  delete_document_record(safe_document_id)
   return {"ok": True, "deleted": 1}
 
 
@@ -4862,6 +4943,7 @@ def ai_guidance(payload: GuidanceRequest, request: Request, authorization: str |
   server_history = safe_list_ai_chat_history(current_user["id"])
   merged_history = merge_ai_chat_histories(server_history, incoming_history)
   request_payload = build_request_payload(safe_payload, merged_history)
+  request_payload["userId"] = current_user["id"]
   save_recommendation_run(safe_payload, request_payload)
   if get_ai_provider() == "openai":
     result = call_openai(safe_payload, request_payload)
@@ -4889,13 +4971,15 @@ def ai_guidance(payload: GuidanceRequest, request: Request, authorization: str |
 
 
 @app.get("/health")
-def health() -> dict[str, Any]:
-  """Return only non-sensitive readiness flags for public uptime checks."""
-  return {
-    "ok": True,
-    "database_ready": check_data_backend_ready(),
-    "storage_ready": check_document_storage_ready(),
-  }
+def health():
+  """Fail readiness if the durable database or document storage is unavailable."""
+  try:
+    database_ready = check_data_backend_ready()
+    storage_ready = check_document_storage_ready()
+  except Exception:
+    database_ready = storage_ready = False
+  ready = database_ready and storage_ready
+  return JSONResponse({"ok": ready, "database_ready": database_ready, "storage_ready": storage_ready}, status_code=200 if ready else 503)
 
 
 @app.get("/")
@@ -4911,6 +4995,55 @@ def index_html() -> FileResponse:
 @app.get("/styles.css")
 def styles() -> FileResponse:
   return cached_file_response(ROOT / "styles.css", media_type="text/css", headers=IMMUTABLE_CACHE_HEADERS)
+
+
+@app.get("/vendor/lucide.min.js")
+def icon_script() -> FileResponse:
+  return cached_file_response(ROOT / "vendor" / "lucide.min.js", media_type="application/javascript")
+
+
+@app.get("/privacy")
+def privacy_notice() -> FileResponse:
+  return cached_file_response(ROOT / "privacy.html", media_type="text/html", headers=NO_CACHE_HEADERS)
+
+
+@app.get("/api/auth/me/export")
+def export_my_data(authorization: str | None = Header(default=None)):
+  user = require_current_user(authorization)
+  return {"profile": public_user(user), "chat": list_ai_chat_history(user["id"]),
+          "documents": [document_response(row) for row in list_document_records(user["id"])],
+          "exportedAt": now_iso()}
+
+
+@app.post("/api/auth/me/delete")
+def delete_my_account(payload: DeleteAccountRequest, request: Request, authorization: str | None = Header(default=None)):
+  user = require_current_user(authorization)
+  check_rate_limit(request, "account_delete", 5, 900, user["id"])
+  if user.get("role") != "student":
+    raise HTTPException(status_code=403, detail="Staff accounts must be removed through the system owner.")
+  if not verify_password(payload.password, user):
+    raise HTTPException(status_code=403, detail="Your password is not correct.")
+  for document in list_document_records(user["id"]):
+    delete_document(str(row_get(document, "id")), authorization)
+  for key in [COUNSELLOR_ASSIGNMENTS_STATE_KEY, COUNSELLOR_NOTES_STATE_KEY, COUNSELLOR_FOLLOWUPS_STATE_KEY]:
+    items = get_counsellor_state(key)
+    items[:] = [item for item in items if item.get("studentId") != user["id"]]
+    save_counsellor_state(key, items)
+  clear_ai_chat_history(user["id"])
+  if using_supabase():
+    supabase_request("DELETE", supabase_table_path("runtime_events", f"user_id=eq.{supabase_filter_value(user['id'])}"), prefer="return=minimal")
+    supabase_request("DELETE", supabase_table_path("runtime_recommendation_runs", f"payload->>userId=eq.{supabase_filter_value(user['id'])}"), prefer="return=minimal")
+    supabase_request("DELETE", supabase_table_path("runtime_email_verifications", f"email=eq.{supabase_filter_value(user['email'])}"), prefer="return=minimal")
+  else:
+    with get_db_connection() as connection:
+      connection.execute("DELETE FROM runtime_events WHERE user_id=?", (user["id"],))
+      connection.execute("DELETE FROM recommendation_runs WHERE json_extract(payload, '$.userId')=?", (user["id"],))
+      connection.execute("DELETE FROM email_verifications WHERE email=?", (user["email"],))
+  users = get_auth_users_internal()
+  users[:] = [item for item in users if item["id"] != user["id"]]
+  save_auth_users_internal(users)
+  delete_all_auth_sessions_for_user(user["id"])
+  return {"ok": True}
 
 
 @app.get("/app.js")

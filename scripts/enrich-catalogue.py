@@ -97,6 +97,8 @@ def infer_careers(record: dict[str, Any]) -> list[str]:
 
 
 def infer_skills(record: dict[str, Any]) -> list[str]:
+    if any(word in str(record.get("name", "")).lower() for word in ("fashion", "textile", "retailing")):
+        return ["Fashion design", "Textile selection", "Visual merchandising", "Retail planning"]
     haystack = text(record)
     for keywords, skills in SKILL_RULES:
         if any(keyword in haystack for keyword in keywords):
@@ -177,8 +179,9 @@ def main() -> None:
         if record.get("skill_options") != inferred_skills:
             record["skill_options"] = inferred_skills
         duration = inferred_duration(record)
-        if duration and record.get("duration") != duration:
+        if duration and not record.get("duration"):
             record["duration"] = duration
+            record["duration_status"] = "inferred_needs_verification"
             changed["durations"] += 1
         fee_source = fee_sources.get(record.get("institution"))
         if fee_source and record.get("institution") != "Limkokwing University Lesotho" and not record.get("supporting_fee_source_path"):
@@ -192,9 +195,8 @@ def main() -> None:
         marker = "Auto-enriched from repository evidence and institution rules."
         if marker not in existing_note:
             record["source_note"] = f"{existing_note} {marker}".strip()
-        if has_source(record) and record.get("review_status") == "needs_admin_review":
-            record["review_status"] = "approved"
-            changed["approved"] += 1
+        # Enrichment is not verification: preserve the human review queue.
+        record["mapping_status"] = "suggested"
     PROGRAMMES_FILE.write_text(json.dumps(programmes, indent=2, ensure_ascii=True) + "\n", encoding="utf-8")
     print(json.dumps(changed, indent=2))
 
