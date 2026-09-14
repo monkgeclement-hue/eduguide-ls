@@ -3563,53 +3563,40 @@ def auth_register(payload: AuthRegisterRequest, request: Request) -> dict[str, A
 def auth_password_reset_request_code(payload: AuthPasswordResetRequest, request: Request) -> dict[str, Any]:
   maybe_cleanup_security_records()
   email = normalize_email(payload.email)
-  check_rate_limit(request, "password_reset_code", 4, 900, email)
   if not email or "@" not in email:
     raise HTTPException(status_code=400, detail="Enter the email address on your account.")
+  check_rate_limit(request, "password_reset_code", 4, 900, email)
+  check_rate_limit(request, "password_reset_resend", 1, EMAIL_VERIFICATION_RESEND_SECONDS, email)
+
+  response = {
+    "ok": True,
+    "email": email,
+    "expiresInMinutes": EMAIL_VERIFICATION_TTL_MINUTES,
+    "resendSeconds": EMAIL_VERIFICATION_RESEND_SECONDS,
+    "message": "If an account uses that email, a reset code will be sent.",
+  }
 
   users = get_auth_users_internal()
   user = next((item for item in users if item["email"] == email), None)
   if not user:
-    return {
-      "ok": True,
-      "email": email,
-      "emailSent": False,
-      "expiresInMinutes": EMAIL_VERIFICATION_TTL_MINUTES,
-      "resendSeconds": EMAIL_VERIFICATION_RESEND_SECONDS,
-      "message": "If that email exists, a reset code will be sent.",
-    }
+    return response
 
   code = f"{secrets.randbelow(1_000_000):06d}"
-  record = create_email_verification(email, {"email": email}, code, "password_reset")
+  try:
+    record = create_email_verification(email, {"email": email}, code, "password_reset")
+  except HTTPException as exc:
+    if exc.status_code == 429:
+      return response
+    raise
   try:
     send_password_reset_email(email, user.get("name") or "student", code)
     safe_insert_runtime_event(user["id"], "password_reset_requested", "Requested password reset code", {})
-    return {
-      "ok": True,
-      "email": email,
-      "emailSent": True,
-      "expiresInMinutes": EMAIL_VERIFICATION_TTL_MINUTES,
-      "resendSeconds": EMAIL_VERIFICATION_RESEND_SECONDS,
-    }
-  except Exception as exc:
+  except Exception:
     if email_debug_codes_enabled():
-      return {
-        "ok": True,
-        "email": email,
-        "emailSent": False,
-        "debugCode": code,
-        "expiresInMinutes": EMAIL_VERIFICATION_TTL_MINUTES,
-        "resendSeconds": EMAIL_VERIFICATION_RESEND_SECONDS,
-        "message": f"Email delivery is not configured. Development reset code: {code}",
-      }
+      return {**response, "debugCode": code, "message": f"Development reset code: {code}"}
     update_email_verification(record["id"], {"consumed_at": now_iso()})
-    missing = smtp_missing_keys()
-    detail = (
-      f"Email delivery is not fully configured. Missing: {', '.join(missing)}."
-      if missing
-      else f"Email delivery failed. The provider rejected the password reset email or timed out. ({exc})"
-    )
-    raise HTTPException(status_code=503, detail=detail)
+    safe_insert_runtime_event(user["id"], "password_reset_delivery_failed", "Password reset email delivery failed", {})
+  return response
 
 
 @app.post("/api/auth/password-reset/confirm")

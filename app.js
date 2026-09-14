@@ -1774,9 +1774,7 @@ async function requestPasswordResetCode(payload) {
     updatePasswordResetUi();
     qs("#reset-code")?.focus();
     const debugNote = data.debugCode ? ` Development code: ${data.debugCode}` : "";
-    const deliveryNote = data.emailSent
-      ? `We sent a password reset code to ${payload.email}.`
-      : data.message || "If that email exists, a reset code will be sent.";
+    const deliveryNote = data.message || "If an account uses that email, a reset code will be sent.";
     setAuthMessage(`${deliveryNote}${debugNote}`, data.debugCode ? "success" : "neutral");
     return true;
   } catch (error) {

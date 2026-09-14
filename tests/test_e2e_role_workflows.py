@@ -241,7 +241,7 @@ class EndToEndRoleWorkflowTests(unittest.TestCase):
 
     requested = self.client.post("/api/auth/password-reset/request-code", json={"email": "student1@eduguide.test"})
     self.assertEqual(requested.status_code, 200, requested.text)
-    self.assertTrue(requested.json()["emailSent"])
+    self.assertEqual(requested.json()["message"], "If an account uses that email, a reset code will be sent.")
     send_email.assert_called_once_with("student1@eduguide.test", "Student One", "654321")
 
     reset = self.client.post(
@@ -273,6 +273,32 @@ class EndToEndRoleWorkflowTests(unittest.TestCase):
       ).status_code,
       200,
     )
+
+  @patch.object(server, "send_password_reset_email")
+  @patch.object(server, "EMAIL_VERIFICATION_RESEND_SECONDS", 0)
+  def test_password_reset_requests_do_not_reveal_accounts_and_are_rate_limited(self, send_email):
+    unknown = self.client.post(
+      "/api/auth/password-reset/request-code",
+      json={"email": "not-an-account@eduguide.test"},
+    )
+    self.assertEqual(unknown.status_code, 200, unknown.text)
+    self.assertEqual(unknown.json()["message"], "If an account uses that email, a reset code will be sent.")
+
+    for _ in range(4):
+      requested = self.client.post(
+        "/api/auth/password-reset/request-code",
+        json={"email": "student1@eduguide.test"},
+      )
+      self.assertEqual(requested.status_code, 200, requested.text)
+      self.assertEqual(requested.json(), unknown.json() | {"email": "student1@eduguide.test"})
+
+    limited = self.client.post(
+      "/api/auth/password-reset/request-code",
+      json={"email": "student1@eduguide.test"},
+    )
+    self.assertEqual(limited.status_code, 429, limited.text)
+    self.assertIn("Retry-After", limited.headers)
+    self.assertEqual(send_email.call_count, 4)
 
   def test_login_rate_limit_blocks_even_a_correct_password_after_repeated_guesses(self):
     for _ in range(8):
