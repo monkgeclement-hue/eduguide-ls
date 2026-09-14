@@ -43,6 +43,17 @@ class PwaAssetTests(unittest.TestCase):
     self.assertIn('addEventListener("controllerchange"', app_bundle)
     self.assertIn('label: "Reload"', app_bundle)
 
+  def test_phone_navigation_stays_in_one_swipeable_row(self):
+    styles = (PROJECT_ROOT / "styles.css").read_text(encoding="utf-8")
+    index_html = (PROJECT_ROOT / "index.html").read_text(encoding="utf-8")
+    phone_styles = styles.split("@media (max-width: 760px)", 1)[1]
+
+    self.assertIn(".side-nav {\n    display: flex;", phone_styles)
+    self.assertIn("overflow-x: auto;", phone_styles)
+    self.assertIn("scroll-snap-type: x proximity;", phone_styles)
+    self.assertIn("flex: 0 0 86px;", phone_styles)
+    self.assertIn("Swipe sideways on a phone to see more options.", index_html)
+
 
 if __name__ == "__main__":
   unittest.main()

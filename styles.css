@@ -5686,12 +5686,22 @@ textarea:focus {
   }
 
   .side-nav {
+    display: flex;
     width: 100%;
-    grid-template-columns: repeat(auto-fit, minmax(54px, 1fr));
-    gap: 5px;
+    gap: 6px;
+    overflow-x: auto;
+    overscroll-behavior-x: contain;
+    scroll-snap-type: x proximity;
+    scrollbar-width: none;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .side-nav::-webkit-scrollbar {
+    display: none;
   }
 
   .side-link {
+    flex: 0 0 86px;
     flex-direction: column;
     justify-content: center;
     gap: 4px;
@@ -5699,6 +5709,7 @@ textarea:focus {
     padding: 5px 3px;
     font-size: 11px;
     line-height: 1.1;
+    scroll-snap-align: start;
     text-align: center;
   }
 
@@ -5769,10 +5780,6 @@ textarea:focus {
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
-  }
-
-  .side-nav {
-    grid-template-columns: repeat(auto-fit, minmax(86px, 1fr));
   }
 
   .summary-band {
