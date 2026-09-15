@@ -145,6 +145,11 @@ let adminState = {
 };
 let resultsFilters = { search: "", institution: "all", level: "all", tier: "all", minimumMatch: "all" };
 let applicationSavedOnly = false;
+let applicationFilters = {
+  progress: "all",
+  deadline: "all",
+  record: "all"
+};
 let schoolExplorerState = {
   query: "",
   selectedInstitution: adminData.institutions?.[0]?.name || adminProgrammes[0]?.institution || "",
@@ -288,6 +293,7 @@ localStorage.removeItem(authTokenKey);
 let authToken = sessionStorage.getItem(authTokenKey) || null;
 let profileSyncTimer = null;
 let profileSyncRevision = 0;
+let profileSyncLastError = false;
 let authMode = "login";
 let authConnectionRequestId = 0;
 let pendingRegistration = null;
@@ -800,7 +806,10 @@ function getPendingProfileSync() {
 
 function queuePendingProfileSync({ payload = getCurrentUserPayload(), revision = null } = {}) {
   const existing = getPendingProfileSync();
-  if (existing?.conflict && existing.userId === currentUser?.id) return existing;
+  if (existing?.conflict && existing.userId === currentUser?.id) {
+    renderProfileSyncStatus();
+    return existing;
+  }
   if (!currentUser?.id || !payload) return null;
   const syncRevision = revision ?? ++profileSyncRevision;
   const pending = {
@@ -810,6 +819,8 @@ function queuePendingProfileSync({ payload = getCurrentUserPayload(), revision =
     payload
   };
   localStorage.setItem(pendingProfileSyncKey, JSON.stringify(pending));
+  profileSyncLastError = false;
+  renderProfileSyncStatus();
   return pending;
 }
 
@@ -818,6 +829,69 @@ function clearPendingProfileSync(userId, revision = null) {
   if (!pending || pending.userId !== userId) return;
   if (revision !== null && Number(pending.revision || 0) > revision) return;
   localStorage.removeItem(pendingProfileSyncKey);
+  profileSyncLastError = false;
+  renderProfileSyncStatus();
+}
+
+function getProfileSyncPresentation() {
+  if (!currentUser || !isStudentUser()) return null;
+  const pending = getPendingProfileSync();
+  if (pending?.userId === currentUser.id) {
+    if (pending.conflict) {
+      return {
+        tone: "warning",
+        icon: "triangle-alert",
+        label: "Profile changes need attention before they can sync."
+      };
+    }
+    const offline = typeof navigator !== "undefined" && navigator.onLine === false;
+    if (offline) {
+      return {
+        tone: "warning",
+        icon: "wifi-off",
+        label: "Saved on this device. It will sync when you reconnect."
+      };
+    }
+    if (profileSyncLastError) {
+      return {
+        tone: "warning",
+        icon: "cloud-off",
+        label: "Saved on this device. Reconnect or refresh to retry account sync."
+      };
+    }
+    return {
+      tone: "neutral",
+      icon: "loader-circle",
+      label: "Saving your latest profile changes to your account..."
+    };
+  }
+  if (!authToken || !serverDatabaseAvailable) {
+    return {
+      tone: "neutral",
+      icon: "shield-check",
+      label: "Profile saved on this device. Checking account sync..."
+    };
+  }
+  return {
+    tone: "success",
+    icon: "check-circle-2",
+    label: "Profile saved to your account."
+  };
+}
+
+function renderProfileSyncStatus() {
+  const root = qs("#profile-sync-status");
+  if (!root) return;
+  const state = getProfileSyncPresentation();
+  root.hidden = !state;
+  if (!state) return;
+  root.dataset.tone = state.tone;
+  const icon = document.createElement("i");
+  icon.dataset.lucide = state.icon;
+  const label = document.createElement("span");
+  label.textContent = state.label;
+  root.replaceChildren(icon, label);
+  if (window.lucide) window.lucide.createIcons();
 }
 
 function mergePendingProfileIntoCurrentUser(pending = getPendingProfileSync()) {
@@ -837,6 +911,8 @@ function syncCurrentUserToServer({ revision = null, payload = null, queue = true
   const syncRevision = revision ?? ++profileSyncRevision;
   const userId = currentUser.id;
   if (queue) queuePendingProfileSync({ payload: syncPayload, revision: syncRevision });
+  profileSyncLastError = false;
+  renderProfileSyncStatus();
 
   return fetch("/api/auth/me", {
     method: "PUT",
@@ -847,6 +923,7 @@ function syncCurrentUserToServer({ revision = null, payload = null, queue = true
       if (response.status === 409) {
         const pending = getPendingProfileSync();
         if (pending?.userId === userId) localStorage.setItem(pendingProfileSyncKey, JSON.stringify({ ...pending, conflict: true }));
+        renderProfileSyncStatus();
         showAppToast("Your profile changed elsewhere. Saving is paused; copy any unsaved edits before reloading.", "warning", 0, {
           label: "Discard edits & reload", handler: () => { clearPendingProfileSync(userId); window.location.reload(); }
         });
@@ -861,9 +938,14 @@ function syncCurrentUserToServer({ revision = null, payload = null, queue = true
       currentUser = updated;
       authUsers = mergeAuthUsersInMemory(authUsers, [updated]);
       saveAuthUsers({ sync: false });
+      renderProfileSyncStatus();
       return true;
     })
-    .catch(() => false);
+    .catch(() => {
+      profileSyncLastError = true;
+      renderProfileSyncStatus();
+      return false;
+    });
 }
 
 function flushPendingProfileSync() {
@@ -871,6 +953,8 @@ function flushPendingProfileSync() {
   if (!pending || !authToken || pending.userId !== currentUser?.id) return Promise.resolve(false);
   profileSyncRevision = Math.max(profileSyncRevision, Number(pending.revision || 0));
   mergePendingProfileIntoCurrentUser(pending);
+  profileSyncLastError = false;
+  renderProfileSyncStatus();
   return syncCurrentUserToServer({ revision: pending.revision, payload: pending.payload, queue: false });
 }
 
@@ -1158,6 +1242,7 @@ function renderStudentProfile() {
   qs("#profile-district")?.replaceChildren(document.createTextNode(currentUser.district || "Not recorded"));
   qs("#profile-shortlist-count")?.replaceChildren(document.createTextNode(String(currentUser.shortlist?.length || 0)));
   qs("#profile-document-count")?.replaceChildren(document.createTextNode(String(currentUser.documents?.length || 0)));
+  renderProfileSyncStatus();
   renderStudentCounsellorAccess();
   renderStudentCounsellorFollowups();
   renderStudentSourceReports();
@@ -2269,6 +2354,8 @@ async function loadServerDatabaseState() {
     serverDatabaseAvailable = false;
     persistenceMode = "local";
     lastPersistenceMessage = "Server persistence unavailable";
+  } finally {
+    renderProfileSyncStatus();
   }
 }
 
@@ -4907,6 +4994,68 @@ function getApplicationRecordTone(status) {
   return "neutral";
 }
 
+function getApplicationDeadlineFilterKey(summary) {
+  if (summary.label === "Applications closed") return "closed";
+  return summary.urgency || "unknown";
+}
+
+function getApplicationFilterState(programme) {
+  const deadline = getApplicationDeadlineSummary([programme]);
+  return {
+    progress: currentUser?.applicationProgress?.[programme.id] || "researching",
+    deadline: getApplicationDeadlineFilterKey(deadline),
+    record: currentUser?.applicationRecords?.[programme.id]?.status || "none"
+  };
+}
+
+function applicationFiltersActive() {
+  return Object.values(applicationFilters).some((value) => value !== "all");
+}
+
+function matchesApplicationFilters(programme) {
+  const state = getApplicationFilterState(programme);
+  return (applicationFilters.progress === "all" || applicationFilters.progress === state.progress)
+    && (applicationFilters.deadline === "all" || applicationFilters.deadline === state.deadline)
+    && (applicationFilters.record === "all" || applicationFilters.record === state.record);
+}
+
+function renderApplicationFilterBar() {
+  const filterOptions = (options, selected) => options
+    .map(([value, label]) => `<option value="${escapeHtml(value)}" ${selected === value ? "selected" : ""}>${escapeHtml(label)}</option>`)
+    .join("");
+  return `
+    <div class="application-filter-bar" aria-label="Application filters">
+      <label>
+        <span>Plan stage</span>
+        <select data-application-filter="progress" aria-label="Filter applications by plan stage">
+          ${filterOptions([["all", "Any plan stage"], ...Object.entries(applicationProgressLabels)], applicationFilters.progress)}
+        </select>
+      </label>
+      <label>
+        <span>Deadline</span>
+        <select data-application-filter="deadline" aria-label="Filter applications by deadline">
+          ${filterOptions([
+            ["all", "Any deadline"],
+            ["overdue", "Overdue"],
+            ["soon", "Due within 14 days"],
+            ["upcoming", "Upcoming"],
+            ["unknown", "Untracked"],
+            ["closed", "Closed"]
+          ], applicationFilters.deadline)}
+        </select>
+      </label>
+      <label>
+        <span>Application record</span>
+        <select data-application-filter="record" aria-label="Filter applications by application record">
+          ${filterOptions([["all", "Any application record"], ["none", "No record yet"], ...Object.entries(applicationRecordStatusLabels)], applicationFilters.record)}
+        </select>
+      </label>
+      ${applicationFiltersActive() ? `<button class="secondary-action compact-action" type="button" data-application-clear-filters><i data-lucide="x"></i> Clear filters</button>` : ""}
+      <small>Plan stage defaults to Researching until you update a saved programme.</small>
+    </div>
+  `;
+}
+
 function renderApplicationRecordControl(programme) {
   const record = currentUser?.applicationRecords?.[programme.id] || {};
   const status = applicationRecordStatusLabels[record.status] ? record.status : "draft";
@@ -5670,18 +5819,26 @@ function renderApplicationAssistant() {
     .map((group) => ({
       ...group,
       programmes: applicationSavedOnly
-        ? group.programmes.filter((programme) => currentUser?.shortlist?.includes(programme.id))
-        : group.programmes
+        ? group.programmes.filter((programme) => currentUser?.shortlist?.includes(programme.id) && matchesApplicationFilters(programme))
+        : group.programmes.filter(matchesApplicationFilters)
     }))
     .filter((group) => group.programmes.some((programme) => programme.match.tier !== "explore"));
-  const fallbackGroups = groups.length ? groups : getInstitutionMatchGroups().slice(0, 6);
-  if (applicationSavedOnly && !groups.length) {
+  const fallbackGroups = groups.length
+    ? groups
+    : applicationSavedOnly || applicationFiltersActive()
+      ? []
+      : getInstitutionMatchGroups().slice(0, 6);
+  if ((applicationSavedOnly || applicationFiltersActive()) && !groups.length) {
+    const filteredEmptyState = applicationFiltersActive()
+      ? "No application packs match these filters. Clear a filter or broaden your matches to continue."
+      : "Save qualified or almost-qualified programmes from the Programmes tab to build a focused plan here.";
     return `
       <div class="application-assistant-intro">
-        <div><p class="section-kicker">Application assistant</p><h4>Your saved application plan</h4><span>Save qualified or almost-qualified programmes from the Programmes tab to build a focused plan here.</span></div>
-        <button class="secondary-action" type="button" data-application-toggle-saved>Show all matches</button>
+        <div><p class="section-kicker">Application assistant</p><h4>${applicationFiltersActive() ? "Filtered application plan" : "Your saved application plan"}</h4><span>${filteredEmptyState}</span>${renderApplicationProgressSummary()}${renderApplicationDeadlineSummary()}</div>
+        ${applicationSavedOnly ? `<button class="secondary-action" type="button" data-application-toggle-saved>Show all matches</button>` : ""}
       </div>
-      <article class="admin-empty"><h4>No saved programmes yet.</h4><p>Save a programme first, then return here to prepare its documents, fees, evidence, and application route.</p></article>
+      ${renderApplicationFilterBar()}
+      <article class="admin-empty"><h4>${applicationFiltersActive() ? "No matching application packs." : "No saved programmes yet."}</h4><p>${filteredEmptyState}</p>${applicationFiltersActive() ? `<button class="secondary-action" type="button" data-application-clear-filters>Clear filters</button>` : ""}</article>
     `;
   }
   if (!fallbackGroups.length) {
@@ -5706,6 +5863,7 @@ function renderApplicationAssistant() {
         <a class="primary-button" href="${nmdsPortalUrl}" target="_blank" rel="noreferrer"><i data-lucide="external-link"></i> NMDS Portal</a>
       </div>
     </div>
+    ${renderApplicationFilterBar()}
     <div class="application-card-list">
       ${fallbackGroups.slice(0, 8).map(renderApplicationGroup).join("")}
     </div>
@@ -10433,8 +10591,12 @@ function bindEvents() {
   window.addEventListener("online", () => {
     refreshAuthConnectionStatus();
     flushPendingProfileSync();
+    renderProfileSyncStatus();
   });
-  window.addEventListener("offline", refreshAuthConnectionStatus);
+  window.addEventListener("offline", () => {
+    refreshAuthConnectionStatus();
+    renderProfileSyncStatus();
+  });
   qsa("[data-auth-mode]").forEach((button) => {
     button.addEventListener("click", () => setAuthMode(button.dataset.authMode));
   });
@@ -10674,6 +10836,13 @@ function bindEvents() {
     });
   });
   qs("#view-results")?.addEventListener("click", (event) => {
+    const clearApplicationFilters = event.target.closest("[data-application-clear-filters]");
+    if (clearApplicationFilters) {
+      applicationFilters = { progress: "all", deadline: "all", record: "all" };
+      qs("#tab-applications").innerHTML = renderApplicationAssistant();
+      if (window.lucide) window.lucide.createIcons();
+      return;
+    }
     const applicationToggle = event.target.closest("[data-application-toggle-saved]");
     if (applicationToggle) {
       applicationSavedOnly = !applicationSavedOnly;
@@ -10776,6 +10945,16 @@ function bindEvents() {
     }
   });
   qs("#view-results")?.addEventListener("change", (event) => {
+    const applicationFilter = event.target.closest("[data-application-filter]");
+    if (applicationFilter) {
+      const filterName = applicationFilter.dataset.applicationFilter;
+      if (Object.prototype.hasOwnProperty.call(applicationFilters, filterName)) {
+        applicationFilters[filterName] = applicationFilter.value;
+        qs("#tab-applications").innerHTML = renderApplicationAssistant();
+        if (window.lucide) window.lucide.createIcons();
+      }
+      return;
+    }
     const progressSelect = event.target.closest("[data-application-progress]");
     if (progressSelect) setApplicationProgress(progressSelect.dataset.applicationProgress, progressSelect.value);
   });

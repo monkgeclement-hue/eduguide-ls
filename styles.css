@@ -698,6 +698,25 @@ a {
   font-size: 13px;
 }
 
+.profile-sync-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin: 7px 0 0;
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.profile-sync-status svg {
+  flex: 0 0 auto;
+  width: 15px;
+  height: 15px;
+}
+
+.profile-sync-status[data-tone="success"] { color: var(--brand-deep); }
+.profile-sync-status[data-tone="warning"] { color: #936100; }
+
 .profile-actions { gap: 8px; flex-wrap: wrap; }
 .profile-actions .secondary-button {
   border-color: var(--line);
@@ -2589,6 +2608,56 @@ textarea:focus {
 .application-card h4 {
   margin: 0;
   color: var(--brand-deep);
+}
+
+.application-filter-bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: end;
+  gap: 8px;
+  margin-bottom: 12px;
+  padding: 10px 12px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--surface-soft);
+}
+
+.application-filter-bar label {
+  display: grid;
+  flex: 1 1 170px;
+  gap: 4px;
+  min-width: 150px;
+}
+
+.application-filter-bar label span {
+  color: var(--muted);
+  font-size: 10px;
+  font-weight: 900;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+}
+
+.application-filter-bar select {
+  min-height: 34px;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  background: var(--surface);
+  color: var(--ink);
+  font: inherit;
+  padding: 6px 30px 6px 9px;
+}
+
+.application-filter-bar .compact-action {
+  margin: 0;
+  white-space: nowrap;
+}
+
+.application-filter-bar > small {
+  flex: 1 1 220px;
+  align-self: center;
+  color: var(--muted);
+  font-size: 11px;
+  line-height: 1.35;
 }
 
 .application-progress-summary {

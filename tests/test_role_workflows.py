@@ -174,6 +174,30 @@ class RoleWorkflowTests(unittest.TestCase):
     self.assertIn("clearPendingProfileSync(userId, syncRevision)", app_script)
     self.assertIn("flushPendingProfileSync();", app_script)
 
+  def test_student_profile_explains_its_sync_status(self):
+    root = Path(__file__).resolve().parents[1]
+    index = (root / "index.html").read_text(encoding="utf-8")
+    app_script = (root / "app.js").read_text(encoding="utf-8")
+
+    self.assertIn('id="profile-sync-status"', index)
+    self.assertIn("function getProfileSyncPresentation", app_script)
+    self.assertIn("window.lucide.createIcons();", app_script)
+    self.assertIn("Profile saved to your account.", app_script)
+    self.assertIn("Reconnect or refresh to retry account sync.", app_script)
+
+  def test_application_planner_supports_progress_deadline_and_record_filters(self):
+    root = Path(__file__).resolve().parents[1]
+    app_script = (root / "app.js").read_text(encoding="utf-8")
+    styles = (root / "styles.css").read_text(encoding="utf-8")
+
+    self.assertIn('let applicationFilters = {', app_script)
+    self.assertIn("function matchesApplicationFilters", app_script)
+    self.assertIn('data-application-filter="progress"', app_script)
+    self.assertIn('data-application-filter="deadline"', app_script)
+    self.assertIn('data-application-filter="record"', app_script)
+    self.assertIn("data-application-clear-filters", app_script)
+    self.assertIn(".application-filter-bar", styles)
+
   def test_historical_reference_documents_are_allowlisted(self):
     response = server.public_reference_document("che-list-of-accredited-programmes-december-2017.pdf")
     self.assertTrue(str(response.path).endswith("che-list-of-accredited-programmes-december-2017.pdf"))
