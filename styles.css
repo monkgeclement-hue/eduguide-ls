@@ -564,6 +564,40 @@ a {
   margin-bottom: 20px;
 }
 
+.app-network-status {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  max-width: 780px;
+  margin: -6px 0 18px;
+  padding: 10px 12px;
+  border: 1px solid var(--line);
+  border-left: 3px solid var(--brand);
+  border-radius: 6px;
+  background: var(--surface-soft);
+  color: var(--ink);
+  font-size: 13px;
+  font-weight: 700;
+  line-height: 1.4;
+}
+
+.app-network-status svg {
+  flex: 0 0 auto;
+  width: 17px;
+  height: 17px;
+  margin-top: 1px;
+}
+
+.app-network-status[data-tone="warning"] {
+  border-left-color: #b67800;
+  color: #795000;
+}
+
+.app-network-status[data-tone="success"] {
+  border-left-color: var(--brand);
+  color: var(--brand-deep);
+}
+
 .topbar h1 {
   margin: 3px 0 0;
   font-family: "Playfair Display", Georgia, serif;
@@ -2658,6 +2692,34 @@ textarea:focus {
   color: var(--muted);
   font-size: 11px;
   line-height: 1.35;
+}
+
+.application-filter-context {
+  display: grid;
+  gap: 3px;
+  margin-top: 10px;
+  padding: 9px 10px;
+  border-left: 3px solid var(--brand);
+  background: var(--surface);
+}
+
+.application-filter-context span {
+  color: var(--muted);
+  font-size: 11px;
+  line-height: 1.35;
+}
+
+.application-filter-context strong {
+  color: var(--brand-deep);
+  font-size: 11px;
+  text-transform: uppercase;
+}
+
+.application-filter-context p {
+  margin: 0;
+  color: var(--ink);
+  font-size: 12px;
+  line-height: 1.4;
 }
 
 .application-progress-summary {
@@ -5839,8 +5901,23 @@ textarea:focus {
   }
 
   .profile-identity-panel { align-items: flex-start; flex-direction: column; }
-  .profile-actions { width: 100%; }
-  .profile-actions button { flex: 1; min-width: 0; }
+  .profile-actions {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    width: 100%;
+  }
+  .profile-actions button {
+    width: 100%;
+    min-width: 0;
+    min-height: 48px;
+    padding: 8px 10px;
+    line-height: 1.2;
+    white-space: normal;
+    overflow-wrap: anywhere;
+  }
+  .profile-actions .primary-button.small { min-height: 48px; }
+  .profile-actions .primary-button,
+  #profile-logout-button { grid-column: 1 / -1; }
   .student-counsellor-access-card { flex-direction: column; }
   .student-counsellor-access-actions { width: 100%; }
   .profile-stats-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }

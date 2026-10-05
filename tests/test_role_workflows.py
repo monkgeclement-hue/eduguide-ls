@@ -192,11 +192,27 @@ class RoleWorkflowTests(unittest.TestCase):
 
     self.assertIn('let applicationFilters = {', app_script)
     self.assertIn("function matchesApplicationFilters", app_script)
+    self.assertIn("function getApplicationPlannerNextAction", app_script)
+    self.assertIn("function renderApplicationPlannerContext", app_script)
     self.assertIn('data-application-filter="progress"', app_script)
     self.assertIn('data-application-filter="deadline"', app_script)
     self.assertIn('data-application-filter="record"', app_script)
     self.assertIn("data-application-clear-filters", app_script)
+    self.assertIn(".application-filter-context", styles)
     self.assertIn(".application-filter-bar", styles)
+
+  def test_fee_evidence_does_not_treat_another_programmes_tuition_as_available(self):
+    root = Path(__file__).resolve().parents[1]
+    app_script = (root / "app.js").read_text(encoding="utf-8")
+
+    self.assertIn("function getInstitutionWideFeeItems", app_script)
+    self.assertIn("function hasProgrammeFeeEvidence", app_script)
+    self.assertIn("getInstitutionWideFeeItems(programme.institution)", app_script)
+    self.assertIn('status: hasProgrammeFeeEvidence(programme) ? "resolved" : "open"', app_script)
+    self.assertIn("No programme-specific or institution-wide application fee captured yet.", app_script)
+    self.assertIn("const programmeFeeItems = getProgrammeFeeMatches(programme, 20);", app_script)
+    self.assertIn(".filter((programme) => !hasProgrammeFeeEvidence(programme))", app_script)
+    self.assertNotIn("return renderInstitutionFeeSummary(programme.institution", app_script)
 
   def test_historical_reference_documents_are_allowlisted(self):
     response = server.public_reference_document("che-list-of-accredited-programmes-december-2017.pdf")
@@ -233,6 +249,12 @@ class RoleWorkflowTests(unittest.TestCase):
     self.assertIn("function getProgrammeApprovalBlocker", app_script)
     self.assertIn("Historical CHE candidate", app_script)
     self.assertIn("historical_candidates", app_script)
+
+  def test_requirements_helper_does_not_invent_placeholder_lines(self):
+    app_script = (Path(__file__).resolve().parents[1] / "app.js").read_text(encoding="utf-8")
+    helper = app_script.split("function getRequirementsForProgramme", 1)[1][:800]
+    self.assertIn("return [];", helper)
+    self.assertNotIn("requirement needs admin confirmation", app_script)
 
   def test_browser_has_no_direct_supabase_write_path(self):
     root = Path(__file__).resolve().parents[1]
@@ -365,6 +387,15 @@ class RoleWorkflowTests(unittest.TestCase):
     self.assertIn("function getProgrammeApplicationDetails", app_script)
     self.assertIn("Needs application details", app_script)
     self.assertIn("confirmedCategories.has(item.category)", app_script)
+
+  def test_unclassified_deadline_text_is_not_presented_as_verified(self):
+    app_script = (Path(__file__).resolve().parents[1] / "app.js").read_text(encoding="utf-8")
+    deadline_helper = app_script.split("function normalizeDeadlineStatus", 1)[1].split("function getApplicationDeadlineSummary", 1)[0]
+
+    self.assertIn('label: "Status needs verification"', deadline_helper)
+    self.assertIn('tone: "amber"', deadline_helper)
+    self.assertIn("isVerified: false", deadline_helper)
+    self.assertNotIn('label: "Deadline/status captured"', deadline_helper)
 
   def test_programme_apply_link_is_prioritised_over_a_general_institution_link(self):
     app_script = (Path(__file__).resolve().parents[1] / "app.js").read_text(encoding="utf-8")

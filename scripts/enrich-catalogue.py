@@ -79,6 +79,11 @@ SKILL_RULES: list[tuple[tuple[str, ...], list[str]]] = [
 
 
 def infer_careers(record: dict[str, Any]) -> list[str]:
+    programme_name = str(record.get("name") or "").lower()
+    if "events management" in programme_name:
+        return ["Events Coordinator", "Events Planner", "Venue Coordinator", "Hospitality Supervisor"]
+    if "information technology" in programme_name and "business information technology" not in programme_name:
+        return ["IT Support Specialist", "Systems Administrator", "Network Administrator", "Database Administrator"]
     haystack = text(record)
     for keywords, careers in SPECIFIC_CAREER_RULES:
         if any(keyword in haystack for keyword in keywords):

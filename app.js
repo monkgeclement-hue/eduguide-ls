@@ -294,6 +294,8 @@ let authToken = sessionStorage.getItem(authTokenKey) || null;
 let profileSyncTimer = null;
 let profileSyncRevision = 0;
 let profileSyncLastError = false;
+let networkRecoveryNotice = false;
+let networkRecoveryTimer = null;
 let authMode = "login";
 let authConnectionRequestId = 0;
 let pendingRegistration = null;
@@ -1954,6 +1956,7 @@ function updateUserShell() {
       demoSelect.appendChild(option);
     });
   }
+  renderAppNetworkStatus();
   if (!currentUser) return;
   const initials = getInitials(currentUser.name, currentUser.email);
   qs("#user-avatar").textContent = initials;
@@ -1966,6 +1969,51 @@ function updateUserShell() {
   if (currentUser.incomeBand) qs("#income-band").value = currentUser.incomeBand;
   setNeedSignalInputs(currentUser.needSignals || []);
   if (qs("#preference-text")) qs("#preference-text").value = currentUser.preferenceText || "";
+}
+
+function clearNetworkRecoveryNotice() {
+  networkRecoveryNotice = false;
+  if (networkRecoveryTimer) clearTimeout(networkRecoveryTimer);
+  networkRecoveryTimer = null;
+}
+
+function renderAppNetworkStatus({ reconnected = false } = {}) {
+  const root = qs("#app-network-status");
+  if (!root) return;
+  if (reconnected) {
+    clearNetworkRecoveryNotice();
+    networkRecoveryNotice = true;
+    networkRecoveryTimer = setTimeout(() => {
+      networkRecoveryNotice = false;
+      networkRecoveryTimer = null;
+      renderAppNetworkStatus();
+    }, 4800);
+  }
+  const offline = typeof navigator !== "undefined" && navigator.onLine === false;
+  const state = !currentUser
+    ? null
+    : offline
+      ? {
+          tone: "warning",
+          icon: "wifi-off",
+          label: "You are offline. You can keep viewing saved guidance; profile changes will sync when you reconnect."
+        }
+      : networkRecoveryNotice
+        ? {
+            tone: "success",
+            icon: "wifi",
+            label: "You are back online. Checking and syncing your latest saved changes."
+          }
+        : null;
+  root.hidden = !state;
+  if (!state) return;
+  root.dataset.tone = state.tone;
+  const icon = document.createElement("i");
+  icon.dataset.lucide = state.icon;
+  const label = document.createElement("span");
+  label.textContent = state.label;
+  root.replaceChildren(icon, label);
+  if (window.lucide) window.lucide.createIcons();
 }
 
 function setCurrentUser(user, preferredView = "student") {
@@ -2063,6 +2111,7 @@ function signOut() {
   }
   if (profileSyncTimer) clearTimeout(profileSyncTimer);
   profileSyncTimer = null;
+  clearNetworkRecoveryNotice();
   clearPendingProfileSync(signingOutUserId);
   currentUser = null;
   studentCounsellorAccess = { assignments: [], followups: [], loading: false, loaded: false, error: "" };
@@ -2308,6 +2357,28 @@ function getReviewStateSnapshot() {
   };
 }
 
+function loadStaffCatalogue() {
+  if (!authToken || (!isAdmin() && !isInstitutionAdmin())) return Promise.resolve();
+  return fetch("/api/admin/catalogue", { headers: getAuthHeaders({ Accept: "application/json" }) })
+    .then((response) => (response.ok ? response.json() : null))
+    .then((data) => {
+      const incoming = Array.isArray(data?.programmes) ? data.programmes : [];
+      const byId = new Map(adminProgrammes.map((programme) => [programme.id, programme]));
+      incoming.forEach((programme) => {
+        if (!programme?.id) return;
+        const existing = byId.get(programme.id);
+        if (existing) Object.assign(existing, programme);
+        else {
+          adminProgrammes.push(programme);
+          byId.set(programme.id, programme);
+        }
+      });
+    })
+    .catch((error) => {
+      lastPersistenceMessage = error.message || "Staff catalogue unavailable";
+    });
+}
+
 function applyReviewState(snapshot) {
   if (!snapshot) return false;
   applyCustomProgrammes(snapshot.customProgrammes || []);
@@ -2339,6 +2410,10 @@ async function loadServerDatabaseState() {
     if (!serverDatabaseAvailable) return;
     persistenceMode = data.database === "supabase" ? "server-supabase" : "server-db";
     lastPersistenceMessage = data.database === "supabase" ? "Supabase database ready" : "Server database ready";
+
+    if (isAdmin() || isInstitutionAdmin()) {
+      await loadStaffCatalogue();
+    }
 
     const users = data.state?.auth_users?.users;
     if (Array.isArray(users)) {
@@ -2634,7 +2709,7 @@ function getManualProgrammeGaps(programme) {
       id: `${gapBase}-fee`,
       type: "fee_missing",
       priority: "medium",
-      status: programme.supportingFeeSourcePath || programme.feeNote ? "resolved" : "open",
+      status: hasProgrammeFeeEvidence(programme) ? "resolved" : "open",
       institution: programme.institution,
       programmeId: programme.id,
       programmeName: programme.name,
@@ -2770,7 +2845,7 @@ async function saveProgrammeEdit(id) {
         autoResolvedGaps.push(gap);
       });
   }
-  if (programme.supportingFeeSourcePath || programme.feeNote) {
+  if (hasProgrammeFeeEvidence(programme)) {
     adminGaps
       .filter((gap) => gap.programmeId === programme.id && gap.type === "fee_missing" && gap.status === "open")
       .forEach((gap) => {
@@ -3782,11 +3857,11 @@ function normalizeDeadlineStatus(value) {
   }
 
   return {
-    label: "Deadline/status captured",
-    tone: "green",
+    label: "Status needs verification",
+    tone: "amber",
     detail: cleaned,
-    isVerified: true,
-    source: "captured status",
+    isVerified: false,
+    source: "unclassified programme status",
     priority: 4
   };
 }
@@ -4076,7 +4151,7 @@ function getRequirementsForProgramme(programme, subjects) {
   if (programme.requirements?.length) return programme.requirements;
   const fromSummary = splitRequirementSummary(programme.requirementsSummary);
   if (fromSummary.length) return fromSummary;
-  return subjects.slice(0, 3).map((code) => `${getSubjectLabel(code)} requirement needs admin confirmation`);
+  return [];
 }
 
 function requiresPriorQualification(programme) {
@@ -5783,24 +5858,43 @@ function renderApplicationGroup(group) {
   `;
 }
 
-function renderApplicationProgressSummary() {
-  const savedProgrammes = currentUser?.shortlist || [];
+function getUniqueApplicationProgrammes(programmes = []) {
+  const programmeMap = new Map();
+  programmes.forEach((programme) => {
+    if (programme?.id) programmeMap.set(programme.id, programme);
+  });
+  return Array.from(programmeMap.values());
+}
+
+function getSavedApplicationProgrammes(programmes = []) {
+  const savedIds = new Set(currentUser?.shortlist || []);
+  return getUniqueApplicationProgrammes(programmes).filter((programme) => savedIds.has(programme.id));
+}
+
+function renderApplicationProgressSummary(programmes = null) {
+  const availableProgrammes = Array.isArray(programmes)
+    ? getUniqueApplicationProgrammes(programmes)
+    : (currentUser?.shortlist || []).map((id) => findProgrammeById(id)).filter(Boolean);
+  const savedProgrammes = getSavedApplicationProgrammes(availableProgrammes);
   if (!savedProgrammes.length) return "";
   const progress = currentUser?.applicationProgress || {};
   const counts = Object.keys(applicationProgressLabels).map((key) => ({
     key,
     label: applicationProgressLabels[key],
-    count: savedProgrammes.filter((programmeId) => (progress[programmeId] || "researching") === key).length
+    count: savedProgrammes.filter((programme) => (progress[programme.id] || "researching") === key).length
   }));
   const records = currentUser?.applicationRecords || {};
-  const tracked = savedProgrammes.filter((programmeId) => records[programmeId]).length;
-  const submitted = savedProgrammes.filter((programmeId) => ["submitted", "under_review", "documents_requested"].includes(records[programmeId]?.status)).length;
-  const accepted = savedProgrammes.filter((programmeId) => records[programmeId]?.status === "accepted").length;
+  const tracked = savedProgrammes.filter((programme) => records[programme.id]).length;
+  const submitted = savedProgrammes.filter((programme) => ["submitted", "under_review", "documents_requested"].includes(records[programme.id]?.status)).length;
+  const accepted = savedProgrammes.filter((programme) => records[programme.id]?.status === "accepted").length;
   return `<div class="application-progress-summary" aria-label="Application plan progress">${counts.map((item) => `<span class="application-progress-${item.key}"><strong>${item.count}</strong>${escapeHtml(item.label)}</span>`).join("")}<span class="application-record-tracked"><strong>${tracked}</strong> records</span><span class="application-record-submitted"><strong>${submitted}</strong> submitted/review</span>${accepted ? `<span class="application-record-accepted"><strong>${accepted}</strong> accepted</span>` : ""}</div>`;
 }
 
-function renderApplicationDeadlineSummary() {
-  const saved = (currentUser?.shortlist || []).map((id) => findProgrammeById(id)).filter(Boolean);
+function renderApplicationDeadlineSummary(programmes = null) {
+  const availableProgrammes = Array.isArray(programmes)
+    ? getUniqueApplicationProgrammes(programmes)
+    : (currentUser?.shortlist || []).map((id) => findProgrammeById(id)).filter(Boolean);
+  const saved = getSavedApplicationProgrammes(availableProgrammes);
   if (!saved.length) return "";
   const counts = { overdue: 0, soon: 0, upcoming: 0, unknown: 0 };
   saved.forEach((programme) => {
@@ -5812,6 +5906,28 @@ function renderApplicationDeadlineSummary() {
     <span class="application-deadline-upcoming"><strong>${counts.upcoming}</strong> upcoming</span>
     <span class="application-deadline-unknown"><strong>${counts.unknown}</strong> untracked</span>
   </div>`;
+}
+
+function getApplicationPlannerNextAction(programmes = []) {
+  const visible = getUniqueApplicationProgrammes(programmes);
+  const saved = getSavedApplicationProgrammes(visible);
+  if (!visible.length) return applicationFiltersActive() ? "Clear a filter or broaden the matches to see the next application step." : "Run matches to prepare an application pack.";
+  if (!saved.length) return "Save a qualified or almost-qualified programme to track its application plan.";
+  const deadlines = saved.map((programme) => getApplicationDeadlineSummary([programme]));
+  if (deadlines.some((summary) => summary.urgency === "overdue")) return "Confirm any overdue deadline with the institution before submitting documents.";
+  if (deadlines.some((summary) => summary.urgency === "soon")) return "Prioritise documents and verify the source for a deadline due within 14 days.";
+  if (saved.some((programme) => !currentUser?.applicationRecords?.[programme.id])) return "Open an application record and capture the route, date, or institution response.";
+  if (saved.some((programme) => (currentUser?.applicationProgress?.[programme.id] || "researching") === "documents")) return "Finish the document checklist for programmes marked as preparing documents.";
+  if (saved.some((programme) => (currentUser?.applicationProgress?.[programme.id] || "researching") === "ready")) return "Open the official application route and confirm the latest requirements before submitting.";
+  return "Review the saved programme links and confirm the institution's latest requirements.";
+}
+
+function renderApplicationPlannerContext(programmes = []) {
+  const visible = getUniqueApplicationProgrammes(programmes);
+  const saved = getSavedApplicationProgrammes(visible);
+  const scope = applicationFiltersActive() ? "matching the active filters" : applicationSavedOnly ? "in your saved plan" : "in the current matches";
+  const savedText = saved.length ? ` ${saved.length} saved programme${saved.length === 1 ? "" : "s"} are included.` : "";
+  return `<div class="application-filter-context" aria-live="polite"><span>Showing ${visible.length} application pack${visible.length === 1 ? "" : "s"} ${scope}.${savedText}</span><strong>Next step</strong><p>${escapeHtml(getApplicationPlannerNextAction(visible))}</p></div>`;
 }
 
 function renderApplicationAssistant() {
@@ -5828,13 +5944,14 @@ function renderApplicationAssistant() {
     : applicationSavedOnly || applicationFiltersActive()
       ? []
       : getInstitutionMatchGroups().slice(0, 6);
+  const plannerProgrammes = getUniqueApplicationProgrammes(fallbackGroups.flatMap((group) => group.programmes));
   if ((applicationSavedOnly || applicationFiltersActive()) && !groups.length) {
     const filteredEmptyState = applicationFiltersActive()
       ? "No application packs match these filters. Clear a filter or broaden your matches to continue."
       : "Save qualified or almost-qualified programmes from the Programmes tab to build a focused plan here.";
     return `
       <div class="application-assistant-intro">
-        <div><p class="section-kicker">Application assistant</p><h4>${applicationFiltersActive() ? "Filtered application plan" : "Your saved application plan"}</h4><span>${filteredEmptyState}</span>${renderApplicationProgressSummary()}${renderApplicationDeadlineSummary()}</div>
+        <div><p class="section-kicker">Application assistant</p><h4>${applicationFiltersActive() ? "Filtered application plan" : "Your saved application plan"}</h4><span>${filteredEmptyState}</span>${renderApplicationProgressSummary(plannerProgrammes)}${renderApplicationDeadlineSummary(plannerProgrammes)}</div>
         ${applicationSavedOnly ? `<button class="secondary-action" type="button" data-application-toggle-saved>Show all matches</button>` : ""}
       </div>
       ${renderApplicationFilterBar()}
@@ -5855,8 +5972,9 @@ function renderApplicationAssistant() {
         <p class="section-kicker">Application assistant</p>
         <h4>Prepare before you apply</h4>
         <span>These packs use current matched institutions, uploaded documents, source links, and NMDS readiness. When a deadline is known, it is shown as verified; otherwise the app keeps the source-check warning.</span>
-        ${renderApplicationProgressSummary()}
-        ${renderApplicationDeadlineSummary()}
+        ${renderApplicationProgressSummary(plannerProgrammes)}
+        ${renderApplicationDeadlineSummary(plannerProgrammes)}
+        ${renderApplicationPlannerContext(plannerProgrammes)}
       </div>
       <div class="application-assistant-actions">
         <button class="secondary-action" type="button" data-application-toggle-saved>${applicationSavedOnly ? "Show all matches" : "Saved only"}</button>
@@ -6752,6 +6870,17 @@ function getInstitutionFeeSchedules(institution) {
   return adminFees.filter((schedule) => schedule.institution === institution);
 }
 
+function isUpfrontInstitutionFee(item = {}) {
+  const text = `${item.name || ""} ${item.type || ""} ${item.basis || ""}`;
+  return /application|admission|acceptance|registration|caution|tuition/i.test(text);
+}
+
+function getInstitutionWideFeeItems(institution) {
+  return getInstitutionFeeSchedules(institution)
+    .flatMap((schedule) => (schedule.items || []).map((item) => ({ ...item, schedule })))
+    .filter((item) => !item.programmeGroup && isUpfrontInstitutionFee(item));
+}
+
 function renderInstitutionFeeSummary(institution, limit = 5) {
   const schedules = getInstitutionFeeSchedules(institution);
   const feeItems = schedules.flatMap((schedule) => (schedule.items || []).map((item) => ({ ...item, schedule })));
@@ -6807,30 +6936,31 @@ function getProgrammeFeeMatches(programme, limit = 6) {
     .map((item) => ({ item, score: scoreFeeItemForProgramme(item, programme) }))
     .filter((entry) => entry.score > 0)
     .sort((a, b) => b.score - a.score || String(a.item.programmeGroup || "").localeCompare(String(b.item.programmeGroup || "")));
-  const directMatches = scored.filter((entry) => entry.score >= 4);
-  const fallback = scored.filter((entry) => /application|acceptance|registration|tuition/i.test(`${entry.item.name || ""} ${entry.item.type || ""}`));
-  const chosen = [...directMatches, ...fallback].filter((entry, index, rows) => {
-    const key = entry.item.id || `${entry.item.programmeGroup}-${entry.item.name}-${entry.item.studentCategory}-${entry.item.amount}`;
-    return rows.findIndex((row) => (row.item.id || `${row.item.programmeGroup}-${row.item.name}-${row.item.studentCategory}-${row.item.amount}`) === key) === index;
+  const directMatches = scored.filter((entry) => entry.score >= 4).map((entry) => entry.item);
+  const chosen = [...directMatches, ...getInstitutionWideFeeItems(programme.institution)].filter((item, index, rows) => {
+    const key = item.id || `${item.programmeGroup}-${item.name}-${item.studentCategory}-${item.amount}`;
+    return rows.findIndex((row) => (row.id || `${row.programmeGroup}-${row.name}-${row.studentCategory}-${row.amount}`) === key) === index;
   });
-  return chosen.slice(0, limit).map((entry) => entry.item);
+  return chosen.slice(0, limit);
+}
+
+function hasProgrammeFeeEvidence(programme) {
+  return Boolean(programme?.feeNote || programme?.supportingFeeSourcePath || getProgrammeFeeMatches(programme || {}, 1).length);
 }
 
 function renderProgrammeFeeSummary(programme, limit = 6) {
   const matchedFees = getProgrammeFeeMatches(programme, limit);
   const explicitNotes = unique([programme.feeNote, programme.supportingFeeSourcePath ? `Fee evidence: ${programme.supportingFeeSourcePath}` : ""].filter(Boolean));
-  if (!matchedFees.length && !explicitNotes.length) {
-    return renderInstitutionFeeSummary(programme.institution, Math.min(limit, 4));
-  }
   return `
     ${explicitNotes.length ? `<ul class="explorer-fee-list">${explicitNotes.map((note) => `<li><strong>Programme note</strong><span>${escapeHtml(note)}</span></li>`).join("")}</ul>` : ""}
     ${
       matchedFees.length
         ? `<ul class="explorer-fee-list">${matchedFees.map((item) => {
             const display = getExplorerFeeDisplay(item);
-            return `<li><strong>${escapeHtml(display.label)}</strong><span>${escapeHtml(display.amount)}${display.meta ? ` - ${escapeHtml(display.meta)}` : ""}</span></li>`;
+            const label = item.programmeGroup ? display.label : `Institution-wide - ${display.label}`;
+            return `<li><strong>${escapeHtml(label)}</strong><span>${escapeHtml(display.amount)}${display.meta ? ` - ${escapeHtml(display.meta)}` : ""}</span></li>`;
           }).join("")}</ul>`
-        : ""
+        : `<p class="muted-inline">No programme-specific or institution-wide application fee captured yet.</p>`
     }
     <p class="muted-inline">Use captured fees as estimates and confirm the latest official amount before payment.</p>
   `;
@@ -6932,8 +7062,8 @@ function getExplorerSearchMatches() {
   const programmes = getExplorerProgrammes().filter((programme) => {
     if (schoolExplorerState.institutionFilter !== "all" && programme.institution !== schoolExplorerState.institutionFilter) return false;
     if (schoolExplorerState.levelFilter !== "all" && programme.level !== schoolExplorerState.levelFilter) return false;
-    if (schoolExplorerState.feeFilter === "available" && !getProgrammeFeeMatches(programme, 1).length && !programme.feeNote) return false;
-    if (schoolExplorerState.feeFilter === "missing" && (getProgrammeFeeMatches(programme, 1).length || programme.feeNote)) return false;
+    if (schoolExplorerState.feeFilter === "available" && !hasProgrammeFeeEvidence(programme)) return false;
+    if (schoolExplorerState.feeFilter === "missing" && hasProgrammeFeeEvidence(programme)) return false;
     if (schoolExplorerState.fitFilter !== "all") {
       const matchingProgramme = getMatchingProgrammeFromAdmin(programme);
       const fit = getCourseFitSummary(matchingProgramme);
@@ -8200,7 +8330,7 @@ function getAdminIntelligence() {
   const missingWarnings = [
     ...adminGaps.filter((gap) => gap.status === "open").slice(0, 4).map((gap) => `${gap.institution}: ${gap.title}`),
     ...adminProgrammes
-      .filter((programme) => !programme.feeNote && !programme.supportingFeeSourcePath)
+      .filter((programme) => !hasProgrammeFeeEvidence(programme))
       .slice(0, 3)
       .map((programme) => `${programme.institution}: fee evidence missing for ${programme.name}`),
     ...adminProgrammes
@@ -8972,7 +9102,7 @@ function getProgrammeQualityChecks(programme) {
     {
       key: "fees",
       label: "Fees",
-      ready: Boolean(programme.feeNote || programme.supportingFeeSourcePath || getInstitutionFeeSchedules(programme.institution).length),
+      ready: hasProgrammeFeeEvidence(programme),
       issue: "Missing fee evidence"
     },
     {
@@ -9027,7 +9157,7 @@ function getAdminQualityFilterOptions() {
     { key: "historical_candidates", label: "Historical candidates", count: count(isHistoricalCatalogueCandidate) },
     { key: "missing_requirements", label: "Missing requirements", count: count((programme) => !programme.requirementsSummary) },
     { key: "missing_duration", label: "Missing duration", count: count((programme) => !programme.duration) },
-    { key: "missing_fees", label: "Missing fees", count: count((programme) => !(programme.feeNote || programme.supportingFeeSourcePath || getInstitutionFeeSchedules(programme.institution).length)) },
+    { key: "missing_fees", label: "Missing fees", count: count((programme) => !hasProgrammeFeeEvidence(programme)) },
     { key: "missing_application", label: "Missing application info", count: count((programme) => !(programme.applicationUrl || programme.applicationDeadline || programme.intakeStatus)) },
     { key: "missing_source", label: "Missing source", count: count((programme) => !(programme.sourceUrl || programme.supportingSourcePath || programme.sourcePath)) },
     { key: "open_gaps", label: "Open gaps", count: count((programme) => getProgrammeQualityChecks(programme).openGaps.length > 0) },
@@ -9109,13 +9239,13 @@ function getDerivedAdminSources() {
         "programme record",
         programme.requirementsSummary ? "requirements" : null,
         programme.duration ? "duration" : null,
-        programme.feeNote || programme.supportingFeeSourcePath ? "fee note/evidence" : null,
+        hasProgrammeFeeEvidence(programme) ? "fee note/evidence" : null,
         programme.applicationUrl || programme.applicationDeadline || programme.intakeStatus ? "application route/status" : null
       ].filter(Boolean),
       shortage: [
         programme.requirementsSummary ? null : "requirements missing",
         programme.duration ? null : "duration missing",
-        programme.feeNote || programme.supportingFeeSourcePath ? null : "fee evidence missing",
+        hasProgrammeFeeEvidence(programme) ? null : "fee evidence missing",
         programme.sourceUrl || programme.supportingSourcePath ? null : "official source missing",
         programme.applicationUrl || programme.applicationDeadline || programme.intakeStatus ? null : "application route/status missing"
       ].filter(Boolean),
@@ -9931,7 +10061,13 @@ function renderAdminDetail() {
     return;
   }
   const gaps = adminGaps.filter((gap) => gap.programmeId === programme.id && gap.status !== "resolved");
-  const feeSchedules = adminFees.filter((schedule) => schedule.institution === programme.institution);
+  const programmeFeeItems = getProgrammeFeeMatches(programme, 20);
+  const programmeFeeSchedules = Array.from(new Map(
+    programmeFeeItems
+      .map((item) => item.schedule)
+      .filter(Boolean)
+      .map((schedule) => [schedule.id || schedule.title, schedule])
+  ).values());
   const sourceLabel = programme.sourceUrl || programme.sourcePath || programme.supportingSourcePath || "Source not linked";
   const evidenceItems = [
     programme.sourceUrl,
@@ -10136,13 +10272,22 @@ function renderAdminDetail() {
         }
       </div>
       <div class="detail-section">
-        <h4>Institution fees</h4>
+        <h4>Fee evidence</h4>
         ${
-          feeSchedules.length
-            ? feeSchedules
-                .map((schedule) => `<p>${escapeHtml(schedule.title)}: ${schedule.items.length} item(s)</p>`)
+          programmeFeeItems.length
+            ? `<ul class="detail-list evidence-list">${programmeFeeItems.map((item) => {
+                const display = getExplorerFeeDisplay(item);
+                const label = item.programmeGroup ? display.label : `Institution-wide - ${display.label}`;
+                return `<li>${escapeHtml(label)}: ${escapeHtml(display.amount)}${display.meta ? ` - ${escapeHtml(display.meta)}` : ""}</li>`;
+              }).join("")}</ul>`
+            : `<p>No programme-specific or institution-wide application fee captured yet.</p>`
+        }
+        ${
+          programmeFeeSchedules.length
+            ? programmeFeeSchedules
+                .map((schedule) => `<p><strong>${escapeHtml(schedule.title)}</strong> - ${escapeHtml(formatStatus(schedule.reviewStatus || "needs_admin_review"))}${schedule.academicYear ? ` - ${escapeHtml(schedule.academicYear)}` : " - academic year not captured"}</p>`)
                 .join("")
-            : `<p>No fee schedule linked yet.</p>`
+            : ""
         }
         ${programme.feeNote ? `<p class="gap-pill">${escapeHtml(programme.feeNote)}</p>` : ""}
       </div>
@@ -10592,10 +10737,13 @@ function bindEvents() {
     refreshAuthConnectionStatus();
     flushPendingProfileSync();
     renderProfileSyncStatus();
+    renderAppNetworkStatus({ reconnected: true });
   });
   window.addEventListener("offline", () => {
+    clearNetworkRecoveryNotice();
     refreshAuthConnectionStatus();
     renderProfileSyncStatus();
+    renderAppNetworkStatus();
   });
   qsa("[data-auth-mode]").forEach((button) => {
     button.addEventListener("click", () => setAuthMode(button.dataset.authMode));

@@ -29,3 +29,37 @@ test('document percentage measures checklist coverage, with zero for an empty ch
   assert.equal(load('getDocumentReadinessScore', { getFundingDocumentChecklist: () => [{complete:true},{complete:false}] })(), 50);
   assert.equal(load('getDocumentReadinessScore', { getFundingDocumentChecklist: () => [] })(), 0);
 });
+test('only upfront unscoped charges are institution-wide fee evidence', () => {
+  const isUpfrontInstitutionFee = load('isUpfrontInstitutionFee');
+  const getInstitutionWideFeeItems = load('getInstitutionWideFeeItems', {
+    getInstitutionFeeSchedules: () => [{
+      items: [
+        { name: 'Application fee' },
+        { name: 'Transcript' },
+        { programmeGroup: 'Diploma in Other Studies', name: 'Tuition' }
+      ]
+    }],
+    isUpfrontInstitutionFee
+  });
+  assert.deepEqual(
+    getInstitutionWideFeeItems('Example University').map((item) => item.name),
+    ['Application fee']
+  );
+});
+test('programme fee evidence requires a matched charge or its own supporting note', () => {
+  const withoutMatches = load('hasProgrammeFeeEvidence', { getProgrammeFeeMatches: () => [] });
+  const withMatches = load('hasProgrammeFeeEvidence', { getProgrammeFeeMatches: () => [{ name: 'Tuition' }] });
+  assert.equal(withoutMatches({ institution: 'Example University' }), false);
+  assert.equal(withoutMatches({ feeNote: 'Confirm with the institution.' }), true);
+  assert.equal(withMatches({ institution: 'Example University' }), true);
+});
+test('unclassified application status is never promoted to a verified deadline', () => {
+  const normalizeDeadlineStatus = load('normalizeDeadlineStatus');
+  const plainStatus = normalizeDeadlineStatus('Admissions information has been captured.');
+  const datedStatus = normalizeDeadlineStatus('Applications close 30 November 2026.');
+  assert.equal(plainStatus.label, 'Status needs verification');
+  assert.equal(plainStatus.tone, 'amber');
+  assert.equal(plainStatus.isVerified, false);
+  assert.equal(datedStatus.label, 'Verified deadline');
+  assert.equal(datedStatus.isVerified, true);
+});

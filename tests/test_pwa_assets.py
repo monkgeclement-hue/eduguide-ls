@@ -54,6 +54,25 @@ class PwaAssetTests(unittest.TestCase):
     self.assertIn("flex: 0 0 86px;", phone_styles)
     self.assertIn("Swipe sideways on a phone to see more options.", index_html)
 
+  def test_phone_profile_actions_do_not_squeeze_labels(self):
+    styles = (PROJECT_ROOT / "styles.css").read_text(encoding="utf-8")
+    phone_styles = styles.split("@media (max-width: 760px)", 1)[1]
+
+    self.assertIn(".profile-actions {\n    display: grid;", phone_styles)
+    self.assertIn("grid-template-columns: repeat(2, minmax(0, 1fr));", phone_styles)
+    self.assertIn(".profile-actions .primary-button,\n  #profile-logout-button { grid-column: 1 / -1; }", phone_styles)
+
+  def test_signed_in_shell_explains_offline_and_reconnect_sync(self):
+    app_bundle = (PROJECT_ROOT / "app.js").read_text(encoding="utf-8")
+    styles = (PROJECT_ROOT / "styles.css").read_text(encoding="utf-8")
+
+    self.assertIn('id="app-network-status"', self.index_html)
+    self.assertIn("function renderAppNetworkStatus", app_bundle)
+    self.assertIn("You are offline. You can keep viewing saved guidance", app_bundle)
+    self.assertIn("You are back online. Checking and syncing", app_bundle)
+    self.assertIn('renderAppNetworkStatus({ reconnected: true })', app_bundle)
+    self.assertIn(".app-network-status", styles)
+
 
 if __name__ == "__main__":
   unittest.main()

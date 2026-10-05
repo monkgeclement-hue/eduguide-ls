@@ -1,11 +1,11 @@
 window.EDUGUIDE_ADMIN_DATA = {
   "summary": {
-    "programmeCount": 262,
-    "institutionCount": 17,
+    "programmeCount": 230,
+    "institutionCount": 10,
     "sourceCount": 28,
-    "feeScheduleCount": 6,
-    "feeItemCount": 283,
-    "openGapCount": 150
+    "feeScheduleCount": 9,
+    "feeItemCount": 306,
+    "openGapCount": 90
   },
   "institutions": [
     {
@@ -19,16 +19,6 @@ window.EDUGUIDE_ADMIN_DATA = {
       "reviewStatus": "verified"
     },
     {
-      "name": "Imperial Business College",
-      "programmeCount": 2,
-      "reviewStatus": "needs_review"
-    },
-    {
-      "name": "Institute of Development Management",
-      "programmeCount": 11,
-      "reviewStatus": "verified"
-    },
-    {
       "name": "Lerotholi Polytechnic",
       "programmeCount": 22,
       "reviewStatus": "verified"
@@ -39,19 +29,9 @@ window.EDUGUIDE_ADMIN_DATA = {
       "reviewStatus": "verified"
     },
     {
-      "name": "Lesotho Boston Health Alliance (LeBoHA)",
-      "programmeCount": 1,
-      "reviewStatus": "verified"
-    },
-    {
       "name": "Lesotho College of Education",
       "programmeCount": 6,
       "reviewStatus": "needs_review"
-    },
-    {
-      "name": "Lesotho Institute of Public Administration and Management",
-      "programmeCount": 2,
-      "reviewStatus": "verified"
     },
     {
       "name": "Limkokwing University Lesotho",
@@ -59,18 +39,8 @@ window.EDUGUIDE_ADMIN_DATA = {
       "reviewStatus": "verified"
     },
     {
-      "name": "Maluti Adventist College",
-      "programmeCount": 2,
-      "reviewStatus": "verified"
-    },
-    {
       "name": "NUL Institute of Extra Mural Studies (IEMS)",
       "programmeCount": 7,
-      "reviewStatus": "verified"
-    },
-    {
-      "name": "National Health Training College",
-      "programmeCount": 11,
       "reviewStatus": "verified"
     },
     {
@@ -86,11 +56,6 @@ window.EDUGUIDE_ADMIN_DATA = {
     {
       "name": "Roma College of Nursing",
       "programmeCount": 2,
-      "reviewStatus": "verified"
-    },
-    {
-      "name": "Scott Hospital School of Nursing",
-      "programmeCount": 3,
       "reviewStatus": "verified"
     }
   ],
@@ -120,14 +85,12 @@ window.EDUGUIDE_ADMIN_DATA = {
         "Retail planning"
       ],
       "sourceUrl": "https://www.portal.co.ls/apply/courses",
-      "sourcePath": null,
-      "supportingSourcePath": null,
-      "supportingFeeSourcePath": null,
       "feeNote": null,
       "sourceType": "official_course_portal",
-      "extractionMethod": "html_course_cards",
       "reviewStatus": "approved",
-      "sourceNote": "Career and skill mappings are guidance suggestions, not verified curriculum outcomes."
+      "sourceNote": "Career and skill mappings are guidance suggestions, not verified curriculum outcomes.",
+      "mappingStatus": "suggested",
+      "durationStatus": null
     },
     {
       "id": "limkokwing-university-lesotho-bachelor-of-architectural-studies",
@@ -154,14 +117,12 @@ window.EDUGUIDE_ADMIN_DATA = {
         "Project coordination"
       ],
       "sourceUrl": "https://www.portal.co.ls/apply/courses",
-      "sourcePath": null,
-      "supportingSourcePath": null,
-      "supportingFeeSourcePath": null,
       "feeNote": null,
       "sourceType": "official_course_portal",
-      "extractionMethod": "html_course_cards",
       "reviewStatus": "approved",
-      "sourceNote": "Auto-enriched from repository evidence and institution rules."
+      "sourceNote": "Auto-enriched from repository evidence and institution rules.",
+      "mappingStatus": "suggested",
+      "durationStatus": null
     },
     {
       "id": "limkokwing-university-lesotho-ba-in-broadcasting-journalism",
@@ -188,14 +149,12 @@ window.EDUGUIDE_ADMIN_DATA = {
         "Public communication"
       ],
       "sourceUrl": "https://www.portal.co.ls/apply/courses",
-      "sourcePath": null,
-      "supportingSourcePath": null,
-      "supportingFeeSourcePath": null,
       "feeNote": null,
       "sourceType": "official_course_portal",
-      "extractionMethod": "html_course_cards",
       "reviewStatus": "approved",
-      "sourceNote": "Auto-enriched from repository evidence and institution rules."
+      "sourceNote": "Auto-enriched from repository evidence and institution rules.",
+      "mappingStatus": "suggested",
+      "durationStatus": null
     },
     {
       "id": "limkokwing-university-lesotho-ba-in-digital-film",
@@ -222,14 +181,12 @@ window.EDUGUIDE_ADMIN_DATA = {
         "Public communication"
       ],
       "sourceUrl": "https://www.portal.co.ls/apply/courses",
-      "sourcePath": null,
-      "supportingSourcePath": null,
-      "supportingFeeSourcePath": null,
       "feeNote": null,
       "sourceType": "official_course_portal",
-      "extractionMethod": "html_course_cards",
       "reviewStatus": "approved",
-      "sourceNote": "Auto-enriched from repository evidence and institution rules."
+      "sourceNote": "Auto-enriched from repository evidence and institution rules.",
+      "mappingStatus": "suggested",
+      "durationStatus": null
     },
     {
       "id": "limkokwing-university-lesotho-b-bus-in-entrepreneurship",
@@ -256,14 +213,12 @@ window.EDUGUIDE_ADMIN_DATA = {
         "Business communication"
       ],
       "sourceUrl": "https://www.portal.co.ls/apply/courses",
-      "sourcePath": null,
-      "supportingSourcePath": null,
-      "supportingFeeSourcePath": null,
       "feeNote": null,
       "sourceType": "official_course_portal",
-      "extractionMethod": "html_course_cards",
       "reviewStatus": "approved",
-      "sourceNote": "Auto-enriched from repository evidence and institution rules."
+      "sourceNote": "Auto-enriched from repository evidence and institution rules.",
+      "mappingStatus": "suggested",
+      "durationStatus": null
     },
     {
       "id": "limkokwing-university-lesotho-ba-in-human-resource-management",
@@ -290,14 +245,12 @@ window.EDUGUIDE_ADMIN_DATA = {
         "Business communication"
       ],
       "sourceUrl": "https://www.portal.co.ls/apply/courses",
-      "sourcePath": null,
-      "supportingSourcePath": null,
-      "supportingFeeSourcePath": null,
       "feeNote": null,
       "sourceType": "official_course_portal",
-      "extractionMethod": "html_course_cards",
       "reviewStatus": "approved",
-      "sourceNote": "Auto-enriched from repository evidence and institution rules."
+      "sourceNote": "Auto-enriched from repository evidence and institution rules.",
+      "mappingStatus": "suggested",
+      "durationStatus": null
     },
     {
       "id": "limkokwing-university-lesotho-b-bus-in-international-business",
@@ -324,14 +277,12 @@ window.EDUGUIDE_ADMIN_DATA = {
         "Business communication"
       ],
       "sourceUrl": "https://www.portal.co.ls/apply/courses",
-      "sourcePath": null,
-      "supportingSourcePath": null,
-      "supportingFeeSourcePath": null,
       "feeNote": null,
       "sourceType": "official_course_portal",
-      "extractionMethod": "html_course_cards",
       "reviewStatus": "approved",
-      "sourceNote": "Auto-enriched from repository evidence and institution rules."
+      "sourceNote": "Auto-enriched from repository evidence and institution rules.",
+      "mappingStatus": "suggested",
+      "durationStatus": null
     },
     {
       "id": "limkokwing-university-lesotho-ba-in-professional-communication",
@@ -358,14 +309,12 @@ window.EDUGUIDE_ADMIN_DATA = {
         "Public communication"
       ],
       "sourceUrl": "https://www.portal.co.ls/apply/courses",
-      "sourcePath": null,
-      "supportingSourcePath": null,
-      "supportingFeeSourcePath": null,
       "feeNote": null,
       "sourceType": "official_course_portal",
-      "extractionMethod": "html_course_cards",
       "reviewStatus": "approved",
-      "sourceNote": "Auto-enriched from repository evidence and institution rules."
+      "sourceNote": "Auto-enriched from repository evidence and institution rules.",
+      "mappingStatus": "suggested",
+      "durationStatus": null
     },
     {
       "id": "limkokwing-university-lesotho-bsc-in-business-information-technology",
@@ -392,14 +341,12 @@ window.EDUGUIDE_ADMIN_DATA = {
         "Database management"
       ],
       "sourceUrl": "https://www.portal.co.ls/apply/courses",
-      "sourcePath": null,
-      "supportingSourcePath": null,
-      "supportingFeeSourcePath": null,
       "feeNote": null,
       "sourceType": "official_course_portal",
-      "extractionMethod": "html_course_cards",
       "reviewStatus": "approved",
-      "sourceNote": "Auto-enriched from repository evidence and institution rules."
+      "sourceNote": "Auto-enriched from repository evidence and institution rules.",
+      "mappingStatus": "suggested",
+      "durationStatus": null
     },
     {
       "id": "limkokwing-university-lesotho-bsc-in-information-technology",
@@ -414,10 +361,10 @@ window.EDUGUIDE_ADMIN_DATA = {
       "overview": null,
       "requirementsSummary": "You must pass at least 4 subjects with a grade of C or better and 2 subjects with a grade of D or better",
       "careers": [
-        "Journalist",
-        "Broadcast Producer",
-        "Content Producer",
-        "Public Relations Officer"
+        "IT Support Specialist",
+        "Systems Administrator",
+        "Network Administrator",
+        "Database Administrator"
       ],
       "skills": [
         "Systems administration",
@@ -426,14 +373,12 @@ window.EDUGUIDE_ADMIN_DATA = {
         "Database management"
       ],
       "sourceUrl": "https://www.portal.co.ls/apply/courses",
-      "sourcePath": null,
-      "supportingSourcePath": null,
-      "supportingFeeSourcePath": null,
       "feeNote": null,
       "sourceType": "official_course_portal",
-      "extractionMethod": "html_course_cards",
       "reviewStatus": "approved",
-      "sourceNote": "Auto-enriched from repository evidence and institution rules."
+      "sourceNote": "Career guidance suggestions are inferred from the programme title and skills; confirm graduate pathways with Limkokwing.",
+      "mappingStatus": "suggested",
+      "durationStatus": null
     },
     {
       "id": "limkokwing-university-lesotho-bsc-in-software-engineering-with-multimedia",
@@ -460,14 +405,12 @@ window.EDUGUIDE_ADMIN_DATA = {
         "Quality assurance"
       ],
       "sourceUrl": "https://www.portal.co.ls/apply/courses",
-      "sourcePath": null,
-      "supportingSourcePath": null,
-      "supportingFeeSourcePath": null,
       "feeNote": null,
       "sourceType": "official_course_portal",
-      "extractionMethod": "html_course_cards",
       "reviewStatus": "approved",
-      "sourceNote": "Auto-enriched from repository evidence and institution rules."
+      "sourceNote": "Auto-enriched from repository evidence and institution rules.",
+      "mappingStatus": "suggested",
+      "durationStatus": null
     },
     {
       "id": "limkokwing-university-lesotho-ba-in-tourism-management",
@@ -494,14 +437,12 @@ window.EDUGUIDE_ADMIN_DATA = {
         "Revenue management"
       ],
       "sourceUrl": "https://www.portal.co.ls/apply/courses",
-      "sourcePath": null,
-      "supportingSourcePath": null,
-      "supportingFeeSourcePath": null,
       "feeNote": null,
       "sourceType": "official_course_portal",
-      "extractionMethod": "html_course_cards",
       "reviewStatus": "approved",
-      "sourceNote": "Auto-enriched from repository evidence and institution rules."
+      "sourceNote": "Auto-enriched from repository evidence and institution rules.",
+      "mappingStatus": "suggested",
+      "durationStatus": null
     },
     {
       "id": "limkokwing-university-lesotho-diploma-in-architecture-technology",
@@ -528,14 +469,12 @@ window.EDUGUIDE_ADMIN_DATA = {
         "Safety compliance"
       ],
       "sourceUrl": "https://www.portal.co.ls/apply/courses",
-      "sourcePath": null,
-      "supportingSourcePath": null,
-      "supportingFeeSourcePath": null,
       "feeNote": null,
       "sourceType": "official_course_portal",
-      "extractionMethod": "html_course_cards",
       "reviewStatus": "approved",
-      "sourceNote": "Auto-enriched from repository evidence and institution rules."
+      "sourceNote": "Auto-enriched from repository evidence and institution rules.",
+      "mappingStatus": "suggested",
+      "durationStatus": null
     },
     {
       "id": "limkokwing-university-lesotho-diploma-in-business-information-technology",
@@ -562,14 +501,12 @@ window.EDUGUIDE_ADMIN_DATA = {
         "Database management"
       ],
       "sourceUrl": "https://www.portal.co.ls/apply/courses",
-      "sourcePath": null,
-      "supportingSourcePath": null,
-      "supportingFeeSourcePath": null,
       "feeNote": null,
       "sourceType": "official_course_portal",
-      "extractionMethod": "html_course_cards",
       "reviewStatus": "approved",
-      "sourceNote": "Auto-enriched from repository evidence and institution rules."
+      "sourceNote": "Auto-enriched from repository evidence and institution rules.",
+      "mappingStatus": "suggested",
+      "durationStatus": null
     },
     {
       "id": "limkokwing-university-lesotho-diploma-in-business-management",
@@ -596,14 +533,12 @@ window.EDUGUIDE_ADMIN_DATA = {
         "Business communication"
       ],
       "sourceUrl": "https://www.portal.co.ls/apply/courses",
-      "sourcePath": null,
-      "supportingSourcePath": null,
-      "supportingFeeSourcePath": null,
       "feeNote": null,
       "sourceType": "official_course_portal",
-      "extractionMethod": "html_course_cards",
       "reviewStatus": "approved",
-      "sourceNote": "Auto-enriched from repository evidence and institution rules."
+      "sourceNote": "Auto-enriched from repository evidence and institution rules.",
+      "mappingStatus": "suggested",
+      "durationStatus": null
     },
     {
       "id": "limkokwing-university-lesotho-diploma-in-broadcasting-radio-tv",
@@ -613,7 +548,7 @@ window.EDUGUIDE_ADMIN_DATA = {
       "category": "Creative Arts & Communication",
       "faculty": "Faculty of Film, Television & Broadcasting",
       "level": "Diploma",
-      "duration": "3 years with attachment",
+      "duration": "3 years",
       "deliveryMode": null,
       "overview": null,
       "requirementsSummary": "You must pass at least 3 subjects with a grade of C or better and 2 subjects with a grade of D or better",
@@ -630,14 +565,12 @@ window.EDUGUIDE_ADMIN_DATA = {
         "Public communication"
       ],
       "sourceUrl": "https://www.portal.co.ls/apply/courses?page=2",
-      "sourcePath": null,
-      "supportingSourcePath": null,
-      "supportingFeeSourcePath": null,
-      "feeNote": null,
+      "feeNote": "Semester tuition schedule captured from the Limkokwing course portal. The screenshot does not show an academic year; confirm the current amount with the institution before payment.",
       "sourceType": "official_course_portal",
-      "extractionMethod": "html_course_cards",
       "reviewStatus": "approved",
-      "sourceNote": "Auto-enriched from repository evidence and institution rules."
+      "sourceNote": "Auto-enriched from repository evidence and institution rules.",
+      "mappingStatus": "suggested",
+      "durationStatus": null
     },
     {
       "id": "limkokwing-university-lesotho-diploma-in-creative-advertising",
@@ -664,14 +597,12 @@ window.EDUGUIDE_ADMIN_DATA = {
         "Customer analytics"
       ],
       "sourceUrl": "https://www.portal.co.ls/apply/courses?page=2",
-      "sourcePath": null,
-      "supportingSourcePath": null,
-      "supportingFeeSourcePath": null,
       "feeNote": null,
       "sourceType": "official_course_portal",
-      "extractionMethod": "html_course_cards",
       "reviewStatus": "approved",
-      "sourceNote": "Auto-enriched from repository evidence and institution rules."
+      "sourceNote": "Auto-enriched from repository evidence and institution rules.",
+      "mappingStatus": "suggested",
+      "durationStatus": null
     },
     {
       "id": "limkokwing-university-lesotho-diploma-in-events-management",
@@ -681,15 +612,15 @@ window.EDUGUIDE_ADMIN_DATA = {
       "category": "Business & Commerce",
       "faculty": "Faculty of Creativity in Tourism & Hospitality",
       "level": "Diploma",
-      "duration": "3 years with attachment",
+      "duration": "3 years",
       "deliveryMode": null,
       "overview": null,
       "requirementsSummary": "You must pass at least 3 subjects with a grade of C or better and 2 subjects with a grade of D or better",
       "careers": [
-        "Business Analyst",
-        "Operations Manager",
-        "Business Development Officer",
-        "Entrepreneur"
+        "Events Coordinator",
+        "Events Planner",
+        "Venue Coordinator",
+        "Hospitality Supervisor"
       ],
       "skills": [
         "Guest services",
@@ -698,14 +629,12 @@ window.EDUGUIDE_ADMIN_DATA = {
         "Revenue management"
       ],
       "sourceUrl": "https://www.portal.co.ls/apply/courses?page=2",
-      "sourcePath": null,
-      "supportingSourcePath": null,
-      "supportingFeeSourcePath": null,
-      "feeNote": null,
+      "feeNote": "Semester tuition schedule captured from the Limkokwing course portal. The screenshot does not show an academic year; confirm the current amount with the institution before payment.",
       "sourceType": "official_course_portal",
-      "extractionMethod": "html_course_cards",
       "reviewStatus": "approved",
-      "sourceNote": "Auto-enriched from repository evidence and institution rules."
+      "sourceNote": "Career guidance suggestions are inferred from the programme title and skills; confirm graduate pathways with Limkokwing.",
+      "mappingStatus": "suggested",
+      "durationStatus": null
     },
     {
       "id": "limkokwing-university-lesotho-diploma-in-fashion-apparel-design",
@@ -732,14 +661,12 @@ window.EDUGUIDE_ADMIN_DATA = {
         "Public communication"
       ],
       "sourceUrl": "https://www.portal.co.ls/apply/courses?page=2",
-      "sourcePath": null,
-      "supportingSourcePath": null,
-      "supportingFeeSourcePath": null,
       "feeNote": null,
       "sourceType": "official_course_portal",
-      "extractionMethod": "html_course_cards",
       "reviewStatus": "approved",
-      "sourceNote": "Auto-enriched from repository evidence and institution rules."
+      "sourceNote": "Auto-enriched from repository evidence and institution rules.",
+      "mappingStatus": "suggested",
+      "durationStatus": null
     },
     {
       "id": "limkokwing-university-lesotho-diploma-in-film-production",
@@ -766,14 +693,12 @@ window.EDUGUIDE_ADMIN_DATA = {
         "Public communication"
       ],
       "sourceUrl": "https://www.portal.co.ls/apply/courses?page=2",
-      "sourcePath": null,
-      "supportingSourcePath": null,
-      "supportingFeeSourcePath": null,
       "feeNote": null,
       "sourceType": "official_course_portal",
-      "extractionMethod": "html_course_cards",
       "reviewStatus": "approved",
-      "sourceNote": "Auto-enriched from repository evidence and institution rules."
+      "sourceNote": "Auto-enriched from repository evidence and institution rules.",
+      "mappingStatus": "suggested",
+      "durationStatus": null
     },
     {
       "id": "limkokwing-university-lesotho-diploma-in-graphic-design",
@@ -800,14 +725,12 @@ window.EDUGUIDE_ADMIN_DATA = {
         "Public communication"
       ],
       "sourceUrl": "https://www.portal.co.ls/apply/courses?page=2",
-      "sourcePath": null,
-      "supportingSourcePath": null,
-      "supportingFeeSourcePath": null,
       "feeNote": null,
       "sourceType": "official_course_portal",
-      "extractionMethod": "html_course_cards",
       "reviewStatus": "approved",
-      "sourceNote": "Auto-enriched from repository evidence and institution rules."
+      "sourceNote": "Auto-enriched from repository evidence and institution rules.",
+      "mappingStatus": "suggested",
+      "durationStatus": null
     },
     {
       "id": "limkokwing-university-lesotho-diploma-in-hotel-management",
@@ -834,14 +757,12 @@ window.EDUGUIDE_ADMIN_DATA = {
         "Revenue management"
       ],
       "sourceUrl": "https://www.portal.co.ls/apply/courses?page=2",
-      "sourcePath": null,
-      "supportingSourcePath": null,
-      "supportingFeeSourcePath": null,
       "feeNote": null,
       "sourceType": "official_course_portal",
-      "extractionMethod": "html_course_cards",
       "reviewStatus": "approved",
-      "sourceNote": "Auto-enriched from repository evidence and institution rules."
+      "sourceNote": "Auto-enriched from repository evidence and institution rules.",
+      "mappingStatus": "suggested",
+      "durationStatus": null
     },
     {
       "id": "limkokwing-university-lesotho-diploma-in-information-technology",
@@ -851,15 +772,15 @@ window.EDUGUIDE_ADMIN_DATA = {
       "category": "Technology & ICT",
       "faculty": "Faculty of Information & Communication Technology",
       "level": "Diploma",
-      "duration": "3 years with attachment",
+      "duration": "4 years",
       "deliveryMode": null,
       "overview": null,
       "requirementsSummary": "You must pass at least 3 subjects with a grade of C or better and 2 subjects with a grade of D or better",
       "careers": [
-        "Journalist",
-        "Broadcast Producer",
-        "Content Producer",
-        "Public Relations Officer"
+        "IT Support Specialist",
+        "Systems Administrator",
+        "Network Administrator",
+        "Database Administrator"
       ],
       "skills": [
         "Systems administration",
@@ -868,14 +789,12 @@ window.EDUGUIDE_ADMIN_DATA = {
         "Database management"
       ],
       "sourceUrl": "https://www.portal.co.ls/apply/courses?page=2",
-      "sourcePath": null,
-      "supportingSourcePath": null,
-      "supportingFeeSourcePath": null,
-      "feeNote": null,
+      "feeNote": "Semester tuition schedule captured from the Limkokwing course portal. The screenshot does not show an academic year; confirm the current amount with the institution before payment.",
       "sourceType": "official_course_portal",
-      "extractionMethod": "html_course_cards",
       "reviewStatus": "approved",
-      "sourceNote": "Auto-enriched from repository evidence and institution rules."
+      "sourceNote": "Career guidance suggestions are inferred from the programme title and skills; confirm graduate pathways with Limkokwing.",
+      "mappingStatus": "suggested",
+      "durationStatus": null
     },
     {
       "id": "limkokwing-university-lesotho-diploma-in-journalism-media",
@@ -902,14 +821,12 @@ window.EDUGUIDE_ADMIN_DATA = {
         "Public communication"
       ],
       "sourceUrl": "https://www.portal.co.ls/apply/courses?page=2",
-      "sourcePath": null,
-      "supportingSourcePath": null,
-      "supportingFeeSourcePath": null,
       "feeNote": null,
       "sourceType": "official_course_portal",
-      "extractionMethod": "html_course_cards",
       "reviewStatus": "approved",
-      "sourceNote": "Auto-enriched from repository evidence and institution rules."
+      "sourceNote": "Auto-enriched from repository evidence and institution rules.",
+      "mappingStatus": "suggested",
+      "durationStatus": null
     },
     {
       "id": "limkokwing-university-lesotho-diploma-in-marketing",
@@ -936,14 +853,12 @@ window.EDUGUIDE_ADMIN_DATA = {
         "Business communication"
       ],
       "sourceUrl": "https://www.portal.co.ls/apply/courses?page=2",
-      "sourcePath": null,
-      "supportingSourcePath": null,
-      "supportingFeeSourcePath": null,
       "feeNote": null,
       "sourceType": "official_course_portal",
-      "extractionMethod": "html_course_cards",
       "reviewStatus": "approved",
-      "sourceNote": "Auto-enriched from repository evidence and institution rules."
+      "sourceNote": "Auto-enriched from repository evidence and institution rules.",
+      "mappingStatus": "suggested",
+      "durationStatus": null
     },
     {
       "id": "limkokwing-university-lesotho-diploma-in-multimedia-software-engineering",
@@ -970,14 +885,12 @@ window.EDUGUIDE_ADMIN_DATA = {
         "Quality assurance"
       ],
       "sourceUrl": "https://www.portal.co.ls/apply/courses?page=2",
-      "sourcePath": null,
-      "supportingSourcePath": null,
-      "supportingFeeSourcePath": null,
       "feeNote": null,
       "sourceType": "official_course_portal",
-      "extractionMethod": "html_course_cards",
       "reviewStatus": "approved",
-      "sourceNote": "Auto-enriched from repository evidence and institution rules."
+      "sourceNote": "Auto-enriched from repository evidence and institution rules.",
+      "mappingStatus": "suggested",
+      "durationStatus": null
     },
     {
       "id": "limkokwing-university-lesotho-diploma-in-public-relations",
@@ -1004,14 +917,12 @@ window.EDUGUIDE_ADMIN_DATA = {
         "Public communication"
       ],
       "sourceUrl": "https://www.portal.co.ls/apply/courses?page=2",
-      "sourcePath": null,
-      "supportingSourcePath": null,
-      "supportingFeeSourcePath": null,
       "feeNote": null,
       "sourceType": "official_course_portal",
-      "extractionMethod": "html_course_cards",
       "reviewStatus": "approved",
-      "sourceNote": "Auto-enriched from repository evidence and institution rules."
+      "sourceNote": "Auto-enriched from repository evidence and institution rules.",
+      "mappingStatus": "suggested",
+      "durationStatus": null
     },
     {
       "id": "limkokwing-university-lesotho-diploma-in-retail-management",
@@ -1038,14 +949,12 @@ window.EDUGUIDE_ADMIN_DATA = {
         "Business communication"
       ],
       "sourceUrl": "https://www.portal.co.ls/apply/courses?page=2",
-      "sourcePath": null,
-      "supportingSourcePath": null,
-      "supportingFeeSourcePath": null,
       "feeNote": null,
       "sourceType": "official_course_portal",
-      "extractionMethod": "html_course_cards",
       "reviewStatus": "approved",
-      "sourceNote": "Auto-enriched from repository evidence and institution rules."
+      "sourceNote": "Auto-enriched from repository evidence and institution rules.",
+      "mappingStatus": "suggested",
+      "durationStatus": null
     },
     {
       "id": "limkokwing-university-lesotho-diploma-in-tourism-management",
@@ -1072,14 +981,12 @@ window.EDUGUIDE_ADMIN_DATA = {
         "Revenue management"
       ],
       "sourceUrl": "https://www.portal.co.ls/apply/courses?page=2",
-      "sourcePath": null,
-      "supportingSourcePath": null,
-      "supportingFeeSourcePath": null,
       "feeNote": null,
       "sourceType": "official_course_portal",
-      "extractionMethod": "html_course_cards",
       "reviewStatus": "approved",
-      "sourceNote": "Auto-enriched from repository evidence and institution rules."
+      "sourceNote": "Auto-enriched from repository evidence and institution rules.",
+      "mappingStatus": "suggested",
+      "durationStatus": null
     },
     {
       "id": "botho-university-lesotho-bachelor-of-engineering-in-electronics-and-communication-engineering",
@@ -1106,14 +1013,12 @@ window.EDUGUIDE_ADMIN_DATA = {
         "Safety compliance"
       ],
       "sourceUrl": "https://www.bothouniversity.com/lesotho/programmes",
-      "sourcePath": null,
-      "supportingSourcePath": null,
-      "supportingFeeSourcePath": null,
       "feeNote": null,
       "sourceType": "official_js_bundle",
-      "extractionMethod": "javascript_programme_objects",
       "reviewStatus": "approved",
-      "sourceNote": "Auto-enriched from repository evidence and institution rules."
+      "sourceNote": "Auto-enriched from repository evidence and institution rules.",
+      "mappingStatus": "suggested",
+      "durationStatus": null
     },
     {
       "id": "botho-university-lesotho-bsc-in-network-security-and-computer-forensics",
@@ -1140,14 +1045,12 @@ window.EDUGUIDE_ADMIN_DATA = {
         "Incident response"
       ],
       "sourceUrl": "https://www.bothouniversity.com/lesotho/programmes",
-      "sourcePath": null,
-      "supportingSourcePath": null,
-      "supportingFeeSourcePath": null,
       "feeNote": null,
       "sourceType": "official_js_bundle",
-      "extractionMethod": "javascript_programme_objects",
       "reviewStatus": "approved",
-      "sourceNote": "Auto-enriched from repository evidence and institution rules."
+      "sourceNote": "Auto-enriched from repository evidence and institution rules.",
+      "mappingStatus": "suggested",
+      "durationStatus": null
     },
     {
       "id": "botho-university-lesotho-bachelor-of-science-in-cyber-security-and-risk-management",
@@ -1174,14 +1077,12 @@ window.EDUGUIDE_ADMIN_DATA = {
         "Incident response"
       ],
       "sourceUrl": "https://www.bothouniversity.com/lesotho/programmes",
-      "sourcePath": null,
-      "supportingSourcePath": null,
-      "supportingFeeSourcePath": null,
       "feeNote": null,
       "sourceType": "official_js_bundle",
-      "extractionMethod": "javascript_programme_objects",
       "reviewStatus": "approved",
-      "sourceNote": "Auto-enriched from repository evidence and institution rules."
+      "sourceNote": "Auto-enriched from repository evidence and institution rules.",
+      "mappingStatus": "suggested",
+      "durationStatus": null
     },
     {
       "id": "botho-university-lesotho-bachelor-of-science-in-data-science",
@@ -1208,14 +1109,12 @@ window.EDUGUIDE_ADMIN_DATA = {
         "Database querying"
       ],
       "sourceUrl": "https://www.bothouniversity.com/lesotho/programmes",
-      "sourcePath": null,
-      "supportingSourcePath": null,
-      "supportingFeeSourcePath": null,
       "feeNote": null,
       "sourceType": "official_js_bundle",
-      "extractionMethod": "javascript_programme_objects",
       "reviewStatus": "approved",
-      "sourceNote": "Auto-enriched from repository evidence and institution rules."
+      "sourceNote": "Auto-enriched from repository evidence and institution rules.",
+      "mappingStatus": "suggested",
+      "durationStatus": null
     },
     {
       "id": "botho-university-lesotho-bachelor-of-technology-in-software-engineering",
@@ -1242,14 +1141,12 @@ window.EDUGUIDE_ADMIN_DATA = {
         "Quality assurance"
       ],
       "sourceUrl": "https://www.bothouniversity.com/lesotho/programmes",
-      "sourcePath": null,
-      "supportingSourcePath": null,
-      "supportingFeeSourcePath": null,
       "feeNote": null,
       "sourceType": "official_js_bundle",
-      "extractionMethod": "javascript_programme_objects",
       "reviewStatus": "approved",
-      "sourceNote": "Auto-enriched from repository evidence and institution rules."
+      "sourceNote": "Auto-enriched from repository evidence and institution rules.",
+      "mappingStatus": "suggested",
+      "durationStatus": null
     },
     {
       "id": "botho-university-lesotho-bachelor-of-business-administration-in-business-management",
@@ -1276,14 +1173,12 @@ window.EDUGUIDE_ADMIN_DATA = {
         "Business communication"
       ],
       "sourceUrl": "https://www.bothouniversity.com/lesotho/programmes",
-      "sourcePath": null,
-      "supportingSourcePath": null,
-      "supportingFeeSourcePath": null,
       "feeNote": null,
       "sourceType": "official_js_bundle",
-      "extractionMethod": "javascript_programme_objects",
       "reviewStatus": "approved",
-      "sourceNote": "Auto-enriched from repository evidence and institution rules."
+      "sourceNote": "Auto-enriched from repository evidence and institution rules.",
+      "mappingStatus": "suggested",
+      "durationStatus": null
     },
     {
       "id": "botho-university-lesotho-bachelor-of-commerce-in-accounting",
@@ -1310,14 +1205,12 @@ window.EDUGUIDE_ADMIN_DATA = {
         "Bookkeeping"
       ],
       "sourceUrl": "https://www.bothouniversity.com/lesotho/programmes",
-      "sourcePath": null,
-      "supportingSourcePath": null,
-      "supportingFeeSourcePath": null,
       "feeNote": null,
       "sourceType": "official_js_bundle",
-      "extractionMethod": "javascript_programme_objects",
       "reviewStatus": "approved",
-      "sourceNote": "Auto-enriched from repository evidence and institution rules."
+      "sourceNote": "Auto-enriched from repository evidence and institution rules.",
+      "mappingStatus": "suggested",
+      "durationStatus": null
     },
     {
       "id": "botho-university-lesotho-bachelor-of-commerce-in-finance",
@@ -1344,14 +1237,12 @@ window.EDUGUIDE_ADMIN_DATA = {
         "Portfolio management"
       ],
       "sourceUrl": "https://www.bothouniversity.com/lesotho/programmes",
-      "sourcePath": null,
-      "supportingSourcePath": null,
-      "supportingFeeSourcePath": null,
       "feeNote": null,
       "sourceType": "official_js_bundle",
-      "extractionMethod": "javascript_programme_objects",
       "reviewStatus": "approved",
-      "sourceNote": "Auto-enriched from repository evidence and institution rules."
+      "sourceNote": "Auto-enriched from repository evidence and institution rules.",
+      "mappingStatus": "suggested",
+      "durationStatus": null
     },
     {
       "id": "botho-university-lesotho-bachelor-of-commerce-in-hospitality-management",
@@ -1378,14 +1269,12 @@ window.EDUGUIDE_ADMIN_DATA = {
         "Revenue management"
       ],
       "sourceUrl": "https://www.bothouniversity.com/lesotho/programmes",
-      "sourcePath": null,
-      "supportingSourcePath": null,
-      "supportingFeeSourcePath": null,
       "feeNote": null,
       "sourceType": "official_js_bundle",
-      "extractionMethod": "javascript_programme_objects",
       "reviewStatus": "approved",
-      "sourceNote": "Auto-enriched from repository evidence and institution rules."
+      "sourceNote": "Auto-enriched from repository evidence and institution rules.",
+      "mappingStatus": "suggested",
+      "durationStatus": null
     },
     {
       "id": "botho-university-lesotho-bachelor-of-commerce-in-investment-and-banking",
@@ -1412,14 +1301,12 @@ window.EDUGUIDE_ADMIN_DATA = {
         "Portfolio management"
       ],
       "sourceUrl": "https://www.bothouniversity.com/lesotho/programmes",
-      "sourcePath": null,
-      "supportingSourcePath": null,
-      "supportingFeeSourcePath": null,
       "feeNote": null,
       "sourceType": "official_js_bundle",
-      "extractionMethod": "javascript_programme_objects",
       "reviewStatus": "approved",
-      "sourceNote": "Auto-enriched from repository evidence and institution rules."
+      "sourceNote": "Auto-enriched from repository evidence and institution rules.",
+      "mappingStatus": "suggested",
+      "durationStatus": null
     },
     {
       "id": "botho-university-lesotho-bachelor-of-commerce-in-supply-chain-management",
@@ -1446,14 +1333,12 @@ window.EDUGUIDE_ADMIN_DATA = {
         "Supply chain analytics"
       ],
       "sourceUrl": "https://www.bothouniversity.com/lesotho/programmes",
-      "sourcePath": null,
-      "supportingSourcePath": null,
-      "supportingFeeSourcePath": null,
       "feeNote": null,
       "sourceType": "official_js_bundle",
-      "extractionMethod": "javascript_programme_objects",
       "reviewStatus": "approved",
-      "sourceNote": "Auto-enriched from repository evidence and institution rules."
+      "sourceNote": "Auto-enriched from repository evidence and institution rules.",
+      "mappingStatus": "suggested",
+      "durationStatus": null
     },
     {
       "id": "botho-university-lesotho-bachelor-of-science-in-health-informatics",
@@ -1480,14 +1365,12 @@ window.EDUGUIDE_ADMIN_DATA = {
         "Research methods"
       ],
       "sourceUrl": "https://www.bothouniversity.com/lesotho/programmes",
-      "sourcePath": null,
-      "supportingSourcePath": null,
-      "supportingFeeSourcePath": null,
       "feeNote": null,
       "sourceType": "official_js_bundle",
-      "extractionMethod": "javascript_programme_objects",
       "reviewStatus": "approved",
-      "sourceNote": "Auto-enriched from repository evidence and institution rules."
+      "sourceNote": "Auto-enriched from repository evidence and institution rules.",
+      "mappingStatus": "suggested",
+      "durationStatus": null
     },
     {
       "id": "botho-university-lesotho-bachelor-of-science-in-health-information-management",
@@ -1514,14 +1397,12 @@ window.EDUGUIDE_ADMIN_DATA = {
         "Research methods"
       ],
       "sourceUrl": "https://www.bothouniversity.com/lesotho/programmes",
-      "sourcePath": null,
-      "supportingSourcePath": null,
-      "supportingFeeSourcePath": null,
       "feeNote": null,
       "sourceType": "official_js_bundle",
-      "extractionMethod": "javascript_programme_objects",
       "reviewStatus": "approved",
-      "sourceNote": "Auto-enriched from repository evidence and institution rules."
+      "sourceNote": "Auto-enriched from repository evidence and institution rules.",
+      "mappingStatus": "suggested",
+      "durationStatus": null
     },
     {
       "id": "botho-university-lesotho-bachelor-of-science-in-hospital-administration",
@@ -1548,14 +1429,12 @@ window.EDUGUIDE_ADMIN_DATA = {
         "Research methods"
       ],
       "sourceUrl": "https://www.bothouniversity.com/lesotho/programmes",
-      "sourcePath": null,
-      "supportingSourcePath": null,
-      "supportingFeeSourcePath": null,
       "feeNote": null,
       "sourceType": "official_js_bundle",
-      "extractionMethod": "javascript_programme_objects",
       "reviewStatus": "approved",
-      "sourceNote": "Auto-enriched from repository evidence and institution rules."
+      "sourceNote": "Auto-enriched from repository evidence and institution rules.",
+      "mappingStatus": "suggested",
+      "durationStatus": null
     },
     {
       "id": "botho-university-lesotho-bachelor-of-science-in-safety-health-and-environmental-management",
@@ -1582,14 +1461,12 @@ window.EDUGUIDE_ADMIN_DATA = {
         "Research methods"
       ],
       "sourceUrl": "https://www.bothouniversity.com/lesotho/programmes",
-      "sourcePath": null,
-      "supportingSourcePath": null,
-      "supportingFeeSourcePath": null,
       "feeNote": null,
       "sourceType": "official_js_bundle",
-      "extractionMethod": "javascript_programme_objects",
       "reviewStatus": "approved",
-      "sourceNote": "Auto-enriched from repository evidence and institution rules."
+      "sourceNote": "Auto-enriched from repository evidence and institution rules.",
+      "mappingStatus": "suggested",
+      "durationStatus": null
     },
     {
       "id": "botho-university-lesotho-bachelor-of-education-in-primary-education",
@@ -1616,14 +1493,12 @@ window.EDUGUIDE_ADMIN_DATA = {
         "Curriculum development"
       ],
       "sourceUrl": "https://www.bothouniversity.com/lesotho/programmes",
-      "sourcePath": null,
-      "supportingSourcePath": null,
-      "supportingFeeSourcePath": null,
       "feeNote": null,
       "sourceType": "official_js_bundle",
-      "extractionMethod": "javascript_programme_objects",
       "reviewStatus": "approved",
-      "sourceNote": "Auto-enriched from repository evidence and institution rules."
+      "sourceNote": "Auto-enriched from repository evidence and institution rules.",
+      "mappingStatus": "suggested",
+      "durationStatus": null
     },
     {
       "id": "botho-university-lesotho-bachelor-of-science-in-computing",
@@ -1650,14 +1525,12 @@ window.EDUGUIDE_ADMIN_DATA = {
         "Database management"
       ],
       "sourceUrl": "https://www.bothouniversity.com/lesotho/programmes",
-      "sourcePath": null,
-      "supportingSourcePath": null,
-      "supportingFeeSourcePath": null,
       "feeNote": null,
       "sourceType": "official_js_bundle",
-      "extractionMethod": "javascript_programme_objects",
       "reviewStatus": "approved",
-      "sourceNote": "Auto-enriched from repository evidence and institution rules."
+      "sourceNote": "Auto-enriched from repository evidence and institution rules.",
+      "mappingStatus": "suggested",
+      "durationStatus": null
     },
     {
       "id": "botho-university-lesotho-bachelor-of-commerce-in-risk-management",
@@ -1684,14 +1557,12 @@ window.EDUGUIDE_ADMIN_DATA = {
         "Professional practice"
       ],
       "sourceUrl": "https://www.bothouniversity.com/lesotho/programmes",
-      "sourcePath": null,
-      "supportingSourcePath": null,
-      "supportingFeeSourcePath": null,
       "feeNote": null,
       "sourceType": "official_js_bundle",
-      "extractionMethod": "javascript_programme_objects",
       "reviewStatus": "approved",
-      "sourceNote": "Auto-enriched from repository evidence and institution rules."
+      "sourceNote": "Auto-enriched from repository evidence and institution rules.",
+      "mappingStatus": "suggested",
+      "durationStatus": null
     },
     {
       "id": "botho-university-lesotho-bachelor-of-science-in-mobile-computing",
@@ -1718,14 +1589,12 @@ window.EDUGUIDE_ADMIN_DATA = {
         "Database management"
       ],
       "sourceUrl": "https://www.bothouniversity.com/lesotho/programmes",
-      "sourcePath": null,
-      "supportingSourcePath": null,
-      "supportingFeeSourcePath": null,
       "feeNote": null,
       "sourceType": "official_js_bundle",
-      "extractionMethod": "javascript_programme_objects",
       "reviewStatus": "approved",
-      "sourceNote": "Auto-enriched from repository evidence and institution rules."
+      "sourceNote": "Auto-enriched from repository evidence and institution rules.",
+      "mappingStatus": "suggested",
+      "durationStatus": null
     },
     {
       "id": "botho-university-lesotho-bachelor-of-science-in-computer-networking",
@@ -1752,14 +1621,12 @@ window.EDUGUIDE_ADMIN_DATA = {
         "Database management"
       ],
       "sourceUrl": "https://www.bothouniversity.com/lesotho/programmes",
-      "sourcePath": null,
-      "supportingSourcePath": null,
-      "supportingFeeSourcePath": null,
       "feeNote": null,
       "sourceType": "official_js_bundle",
-      "extractionMethod": "javascript_programme_objects",
       "reviewStatus": "approved",
-      "sourceNote": "Auto-enriched from repository evidence and institution rules."
+      "sourceNote": "Auto-enriched from repository evidence and institution rules.",
+      "mappingStatus": "suggested",
+      "durationStatus": null
     },
     {
       "id": "national-university-of-lesotho-bsc-in-biotechnology",
@@ -1786,14 +1653,12 @@ window.EDUGUIDE_ADMIN_DATA = {
         "Research methods"
       ],
       "sourceUrl": "https://nul.ls/faculty-of-science-and-technology/academic-programmes/",
-      "sourcePath": null,
-      "supportingSourcePath": null,
-      "supportingFeeSourcePath": "data/real/fees/nul-fee-structure-2024-2025.json",
       "feeNote": "Fee schedule available: NUL Fee Structure 2024/25 (2024/25). Confirm the programme group and latest amount before payment.",
       "sourceType": "official_academic_programmes_page",
-      "extractionMethod": "html_headings_and_context",
       "reviewStatus": "approved",
-      "sourceNote": "Auto-enriched from repository evidence and institution rules."
+      "sourceNote": "Auto-enriched from repository evidence and institution rules.",
+      "mappingStatus": "suggested",
+      "durationStatus": null
     },
     {
       "id": "national-university-of-lesotho-bsc-in-chemical-technology",
@@ -1820,14 +1685,12 @@ window.EDUGUIDE_ADMIN_DATA = {
         "Research methods"
       ],
       "sourceUrl": "https://nul.ls/faculty-of-science-and-technology/academic-programmes/",
-      "sourcePath": null,
-      "supportingSourcePath": null,
-      "supportingFeeSourcePath": "data/real/fees/nul-fee-structure-2024-2025.json",
       "feeNote": "Fee schedule available: NUL Fee Structure 2024/25 (2024/25). Confirm the programme group and latest amount before payment.",
       "sourceType": "official_academic_programmes_page",
-      "extractionMethod": "html_headings_and_context",
       "reviewStatus": "approved",
-      "sourceNote": "Auto-enriched from repository evidence and institution rules."
+      "sourceNote": "Auto-enriched from repository evidence and institution rules.",
+      "mappingStatus": "suggested",
+      "durationStatus": null
     },
     {
       "id": "national-university-of-lesotho-bsc-in-computer-science",
@@ -1854,14 +1717,12 @@ window.EDUGUIDE_ADMIN_DATA = {
         "Quality assurance"
       ],
       "sourceUrl": "https://nul.ls/faculty-of-science-and-technology/academic-programmes/",
-      "sourcePath": null,
-      "supportingSourcePath": null,
-      "supportingFeeSourcePath": "data/real/fees/nul-fee-structure-2024-2025.json",
       "feeNote": "Fee schedule available: NUL Fee Structure 2024/25 (2024/25). Confirm the programme group and latest amount before payment.",
       "sourceType": "official_academic_programmes_page",
-      "extractionMethod": "html_headings_and_context",
       "reviewStatus": "approved",
-      "sourceNote": "Auto-enriched from repository evidence and institution rules."
+      "sourceNote": "Auto-enriched from repository evidence and institution rules.",
+      "mappingStatus": "suggested",
+      "durationStatus": null
     },
     {
       "id": "national-university-of-lesotho-bsc-in-electronics",
@@ -1888,14 +1749,12 @@ window.EDUGUIDE_ADMIN_DATA = {
         "Safety compliance"
       ],
       "sourceUrl": "https://nul.ls/faculty-of-science-and-technology/academic-programmes/",
-      "sourcePath": null,
-      "supportingSourcePath": null,
-      "supportingFeeSourcePath": "data/real/fees/nul-fee-structure-2024-2025.json",
       "feeNote": "Fee schedule available: NUL Fee Structure 2024/25 (2024/25). Confirm the programme group and latest amount before payment.",
       "sourceType": "official_academic_programmes_page",
-      "extractionMethod": "html_headings_and_context",
       "reviewStatus": "approved",
-      "sourceNote": "Auto-enriched from repository evidence and institution rules."
+      "sourceNote": "Auto-enriched from repository evidence and institution rules.",
+      "mappingStatus": "suggested",
+      "durationStatus": null
     },
     {
       "id": "national-university-of-lesotho-bsc-in-environmental-science",
@@ -1922,14 +1781,12 @@ window.EDUGUIDE_ADMIN_DATA = {
         "Research methods"
       ],
       "sourceUrl": "https://nul.ls/faculty-of-science-and-technology/academic-programmes/",
-      "sourcePath": null,
-      "supportingSourcePath": null,
-      "supportingFeeSourcePath": "data/real/fees/nul-fee-structure-2024-2025.json",
       "feeNote": "Fee schedule available: NUL Fee Structure 2024/25 (2024/25). Confirm the programme group and latest amount before payment.",
       "sourceType": "official_academic_programmes_page",
-      "extractionMethod": "html_headings_and_context",
       "reviewStatus": "approved",
-      "sourceNote": "Auto-enriched from repository evidence and institution rules."
+      "sourceNote": "Auto-enriched from repository evidence and institution rules.",
+      "mappingStatus": "suggested",
+      "durationStatus": null
     },
     {
       "id": "national-university-of-lesotho-bsc-in-human-geography",
@@ -1956,14 +1813,12 @@ window.EDUGUIDE_ADMIN_DATA = {
         "Research methods"
       ],
       "sourceUrl": "https://nul.ls/faculty-of-science-and-technology/academic-programmes/",
-      "sourcePath": null,
-      "supportingSourcePath": null,
-      "supportingFeeSourcePath": "data/real/fees/nul-fee-structure-2024-2025.json",
       "feeNote": "Fee schedule available: NUL Fee Structure 2024/25 (2024/25). Confirm the programme group and latest amount before payment.",
       "sourceType": "official_academic_programmes_page",
-      "extractionMethod": "html_headings_and_context",
       "reviewStatus": "approved",
-      "sourceNote": "Auto-enriched from repository evidence and institution rules."
+      "sourceNote": "Auto-enriched from repository evidence and institution rules.",
+      "mappingStatus": "suggested",
+      "durationStatus": null
     },
     {
       "id": "national-university-of-lesotho-bsc-in-information-systems",
@@ -1990,14 +1845,12 @@ window.EDUGUIDE_ADMIN_DATA = {
         "Research methods"
       ],
       "sourceUrl": "https://nul.ls/faculty-of-science-and-technology/academic-programmes/",
-      "sourcePath": null,
-      "supportingSourcePath": null,
-      "supportingFeeSourcePath": "data/real/fees/nul-fee-structure-2024-2025.json",
       "feeNote": "Fee schedule available: NUL Fee Structure 2024/25 (2024/25). Confirm the programme group and latest amount before payment.",
       "sourceType": "official_academic_programmes_page",
-      "extractionMethod": "html_headings_and_context",
       "reviewStatus": "approved",
-      "sourceNote": "Auto-enriched from repository evidence and institution rules."
+      "sourceNote": "Auto-enriched from repository evidence and institution rules.",
+      "mappingStatus": "suggested",
+      "durationStatus": null
     },
     {
       "id": "national-university-of-lesotho-bsc-in-statistics",
@@ -2024,14 +1877,12 @@ window.EDUGUIDE_ADMIN_DATA = {
         "Counselling skills"
       ],
       "sourceUrl": "https://nul.ls/faculty-of-science-and-technology/academic-programmes/",
-      "sourcePath": null,
-      "supportingSourcePath": null,
-      "supportingFeeSourcePath": "data/real/fees/nul-fee-structure-2024-2025.json",
       "feeNote": "Fee schedule available: NUL Fee Structure 2024/25 (2024/25). Confirm the programme group and latest amount before payment.",
       "sourceType": "official_academic_programmes_page",
-      "extractionMethod": "html_headings_and_context",
       "reviewStatus": "approved",
-      "sourceNote": "Auto-enriched from repository evidence and institution rules."
+      "sourceNote": "Auto-enriched from repository evidence and institution rules.",
+      "mappingStatus": "suggested",
+      "durationStatus": null
     },
     {
       "id": "national-university-of-lesotho-b-eng-in-computer-systems-and-networks",
@@ -2058,14 +1909,12 @@ window.EDUGUIDE_ADMIN_DATA = {
         "Research methods"
       ],
       "sourceUrl": "https://nul.ls/faculty-of-science-and-technology/academic-programmes/",
-      "sourcePath": null,
-      "supportingSourcePath": null,
-      "supportingFeeSourcePath": "data/real/fees/nul-fee-structure-2024-2025.json",
       "feeNote": "Fee schedule available: NUL Fee Structure 2024/25 (2024/25). Confirm the programme group and latest amount before payment.",
       "sourceType": "official_academic_programmes_page",
-      "extractionMethod": "html_headings_and_context",
       "reviewStatus": "approved",
-      "sourceNote": "Auto-enriched from repository evidence and institution rules."
+      "sourceNote": "Auto-enriched from repository evidence and institution rules.",
+      "mappingStatus": "suggested",
+      "durationStatus": null
     },
     {
       "id": "national-university-of-lesotho-b-eng-in-electronics",
@@ -2092,14 +1941,12 @@ window.EDUGUIDE_ADMIN_DATA = {
         "Safety compliance"
       ],
       "sourceUrl": "https://nul.ls/faculty-of-science-and-technology/academic-programmes/",
-      "sourcePath": null,
-      "supportingSourcePath": null,
-      "supportingFeeSourcePath": "data/real/fees/nul-fee-structure-2024-2025.json",
       "feeNote": "Fee schedule available: NUL Fee Structure 2024/25 (2024/25). Confirm the programme group and latest amount before payment.",
       "sourceType": "official_academic_programmes_page",
-      "extractionMethod": "html_headings_and_context",
       "reviewStatus": "approved",
-      "sourceNote": "Auto-enriched from repository evidence and institution rules."
+      "sourceNote": "Auto-enriched from repository evidence and institution rules.",
+      "mappingStatus": "suggested",
+      "durationStatus": null
     },
     {
       "id": "national-university-of-lesotho-bachelor-of-urban-and-regional-planning",
@@ -2126,14 +1973,12 @@ window.EDUGUIDE_ADMIN_DATA = {
         "Research methods"
       ],
       "sourceUrl": "https://nul.ls/faculty-of-science-and-technology/academic-programmes/",
-      "sourcePath": null,
-      "supportingSourcePath": null,
-      "supportingFeeSourcePath": "data/real/fees/nul-fee-structure-2024-2025.json",
       "feeNote": "Fee schedule available: NUL Fee Structure 2024/25 (2024/25). Confirm the programme group and latest amount before payment.",
       "sourceType": "official_academic_programmes_page",
-      "extractionMethod": "html_headings_and_context",
       "reviewStatus": "approved",
-      "sourceNote": "Auto-enriched from repository evidence and institution rules."
+      "sourceNote": "Auto-enriched from repository evidence and institution rules.",
+      "mappingStatus": "suggested",
+      "durationStatus": null
     },
     {
       "id": "national-university-of-lesotho-bachelor-of-science-general-8-semesters-4-years",
@@ -2160,14 +2005,12 @@ window.EDUGUIDE_ADMIN_DATA = {
         "Research methods"
       ],
       "sourceUrl": "https://nul.ls/faculty-of-science-and-technology/academic-programmes/",
-      "sourcePath": null,
-      "supportingSourcePath": null,
-      "supportingFeeSourcePath": "data/real/fees/nul-fee-structure-2024-2025.json",
       "feeNote": "Fee schedule available: NUL Fee Structure 2024/25 (2024/25). Confirm the programme group and latest amount before payment.",
       "sourceType": "official_academic_programmes_page",
-      "extractionMethod": "html_headings_and_context",
       "reviewStatus": "approved",
-      "sourceNote": "Auto-enriched from repository evidence and institution rules."
+      "sourceNote": "Auto-enriched from repository evidence and institution rules.",
+      "mappingStatus": "suggested",
+      "durationStatus": null
     },
     {
       "id": "national-university-of-lesotho-bachelor-of-science-in-biology-single-or-double-major-8-semester-4-years",
@@ -2194,19 +2037,17 @@ window.EDUGUIDE_ADMIN_DATA = {
         "Research methods"
       ],
       "sourceUrl": "https://nul.ls/faculty-of-science-and-technology/academic-programmes/",
-      "sourcePath": null,
-      "supportingSourcePath": null,
-      "supportingFeeSourcePath": "data/real/fees/nul-fee-structure-2024-2025.json",
       "feeNote": "Fee schedule available: NUL Fee Structure 2024/25 (2024/25). Confirm the programme group and latest amount before payment.",
       "sourceType": "official_academic_programmes_page",
-      "extractionMethod": "html_headings_and_context",
       "reviewStatus": "approved",
-      "sourceNote": "Auto-enriched from repository evidence and institution rules."
+      "sourceNote": "Auto-enriched from repository evidence and institution rules.",
+      "mappingStatus": "suggested",
+      "durationStatus": null
     },
     {
       "id": "national-university-of-lesotho-bachelor-of-science-in-biotechnology-9-semesters-4-years",
       "institution": "National University of Lesotho",
-      "name": "Bachelor Of Science In Biotechnology - 9 Semesters (4 ½ Years)",
+      "name": "Bachelor Of Science In Biotechnology - 9 Semesters (4 \u00bd Years)",
       "code": null,
       "category": "Science & Technology",
       "faculty": "Science & Technology",
@@ -2228,14 +2069,12 @@ window.EDUGUIDE_ADMIN_DATA = {
         "Research methods"
       ],
       "sourceUrl": "https://nul.ls/faculty-of-science-and-technology/academic-programmes/",
-      "sourcePath": null,
-      "supportingSourcePath": null,
-      "supportingFeeSourcePath": "data/real/fees/nul-fee-structure-2024-2025.json",
       "feeNote": "Fee schedule available: NUL Fee Structure 2024/25 (2024/25). Confirm the programme group and latest amount before payment.",
       "sourceType": "official_academic_programmes_page",
-      "extractionMethod": "html_headings_and_context",
       "reviewStatus": "approved",
-      "sourceNote": "Auto-enriched from repository evidence and institution rules."
+      "sourceNote": "Auto-enriched from repository evidence and institution rules.",
+      "mappingStatus": "suggested",
+      "durationStatus": null
     },
     {
       "id": "national-university-of-lesotho-bachelor-of-science-in-chemistry-single-or-double-major-8-semesters-4-years",
@@ -2262,19 +2101,17 @@ window.EDUGUIDE_ADMIN_DATA = {
         "Research methods"
       ],
       "sourceUrl": "https://nul.ls/faculty-of-science-and-technology/academic-programmes/",
-      "sourcePath": null,
-      "supportingSourcePath": null,
-      "supportingFeeSourcePath": "data/real/fees/nul-fee-structure-2024-2025.json",
       "feeNote": "Fee schedule available: NUL Fee Structure 2024/25 (2024/25). Confirm the programme group and latest amount before payment.",
       "sourceType": "official_academic_programmes_page",
-      "extractionMethod": "html_headings_and_context",
       "reviewStatus": "approved",
-      "sourceNote": "Auto-enriched from repository evidence and institution rules."
+      "sourceNote": "Auto-enriched from repository evidence and institution rules.",
+      "mappingStatus": "suggested",
+      "durationStatus": null
     },
     {
       "id": "national-university-of-lesotho-bachelor-of-science-in-chemical-technology-9-semesters-4-years",
       "institution": "National University of Lesotho",
-      "name": "Bachelor Of Science In Chemical Technology - 9 Semesters (4 ½ Years)",
+      "name": "Bachelor Of Science In Chemical Technology - 9 Semesters (4 \u00bd Years)",
       "code": null,
       "category": "Science & Technology",
       "faculty": "Science & Technology",
@@ -2296,14 +2133,12 @@ window.EDUGUIDE_ADMIN_DATA = {
         "Research methods"
       ],
       "sourceUrl": "https://nul.ls/faculty-of-science-and-technology/academic-programmes/",
-      "sourcePath": null,
-      "supportingSourcePath": null,
-      "supportingFeeSourcePath": "data/real/fees/nul-fee-structure-2024-2025.json",
       "feeNote": "Fee schedule available: NUL Fee Structure 2024/25 (2024/25). Confirm the programme group and latest amount before payment.",
       "sourceType": "official_academic_programmes_page",
-      "extractionMethod": "html_headings_and_context",
       "reviewStatus": "approved",
-      "sourceNote": "Auto-enriched from repository evidence and institution rules."
+      "sourceNote": "Auto-enriched from repository evidence and institution rules.",
+      "mappingStatus": "suggested",
+      "durationStatus": null
     },
     {
       "id": "national-university-of-lesotho-bachelor-of-science-in-computer-science-double-major-8-semesters-4-years",
@@ -2330,14 +2165,12 @@ window.EDUGUIDE_ADMIN_DATA = {
         "Quality assurance"
       ],
       "sourceUrl": "https://nul.ls/faculty-of-science-and-technology/academic-programmes/",
-      "sourcePath": null,
-      "supportingSourcePath": null,
-      "supportingFeeSourcePath": "data/real/fees/nul-fee-structure-2024-2025.json",
       "feeNote": "Fee schedule available: NUL Fee Structure 2024/25 (2024/25). Confirm the programme group and latest amount before payment.",
       "sourceType": "official_academic_programmes_page",
-      "extractionMethod": "html_headings_and_context",
       "reviewStatus": "approved",
-      "sourceNote": "Auto-enriched from repository evidence and institution rules."
+      "sourceNote": "Auto-enriched from repository evidence and institution rules.",
+      "mappingStatus": "suggested",
+      "durationStatus": null
     },
     {
       "id": "national-university-of-lesotho-bachelor-of-science-in-computer-science-8-semesters-4-years",
@@ -2364,14 +2197,12 @@ window.EDUGUIDE_ADMIN_DATA = {
         "Quality assurance"
       ],
       "sourceUrl": "https://nul.ls/faculty-of-science-and-technology/academic-programmes/",
-      "sourcePath": null,
-      "supportingSourcePath": null,
-      "supportingFeeSourcePath": "data/real/fees/nul-fee-structure-2024-2025.json",
       "feeNote": "Fee schedule available: NUL Fee Structure 2024/25 (2024/25). Confirm the programme group and latest amount before payment.",
       "sourceType": "official_academic_programmes_page",
-      "extractionMethod": "html_headings_and_context",
       "reviewStatus": "approved",
-      "sourceNote": "Auto-enriched from repository evidence and institution rules."
+      "sourceNote": "Auto-enriched from repository evidence and institution rules.",
+      "mappingStatus": "suggested",
+      "durationStatus": null
     },
     {
       "id": "national-university-of-lesotho-bachelor-of-science-in-information-systems-8-semesters-4-years",
@@ -2398,14 +2229,12 @@ window.EDUGUIDE_ADMIN_DATA = {
         "Research methods"
       ],
       "sourceUrl": "https://nul.ls/faculty-of-science-and-technology/academic-programmes/",
-      "sourcePath": null,
-      "supportingSourcePath": null,
-      "supportingFeeSourcePath": "data/real/fees/nul-fee-structure-2024-2025.json",
       "feeNote": "Fee schedule available: NUL Fee Structure 2024/25 (2024/25). Confirm the programme group and latest amount before payment.",
       "sourceType": "official_academic_programmes_page",
-      "extractionMethod": "html_headings_and_context",
       "reviewStatus": "approved",
-      "sourceNote": "Auto-enriched from repository evidence and institution rules."
+      "sourceNote": "Auto-enriched from repository evidence and institution rules.",
+      "mappingStatus": "suggested",
+      "durationStatus": null
     },
     {
       "id": "national-university-of-lesotho-bachelor-of-engineering-b-eng-in-computer-systems-and-networks-10-semesters-5-years",
@@ -2432,14 +2261,12 @@ window.EDUGUIDE_ADMIN_DATA = {
         "Safety compliance"
       ],
       "sourceUrl": "https://nul.ls/faculty-of-science-and-technology/academic-programmes/",
-      "sourcePath": null,
-      "supportingSourcePath": null,
-      "supportingFeeSourcePath": "data/real/fees/nul-fee-structure-2024-2025.json",
       "feeNote": "Fee schedule available: NUL Fee Structure 2024/25 (2024/25). Confirm the programme group and latest amount before payment.",
       "sourceType": "official_academic_programmes_page",
-      "extractionMethod": "html_headings_and_context",
       "reviewStatus": "approved",
-      "sourceNote": "Auto-enriched from repository evidence and institution rules."
+      "sourceNote": "Auto-enriched from repository evidence and institution rules.",
+      "mappingStatus": "suggested",
+      "durationStatus": null
     },
     {
       "id": "national-university-of-lesotho-bachelor-of-science-in-environmental-sciences-8-semesters-4-years",
@@ -2466,14 +2293,12 @@ window.EDUGUIDE_ADMIN_DATA = {
         "Research methods"
       ],
       "sourceUrl": "https://nul.ls/faculty-of-science-and-technology/academic-programmes/",
-      "sourcePath": null,
-      "supportingSourcePath": null,
-      "supportingFeeSourcePath": "data/real/fees/nul-fee-structure-2024-2025.json",
       "feeNote": "Fee schedule available: NUL Fee Structure 2024/25 (2024/25). Confirm the programme group and latest amount before payment.",
       "sourceType": "official_academic_programmes_page",
-      "extractionMethod": "html_headings_and_context",
       "reviewStatus": "approved",
-      "sourceNote": "Auto-enriched from repository evidence and institution rules."
+      "sourceNote": "Auto-enriched from repository evidence and institution rules.",
+      "mappingStatus": "suggested",
+      "durationStatus": null
     },
     {
       "id": "national-university-of-lesotho-bachelor-of-urban-and-regional-planning-burp-8-semesters-4-years",
@@ -2500,14 +2325,12 @@ window.EDUGUIDE_ADMIN_DATA = {
         "Research methods"
       ],
       "sourceUrl": "https://nul.ls/faculty-of-science-and-technology/academic-programmes/",
-      "sourcePath": null,
-      "supportingSourcePath": null,
-      "supportingFeeSourcePath": "data/real/fees/nul-fee-structure-2024-2025.json",
       "feeNote": "Fee schedule available: NUL Fee Structure 2024/25 (2024/25). Confirm the programme group and latest amount before payment.",
       "sourceType": "official_academic_programmes_page",
-      "extractionMethod": "html_headings_and_context",
       "reviewStatus": "approved",
-      "sourceNote": "Auto-enriched from repository evidence and institution rules."
+      "sourceNote": "Auto-enriched from repository evidence and institution rules.",
+      "mappingStatus": "suggested",
+      "durationStatus": null
     },
     {
       "id": "national-university-of-lesotho-bachelor-of-science-in-human-geography-8-semesters-4-years",
@@ -2534,14 +2357,12 @@ window.EDUGUIDE_ADMIN_DATA = {
         "Research methods"
       ],
       "sourceUrl": "https://nul.ls/faculty-of-science-and-technology/academic-programmes/",
-      "sourcePath": null,
-      "supportingSourcePath": null,
-      "supportingFeeSourcePath": "data/real/fees/nul-fee-structure-2024-2025.json",
       "feeNote": "Fee schedule available: NUL Fee Structure 2024/25 (2024/25). Confirm the programme group and latest amount before payment.",
       "sourceType": "official_academic_programmes_page",
-      "extractionMethod": "html_headings_and_context",
       "reviewStatus": "approved",
-      "sourceNote": "Auto-enriched from repository evidence and institution rules."
+      "sourceNote": "Auto-enriched from repository evidence and institution rules.",
+      "mappingStatus": "suggested",
+      "durationStatus": null
     },
     {
       "id": "national-university-of-lesotho-bachelor-of-science-in-mathematics-single-or-double-major-8-semesters-4-years",
@@ -2568,14 +2389,12 @@ window.EDUGUIDE_ADMIN_DATA = {
         "Research methods"
       ],
       "sourceUrl": "https://nul.ls/faculty-of-science-and-technology/academic-programmes/",
-      "sourcePath": null,
-      "supportingSourcePath": null,
-      "supportingFeeSourcePath": "data/real/fees/nul-fee-structure-2024-2025.json",
       "feeNote": "Fee schedule available: NUL Fee Structure 2024/25 (2024/25). Confirm the programme group and latest amount before payment.",
       "sourceType": "official_academic_programmes_page",
-      "extractionMethod": "html_headings_and_context",
       "reviewStatus": "approved",
-      "sourceNote": "Auto-enriched from repository evidence and institution rules."
+      "sourceNote": "Auto-enriched from repository evidence and institution rules.",
+      "mappingStatus": "suggested",
+      "durationStatus": null
     },
     {
       "id": "national-university-of-lesotho-bachelor-of-science-in-statistics-8-semesters-4-years",
@@ -2602,14 +2421,12 @@ window.EDUGUIDE_ADMIN_DATA = {
         "Counselling skills"
       ],
       "sourceUrl": "https://nul.ls/faculty-of-science-and-technology/academic-programmes/",
-      "sourcePath": null,
-      "supportingSourcePath": null,
-      "supportingFeeSourcePath": "data/real/fees/nul-fee-structure-2024-2025.json",
       "feeNote": "Fee schedule available: NUL Fee Structure 2024/25 (2024/25). Confirm the programme group and latest amount before payment.",
       "sourceType": "official_academic_programmes_page",
-      "extractionMethod": "html_headings_and_context",
       "reviewStatus": "approved",
-      "sourceNote": "Auto-enriched from repository evidence and institution rules."
+      "sourceNote": "Auto-enriched from repository evidence and institution rules.",
+      "mappingStatus": "suggested",
+      "durationStatus": null
     },
     {
       "id": "national-university-of-lesotho-bachelor-of-science-in-physics-single-or-double-major-8-semesters-4-years",
@@ -2636,14 +2453,12 @@ window.EDUGUIDE_ADMIN_DATA = {
         "Research methods"
       ],
       "sourceUrl": "https://nul.ls/faculty-of-science-and-technology/academic-programmes/",
-      "sourcePath": null,
-      "supportingSourcePath": null,
-      "supportingFeeSourcePath": "data/real/fees/nul-fee-structure-2024-2025.json",
       "feeNote": "Fee schedule available: NUL Fee Structure 2024/25 (2024/25). Confirm the programme group and latest amount before payment.",
       "sourceType": "official_academic_programmes_page",
-      "extractionMethod": "html_headings_and_context",
       "reviewStatus": "approved",
-      "sourceNote": "Auto-enriched from repository evidence and institution rules."
+      "sourceNote": "Auto-enriched from repository evidence and institution rules.",
+      "mappingStatus": "suggested",
+      "durationStatus": null
     },
     {
       "id": "national-university-of-lesotho-bachelor-of-science-electronics-8-semesters-4-years",
@@ -2670,14 +2485,12 @@ window.EDUGUIDE_ADMIN_DATA = {
         "Safety compliance"
       ],
       "sourceUrl": "https://nul.ls/faculty-of-science-and-technology/academic-programmes/",
-      "sourcePath": null,
-      "supportingSourcePath": null,
-      "supportingFeeSourcePath": "data/real/fees/nul-fee-structure-2024-2025.json",
       "feeNote": "Fee schedule available: NUL Fee Structure 2024/25 (2024/25). Confirm the programme group and latest amount before payment.",
       "sourceType": "official_academic_programmes_page",
-      "extractionMethod": "html_headings_and_context",
       "reviewStatus": "approved",
-      "sourceNote": "Auto-enriched from repository evidence and institution rules."
+      "sourceNote": "Auto-enriched from repository evidence and institution rules.",
+      "mappingStatus": "suggested",
+      "durationStatus": null
     },
     {
       "id": "national-university-of-lesotho-bachelor-of-engineering-b-eng-in-electronics-10-semesters-5-years",
@@ -2704,14 +2517,12 @@ window.EDUGUIDE_ADMIN_DATA = {
         "Safety compliance"
       ],
       "sourceUrl": "https://nul.ls/faculty-of-science-and-technology/academic-programmes/",
-      "sourcePath": null,
-      "supportingSourcePath": null,
-      "supportingFeeSourcePath": "data/real/fees/nul-fee-structure-2024-2025.json",
       "feeNote": "Fee schedule available: NUL Fee Structure 2024/25 (2024/25). Confirm the programme group and latest amount before payment.",
       "sourceType": "official_academic_programmes_page",
-      "extractionMethod": "html_headings_and_context",
       "reviewStatus": "approved",
-      "sourceNote": "Auto-enriched from repository evidence and institution rules."
+      "sourceNote": "Auto-enriched from repository evidence and institution rules.",
+      "mappingStatus": "suggested",
+      "durationStatus": null
     },
     {
       "id": "national-university-of-lesotho-bachelor-of-science-honours-in-mathematics-1-year-full-time",
@@ -2738,14 +2549,12 @@ window.EDUGUIDE_ADMIN_DATA = {
         "Research methods"
       ],
       "sourceUrl": "https://nul.ls/faculty-of-science-and-technology/academic-programmes/",
-      "sourcePath": null,
-      "supportingSourcePath": null,
-      "supportingFeeSourcePath": "data/real/fees/nul-fee-structure-2024-2025.json",
       "feeNote": "Fee schedule available: NUL Fee Structure 2024/25 (2024/25). Confirm the programme group and latest amount before payment.",
       "sourceType": "official_academic_programmes_page",
-      "extractionMethod": "html_headings_and_context",
       "reviewStatus": "approved",
-      "sourceNote": "Auto-enriched from repository evidence and institution rules."
+      "sourceNote": "Auto-enriched from repository evidence and institution rules.",
+      "mappingStatus": "suggested",
+      "durationStatus": null
     },
     {
       "id": "national-university-of-lesotho-master-of-science-in-mathematics",
@@ -2772,14 +2581,12 @@ window.EDUGUIDE_ADMIN_DATA = {
         "Research methods"
       ],
       "sourceUrl": "https://nul.ls/faculty-of-science-and-technology/academic-programmes/",
-      "sourcePath": null,
-      "supportingSourcePath": null,
-      "supportingFeeSourcePath": "data/real/fees/nul-fee-structure-2024-2025.json",
       "feeNote": "Fee schedule available: NUL Fee Structure 2024/25 (2024/25). Confirm the programme group and latest amount before payment.",
       "sourceType": "official_academic_programmes_page",
-      "extractionMethod": "html_headings_and_context",
       "reviewStatus": "approved",
-      "sourceNote": "Auto-enriched from repository evidence and institution rules."
+      "sourceNote": "Auto-enriched from repository evidence and institution rules.",
+      "mappingStatus": "suggested",
+      "durationStatus": null
     },
     {
       "id": "national-university-of-lesotho-master-of-science-in-chemistry-2-years-full-time",
@@ -2806,14 +2613,12 @@ window.EDUGUIDE_ADMIN_DATA = {
         "Research methods"
       ],
       "sourceUrl": "https://nul.ls/faculty-of-science-and-technology/academic-programmes/",
-      "sourcePath": null,
-      "supportingSourcePath": null,
-      "supportingFeeSourcePath": "data/real/fees/nul-fee-structure-2024-2025.json",
       "feeNote": "Fee schedule available: NUL Fee Structure 2024/25 (2024/25). Confirm the programme group and latest amount before payment.",
       "sourceType": "official_academic_programmes_page",
-      "extractionMethod": "html_headings_and_context",
       "reviewStatus": "approved",
-      "sourceNote": "Auto-enriched from repository evidence and institution rules."
+      "sourceNote": "Auto-enriched from repository evidence and institution rules.",
+      "mappingStatus": "suggested",
+      "durationStatus": null
     },
     {
       "id": "national-university-of-lesotho-master-of-science-in-sustainable-energy",
@@ -2840,14 +2645,12 @@ window.EDUGUIDE_ADMIN_DATA = {
         "Research methods"
       ],
       "sourceUrl": "https://nul.ls/faculty-of-science-and-technology/academic-programmes/",
-      "sourcePath": null,
-      "supportingSourcePath": null,
-      "supportingFeeSourcePath": "data/real/fees/nul-fee-structure-2024-2025.json",
       "feeNote": "Fee schedule available: NUL Fee Structure 2024/25 (2024/25). Confirm the programme group and latest amount before payment.",
       "sourceType": "official_academic_programmes_page",
-      "extractionMethod": "html_headings_and_context",
       "reviewStatus": "approved",
-      "sourceNote": "Auto-enriched from repository evidence and institution rules."
+      "sourceNote": "Auto-enriched from repository evidence and institution rules.",
+      "mappingStatus": "suggested",
+      "durationStatus": null
     },
     {
       "id": "national-university-of-lesotho-diploma-in-spiritual-care-and-counseling",
@@ -2874,14 +2677,12 @@ window.EDUGUIDE_ADMIN_DATA = {
         "Professional practice"
       ],
       "sourceUrl": "https://nul.ls/humanities/academic-programmes/",
-      "sourcePath": null,
-      "supportingSourcePath": null,
-      "supportingFeeSourcePath": "data/real/fees/nul-fee-structure-2024-2025.json",
       "feeNote": "Fee schedule available: NUL Fee Structure 2024/25 (2024/25). Confirm the programme group and latest amount before payment.",
       "sourceType": "official_academic_programmes_page",
-      "extractionMethod": "html_headings_and_context",
       "reviewStatus": "approved",
-      "sourceNote": "Auto-enriched from repository evidence and institution rules."
+      "sourceNote": "Auto-enriched from repository evidence and institution rules.",
+      "mappingStatus": "suggested",
+      "durationStatus": null
     },
     {
       "id": "national-university-of-lesotho-diploma-in-applied-philosophy-and-public-ethics",
@@ -2908,14 +2709,12 @@ window.EDUGUIDE_ADMIN_DATA = {
         "Professional practice"
       ],
       "sourceUrl": "https://nul.ls/humanities/academic-programmes/",
-      "sourcePath": null,
-      "supportingSourcePath": null,
-      "supportingFeeSourcePath": "data/real/fees/nul-fee-structure-2024-2025.json",
       "feeNote": "Fee schedule available: NUL Fee Structure 2024/25 (2024/25). Confirm the programme group and latest amount before payment.",
       "sourceType": "official_academic_programmes_page",
-      "extractionMethod": "html_headings_and_context",
       "reviewStatus": "approved",
-      "sourceNote": "Auto-enriched from repository evidence and institution rules."
+      "sourceNote": "Auto-enriched from repository evidence and institution rules.",
+      "mappingStatus": "suggested",
+      "durationStatus": null
     },
     {
       "id": "national-university-of-lesotho-bachelor-of-arts-in-practical-philosophy-and-applied-ethics",
@@ -2942,14 +2741,12 @@ window.EDUGUIDE_ADMIN_DATA = {
         "Professional practice"
       ],
       "sourceUrl": "https://nul.ls/humanities/academic-programmes/",
-      "sourcePath": null,
-      "supportingSourcePath": null,
-      "supportingFeeSourcePath": "data/real/fees/nul-fee-structure-2024-2025.json",
       "feeNote": "Fee schedule available: NUL Fee Structure 2024/25 (2024/25). Confirm the programme group and latest amount before payment.",
       "sourceType": "official_academic_programmes_page",
-      "extractionMethod": "html_headings_and_context",
       "reviewStatus": "approved",
-      "sourceNote": "Auto-enriched from repository evidence and institution rules."
+      "sourceNote": "Auto-enriched from repository evidence and institution rules.",
+      "mappingStatus": "suggested",
+      "durationStatus": null
     },
     {
       "id": "national-university-of-lesotho-bachelor-of-arts-in-spiritual-care-and-counseling",
@@ -2976,14 +2773,12 @@ window.EDUGUIDE_ADMIN_DATA = {
         "Professional practice"
       ],
       "sourceUrl": "https://nul.ls/humanities/academic-programmes/",
-      "sourcePath": null,
-      "supportingSourcePath": null,
-      "supportingFeeSourcePath": "data/real/fees/nul-fee-structure-2024-2025.json",
       "feeNote": "Fee schedule available: NUL Fee Structure 2024/25 (2024/25). Confirm the programme group and latest amount before payment.",
       "sourceType": "official_academic_programmes_page",
-      "extractionMethod": "html_headings_and_context",
       "reviewStatus": "approved",
-      "sourceNote": "Auto-enriched from repository evidence and institution rules."
+      "sourceNote": "Auto-enriched from repository evidence and institution rules.",
+      "mappingStatus": "suggested",
+      "durationStatus": null
     },
     {
       "id": "national-university-of-lesotho-bachelor-of-arts-in-library-and-information-studies",
@@ -3010,14 +2805,12 @@ window.EDUGUIDE_ADMIN_DATA = {
         "Professional practice"
       ],
       "sourceUrl": "https://nul.ls/humanities/academic-programmes/",
-      "sourcePath": null,
-      "supportingSourcePath": null,
-      "supportingFeeSourcePath": "data/real/fees/nul-fee-structure-2024-2025.json",
       "feeNote": "Fee schedule available: NUL Fee Structure 2024/25 (2024/25). Confirm the programme group and latest amount before payment.",
       "sourceType": "official_academic_programmes_page",
-      "extractionMethod": "html_headings_and_context",
       "reviewStatus": "approved",
-      "sourceNote": "Auto-enriched from repository evidence and institution rules."
+      "sourceNote": "Auto-enriched from repository evidence and institution rules.",
+      "mappingStatus": "suggested",
+      "durationStatus": null
     },
     {
       "id": "national-university-of-lesotho-bachelor-of-arts-in-humanities",
@@ -3044,14 +2837,12 @@ window.EDUGUIDE_ADMIN_DATA = {
         "Professional practice"
       ],
       "sourceUrl": "https://nul.ls/humanities/academic-programmes/",
-      "sourcePath": null,
-      "supportingSourcePath": null,
-      "supportingFeeSourcePath": "data/real/fees/nul-fee-structure-2024-2025.json",
       "feeNote": "Fee schedule available: NUL Fee Structure 2024/25 (2024/25). Confirm the programme group and latest amount before payment.",
       "sourceType": "official_academic_programmes_page",
-      "extractionMethod": "html_headings_and_context",
       "reviewStatus": "approved",
-      "sourceNote": "Auto-enriched from repository evidence and institution rules."
+      "sourceNote": "Auto-enriched from repository evidence and institution rules.",
+      "mappingStatus": "suggested",
+      "durationStatus": null
     },
     {
       "id": "national-university-of-lesotho-bachelor-of-journalism-and-media-studies-arts-in-humanities",
@@ -3078,14 +2869,12 @@ window.EDUGUIDE_ADMIN_DATA = {
         "Public communication"
       ],
       "sourceUrl": "https://nul.ls/humanities/academic-programmes/",
-      "sourcePath": null,
-      "supportingSourcePath": null,
-      "supportingFeeSourcePath": "data/real/fees/nul-fee-structure-2024-2025.json",
       "feeNote": "Fee schedule available: NUL Fee Structure 2024/25 (2024/25). Confirm the programme group and latest amount before payment.",
       "sourceType": "official_academic_programmes_page",
-      "extractionMethod": "html_headings_and_context",
       "reviewStatus": "approved",
-      "sourceNote": "Auto-enriched from repository evidence and institution rules."
+      "sourceNote": "Auto-enriched from repository evidence and institution rules.",
+      "mappingStatus": "suggested",
+      "durationStatus": null
     },
     {
       "id": "national-university-of-lesotho-postgraduate-diploma-in-development-studies",
@@ -3112,14 +2901,12 @@ window.EDUGUIDE_ADMIN_DATA = {
         "Professional practice"
       ],
       "sourceUrl": "https://nul.ls/humanities/academic-programmes/",
-      "sourcePath": null,
-      "supportingSourcePath": null,
-      "supportingFeeSourcePath": "data/real/fees/nul-fee-structure-2024-2025.json",
       "feeNote": "Fee schedule available: NUL Fee Structure 2024/25 (2024/25). Confirm the programme group and latest amount before payment.",
       "sourceType": "official_academic_programmes_page",
-      "extractionMethod": "html_headings_and_context",
       "reviewStatus": "approved",
-      "sourceNote": "Auto-enriched from repository evidence and institution rules."
+      "sourceNote": "Auto-enriched from repository evidence and institution rules.",
+      "mappingStatus": "suggested",
+      "durationStatus": null
     },
     {
       "id": "national-university-of-lesotho-bachelor-of-arts-in-philosophy-honours",
@@ -3146,14 +2933,12 @@ window.EDUGUIDE_ADMIN_DATA = {
         "Professional practice"
       ],
       "sourceUrl": "https://nul.ls/humanities/academic-programmes/",
-      "sourcePath": null,
-      "supportingSourcePath": null,
-      "supportingFeeSourcePath": "data/real/fees/nul-fee-structure-2024-2025.json",
       "feeNote": "Fee schedule available: NUL Fee Structure 2024/25 (2024/25). Confirm the programme group and latest amount before payment.",
       "sourceType": "official_academic_programmes_page",
-      "extractionMethod": "html_headings_and_context",
       "reviewStatus": "approved",
-      "sourceNote": "Auto-enriched from repository evidence and institution rules."
+      "sourceNote": "Auto-enriched from repository evidence and institution rules.",
+      "mappingStatus": "suggested",
+      "durationStatus": null
     },
     {
       "id": "national-university-of-lesotho-master-of-arts-in-theology-and-religious-studies",
@@ -3180,14 +2965,12 @@ window.EDUGUIDE_ADMIN_DATA = {
         "Professional practice"
       ],
       "sourceUrl": "https://nul.ls/humanities/academic-programmes/",
-      "sourcePath": null,
-      "supportingSourcePath": null,
-      "supportingFeeSourcePath": "data/real/fees/nul-fee-structure-2024-2025.json",
       "feeNote": "Fee schedule available: NUL Fee Structure 2024/25 (2024/25). Confirm the programme group and latest amount before payment.",
       "sourceType": "official_academic_programmes_page",
-      "extractionMethod": "html_headings_and_context",
       "reviewStatus": "approved",
-      "sourceNote": "Auto-enriched from repository evidence and institution rules."
+      "sourceNote": "Auto-enriched from repository evidence and institution rules.",
+      "mappingStatus": "suggested",
+      "durationStatus": null
     },
     {
       "id": "national-university-of-lesotho-master-of-arts-in-spiritual-care-and-counseling",
@@ -3214,14 +2997,12 @@ window.EDUGUIDE_ADMIN_DATA = {
         "Professional practice"
       ],
       "sourceUrl": "https://nul.ls/humanities/academic-programmes/",
-      "sourcePath": null,
-      "supportingSourcePath": null,
-      "supportingFeeSourcePath": "data/real/fees/nul-fee-structure-2024-2025.json",
       "feeNote": "Fee schedule available: NUL Fee Structure 2024/25 (2024/25). Confirm the programme group and latest amount before payment.",
       "sourceType": "official_academic_programmes_page",
-      "extractionMethod": "html_headings_and_context",
       "reviewStatus": "approved",
-      "sourceNote": "Auto-enriched from repository evidence and institution rules."
+      "sourceNote": "Auto-enriched from repository evidence and institution rules.",
+      "mappingStatus": "suggested",
+      "durationStatus": null
     },
     {
       "id": "national-university-of-lesotho-master-of-arts-in-philosophy",
@@ -3248,14 +3029,12 @@ window.EDUGUIDE_ADMIN_DATA = {
         "Professional practice"
       ],
       "sourceUrl": "https://nul.ls/humanities/academic-programmes/",
-      "sourcePath": null,
-      "supportingSourcePath": null,
-      "supportingFeeSourcePath": "data/real/fees/nul-fee-structure-2024-2025.json",
       "feeNote": "Fee schedule available: NUL Fee Structure 2024/25 (2024/25). Confirm the programme group and latest amount before payment.",
       "sourceType": "official_academic_programmes_page",
-      "extractionMethod": "html_headings_and_context",
       "reviewStatus": "approved",
-      "sourceNote": "Auto-enriched from repository evidence and institution rules."
+      "sourceNote": "Auto-enriched from repository evidence and institution rules.",
+      "mappingStatus": "suggested",
+      "durationStatus": null
     },
     {
       "id": "national-university-of-lesotho-master-of-arts-in-history-mode-ii",
@@ -3282,14 +3061,12 @@ window.EDUGUIDE_ADMIN_DATA = {
         "Professional practice"
       ],
       "sourceUrl": "https://nul.ls/humanities/academic-programmes/",
-      "sourcePath": null,
-      "supportingSourcePath": null,
-      "supportingFeeSourcePath": "data/real/fees/nul-fee-structure-2024-2025.json",
       "feeNote": "Fee schedule available: NUL Fee Structure 2024/25 (2024/25). Confirm the programme group and latest amount before payment.",
       "sourceType": "official_academic_programmes_page",
-      "extractionMethod": "html_headings_and_context",
       "reviewStatus": "approved",
-      "sourceNote": "Auto-enriched from repository evidence and institution rules."
+      "sourceNote": "Auto-enriched from repository evidence and institution rules.",
+      "mappingStatus": "suggested",
+      "durationStatus": null
     },
     {
       "id": "national-university-of-lesotho-master-of-arts-in-history-mode-i",
@@ -3316,14 +3093,12 @@ window.EDUGUIDE_ADMIN_DATA = {
         "Professional practice"
       ],
       "sourceUrl": "https://nul.ls/humanities/academic-programmes/",
-      "sourcePath": null,
-      "supportingSourcePath": null,
-      "supportingFeeSourcePath": "data/real/fees/nul-fee-structure-2024-2025.json",
       "feeNote": "Fee schedule available: NUL Fee Structure 2024/25 (2024/25). Confirm the programme group and latest amount before payment.",
       "sourceType": "official_academic_programmes_page",
-      "extractionMethod": "html_headings_and_context",
       "reviewStatus": "approved",
-      "sourceNote": "Auto-enriched from repository evidence and institution rules."
+      "sourceNote": "Auto-enriched from repository evidence and institution rules.",
+      "mappingStatus": "suggested",
+      "durationStatus": null
     },
     {
       "id": "national-university-of-lesotho-master-of-arts-in-literature-in-english",
@@ -3350,14 +3125,12 @@ window.EDUGUIDE_ADMIN_DATA = {
         "Professional practice"
       ],
       "sourceUrl": "https://nul.ls/humanities/academic-programmes/",
-      "sourcePath": null,
-      "supportingSourcePath": null,
-      "supportingFeeSourcePath": "data/real/fees/nul-fee-structure-2024-2025.json",
       "feeNote": "Fee schedule available: NUL Fee Structure 2024/25 (2024/25). Confirm the programme group and latest amount before payment.",
       "sourceType": "official_academic_programmes_page",
-      "extractionMethod": "html_headings_and_context",
       "reviewStatus": "approved",
-      "sourceNote": "Auto-enriched from repository evidence and institution rules."
+      "sourceNote": "Auto-enriched from repository evidence and institution rules.",
+      "mappingStatus": "suggested",
+      "durationStatus": null
     },
     {
       "id": "national-university-of-lesotho-master-of-arts-in-english-language-linguistics",
@@ -3384,14 +3157,12 @@ window.EDUGUIDE_ADMIN_DATA = {
         "Professional practice"
       ],
       "sourceUrl": "https://nul.ls/humanities/academic-programmes/",
-      "sourcePath": null,
-      "supportingSourcePath": null,
-      "supportingFeeSourcePath": "data/real/fees/nul-fee-structure-2024-2025.json",
       "feeNote": "Fee schedule available: NUL Fee Structure 2024/25 (2024/25). Confirm the programme group and latest amount before payment.",
       "sourceType": "official_academic_programmes_page",
-      "extractionMethod": "html_headings_and_context",
       "reviewStatus": "approved",
-      "sourceNote": "Auto-enriched from repository evidence and institution rules."
+      "sourceNote": "Auto-enriched from repository evidence and institution rules.",
+      "mappingStatus": "suggested",
+      "durationStatus": null
     },
     {
       "id": "national-university-of-lesotho-master-of-arts-in-development-studies",
@@ -3418,14 +3189,12 @@ window.EDUGUIDE_ADMIN_DATA = {
         "Professional practice"
       ],
       "sourceUrl": "https://nul.ls/humanities/academic-programmes/",
-      "sourcePath": null,
-      "supportingSourcePath": null,
-      "supportingFeeSourcePath": "data/real/fees/nul-fee-structure-2024-2025.json",
       "feeNote": "Fee schedule available: NUL Fee Structure 2024/25 (2024/25). Confirm the programme group and latest amount before payment.",
       "sourceType": "official_academic_programmes_page",
-      "extractionMethod": "html_headings_and_context",
       "reviewStatus": "approved",
-      "sourceNote": "Auto-enriched from repository evidence and institution rules."
+      "sourceNote": "Auto-enriched from repository evidence and institution rules.",
+      "mappingStatus": "suggested",
+      "durationStatus": null
     },
     {
       "id": "national-university-of-lesotho-masters-of-arts-in-african-language-and-literature",
@@ -3452,14 +3221,12 @@ window.EDUGUIDE_ADMIN_DATA = {
         "Professional practice"
       ],
       "sourceUrl": "https://nul.ls/humanities/academic-programmes/",
-      "sourcePath": null,
-      "supportingSourcePath": null,
-      "supportingFeeSourcePath": "data/real/fees/nul-fee-structure-2024-2025.json",
       "feeNote": "Fee schedule available: NUL Fee Structure 2024/25 (2024/25). Confirm the programme group and latest amount before payment.",
       "sourceType": "official_academic_programmes_page",
-      "extractionMethod": "html_headings_and_context",
       "reviewStatus": "approved",
-      "sourceNote": "Auto-enriched from repository evidence and institution rules."
+      "sourceNote": "Auto-enriched from repository evidence and institution rules.",
+      "mappingStatus": "suggested",
+      "durationStatus": null
     },
     {
       "id": "national-university-of-lesotho-master-s-degree-of-nul-or-an-equivalent-qualification-from-other-universities-with-a-minimum-score-of-b",
@@ -3486,14 +3253,12 @@ window.EDUGUIDE_ADMIN_DATA = {
         "Professional practice"
       ],
       "sourceUrl": "https://nul.ls/humanities/academic-programmes/",
-      "sourcePath": null,
-      "supportingSourcePath": null,
-      "supportingFeeSourcePath": "data/real/fees/nul-fee-structure-2024-2025.json",
       "feeNote": "Fee schedule available: NUL Fee Structure 2024/25 (2024/25). Confirm the programme group and latest amount before payment.",
       "sourceType": "official_academic_programmes_page",
-      "extractionMethod": "html_headings_and_context",
       "reviewStatus": "approved",
-      "sourceNote": "Auto-enriched from repository evidence and institution rules."
+      "sourceNote": "Auto-enriched from repository evidence and institution rules.",
+      "mappingStatus": "suggested",
+      "durationStatus": null
     },
     {
       "id": "national-university-of-lesotho-certificate-of-proficiency-in-insurance-law",
@@ -3520,14 +3285,12 @@ window.EDUGUIDE_ADMIN_DATA = {
         "Advocacy"
       ],
       "sourceUrl": "https://nul.ls/faculty-of-law/academic-programmes/",
-      "sourcePath": null,
-      "supportingSourcePath": null,
-      "supportingFeeSourcePath": "data/real/fees/nul-fee-structure-2024-2025.json",
       "feeNote": "Fee schedule available: NUL Fee Structure 2024/25 (2024/25). Confirm the programme group and latest amount before payment.",
       "sourceType": "official_academic_programmes_page",
-      "extractionMethod": "html_headings_and_context",
       "reviewStatus": "approved",
-      "sourceNote": "Auto-enriched from repository evidence and institution rules."
+      "sourceNote": "Auto-enriched from repository evidence and institution rules.",
+      "mappingStatus": "suggested",
+      "durationStatus": null
     },
     {
       "id": "national-university-of-lesotho-bachelor-of-laws-ll-b",
@@ -3554,14 +3317,12 @@ window.EDUGUIDE_ADMIN_DATA = {
         "Advocacy"
       ],
       "sourceUrl": "https://nul.ls/faculty-of-law/academic-programmes/",
-      "sourcePath": null,
-      "supportingSourcePath": null,
-      "supportingFeeSourcePath": "data/real/fees/nul-fee-structure-2024-2025.json",
       "feeNote": "Fee schedule available: NUL Fee Structure 2024/25 (2024/25). Confirm the programme group and latest amount before payment.",
       "sourceType": "official_academic_programmes_page",
-      "extractionMethod": "html_headings_and_context",
       "reviewStatus": "approved",
-      "sourceNote": "Auto-enriched from repository evidence and institution rules."
+      "sourceNote": "Auto-enriched from repository evidence and institution rules.",
+      "mappingStatus": "suggested",
+      "durationStatus": null
     },
     {
       "id": "national-university-of-lesotho-postgraduate-diploma-in-pension-law",
@@ -3588,14 +3349,12 @@ window.EDUGUIDE_ADMIN_DATA = {
         "Advocacy"
       ],
       "sourceUrl": "https://nul.ls/faculty-of-law/academic-programmes/",
-      "sourcePath": null,
-      "supportingSourcePath": null,
-      "supportingFeeSourcePath": "data/real/fees/nul-fee-structure-2024-2025.json",
       "feeNote": "Fee schedule available: NUL Fee Structure 2024/25 (2024/25). Confirm the programme group and latest amount before payment.",
       "sourceType": "official_academic_programmes_page",
-      "extractionMethod": "html_headings_and_context",
       "reviewStatus": "approved",
-      "sourceNote": "Auto-enriched from repository evidence and institution rules."
+      "sourceNote": "Auto-enriched from repository evidence and institution rules.",
+      "mappingStatus": "suggested",
+      "durationStatus": null
     },
     {
       "id": "national-university-of-lesotho-postgraduate-diploma-in-labour-law-conciliation-and-arbitration",
@@ -3622,14 +3381,12 @@ window.EDUGUIDE_ADMIN_DATA = {
         "Advocacy"
       ],
       "sourceUrl": "https://nul.ls/faculty-of-law/academic-programmes/",
-      "sourcePath": null,
-      "supportingSourcePath": null,
-      "supportingFeeSourcePath": "data/real/fees/nul-fee-structure-2024-2025.json",
       "feeNote": "Fee schedule available: NUL Fee Structure 2024/25 (2024/25). Confirm the programme group and latest amount before payment.",
       "sourceType": "official_academic_programmes_page",
-      "extractionMethod": "html_headings_and_context",
       "reviewStatus": "approved",
-      "sourceNote": "Auto-enriched from repository evidence and institution rules."
+      "sourceNote": "Auto-enriched from repository evidence and institution rules.",
+      "mappingStatus": "suggested",
+      "durationStatus": null
     },
     {
       "id": "national-university-of-lesotho-master-of-laws",
@@ -3656,14 +3413,12 @@ window.EDUGUIDE_ADMIN_DATA = {
         "Advocacy"
       ],
       "sourceUrl": "https://nul.ls/faculty-of-law/academic-programmes/",
-      "sourcePath": null,
-      "supportingSourcePath": null,
-      "supportingFeeSourcePath": "data/real/fees/nul-fee-structure-2024-2025.json",
       "feeNote": "Fee schedule available: NUL Fee Structure 2024/25 (2024/25). Confirm the programme group and latest amount before payment.",
       "sourceType": "official_academic_programmes_page",
-      "extractionMethod": "html_headings_and_context",
       "reviewStatus": "approved",
-      "sourceNote": "Auto-enriched from repository evidence and institution rules."
+      "sourceNote": "Auto-enriched from repository evidence and institution rules.",
+      "mappingStatus": "suggested",
+      "durationStatus": null
     },
     {
       "id": "national-university-of-lesotho-master-of-laws-in-commercial-law",
@@ -3690,14 +3445,12 @@ window.EDUGUIDE_ADMIN_DATA = {
         "Advocacy"
       ],
       "sourceUrl": "https://nul.ls/faculty-of-law/academic-programmes/",
-      "sourcePath": null,
-      "supportingSourcePath": null,
-      "supportingFeeSourcePath": "data/real/fees/nul-fee-structure-2024-2025.json",
       "feeNote": "Fee schedule available: NUL Fee Structure 2024/25 (2024/25). Confirm the programme group and latest amount before payment.",
       "sourceType": "official_academic_programmes_page",
-      "extractionMethod": "html_headings_and_context",
       "reviewStatus": "approved",
-      "sourceNote": "Auto-enriched from repository evidence and institution rules."
+      "sourceNote": "Auto-enriched from repository evidence and institution rules.",
+      "mappingStatus": "suggested",
+      "durationStatus": null
     },
     {
       "id": "national-university-of-lesotho-master-of-laws-in-constitutional-law",
@@ -3724,14 +3477,12 @@ window.EDUGUIDE_ADMIN_DATA = {
         "Advocacy"
       ],
       "sourceUrl": "https://nul.ls/faculty-of-law/academic-programmes/",
-      "sourcePath": null,
-      "supportingSourcePath": null,
-      "supportingFeeSourcePath": "data/real/fees/nul-fee-structure-2024-2025.json",
       "feeNote": "Fee schedule available: NUL Fee Structure 2024/25 (2024/25). Confirm the programme group and latest amount before payment.",
       "sourceType": "official_academic_programmes_page",
-      "extractionMethod": "html_headings_and_context",
       "reviewStatus": "approved",
-      "sourceNote": "Auto-enriched from repository evidence and institution rules."
+      "sourceNote": "Auto-enriched from repository evidence and institution rules.",
+      "mappingStatus": "suggested",
+      "durationStatus": null
     },
     {
       "id": "national-university-of-lesotho-master-of-laws-in-human-rights-law",
@@ -3758,14 +3509,12 @@ window.EDUGUIDE_ADMIN_DATA = {
         "Advocacy"
       ],
       "sourceUrl": "https://nul.ls/faculty-of-law/academic-programmes/",
-      "sourcePath": null,
-      "supportingSourcePath": null,
-      "supportingFeeSourcePath": "data/real/fees/nul-fee-structure-2024-2025.json",
       "feeNote": "Fee schedule available: NUL Fee Structure 2024/25 (2024/25). Confirm the programme group and latest amount before payment.",
       "sourceType": "official_academic_programmes_page",
-      "extractionMethod": "html_headings_and_context",
       "reviewStatus": "approved",
-      "sourceNote": "Auto-enriched from repository evidence and institution rules."
+      "sourceNote": "Auto-enriched from repository evidence and institution rules.",
+      "mappingStatus": "suggested",
+      "durationStatus": null
     },
     {
       "id": "national-university-of-lesotho-master-of-laws-in-international-economic-law",
@@ -3792,14 +3541,12 @@ window.EDUGUIDE_ADMIN_DATA = {
         "Advocacy"
       ],
       "sourceUrl": "https://nul.ls/faculty-of-law/academic-programmes/",
-      "sourcePath": null,
-      "supportingSourcePath": null,
-      "supportingFeeSourcePath": "data/real/fees/nul-fee-structure-2024-2025.json",
       "feeNote": "Fee schedule available: NUL Fee Structure 2024/25 (2024/25). Confirm the programme group and latest amount before payment.",
       "sourceType": "official_academic_programmes_page",
-      "extractionMethod": "html_headings_and_context",
       "reviewStatus": "approved",
-      "sourceNote": "Auto-enriched from repository evidence and institution rules."
+      "sourceNote": "Auto-enriched from repository evidence and institution rules.",
+      "mappingStatus": "suggested",
+      "durationStatus": null
     },
     {
       "id": "national-university-of-lesotho-master-of-laws-in-intellectual-property-law",
@@ -3826,14 +3573,12 @@ window.EDUGUIDE_ADMIN_DATA = {
         "Advocacy"
       ],
       "sourceUrl": "https://nul.ls/faculty-of-law/academic-programmes/",
-      "sourcePath": null,
-      "supportingSourcePath": null,
-      "supportingFeeSourcePath": "data/real/fees/nul-fee-structure-2024-2025.json",
       "feeNote": "Fee schedule available: NUL Fee Structure 2024/25 (2024/25). Confirm the programme group and latest amount before payment.",
       "sourceType": "official_academic_programmes_page",
-      "extractionMethod": "html_headings_and_context",
       "reviewStatus": "approved",
-      "sourceNote": "Auto-enriched from repository evidence and institution rules."
+      "sourceNote": "Auto-enriched from repository evidence and institution rules.",
+      "mappingStatus": "suggested",
+      "durationStatus": null
     },
     {
       "id": "national-university-of-lesotho-master-of-laws-in-labour-law",
@@ -3860,14 +3605,12 @@ window.EDUGUIDE_ADMIN_DATA = {
         "Advocacy"
       ],
       "sourceUrl": "https://nul.ls/faculty-of-law/academic-programmes/",
-      "sourcePath": null,
-      "supportingSourcePath": null,
-      "supportingFeeSourcePath": "data/real/fees/nul-fee-structure-2024-2025.json",
       "feeNote": "Fee schedule available: NUL Fee Structure 2024/25 (2024/25). Confirm the programme group and latest amount before payment.",
       "sourceType": "official_academic_programmes_page",
-      "extractionMethod": "html_headings_and_context",
       "reviewStatus": "approved",
-      "sourceNote": "Auto-enriched from repository evidence and institution rules."
+      "sourceNote": "Auto-enriched from repository evidence and institution rules.",
+      "mappingStatus": "suggested",
+      "durationStatus": null
     },
     {
       "id": "national-university-of-lesotho-master-of-laws-in-law-governance-and-development",
@@ -3894,14 +3637,12 @@ window.EDUGUIDE_ADMIN_DATA = {
         "Advocacy"
       ],
       "sourceUrl": "https://nul.ls/faculty-of-law/academic-programmes/",
-      "sourcePath": null,
-      "supportingSourcePath": null,
-      "supportingFeeSourcePath": "data/real/fees/nul-fee-structure-2024-2025.json",
       "feeNote": "Fee schedule available: NUL Fee Structure 2024/25 (2024/25). Confirm the programme group and latest amount before payment.",
       "sourceType": "official_academic_programmes_page",
-      "extractionMethod": "html_headings_and_context",
       "reviewStatus": "approved",
-      "sourceNote": "Auto-enriched from repository evidence and institution rules."
+      "sourceNote": "Auto-enriched from repository evidence and institution rules.",
+      "mappingStatus": "suggested",
+      "durationStatus": null
     },
     {
       "id": "national-university-of-lesotho-master-of-laws-in-pension-law",
@@ -3928,14 +3669,12 @@ window.EDUGUIDE_ADMIN_DATA = {
         "Advocacy"
       ],
       "sourceUrl": "https://nul.ls/faculty-of-law/academic-programmes/",
-      "sourcePath": null,
-      "supportingSourcePath": null,
-      "supportingFeeSourcePath": "data/real/fees/nul-fee-structure-2024-2025.json",
       "feeNote": "Fee schedule available: NUL Fee Structure 2024/25 (2024/25). Confirm the programme group and latest amount before payment.",
       "sourceType": "official_academic_programmes_page",
-      "extractionMethod": "html_headings_and_context",
       "reviewStatus": "approved",
-      "sourceNote": "Auto-enriched from repository evidence and institution rules."
+      "sourceNote": "Auto-enriched from repository evidence and institution rules.",
+      "mappingStatus": "suggested",
+      "durationStatus": null
     },
     {
       "id": "national-university-of-lesotho-master-of-laws-in-african-customary-law",
@@ -3962,14 +3701,12 @@ window.EDUGUIDE_ADMIN_DATA = {
         "Advocacy"
       ],
       "sourceUrl": "https://nul.ls/faculty-of-law/academic-programmes/",
-      "sourcePath": null,
-      "supportingSourcePath": null,
-      "supportingFeeSourcePath": "data/real/fees/nul-fee-structure-2024-2025.json",
       "feeNote": "Fee schedule available: NUL Fee Structure 2024/25 (2024/25). Confirm the programme group and latest amount before payment.",
       "sourceType": "official_academic_programmes_page",
-      "extractionMethod": "html_headings_and_context",
       "reviewStatus": "approved",
-      "sourceNote": "Auto-enriched from repository evidence and institution rules."
+      "sourceNote": "Auto-enriched from repository evidence and institution rules.",
+      "mappingStatus": "suggested",
+      "durationStatus": null
     },
     {
       "id": "national-university-of-lesotho-master-of-laws-in-criminal-law-and-criminal-procedure",
@@ -3996,14 +3733,12 @@ window.EDUGUIDE_ADMIN_DATA = {
         "Advocacy"
       ],
       "sourceUrl": "https://nul.ls/faculty-of-law/academic-programmes/",
-      "sourcePath": null,
-      "supportingSourcePath": null,
-      "supportingFeeSourcePath": "data/real/fees/nul-fee-structure-2024-2025.json",
       "feeNote": "Fee schedule available: NUL Fee Structure 2024/25 (2024/25). Confirm the programme group and latest amount before payment.",
       "sourceType": "official_academic_programmes_page",
-      "extractionMethod": "html_headings_and_context",
       "reviewStatus": "approved",
-      "sourceNote": "Auto-enriched from repository evidence and institution rules."
+      "sourceNote": "Auto-enriched from repository evidence and institution rules.",
+      "mappingStatus": "suggested",
+      "durationStatus": null
     },
     {
       "id": "national-university-of-lesotho-master-of-laws-in-cyber-law",
@@ -4030,14 +3765,12 @@ window.EDUGUIDE_ADMIN_DATA = {
         "Incident response"
       ],
       "sourceUrl": "https://nul.ls/faculty-of-law/academic-programmes/",
-      "sourcePath": null,
-      "supportingSourcePath": null,
-      "supportingFeeSourcePath": "data/real/fees/nul-fee-structure-2024-2025.json",
       "feeNote": "Fee schedule available: NUL Fee Structure 2024/25 (2024/25). Confirm the programme group and latest amount before payment.",
       "sourceType": "official_academic_programmes_page",
-      "extractionMethod": "html_headings_and_context",
       "reviewStatus": "approved",
-      "sourceNote": "Auto-enriched from repository evidence and institution rules."
+      "sourceNote": "Auto-enriched from repository evidence and institution rules.",
+      "mappingStatus": "suggested",
+      "durationStatus": null
     },
     {
       "id": "national-university-of-lesotho-master-of-laws-in-international-commercial-arbitration",
@@ -4064,14 +3797,12 @@ window.EDUGUIDE_ADMIN_DATA = {
         "Advocacy"
       ],
       "sourceUrl": "https://nul.ls/faculty-of-law/academic-programmes/",
-      "sourcePath": null,
-      "supportingSourcePath": null,
-      "supportingFeeSourcePath": "data/real/fees/nul-fee-structure-2024-2025.json",
       "feeNote": "Fee schedule available: NUL Fee Structure 2024/25 (2024/25). Confirm the programme group and latest amount before payment.",
       "sourceType": "official_academic_programmes_page",
-      "extractionMethod": "html_headings_and_context",
       "reviewStatus": "approved",
-      "sourceNote": "Auto-enriched from repository evidence and institution rules."
+      "sourceNote": "Auto-enriched from repository evidence and institution rules.",
+      "mappingStatus": "suggested",
+      "durationStatus": null
     },
     {
       "id": "national-university-of-lesotho-master-of-laws-in-international-law",
@@ -4098,14 +3829,12 @@ window.EDUGUIDE_ADMIN_DATA = {
         "Advocacy"
       ],
       "sourceUrl": "https://nul.ls/faculty-of-law/academic-programmes/",
-      "sourcePath": null,
-      "supportingSourcePath": null,
-      "supportingFeeSourcePath": "data/real/fees/nul-fee-structure-2024-2025.json",
       "feeNote": "Fee schedule available: NUL Fee Structure 2024/25 (2024/25). Confirm the programme group and latest amount before payment.",
       "sourceType": "official_academic_programmes_page",
-      "extractionMethod": "html_headings_and_context",
       "reviewStatus": "approved",
-      "sourceNote": "Auto-enriched from repository evidence and institution rules."
+      "sourceNote": "Auto-enriched from repository evidence and institution rules.",
+      "mappingStatus": "suggested",
+      "durationStatus": null
     },
     {
       "id": "national-university-of-lesotho-master-of-laws-in-jurisprudence",
@@ -4132,14 +3861,12 @@ window.EDUGUIDE_ADMIN_DATA = {
         "Advocacy"
       ],
       "sourceUrl": "https://nul.ls/faculty-of-law/academic-programmes/",
-      "sourcePath": null,
-      "supportingSourcePath": null,
-      "supportingFeeSourcePath": "data/real/fees/nul-fee-structure-2024-2025.json",
       "feeNote": "Fee schedule available: NUL Fee Structure 2024/25 (2024/25). Confirm the programme group and latest amount before payment.",
       "sourceType": "official_academic_programmes_page",
-      "extractionMethod": "html_headings_and_context",
       "reviewStatus": "approved",
-      "sourceNote": "Auto-enriched from repository evidence and institution rules."
+      "sourceNote": "Auto-enriched from repository evidence and institution rules.",
+      "mappingStatus": "suggested",
+      "durationStatus": null
     },
     {
       "id": "national-university-of-lesotho-master-of-laws-in-mercantile-law",
@@ -4166,14 +3893,12 @@ window.EDUGUIDE_ADMIN_DATA = {
         "Advocacy"
       ],
       "sourceUrl": "https://nul.ls/faculty-of-law/academic-programmes/",
-      "sourcePath": null,
-      "supportingSourcePath": null,
-      "supportingFeeSourcePath": "data/real/fees/nul-fee-structure-2024-2025.json",
       "feeNote": "Fee schedule available: NUL Fee Structure 2024/25 (2024/25). Confirm the programme group and latest amount before payment.",
       "sourceType": "official_academic_programmes_page",
-      "extractionMethod": "html_headings_and_context",
       "reviewStatus": "approved",
-      "sourceNote": "Auto-enriched from repository evidence and institution rules."
+      "sourceNote": "Auto-enriched from repository evidence and institution rules.",
+      "mappingStatus": "suggested",
+      "durationStatus": null
     },
     {
       "id": "national-university-of-lesotho-master-of-laws-in-private-law",
@@ -4200,14 +3925,12 @@ window.EDUGUIDE_ADMIN_DATA = {
         "Advocacy"
       ],
       "sourceUrl": "https://nul.ls/faculty-of-law/academic-programmes/",
-      "sourcePath": null,
-      "supportingSourcePath": null,
-      "supportingFeeSourcePath": "data/real/fees/nul-fee-structure-2024-2025.json",
       "feeNote": "Fee schedule available: NUL Fee Structure 2024/25 (2024/25). Confirm the programme group and latest amount before payment.",
       "sourceType": "official_academic_programmes_page",
-      "extractionMethod": "html_headings_and_context",
       "reviewStatus": "approved",
-      "sourceNote": "Auto-enriched from repository evidence and institution rules."
+      "sourceNote": "Auto-enriched from repository evidence and institution rules.",
+      "mappingStatus": "suggested",
+      "durationStatus": null
     },
     {
       "id": "national-university-of-lesotho-master-of-laws-in-public-enterprises-law",
@@ -4234,14 +3957,12 @@ window.EDUGUIDE_ADMIN_DATA = {
         "Advocacy"
       ],
       "sourceUrl": "https://nul.ls/faculty-of-law/academic-programmes/",
-      "sourcePath": null,
-      "supportingSourcePath": null,
-      "supportingFeeSourcePath": "data/real/fees/nul-fee-structure-2024-2025.json",
       "feeNote": "Fee schedule available: NUL Fee Structure 2024/25 (2024/25). Confirm the programme group and latest amount before payment.",
       "sourceType": "official_academic_programmes_page",
-      "extractionMethod": "html_headings_and_context",
       "reviewStatus": "approved",
-      "sourceNote": "Auto-enriched from repository evidence and institution rules."
+      "sourceNote": "Auto-enriched from repository evidence and institution rules.",
+      "mappingStatus": "suggested",
+      "durationStatus": null
     },
     {
       "id": "national-university-of-lesotho-master-of-laws-in-revenue-law-taxation",
@@ -4268,14 +3989,12 @@ window.EDUGUIDE_ADMIN_DATA = {
         "Advocacy"
       ],
       "sourceUrl": "https://nul.ls/faculty-of-law/academic-programmes/",
-      "sourcePath": null,
-      "supportingSourcePath": null,
-      "supportingFeeSourcePath": "data/real/fees/nul-fee-structure-2024-2025.json",
       "feeNote": "Fee schedule available: NUL Fee Structure 2024/25 (2024/25). Confirm the programme group and latest amount before payment.",
       "sourceType": "official_academic_programmes_page",
-      "extractionMethod": "html_headings_and_context",
       "reviewStatus": "approved",
-      "sourceNote": "Auto-enriched from repository evidence and institution rules."
+      "sourceNote": "Auto-enriched from repository evidence and institution rules.",
+      "mappingStatus": "suggested",
+      "durationStatus": null
     },
     {
       "id": "national-university-of-lesotho-phd-in-law",
@@ -4302,14 +4021,12 @@ window.EDUGUIDE_ADMIN_DATA = {
         "Advocacy"
       ],
       "sourceUrl": "https://nul.ls/faculty-of-law/academic-programmes/",
-      "sourcePath": null,
-      "supportingSourcePath": null,
-      "supportingFeeSourcePath": "data/real/fees/nul-fee-structure-2024-2025.json",
       "feeNote": "Fee schedule available: NUL Fee Structure 2024/25 (2024/25). Confirm the programme group and latest amount before payment.",
       "sourceType": "official_academic_programmes_page",
-      "extractionMethod": "html_headings_and_context",
       "reviewStatus": "approved",
-      "sourceNote": "Auto-enriched from repository evidence and institution rules."
+      "sourceNote": "Auto-enriched from repository evidence and institution rules.",
+      "mappingStatus": "suggested",
+      "durationStatus": null
     },
     {
       "id": "national-university-of-lesotho-bachelor-of-commerce",
@@ -4336,14 +4053,12 @@ window.EDUGUIDE_ADMIN_DATA = {
         "Counselling skills"
       ],
       "sourceUrl": "https://nul.ls/faculty-of-social-sciences/academic-programmes/",
-      "sourcePath": null,
-      "supportingSourcePath": null,
-      "supportingFeeSourcePath": "data/real/fees/nul-fee-structure-2024-2025.json",
       "feeNote": "Fee schedule available: NUL Fee Structure 2024/25 (2024/25). Confirm the programme group and latest amount before payment.",
       "sourceType": "official_academic_programmes_page",
-      "extractionMethod": "html_headings_and_context",
       "reviewStatus": "approved",
-      "sourceNote": "Auto-enriched from repository evidence and institution rules."
+      "sourceNote": "Auto-enriched from repository evidence and institution rules.",
+      "mappingStatus": "suggested",
+      "durationStatus": null
     },
     {
       "id": "national-university-of-lesotho-bachelor-of-commerce-is-offered-in-the-following-areas-of-specialization",
@@ -4370,14 +4085,12 @@ window.EDUGUIDE_ADMIN_DATA = {
         "Counselling skills"
       ],
       "sourceUrl": "https://nul.ls/faculty-of-social-sciences/academic-programmes/",
-      "sourcePath": null,
-      "supportingSourcePath": null,
-      "supportingFeeSourcePath": "data/real/fees/nul-fee-structure-2024-2025.json",
       "feeNote": "Fee schedule available: NUL Fee Structure 2024/25 (2024/25). Confirm the programme group and latest amount before payment.",
       "sourceType": "official_academic_programmes_page",
-      "extractionMethod": "html_headings_and_context",
       "reviewStatus": "approved",
-      "sourceNote": "Auto-enriched from repository evidence and institution rules."
+      "sourceNote": "Auto-enriched from repository evidence and institution rules.",
+      "mappingStatus": "suggested",
+      "durationStatus": null
     },
     {
       "id": "national-university-of-lesotho-bachelor-of-commerce-in-accounting-and-finance",
@@ -4404,14 +4117,12 @@ window.EDUGUIDE_ADMIN_DATA = {
         "Bookkeeping"
       ],
       "sourceUrl": "https://nul.ls/faculty-of-social-sciences/academic-programmes/",
-      "sourcePath": null,
-      "supportingSourcePath": null,
-      "supportingFeeSourcePath": "data/real/fees/nul-fee-structure-2024-2025.json",
       "feeNote": "Fee schedule available: NUL Fee Structure 2024/25 (2024/25). Confirm the programme group and latest amount before payment.",
       "sourceType": "official_academic_programmes_page",
-      "extractionMethod": "html_headings_and_context",
       "reviewStatus": "approved",
-      "sourceNote": "Auto-enriched from repository evidence and institution rules."
+      "sourceNote": "Auto-enriched from repository evidence and institution rules.",
+      "mappingStatus": "suggested",
+      "durationStatus": null
     },
     {
       "id": "national-university-of-lesotho-bachelor-of-commerce-in-marketing",
@@ -4438,14 +4149,12 @@ window.EDUGUIDE_ADMIN_DATA = {
         "Customer analytics"
       ],
       "sourceUrl": "https://nul.ls/faculty-of-social-sciences/academic-programmes/",
-      "sourcePath": null,
-      "supportingSourcePath": null,
-      "supportingFeeSourcePath": "data/real/fees/nul-fee-structure-2024-2025.json",
       "feeNote": "Fee schedule available: NUL Fee Structure 2024/25 (2024/25). Confirm the programme group and latest amount before payment.",
       "sourceType": "official_academic_programmes_page",
-      "extractionMethod": "html_headings_and_context",
       "reviewStatus": "approved",
-      "sourceNote": "Auto-enriched from repository evidence and institution rules."
+      "sourceNote": "Auto-enriched from repository evidence and institution rules.",
+      "mappingStatus": "suggested",
+      "durationStatus": null
     },
     {
       "id": "national-university-of-lesotho-bachelor-of-human-resources-management",
@@ -4458,7 +4167,7 @@ window.EDUGUIDE_ADMIN_DATA = {
       "duration": "4 years with project",
       "deliveryMode": null,
       "overview": null,
-      "requirementsSummary": ": To be considered for admission, candidates must have: sat for a minimum of six (6) subjects in LGCSE Examination LGCSE or its equivalent with a minimum achievement rating of a \"C\" or better in four subjects including English Language and Mathematics. A \"D\" or better in the remaining two subjects. Indirect Entry The normal entry requirements for candidates shall be:  A Diploma in Business Management from the Institute of Extra Mural Studies (IEMS) achieved with distinction. OR",
+      "requirementsSummary": ": To be considered for admission, candidates must have: sat for a minimum of six (6) subjects in LGCSE Examination LGCSE or its equivalent with a minimum achievement rating of a \"C\" or better in four subjects including English Language and Mathematics. A \"D\" or better in the remaining two subjects. Indirect Entry The normal entry requirements for candidates shall be: \uf0b7 A Diploma in Business Management from the Institute of Extra Mural Studies (IEMS) achieved with distinction. OR",
       "careers": [
         "Human Resources Officer",
         "Talent Acquisition Specialist",
@@ -4472,14 +4181,12 @@ window.EDUGUIDE_ADMIN_DATA = {
         "Labour policy"
       ],
       "sourceUrl": "https://nul.ls/faculty-of-social-sciences/academic-programmes/",
-      "sourcePath": null,
-      "supportingSourcePath": null,
-      "supportingFeeSourcePath": "data/real/fees/nul-fee-structure-2024-2025.json",
       "feeNote": "Fee schedule available: NUL Fee Structure 2024/25 (2024/25). Confirm the programme group and latest amount before payment.",
       "sourceType": "official_academic_programmes_page",
-      "extractionMethod": "html_headings_and_context",
       "reviewStatus": "approved",
-      "sourceNote": "Auto-enriched from repository evidence and institution rules."
+      "sourceNote": "Auto-enriched from repository evidence and institution rules.",
+      "mappingStatus": "suggested",
+      "durationStatus": null
     },
     {
       "id": "national-university-of-lesotho-bachelor-of-arts-in-economics",
@@ -4506,14 +4213,12 @@ window.EDUGUIDE_ADMIN_DATA = {
         "Counselling skills"
       ],
       "sourceUrl": "https://nul.ls/faculty-of-social-sciences/academic-programmes/",
-      "sourcePath": null,
-      "supportingSourcePath": null,
-      "supportingFeeSourcePath": "data/real/fees/nul-fee-structure-2024-2025.json",
       "feeNote": "Fee schedule available: NUL Fee Structure 2024/25 (2024/25). Confirm the programme group and latest amount before payment.",
       "sourceType": "official_academic_programmes_page",
-      "extractionMethod": "html_headings_and_context",
       "reviewStatus": "approved",
-      "sourceNote": "Auto-enriched from repository evidence and institution rules."
+      "sourceNote": "Auto-enriched from repository evidence and institution rules.",
+      "mappingStatus": "suggested",
+      "durationStatus": null
     },
     {
       "id": "national-university-of-lesotho-diploma-in-business-management-of-the-institute-of-extra-mural-studies-iems-with-a-pass-with-distinction",
@@ -4540,14 +4245,12 @@ window.EDUGUIDE_ADMIN_DATA = {
         "Business communication"
       ],
       "sourceUrl": "https://nul.ls/faculty-of-social-sciences/academic-programmes/",
-      "sourcePath": null,
-      "supportingSourcePath": null,
-      "supportingFeeSourcePath": "data/real/fees/nul-fee-structure-2024-2025.json",
       "feeNote": "Fee schedule available: NUL Fee Structure 2024/25 (2024/25). Confirm the programme group and latest amount before payment.",
       "sourceType": "official_academic_programmes_page",
-      "extractionMethod": "html_headings_and_context",
       "reviewStatus": "approved",
-      "sourceNote": "Auto-enriched from repository evidence and institution rules."
+      "sourceNote": "Auto-enriched from repository evidence and institution rules.",
+      "mappingStatus": "suggested",
+      "durationStatus": null
     },
     {
       "id": "national-university-of-lesotho-bachelor-of-arts-in-sociology",
@@ -4574,14 +4277,12 @@ window.EDUGUIDE_ADMIN_DATA = {
         "Counselling skills"
       ],
       "sourceUrl": "https://nul.ls/faculty-of-social-sciences/academic-programmes/",
-      "sourcePath": null,
-      "supportingSourcePath": null,
-      "supportingFeeSourcePath": "data/real/fees/nul-fee-structure-2024-2025.json",
       "feeNote": "Fee schedule available: NUL Fee Structure 2024/25 (2024/25). Confirm the programme group and latest amount before payment.",
       "sourceType": "official_academic_programmes_page",
-      "extractionMethod": "html_headings_and_context",
       "reviewStatus": "approved",
-      "sourceNote": "Auto-enriched from repository evidence and institution rules."
+      "sourceNote": "Auto-enriched from repository evidence and institution rules.",
+      "mappingStatus": "suggested",
+      "durationStatus": null
     },
     {
       "id": "national-university-of-lesotho-bachelor-of-social-work",
@@ -4608,14 +4309,12 @@ window.EDUGUIDE_ADMIN_DATA = {
         "Counselling skills"
       ],
       "sourceUrl": "https://nul.ls/faculty-of-social-sciences/academic-programmes/",
-      "sourcePath": null,
-      "supportingSourcePath": null,
-      "supportingFeeSourcePath": "data/real/fees/nul-fee-structure-2024-2025.json",
       "feeNote": "Fee schedule available: NUL Fee Structure 2024/25 (2024/25). Confirm the programme group and latest amount before payment.",
       "sourceType": "official_academic_programmes_page",
-      "extractionMethod": "html_headings_and_context",
       "reviewStatus": "approved",
-      "sourceNote": "Auto-enriched from repository evidence and institution rules."
+      "sourceNote": "Auto-enriched from repository evidence and institution rules.",
+      "mappingStatus": "suggested",
+      "durationStatus": null
     },
     {
       "id": "national-university-of-lesotho-bachelor-of-arts-in-public-administration",
@@ -4642,14 +4341,12 @@ window.EDUGUIDE_ADMIN_DATA = {
         "Counselling skills"
       ],
       "sourceUrl": "https://nul.ls/faculty-of-social-sciences/academic-programmes/",
-      "sourcePath": null,
-      "supportingSourcePath": null,
-      "supportingFeeSourcePath": "data/real/fees/nul-fee-structure-2024-2025.json",
       "feeNote": "Fee schedule available: NUL Fee Structure 2024/25 (2024/25). Confirm the programme group and latest amount before payment.",
       "sourceType": "official_academic_programmes_page",
-      "extractionMethod": "html_headings_and_context",
       "reviewStatus": "approved",
-      "sourceNote": "Auto-enriched from repository evidence and institution rules."
+      "sourceNote": "Auto-enriched from repository evidence and institution rules.",
+      "mappingStatus": "suggested",
+      "durationStatus": null
     },
     {
       "id": "national-university-of-lesotho-bachelor-of-arts-in-political-science",
@@ -4676,14 +4373,12 @@ window.EDUGUIDE_ADMIN_DATA = {
         "Counselling skills"
       ],
       "sourceUrl": "https://nul.ls/faculty-of-social-sciences/academic-programmes/",
-      "sourcePath": null,
-      "supportingSourcePath": null,
-      "supportingFeeSourcePath": "data/real/fees/nul-fee-structure-2024-2025.json",
       "feeNote": "Fee schedule available: NUL Fee Structure 2024/25 (2024/25). Confirm the programme group and latest amount before payment.",
       "sourceType": "official_academic_programmes_page",
-      "extractionMethod": "html_headings_and_context",
       "reviewStatus": "approved",
-      "sourceNote": "Auto-enriched from repository evidence and institution rules."
+      "sourceNote": "Auto-enriched from repository evidence and institution rules.",
+      "mappingStatus": "suggested",
+      "durationStatus": null
     },
     {
       "id": "national-university-of-lesotho-bachelor-of-arts-in-political-science-double-major",
@@ -4710,14 +4405,12 @@ window.EDUGUIDE_ADMIN_DATA = {
         "Counselling skills"
       ],
       "sourceUrl": "https://nul.ls/faculty-of-social-sciences/academic-programmes/",
-      "sourcePath": null,
-      "supportingSourcePath": null,
-      "supportingFeeSourcePath": "data/real/fees/nul-fee-structure-2024-2025.json",
       "feeNote": "Fee schedule available: NUL Fee Structure 2024/25 (2024/25). Confirm the programme group and latest amount before payment.",
       "sourceType": "official_academic_programmes_page",
-      "extractionMethod": "html_headings_and_context",
       "reviewStatus": "approved",
-      "sourceNote": "Auto-enriched from repository evidence and institution rules."
+      "sourceNote": "Auto-enriched from repository evidence and institution rules.",
+      "mappingStatus": "suggested",
+      "durationStatus": null
     },
     {
       "id": "national-university-of-lesotho-bachelor-of-arts-public-administration-double-major",
@@ -4744,14 +4437,12 @@ window.EDUGUIDE_ADMIN_DATA = {
         "Counselling skills"
       ],
       "sourceUrl": "https://nul.ls/faculty-of-social-sciences/academic-programmes/",
-      "sourcePath": null,
-      "supportingSourcePath": null,
-      "supportingFeeSourcePath": "data/real/fees/nul-fee-structure-2024-2025.json",
       "feeNote": "Fee schedule available: NUL Fee Structure 2024/25 (2024/25). Confirm the programme group and latest amount before payment.",
       "sourceType": "official_academic_programmes_page",
-      "extractionMethod": "html_headings_and_context",
       "reviewStatus": "approved",
-      "sourceNote": "Auto-enriched from repository evidence and institution rules."
+      "sourceNote": "Auto-enriched from repository evidence and institution rules.",
+      "mappingStatus": "suggested",
+      "durationStatus": null
     },
     {
       "id": "national-university-of-lesotho-bachelor-of-arts-in-demography-and-statistics-double-major",
@@ -4778,14 +4469,12 @@ window.EDUGUIDE_ADMIN_DATA = {
         "Counselling skills"
       ],
       "sourceUrl": "https://nul.ls/faculty-of-social-sciences/academic-programmes/",
-      "sourcePath": null,
-      "supportingSourcePath": null,
-      "supportingFeeSourcePath": "data/real/fees/nul-fee-structure-2024-2025.json",
       "feeNote": "Fee schedule available: NUL Fee Structure 2024/25 (2024/25). Confirm the programme group and latest amount before payment.",
       "sourceType": "official_academic_programmes_page",
-      "extractionMethod": "html_headings_and_context",
       "reviewStatus": "approved",
-      "sourceNote": "Auto-enriched from repository evidence and institution rules."
+      "sourceNote": "Auto-enriched from repository evidence and institution rules.",
+      "mappingStatus": "suggested",
+      "durationStatus": null
     },
     {
       "id": "national-university-of-lesotho-masters-degree-programmes",
@@ -4812,14 +4501,12 @@ window.EDUGUIDE_ADMIN_DATA = {
         "Counselling skills"
       ],
       "sourceUrl": "https://nul.ls/faculty-of-social-sciences/academic-programmes/",
-      "sourcePath": null,
-      "supportingSourcePath": null,
-      "supportingFeeSourcePath": "data/real/fees/nul-fee-structure-2024-2025.json",
       "feeNote": "Fee schedule available: NUL Fee Structure 2024/25 (2024/25). Confirm the programme group and latest amount before payment.",
       "sourceType": "official_academic_programmes_page",
-      "extractionMethod": "html_headings_and_context",
       "reviewStatus": "approved",
-      "sourceNote": "Auto-enriched from repository evidence and institution rules."
+      "sourceNote": "Auto-enriched from repository evidence and institution rules.",
+      "mappingStatus": "suggested",
+      "durationStatus": null
     },
     {
       "id": "national-university-of-lesotho-master-of-science-in-economics",
@@ -4846,14 +4533,12 @@ window.EDUGUIDE_ADMIN_DATA = {
         "Counselling skills"
       ],
       "sourceUrl": "https://nul.ls/faculty-of-social-sciences/academic-programmes/",
-      "sourcePath": null,
-      "supportingSourcePath": null,
-      "supportingFeeSourcePath": "data/real/fees/nul-fee-structure-2024-2025.json",
       "feeNote": "Fee schedule available: NUL Fee Structure 2024/25 (2024/25). Confirm the programme group and latest amount before payment.",
       "sourceType": "official_academic_programmes_page",
-      "extractionMethod": "html_headings_and_context",
       "reviewStatus": "approved",
-      "sourceNote": "Auto-enriched from repository evidence and institution rules."
+      "sourceNote": "Auto-enriched from repository evidence and institution rules.",
+      "mappingStatus": "suggested",
+      "durationStatus": null
     },
     {
       "id": "national-university-of-lesotho-master-of-science-in-sociology",
@@ -4880,14 +4565,12 @@ window.EDUGUIDE_ADMIN_DATA = {
         "Counselling skills"
       ],
       "sourceUrl": "https://nul.ls/faculty-of-social-sciences/academic-programmes/",
-      "sourcePath": null,
-      "supportingSourcePath": null,
-      "supportingFeeSourcePath": "data/real/fees/nul-fee-structure-2024-2025.json",
       "feeNote": "Fee schedule available: NUL Fee Structure 2024/25 (2024/25). Confirm the programme group and latest amount before payment.",
       "sourceType": "official_academic_programmes_page",
-      "extractionMethod": "html_headings_and_context",
       "reviewStatus": "approved",
-      "sourceNote": "Auto-enriched from repository evidence and institution rules."
+      "sourceNote": "Auto-enriched from repository evidence and institution rules.",
+      "mappingStatus": "suggested",
+      "durationStatus": null
     },
     {
       "id": "national-university-of-lesotho-master-of-social-work",
@@ -4914,14 +4597,12 @@ window.EDUGUIDE_ADMIN_DATA = {
         "Counselling skills"
       ],
       "sourceUrl": "https://nul.ls/faculty-of-social-sciences/academic-programmes/",
-      "sourcePath": null,
-      "supportingSourcePath": null,
-      "supportingFeeSourcePath": "data/real/fees/nul-fee-structure-2024-2025.json",
       "feeNote": "Fee schedule available: NUL Fee Structure 2024/25 (2024/25). Confirm the programme group and latest amount before payment.",
       "sourceType": "official_academic_programmes_page",
-      "extractionMethod": "html_headings_and_context",
       "reviewStatus": "approved",
-      "sourceNote": "Auto-enriched from repository evidence and institution rules."
+      "sourceNote": "Auto-enriched from repository evidence and institution rules.",
+      "mappingStatus": "suggested",
+      "durationStatus": null
     },
     {
       "id": "national-university-of-lesotho-master-of-arts-in-public-administration",
@@ -4948,14 +4629,12 @@ window.EDUGUIDE_ADMIN_DATA = {
         "Counselling skills"
       ],
       "sourceUrl": "https://nul.ls/faculty-of-social-sciences/academic-programmes/",
-      "sourcePath": null,
-      "supportingSourcePath": null,
-      "supportingFeeSourcePath": "data/real/fees/nul-fee-structure-2024-2025.json",
       "feeNote": "Fee schedule available: NUL Fee Structure 2024/25 (2024/25). Confirm the programme group and latest amount before payment.",
       "sourceType": "official_academic_programmes_page",
-      "extractionMethod": "html_headings_and_context",
       "reviewStatus": "approved",
-      "sourceNote": "Auto-enriched from repository evidence and institution rules."
+      "sourceNote": "Auto-enriched from repository evidence and institution rules.",
+      "mappingStatus": "suggested",
+      "durationStatus": null
     },
     {
       "id": "national-university-of-lesotho-master-of-commerce-in-business-management-new",
@@ -4982,14 +4661,12 @@ window.EDUGUIDE_ADMIN_DATA = {
         "Business communication"
       ],
       "sourceUrl": "https://nul.ls/faculty-of-social-sciences/academic-programmes/",
-      "sourcePath": null,
-      "supportingSourcePath": null,
-      "supportingFeeSourcePath": "data/real/fees/nul-fee-structure-2024-2025.json",
       "feeNote": "Fee schedule available: NUL Fee Structure 2024/25 (2024/25). Confirm the programme group and latest amount before payment.",
       "sourceType": "official_academic_programmes_page",
-      "extractionMethod": "html_headings_and_context",
       "reviewStatus": "approved",
-      "sourceNote": "Auto-enriched from repository evidence and institution rules."
+      "sourceNote": "Auto-enriched from repository evidence and institution rules.",
+      "mappingStatus": "suggested",
+      "durationStatus": null
     },
     {
       "id": "national-university-of-lesotho-bachelor-s-degree-in-business-management-commerce-lqf7-in-the-upper-second-class-second-division-category-65-and-above",
@@ -5016,14 +4693,12 @@ window.EDUGUIDE_ADMIN_DATA = {
         "Business communication"
       ],
       "sourceUrl": "https://nul.ls/faculty-of-social-sciences/academic-programmes/",
-      "sourcePath": null,
-      "supportingSourcePath": null,
-      "supportingFeeSourcePath": "data/real/fees/nul-fee-structure-2024-2025.json",
       "feeNote": "Fee schedule available: NUL Fee Structure 2024/25 (2024/25). Confirm the programme group and latest amount before payment.",
       "sourceType": "official_academic_programmes_page",
-      "extractionMethod": "html_headings_and_context",
       "reviewStatus": "approved",
-      "sourceNote": "Auto-enriched from repository evidence and institution rules."
+      "sourceNote": "Auto-enriched from repository evidence and institution rules.",
+      "mappingStatus": "suggested",
+      "durationStatus": null
     },
     {
       "id": "national-university-of-lesotho-postgraduate-diploma-in-project-management-new",
@@ -5050,14 +4725,12 @@ window.EDUGUIDE_ADMIN_DATA = {
         "Counselling skills"
       ],
       "sourceUrl": "https://nul.ls/faculty-of-social-sciences/academic-programmes/",
-      "sourcePath": null,
-      "supportingSourcePath": null,
-      "supportingFeeSourcePath": "data/real/fees/nul-fee-structure-2024-2025.json",
       "feeNote": "Fee schedule available: NUL Fee Structure 2024/25 (2024/25). Confirm the programme group and latest amount before payment.",
       "sourceType": "official_academic_programmes_page",
-      "extractionMethod": "html_headings_and_context",
       "reviewStatus": "approved",
-      "sourceNote": "Auto-enriched from repository evidence and institution rules."
+      "sourceNote": "Auto-enriched from repository evidence and institution rules.",
+      "mappingStatus": "suggested",
+      "durationStatus": null
     },
     {
       "id": "national-university-of-lesotho-certificate-in-statistics",
@@ -5084,14 +4757,12 @@ window.EDUGUIDE_ADMIN_DATA = {
         "Counselling skills"
       ],
       "sourceUrl": "https://nul.ls/faculty-of-social-sciences/academic-programmes/",
-      "sourcePath": null,
-      "supportingSourcePath": null,
-      "supportingFeeSourcePath": "data/real/fees/nul-fee-structure-2024-2025.json",
       "feeNote": "Fee schedule available: NUL Fee Structure 2024/25 (2024/25). Confirm the programme group and latest amount before payment.",
       "sourceType": "official_academic_programmes_page",
-      "extractionMethod": "html_headings_and_context",
       "reviewStatus": "approved",
-      "sourceNote": "Auto-enriched from repository evidence and institution rules."
+      "sourceNote": "Auto-enriched from repository evidence and institution rules.",
+      "mappingStatus": "suggested",
+      "durationStatus": null
     },
     {
       "id": "national-university-of-lesotho-master-of-arts-in-political-science-public-administration",
@@ -5118,14 +4789,12 @@ window.EDUGUIDE_ADMIN_DATA = {
         "Counselling skills"
       ],
       "sourceUrl": "https://nul.ls/faculty-of-social-sciences/academic-programmes/",
-      "sourcePath": null,
-      "supportingSourcePath": null,
-      "supportingFeeSourcePath": "data/real/fees/nul-fee-structure-2024-2025.json",
       "feeNote": "Fee schedule available: NUL Fee Structure 2024/25 (2024/25). Confirm the programme group and latest amount before payment.",
       "sourceType": "official_academic_programmes_page",
-      "extractionMethod": "html_headings_and_context",
       "reviewStatus": "approved",
-      "sourceNote": "Auto-enriched from repository evidence and institution rules."
+      "sourceNote": "Auto-enriched from repository evidence and institution rules.",
+      "mappingStatus": "suggested",
+      "durationStatus": null
     },
     {
       "id": "national-university-of-lesotho-diploma-in-agricultural-education",
@@ -5152,14 +4821,12 @@ window.EDUGUIDE_ADMIN_DATA = {
         "Curriculum development"
       ],
       "sourceUrl": "https://nul.ls/faculty-of-education/academic-programmes/",
-      "sourcePath": null,
-      "supportingSourcePath": null,
-      "supportingFeeSourcePath": "data/real/fees/nul-fee-structure-2024-2025.json",
       "feeNote": "Fee schedule available: NUL Fee Structure 2024/25 (2024/25). Confirm the programme group and latest amount before payment.",
       "sourceType": "official_academic_programmes_page",
-      "extractionMethod": "html_headings_and_context",
       "reviewStatus": "approved",
-      "sourceNote": "Auto-enriched from repository evidence and institution rules."
+      "sourceNote": "Auto-enriched from repository evidence and institution rules.",
+      "mappingStatus": "suggested",
+      "durationStatus": null
     },
     {
       "id": "national-university-of-lesotho-bachelor-of-education-primary",
@@ -5186,14 +4853,12 @@ window.EDUGUIDE_ADMIN_DATA = {
         "Curriculum development"
       ],
       "sourceUrl": "https://nul.ls/faculty-of-education/academic-programmes/",
-      "sourcePath": null,
-      "supportingSourcePath": null,
-      "supportingFeeSourcePath": "data/real/fees/nul-fee-structure-2024-2025.json",
       "feeNote": "Fee schedule available: NUL Fee Structure 2024/25 (2024/25). Confirm the programme group and latest amount before payment.",
       "sourceType": "official_academic_programmes_page",
-      "extractionMethod": "html_headings_and_context",
       "reviewStatus": "approved",
-      "sourceNote": "Auto-enriched from repository evidence and institution rules."
+      "sourceNote": "Auto-enriched from repository evidence and institution rules.",
+      "mappingStatus": "suggested",
+      "durationStatus": null
     },
     {
       "id": "national-university-of-lesotho-bachelor-of-science-in-education",
@@ -5220,14 +4885,12 @@ window.EDUGUIDE_ADMIN_DATA = {
         "Curriculum development"
       ],
       "sourceUrl": "https://nul.ls/faculty-of-education/academic-programmes/",
-      "sourcePath": null,
-      "supportingSourcePath": null,
-      "supportingFeeSourcePath": "data/real/fees/nul-fee-structure-2024-2025.json",
       "feeNote": "Fee schedule available: NUL Fee Structure 2024/25 (2024/25). Confirm the programme group and latest amount before payment.",
       "sourceType": "official_academic_programmes_page",
-      "extractionMethod": "html_headings_and_context",
       "reviewStatus": "approved",
-      "sourceNote": "Auto-enriched from repository evidence and institution rules."
+      "sourceNote": "Auto-enriched from repository evidence and institution rules.",
+      "mappingStatus": "suggested",
+      "durationStatus": null
     },
     {
       "id": "national-university-of-lesotho-bachelor-of-special-education",
@@ -5254,14 +4917,12 @@ window.EDUGUIDE_ADMIN_DATA = {
         "Curriculum development"
       ],
       "sourceUrl": "https://nul.ls/faculty-of-education/academic-programmes/",
-      "sourcePath": null,
-      "supportingSourcePath": null,
-      "supportingFeeSourcePath": "data/real/fees/nul-fee-structure-2024-2025.json",
       "feeNote": "Fee schedule available: NUL Fee Structure 2024/25 (2024/25). Confirm the programme group and latest amount before payment.",
       "sourceType": "official_academic_programmes_page",
-      "extractionMethod": "html_headings_and_context",
       "reviewStatus": "approved",
-      "sourceNote": "Auto-enriched from repository evidence and institution rules."
+      "sourceNote": "Auto-enriched from repository evidence and institution rules.",
+      "mappingStatus": "suggested",
+      "durationStatus": null
     },
     {
       "id": "national-university-of-lesotho-bachelor-of-education",
@@ -5288,14 +4949,12 @@ window.EDUGUIDE_ADMIN_DATA = {
         "Curriculum development"
       ],
       "sourceUrl": "https://nul.ls/faculty-of-education/academic-programmes/",
-      "sourcePath": null,
-      "supportingSourcePath": null,
-      "supportingFeeSourcePath": "data/real/fees/nul-fee-structure-2024-2025.json",
       "feeNote": "Fee schedule available: NUL Fee Structure 2024/25 (2024/25). Confirm the programme group and latest amount before payment.",
       "sourceType": "official_academic_programmes_page",
-      "extractionMethod": "html_headings_and_context",
       "reviewStatus": "approved",
-      "sourceNote": "Auto-enriched from repository evidence and institution rules."
+      "sourceNote": "Auto-enriched from repository evidence and institution rules.",
+      "mappingStatus": "suggested",
+      "durationStatus": null
     },
     {
       "id": "national-university-of-lesotho-diploma-in-education-secondary-with-a-least-a-second-class-pass-and-two-teaching-subjects-recognized-by-the-school-system",
@@ -5322,14 +4981,12 @@ window.EDUGUIDE_ADMIN_DATA = {
         "Curriculum development"
       ],
       "sourceUrl": "https://nul.ls/faculty-of-education/academic-programmes/",
-      "sourcePath": null,
-      "supportingSourcePath": null,
-      "supportingFeeSourcePath": "data/real/fees/nul-fee-structure-2024-2025.json",
       "feeNote": "Fee schedule available: NUL Fee Structure 2024/25 (2024/25). Confirm the programme group and latest amount before payment.",
       "sourceType": "official_academic_programmes_page",
-      "extractionMethod": "html_headings_and_context",
       "reviewStatus": "approved",
-      "sourceNote": "Auto-enriched from repository evidence and institution rules."
+      "sourceNote": "Auto-enriched from repository evidence and institution rules.",
+      "mappingStatus": "suggested",
+      "durationStatus": null
     },
     {
       "id": "national-university-of-lesotho-master-of-education-m-ed",
@@ -5356,14 +5013,12 @@ window.EDUGUIDE_ADMIN_DATA = {
         "Curriculum development"
       ],
       "sourceUrl": "https://nul.ls/faculty-of-education/academic-programmes/",
-      "sourcePath": null,
-      "supportingSourcePath": null,
-      "supportingFeeSourcePath": "data/real/fees/nul-fee-structure-2024-2025.json",
       "feeNote": "Fee schedule available: NUL Fee Structure 2024/25 (2024/25). Confirm the programme group and latest amount before payment.",
       "sourceType": "official_academic_programmes_page",
-      "extractionMethod": "html_headings_and_context",
       "reviewStatus": "approved",
-      "sourceNote": "Auto-enriched from repository evidence and institution rules."
+      "sourceNote": "Auto-enriched from repository evidence and institution rules.",
+      "mappingStatus": "suggested",
+      "durationStatus": null
     },
     {
       "id": "national-university-of-lesotho-bachelor-of-education-honours",
@@ -5390,14 +5045,12 @@ window.EDUGUIDE_ADMIN_DATA = {
         "Curriculum development"
       ],
       "sourceUrl": "https://nul.ls/faculty-of-education/academic-programmes/",
-      "sourcePath": null,
-      "supportingSourcePath": null,
-      "supportingFeeSourcePath": "data/real/fees/nul-fee-structure-2024-2025.json",
       "feeNote": "Fee schedule available: NUL Fee Structure 2024/25 (2024/25). Confirm the programme group and latest amount before payment.",
       "sourceType": "official_academic_programmes_page",
-      "extractionMethod": "html_headings_and_context",
       "reviewStatus": "approved",
-      "sourceNote": "Auto-enriched from repository evidence and institution rules."
+      "sourceNote": "Auto-enriched from repository evidence and institution rules.",
+      "mappingStatus": "suggested",
+      "durationStatus": null
     },
     {
       "id": "national-university-of-lesotho-postgraduate-diploma-in-education-pgde",
@@ -5424,14 +5077,12 @@ window.EDUGUIDE_ADMIN_DATA = {
         "Curriculum development"
       ],
       "sourceUrl": "https://nul.ls/faculty-of-education/academic-programmes/",
-      "sourcePath": null,
-      "supportingSourcePath": null,
-      "supportingFeeSourcePath": "data/real/fees/nul-fee-structure-2024-2025.json",
       "feeNote": "Fee schedule available: NUL Fee Structure 2024/25 (2024/25). Confirm the programme group and latest amount before payment.",
       "sourceType": "official_academic_programmes_page",
-      "extractionMethod": "html_headings_and_context",
       "reviewStatus": "approved",
-      "sourceNote": "Auto-enriched from repository evidence and institution rules."
+      "sourceNote": "Auto-enriched from repository evidence and institution rules.",
+      "mappingStatus": "suggested",
+      "durationStatus": null
     },
     {
       "id": "national-university-of-lesotho-master-of-science-in-education",
@@ -5458,14 +5109,12 @@ window.EDUGUIDE_ADMIN_DATA = {
         "Curriculum development"
       ],
       "sourceUrl": "https://nul.ls/faculty-of-education/academic-programmes/",
-      "sourcePath": null,
-      "supportingSourcePath": null,
-      "supportingFeeSourcePath": "data/real/fees/nul-fee-structure-2024-2025.json",
       "feeNote": "Fee schedule available: NUL Fee Structure 2024/25 (2024/25). Confirm the programme group and latest amount before payment.",
       "sourceType": "official_academic_programmes_page",
-      "extractionMethod": "html_headings_and_context",
       "reviewStatus": "approved",
-      "sourceNote": "Auto-enriched from repository evidence and institution rules."
+      "sourceNote": "Auto-enriched from repository evidence and institution rules.",
+      "mappingStatus": "suggested",
+      "durationStatus": null
     },
     {
       "id": "national-university-of-lesotho-bachelor-of-science-in-agriculture-bsc-agric-plus-a-pass-with-credit-in-dip-agric-ed",
@@ -5492,14 +5141,12 @@ window.EDUGUIDE_ADMIN_DATA = {
         "Curriculum development"
       ],
       "sourceUrl": "https://nul.ls/faculty-of-education/academic-programmes/",
-      "sourcePath": null,
-      "supportingSourcePath": null,
-      "supportingFeeSourcePath": "data/real/fees/nul-fee-structure-2024-2025.json",
       "feeNote": "Fee schedule available: NUL Fee Structure 2024/25 (2024/25). Confirm the programme group and latest amount before payment.",
       "sourceType": "official_academic_programmes_page",
-      "extractionMethod": "html_headings_and_context",
       "reviewStatus": "approved",
-      "sourceNote": "Auto-enriched from repository evidence and institution rules."
+      "sourceNote": "Auto-enriched from repository evidence and institution rules.",
+      "mappingStatus": "suggested",
+      "durationStatus": null
     },
     {
       "id": "national-university-of-lesotho-master-of-arts-in-education-ma-ed",
@@ -5526,14 +5173,12 @@ window.EDUGUIDE_ADMIN_DATA = {
         "Curriculum development"
       ],
       "sourceUrl": "https://nul.ls/faculty-of-education/academic-programmes/",
-      "sourcePath": null,
-      "supportingSourcePath": null,
-      "supportingFeeSourcePath": "data/real/fees/nul-fee-structure-2024-2025.json",
       "feeNote": "Fee schedule available: NUL Fee Structure 2024/25 (2024/25). Confirm the programme group and latest amount before payment.",
       "sourceType": "official_academic_programmes_page",
-      "extractionMethod": "html_headings_and_context",
       "reviewStatus": "approved",
-      "sourceNote": "Auto-enriched from repository evidence and institution rules."
+      "sourceNote": "Auto-enriched from repository evidence and institution rules.",
+      "mappingStatus": "suggested",
+      "durationStatus": null
     },
     {
       "id": "national-university-of-lesotho-doctor-of-philosophy-in-education",
@@ -5560,14 +5205,12 @@ window.EDUGUIDE_ADMIN_DATA = {
         "Curriculum development"
       ],
       "sourceUrl": "https://nul.ls/faculty-of-education/academic-programmes/",
-      "sourcePath": null,
-      "supportingSourcePath": null,
-      "supportingFeeSourcePath": "data/real/fees/nul-fee-structure-2024-2025.json",
       "feeNote": "Fee schedule available: NUL Fee Structure 2024/25 (2024/25). Confirm the programme group and latest amount before payment.",
       "sourceType": "official_academic_programmes_page",
-      "extractionMethod": "html_headings_and_context",
       "reviewStatus": "approved",
-      "sourceNote": "Auto-enriched from repository evidence and institution rules."
+      "sourceNote": "Auto-enriched from repository evidence and institution rules.",
+      "mappingStatus": "suggested",
+      "durationStatus": null
     },
     {
       "id": "national-university-of-lesotho-bachelor-of-science-in-agriculture-is-offered-in-the-following-areas-of-specialization",
@@ -5594,14 +5237,12 @@ window.EDUGUIDE_ADMIN_DATA = {
         "Agricultural extension"
       ],
       "sourceUrl": "https://nul.ls/faculty-of-agriculture/academic-programmes/",
-      "sourcePath": null,
-      "supportingSourcePath": null,
-      "supportingFeeSourcePath": "data/real/fees/nul-fee-structure-2024-2025.json",
       "feeNote": "Fee schedule available: NUL Fee Structure 2024/25 (2024/25). Confirm the programme group and latest amount before payment.",
       "sourceType": "official_academic_programmes_page",
-      "extractionMethod": "html_headings_and_context",
       "reviewStatus": "approved",
-      "sourceNote": "Auto-enriched from repository evidence and institution rules."
+      "sourceNote": "Auto-enriched from repository evidence and institution rules.",
+      "mappingStatus": "suggested",
+      "durationStatus": null
     },
     {
       "id": "national-university-of-lesotho-bachelor-of-science-in-agriculture",
@@ -5628,14 +5269,12 @@ window.EDUGUIDE_ADMIN_DATA = {
         "Agricultural extension"
       ],
       "sourceUrl": "https://nul.ls/faculty-of-agriculture/academic-programmes/",
-      "sourcePath": null,
-      "supportingSourcePath": null,
-      "supportingFeeSourcePath": "data/real/fees/nul-fee-structure-2024-2025.json",
       "feeNote": "Fee schedule available: NUL Fee Structure 2024/25 (2024/25). Confirm the programme group and latest amount before payment.",
       "sourceType": "official_academic_programmes_page",
-      "extractionMethod": "html_headings_and_context",
       "reviewStatus": "approved",
-      "sourceNote": "Auto-enriched from repository evidence and institution rules."
+      "sourceNote": "Auto-enriched from repository evidence and institution rules.",
+      "mappingStatus": "suggested",
+      "durationStatus": null
     },
     {
       "id": "national-university-of-lesotho-bachelor-of-science-in-agriculture-agricultural-economics",
@@ -5662,14 +5301,12 @@ window.EDUGUIDE_ADMIN_DATA = {
         "Agricultural extension"
       ],
       "sourceUrl": "https://nul.ls/faculty-of-agriculture/academic-programmes/",
-      "sourcePath": null,
-      "supportingSourcePath": null,
-      "supportingFeeSourcePath": "data/real/fees/nul-fee-structure-2024-2025.json",
       "feeNote": "Fee schedule available: NUL Fee Structure 2024/25 (2024/25). Confirm the programme group and latest amount before payment.",
       "sourceType": "official_academic_programmes_page",
-      "extractionMethod": "html_headings_and_context",
       "reviewStatus": "approved",
-      "sourceNote": "Auto-enriched from repository evidence and institution rules."
+      "sourceNote": "Auto-enriched from repository evidence and institution rules.",
+      "mappingStatus": "suggested",
+      "durationStatus": null
     },
     {
       "id": "national-university-of-lesotho-bachelor-of-science-in-agriculture-agricultural-extension",
@@ -5696,14 +5333,12 @@ window.EDUGUIDE_ADMIN_DATA = {
         "Agricultural extension"
       ],
       "sourceUrl": "https://nul.ls/faculty-of-agriculture/academic-programmes/",
-      "sourcePath": null,
-      "supportingSourcePath": null,
-      "supportingFeeSourcePath": "data/real/fees/nul-fee-structure-2024-2025.json",
       "feeNote": "Fee schedule available: NUL Fee Structure 2024/25 (2024/25). Confirm the programme group and latest amount before payment.",
       "sourceType": "official_academic_programmes_page",
-      "extractionMethod": "html_headings_and_context",
       "reviewStatus": "approved",
-      "sourceNote": "Auto-enriched from repository evidence and institution rules."
+      "sourceNote": "Auto-enriched from repository evidence and institution rules.",
+      "mappingStatus": "suggested",
+      "durationStatus": null
     },
     {
       "id": "national-university-of-lesotho-bachelor-of-science-in-agriculture-animal-science",
@@ -5730,14 +5365,12 @@ window.EDUGUIDE_ADMIN_DATA = {
         "Agricultural extension"
       ],
       "sourceUrl": "https://nul.ls/faculty-of-agriculture/academic-programmes/",
-      "sourcePath": null,
-      "supportingSourcePath": null,
-      "supportingFeeSourcePath": "data/real/fees/nul-fee-structure-2024-2025.json",
       "feeNote": "Fee schedule available: NUL Fee Structure 2024/25 (2024/25). Confirm the programme group and latest amount before payment.",
       "sourceType": "official_academic_programmes_page",
-      "extractionMethod": "html_headings_and_context",
       "reviewStatus": "approved",
-      "sourceNote": "Auto-enriched from repository evidence and institution rules."
+      "sourceNote": "Auto-enriched from repository evidence and institution rules.",
+      "mappingStatus": "suggested",
+      "durationStatus": null
     },
     {
       "id": "national-university-of-lesotho-bachelor-of-science-in-agriculture-crop-science",
@@ -5764,14 +5397,12 @@ window.EDUGUIDE_ADMIN_DATA = {
         "Agricultural extension"
       ],
       "sourceUrl": "https://nul.ls/faculty-of-agriculture/academic-programmes/",
-      "sourcePath": null,
-      "supportingSourcePath": null,
-      "supportingFeeSourcePath": "data/real/fees/nul-fee-structure-2024-2025.json",
       "feeNote": "Fee schedule available: NUL Fee Structure 2024/25 (2024/25). Confirm the programme group and latest amount before payment.",
       "sourceType": "official_academic_programmes_page",
-      "extractionMethod": "html_headings_and_context",
       "reviewStatus": "approved",
-      "sourceNote": "Auto-enriched from repository evidence and institution rules."
+      "sourceNote": "Auto-enriched from repository evidence and institution rules.",
+      "mappingStatus": "suggested",
+      "durationStatus": null
     },
     {
       "id": "national-university-of-lesotho-bachelor-of-science-in-agriculture-soil-science",
@@ -5798,14 +5429,12 @@ window.EDUGUIDE_ADMIN_DATA = {
         "Agricultural extension"
       ],
       "sourceUrl": "https://nul.ls/faculty-of-agriculture/academic-programmes/",
-      "sourcePath": null,
-      "supportingSourcePath": null,
-      "supportingFeeSourcePath": "data/real/fees/nul-fee-structure-2024-2025.json",
       "feeNote": "Fee schedule available: NUL Fee Structure 2024/25 (2024/25). Confirm the programme group and latest amount before payment.",
       "sourceType": "official_academic_programmes_page",
-      "extractionMethod": "html_headings_and_context",
       "reviewStatus": "approved",
-      "sourceNote": "Auto-enriched from repository evidence and institution rules."
+      "sourceNote": "Auto-enriched from repository evidence and institution rules.",
+      "mappingStatus": "suggested",
+      "durationStatus": null
     },
     {
       "id": "national-university-of-lesotho-bachelor-of-science-in-consumer-science",
@@ -5832,14 +5461,12 @@ window.EDUGUIDE_ADMIN_DATA = {
         "Agricultural extension"
       ],
       "sourceUrl": "https://nul.ls/faculty-of-agriculture/academic-programmes/",
-      "sourcePath": null,
-      "supportingSourcePath": null,
-      "supportingFeeSourcePath": "data/real/fees/nul-fee-structure-2024-2025.json",
       "feeNote": "Fee schedule available: NUL Fee Structure 2024/25 (2024/25). Confirm the programme group and latest amount before payment.",
       "sourceType": "official_academic_programmes_page",
-      "extractionMethod": "html_headings_and_context",
       "reviewStatus": "approved",
-      "sourceNote": "Auto-enriched from repository evidence and institution rules."
+      "sourceNote": "Auto-enriched from repository evidence and institution rules.",
+      "mappingStatus": "suggested",
+      "durationStatus": null
     },
     {
       "id": "national-university-of-lesotho-bachelor-of-science-in-consumer-sciences",
@@ -5866,14 +5493,12 @@ window.EDUGUIDE_ADMIN_DATA = {
         "Agricultural extension"
       ],
       "sourceUrl": "https://nul.ls/faculty-of-agriculture/academic-programmes/",
-      "sourcePath": null,
-      "supportingSourcePath": null,
-      "supportingFeeSourcePath": "data/real/fees/nul-fee-structure-2024-2025.json",
       "feeNote": "Fee schedule available: NUL Fee Structure 2024/25 (2024/25). Confirm the programme group and latest amount before payment.",
       "sourceType": "official_academic_programmes_page",
-      "extractionMethod": "html_headings_and_context",
       "reviewStatus": "approved",
-      "sourceNote": "Auto-enriched from repository evidence and institution rules."
+      "sourceNote": "Auto-enriched from repository evidence and institution rules.",
+      "mappingStatus": "suggested",
+      "durationStatus": null
     },
     {
       "id": "national-university-of-lesotho-masters-programmes-are-offered-on-a-full-time-basis-only-with-the-following-areas",
@@ -5900,14 +5525,12 @@ window.EDUGUIDE_ADMIN_DATA = {
         "Agricultural extension"
       ],
       "sourceUrl": "https://nul.ls/faculty-of-agriculture/academic-programmes/",
-      "sourcePath": null,
-      "supportingSourcePath": null,
-      "supportingFeeSourcePath": "data/real/fees/nul-fee-structure-2024-2025.json",
       "feeNote": "Fee schedule available: NUL Fee Structure 2024/25 (2024/25). Confirm the programme group and latest amount before payment.",
       "sourceType": "official_academic_programmes_page",
-      "extractionMethod": "html_headings_and_context",
       "reviewStatus": "approved",
-      "sourceNote": "Auto-enriched from repository evidence and institution rules."
+      "sourceNote": "Auto-enriched from repository evidence and institution rules.",
+      "mappingStatus": "suggested",
+      "durationStatus": null
     },
     {
       "id": "national-university-of-lesotho-master-of-science-in-soil-science",
@@ -5934,14 +5557,12 @@ window.EDUGUIDE_ADMIN_DATA = {
         "Agricultural extension"
       ],
       "sourceUrl": "https://nul.ls/faculty-of-agriculture/academic-programmes/",
-      "sourcePath": null,
-      "supportingSourcePath": null,
-      "supportingFeeSourcePath": "data/real/fees/nul-fee-structure-2024-2025.json",
       "feeNote": "Fee schedule available: NUL Fee Structure 2024/25 (2024/25). Confirm the programme group and latest amount before payment.",
       "sourceType": "official_academic_programmes_page",
-      "extractionMethod": "html_headings_and_context",
       "reviewStatus": "approved",
-      "sourceNote": "Auto-enriched from repository evidence and institution rules."
+      "sourceNote": "Auto-enriched from repository evidence and institution rules.",
+      "mappingStatus": "suggested",
+      "durationStatus": null
     },
     {
       "id": "national-university-of-lesotho-master-of-science-in-animal-science",
@@ -5968,14 +5589,12 @@ window.EDUGUIDE_ADMIN_DATA = {
         "Agricultural extension"
       ],
       "sourceUrl": "https://nul.ls/faculty-of-agriculture/academic-programmes/",
-      "sourcePath": null,
-      "supportingSourcePath": null,
-      "supportingFeeSourcePath": "data/real/fees/nul-fee-structure-2024-2025.json",
       "feeNote": "Fee schedule available: NUL Fee Structure 2024/25 (2024/25). Confirm the programme group and latest amount before payment.",
       "sourceType": "official_academic_programmes_page",
-      "extractionMethod": "html_headings_and_context",
       "reviewStatus": "approved",
-      "sourceNote": "Auto-enriched from repository evidence and institution rules."
+      "sourceNote": "Auto-enriched from repository evidence and institution rules.",
+      "mappingStatus": "suggested",
+      "durationStatus": null
     },
     {
       "id": "national-university-of-lesotho-master-of-science-in-crop-science",
@@ -6002,14 +5621,12 @@ window.EDUGUIDE_ADMIN_DATA = {
         "Agricultural extension"
       ],
       "sourceUrl": "https://nul.ls/faculty-of-agriculture/academic-programmes/",
-      "sourcePath": null,
-      "supportingSourcePath": null,
-      "supportingFeeSourcePath": "data/real/fees/nul-fee-structure-2024-2025.json",
       "feeNote": "Fee schedule available: NUL Fee Structure 2024/25 (2024/25). Confirm the programme group and latest amount before payment.",
       "sourceType": "official_academic_programmes_page",
-      "extractionMethod": "html_headings_and_context",
       "reviewStatus": "approved",
-      "sourceNote": "Auto-enriched from repository evidence and institution rules."
+      "sourceNote": "Auto-enriched from repository evidence and institution rules.",
+      "mappingStatus": "suggested",
+      "durationStatus": null
     },
     {
       "id": "national-university-of-lesotho-master-of-science-in-agricultural-extension",
@@ -6036,14 +5653,12 @@ window.EDUGUIDE_ADMIN_DATA = {
         "Agricultural extension"
       ],
       "sourceUrl": "https://nul.ls/faculty-of-agriculture/academic-programmes/",
-      "sourcePath": null,
-      "supportingSourcePath": null,
-      "supportingFeeSourcePath": "data/real/fees/nul-fee-structure-2024-2025.json",
       "feeNote": "Fee schedule available: NUL Fee Structure 2024/25 (2024/25). Confirm the programme group and latest amount before payment.",
       "sourceType": "official_academic_programmes_page",
-      "extractionMethod": "html_headings_and_context",
       "reviewStatus": "approved",
-      "sourceNote": "Auto-enriched from repository evidence and institution rules."
+      "sourceNote": "Auto-enriched from repository evidence and institution rules.",
+      "mappingStatus": "suggested",
+      "durationStatus": null
     },
     {
       "id": "national-university-of-lesotho-master-of-science-in-agricultural-and-resource-economics",
@@ -6070,14 +5685,12 @@ window.EDUGUIDE_ADMIN_DATA = {
         "Agricultural extension"
       ],
       "sourceUrl": "https://nul.ls/faculty-of-agriculture/academic-programmes/",
-      "sourcePath": null,
-      "supportingSourcePath": null,
-      "supportingFeeSourcePath": "data/real/fees/nul-fee-structure-2024-2025.json",
       "feeNote": "Fee schedule available: NUL Fee Structure 2024/25 (2024/25). Confirm the programme group and latest amount before payment.",
       "sourceType": "official_academic_programmes_page",
-      "extractionMethod": "html_headings_and_context",
       "reviewStatus": "approved",
-      "sourceNote": "Auto-enriched from repository evidence and institution rules."
+      "sourceNote": "Auto-enriched from repository evidence and institution rules.",
+      "mappingStatus": "suggested",
+      "durationStatus": null
     },
     {
       "id": "national-university-of-lesotho-doctorate-degree-programme",
@@ -6104,14 +5717,12 @@ window.EDUGUIDE_ADMIN_DATA = {
         "Agricultural extension"
       ],
       "sourceUrl": "https://nul.ls/faculty-of-agriculture/academic-programmes/",
-      "sourcePath": null,
-      "supportingSourcePath": null,
-      "supportingFeeSourcePath": "data/real/fees/nul-fee-structure-2024-2025.json",
       "feeNote": "Fee schedule available: NUL Fee Structure 2024/25 (2024/25). Confirm the programme group and latest amount before payment.",
       "sourceType": "official_academic_programmes_page",
-      "extractionMethod": "html_headings_and_context",
       "reviewStatus": "approved",
-      "sourceNote": "Auto-enriched from repository evidence and institution rules."
+      "sourceNote": "Auto-enriched from repository evidence and institution rules.",
+      "mappingStatus": "suggested",
+      "durationStatus": null
     },
     {
       "id": "nul-institute-of-extra-mural-studies-iems-diploma-in-adult-education-3-years",
@@ -6138,14 +5749,12 @@ window.EDUGUIDE_ADMIN_DATA = {
         "Curriculum development"
       ],
       "sourceUrl": "https://nul.ls/iems-2/academic-programmes/",
-      "sourcePath": null,
-      "supportingSourcePath": null,
-      "supportingFeeSourcePath": "data/real/fees/iems-fee-structure-2026-2027.json",
       "feeNote": "Fee schedule available: IEMS-ODL Fee Structure 2026/2027 (2026/2027). Confirm the programme group and latest amount before payment.",
       "sourceType": "official_academic_programmes_page",
-      "extractionMethod": "html_headings_and_context",
       "reviewStatus": "approved",
-      "sourceNote": "Auto-enriched from repository evidence and institution rules."
+      "sourceNote": "Auto-enriched from repository evidence and institution rules.",
+      "mappingStatus": "suggested",
+      "durationStatus": null
     },
     {
       "id": "nul-institute-of-extra-mural-studies-iems-diploma-in-management-3-years",
@@ -6172,14 +5781,12 @@ window.EDUGUIDE_ADMIN_DATA = {
         "Professional practice"
       ],
       "sourceUrl": "https://nul.ls/iems-2/academic-programmes/",
-      "sourcePath": null,
-      "supportingSourcePath": null,
-      "supportingFeeSourcePath": "data/real/fees/iems-fee-structure-2026-2027.json",
       "feeNote": "Fee schedule available: IEMS-ODL Fee Structure 2026/2027 (2026/2027). Confirm the programme group and latest amount before payment.",
       "sourceType": "official_academic_programmes_page",
-      "extractionMethod": "html_headings_and_context",
       "reviewStatus": "approved",
-      "sourceNote": "Auto-enriched from repository evidence and institution rules."
+      "sourceNote": "Auto-enriched from repository evidence and institution rules.",
+      "mappingStatus": "suggested",
+      "durationStatus": null
     },
     {
       "id": "nul-institute-of-extra-mural-studies-iems-diploma-in-mass-communication-3-years",
@@ -6206,14 +5813,12 @@ window.EDUGUIDE_ADMIN_DATA = {
         "Public communication"
       ],
       "sourceUrl": "https://nul.ls/iems-2/academic-programmes/",
-      "sourcePath": null,
-      "supportingSourcePath": null,
-      "supportingFeeSourcePath": "data/real/fees/iems-fee-structure-2026-2027.json",
       "feeNote": "Fee schedule available: IEMS-ODL Fee Structure 2026/2027 (2026/2027). Confirm the programme group and latest amount before payment.",
       "sourceType": "official_academic_programmes_page",
-      "extractionMethod": "html_headings_and_context",
       "reviewStatus": "approved",
-      "sourceNote": "Auto-enriched from repository evidence and institution rules."
+      "sourceNote": "Auto-enriched from repository evidence and institution rules.",
+      "mappingStatus": "suggested",
+      "durationStatus": null
     },
     {
       "id": "nul-institute-of-extra-mural-studies-iems-bachelor-of-education-in-adult-education-4-years",
@@ -6240,14 +5845,12 @@ window.EDUGUIDE_ADMIN_DATA = {
         "Curriculum development"
       ],
       "sourceUrl": "https://nul.ls/iems-2/academic-programmes/",
-      "sourcePath": null,
-      "supportingSourcePath": null,
-      "supportingFeeSourcePath": "data/real/fees/iems-fee-structure-2026-2027.json",
       "feeNote": "Fee schedule available: IEMS-ODL Fee Structure 2026/2027 (2026/2027). Confirm the programme group and latest amount before payment.",
       "sourceType": "official_academic_programmes_page",
-      "extractionMethod": "html_headings_and_context",
       "reviewStatus": "approved",
-      "sourceNote": "Auto-enriched from repository evidence and institution rules."
+      "sourceNote": "Auto-enriched from repository evidence and institution rules.",
+      "mappingStatus": "suggested",
+      "durationStatus": null
     },
     {
       "id": "nul-institute-of-extra-mural-studies-iems-diploma-in-adult-education-with-a-credit-pass-or",
@@ -6274,14 +5877,12 @@ window.EDUGUIDE_ADMIN_DATA = {
         "Curriculum development"
       ],
       "sourceUrl": "https://nul.ls/iems-2/academic-programmes/",
-      "sourcePath": null,
-      "supportingSourcePath": null,
-      "supportingFeeSourcePath": "data/real/fees/iems-fee-structure-2026-2027.json",
       "feeNote": "Fee schedule available: IEMS-ODL Fee Structure 2026/2027 (2026/2027). Confirm the programme group and latest amount before payment.",
       "sourceType": "official_academic_programmes_page",
-      "extractionMethod": "html_headings_and_context",
       "reviewStatus": "approved",
-      "sourceNote": "Auto-enriched from repository evidence and institution rules."
+      "sourceNote": "Auto-enriched from repository evidence and institution rules.",
+      "mappingStatus": "suggested",
+      "durationStatus": null
     },
     {
       "id": "nul-institute-of-extra-mural-studies-iems-bachelor-of-arts-in-business-and-entrepreneurship-4-years",
@@ -6308,14 +5909,12 @@ window.EDUGUIDE_ADMIN_DATA = {
         "Professional practice"
       ],
       "sourceUrl": "https://nul.ls/iems-2/academic-programmes/",
-      "sourcePath": null,
-      "supportingSourcePath": null,
-      "supportingFeeSourcePath": "data/real/fees/iems-fee-structure-2026-2027.json",
       "feeNote": "Fee schedule available: IEMS-ODL Fee Structure 2026/2027 (2026/2027). Confirm the programme group and latest amount before payment.",
       "sourceType": "official_academic_programmes_page",
-      "extractionMethod": "html_headings_and_context",
       "reviewStatus": "approved",
-      "sourceNote": "Auto-enriched from repository evidence and institution rules."
+      "sourceNote": "Auto-enriched from repository evidence and institution rules.",
+      "mappingStatus": "suggested",
+      "durationStatus": null
     },
     {
       "id": "nul-institute-of-extra-mural-studies-iems-master-of-education-in-adult-education-3-years-part-time",
@@ -6342,14 +5941,12 @@ window.EDUGUIDE_ADMIN_DATA = {
         "Curriculum development"
       ],
       "sourceUrl": "https://nul.ls/iems-2/academic-programmes/",
-      "sourcePath": null,
-      "supportingSourcePath": null,
-      "supportingFeeSourcePath": "data/real/fees/iems-fee-structure-2026-2027.json",
       "feeNote": "Fee schedule available: IEMS-ODL Fee Structure 2026/2027 (2026/2027). Confirm the programme group and latest amount before payment.",
       "sourceType": "official_academic_programmes_page",
-      "extractionMethod": "html_headings_and_context",
       "reviewStatus": "approved",
-      "sourceNote": "Auto-enriched from repository evidence and institution rules."
+      "sourceNote": "Auto-enriched from repository evidence and institution rules.",
+      "mappingStatus": "suggested",
+      "durationStatus": null
     },
     {
       "id": "lerotholi-polytechnic-business-management",
@@ -6376,14 +5973,12 @@ window.EDUGUIDE_ADMIN_DATA = {
         "Business communication"
       ],
       "sourceUrl": "https://www.lp.ac.ls/wp-content/uploads/2024/02/lerotholi-prospectus-2024-2025-embed1.pdf",
-      "sourcePath": null,
-      "supportingSourcePath": null,
-      "supportingFeeSourcePath": null,
       "feeNote": null,
       "sourceType": "official_prospectus_pdf",
-      "extractionMethod": "pdf_text_and_programme_list",
       "reviewStatus": "approved",
-      "sourceNote": "Official prospectus states that Lerotholi Polytechnic has 22 full-time programmes. Auto-enriched from repository evidence and institution rules."
+      "sourceNote": "Official prospectus states that Lerotholi Polytechnic has 22 full-time programmes. Auto-enriched from repository evidence and institution rules.",
+      "mappingStatus": "suggested",
+      "durationStatus": null
     },
     {
       "id": "lerotholi-polytechnic-hospitality-management",
@@ -6410,14 +6005,12 @@ window.EDUGUIDE_ADMIN_DATA = {
         "Revenue management"
       ],
       "sourceUrl": "https://www.lp.ac.ls/wp-content/uploads/2024/02/lerotholi-prospectus-2024-2025-embed1.pdf",
-      "sourcePath": null,
-      "supportingSourcePath": null,
-      "supportingFeeSourcePath": null,
       "feeNote": null,
       "sourceType": "official_prospectus_pdf",
-      "extractionMethod": "pdf_text_and_programme_list",
       "reviewStatus": "approved",
-      "sourceNote": "Official prospectus states that Lerotholi Polytechnic has 22 full-time programmes. Auto-enriched from repository evidence and institution rules."
+      "sourceNote": "Official prospectus states that Lerotholi Polytechnic has 22 full-time programmes. Auto-enriched from repository evidence and institution rules.",
+      "mappingStatus": "suggested",
+      "durationStatus": null
     },
     {
       "id": "lerotholi-polytechnic-marketing-management",
@@ -6444,14 +6037,12 @@ window.EDUGUIDE_ADMIN_DATA = {
         "Customer analytics"
       ],
       "sourceUrl": "https://www.lp.ac.ls/wp-content/uploads/2024/02/lerotholi-prospectus-2024-2025-embed1.pdf",
-      "sourcePath": null,
-      "supportingSourcePath": null,
-      "supportingFeeSourcePath": null,
       "feeNote": null,
       "sourceType": "official_prospectus_pdf",
-      "extractionMethod": "pdf_text_and_programme_list",
       "reviewStatus": "approved",
-      "sourceNote": "Official prospectus states that Lerotholi Polytechnic has 22 full-time programmes. Auto-enriched from repository evidence and institution rules."
+      "sourceNote": "Official prospectus states that Lerotholi Polytechnic has 22 full-time programmes. Auto-enriched from repository evidence and institution rules.",
+      "mappingStatus": "suggested",
+      "durationStatus": null
     },
     {
       "id": "lerotholi-polytechnic-administrative-information-management",
@@ -6478,14 +6069,12 @@ window.EDUGUIDE_ADMIN_DATA = {
         "Professional practice"
       ],
       "sourceUrl": "https://www.lp.ac.ls/wp-content/uploads/2024/02/lerotholi-prospectus-2024-2025-embed1.pdf",
-      "sourcePath": null,
-      "supportingSourcePath": null,
-      "supportingFeeSourcePath": null,
       "feeNote": null,
       "sourceType": "official_prospectus_pdf",
-      "extractionMethod": "pdf_text_and_programme_list",
       "reviewStatus": "approved",
-      "sourceNote": "Official prospectus states that Lerotholi Polytechnic has 22 full-time programmes. Auto-enriched from repository evidence and institution rules."
+      "sourceNote": "Official prospectus states that Lerotholi Polytechnic has 22 full-time programmes. Auto-enriched from repository evidence and institution rules.",
+      "mappingStatus": "suggested",
+      "durationStatus": null
     },
     {
       "id": "lerotholi-polytechnic-tourism-management",
@@ -6512,14 +6101,12 @@ window.EDUGUIDE_ADMIN_DATA = {
         "Revenue management"
       ],
       "sourceUrl": "https://www.lp.ac.ls/wp-content/uploads/2024/02/lerotholi-prospectus-2024-2025-embed1.pdf",
-      "sourcePath": null,
-      "supportingSourcePath": null,
-      "supportingFeeSourcePath": null,
       "feeNote": null,
       "sourceType": "official_prospectus_pdf",
-      "extractionMethod": "pdf_text_and_programme_list",
       "reviewStatus": "approved",
-      "sourceNote": "Official prospectus states that Lerotholi Polytechnic has 22 full-time programmes. Auto-enriched from repository evidence and institution rules."
+      "sourceNote": "Official prospectus states that Lerotholi Polytechnic has 22 full-time programmes. Auto-enriched from repository evidence and institution rules.",
+      "mappingStatus": "suggested",
+      "durationStatus": null
     },
     {
       "id": "lerotholi-polytechnic-beng-tech-computer-engineering",
@@ -6546,14 +6133,12 @@ window.EDUGUIDE_ADMIN_DATA = {
         "Safety compliance"
       ],
       "sourceUrl": "https://www.lp.ac.ls/wp-content/uploads/2024/02/lerotholi-prospectus-2024-2025-embed1.pdf",
-      "sourcePath": null,
-      "supportingSourcePath": null,
-      "supportingFeeSourcePath": null,
       "feeNote": null,
       "sourceType": "official_prospectus_pdf",
-      "extractionMethod": "pdf_text_and_programme_list",
       "reviewStatus": "approved",
-      "sourceNote": "Official prospectus states that Lerotholi Polytechnic has 22 full-time programmes. Auto-enriched from repository evidence and institution rules."
+      "sourceNote": "Official prospectus states that Lerotholi Polytechnic has 22 full-time programmes. Auto-enriched from repository evidence and institution rules.",
+      "mappingStatus": "suggested",
+      "durationStatus": null
     },
     {
       "id": "lerotholi-polytechnic-beng-tech-electronics-and-telecommunications",
@@ -6580,14 +6165,12 @@ window.EDUGUIDE_ADMIN_DATA = {
         "Safety compliance"
       ],
       "sourceUrl": "https://www.lp.ac.ls/wp-content/uploads/2024/02/lerotholi-prospectus-2024-2025-embed1.pdf",
-      "sourcePath": null,
-      "supportingSourcePath": null,
-      "supportingFeeSourcePath": null,
       "feeNote": null,
       "sourceType": "official_prospectus_pdf",
-      "extractionMethod": "pdf_text_and_programme_list",
       "reviewStatus": "approved",
-      "sourceNote": "Official prospectus states that Lerotholi Polytechnic has 22 full-time programmes. Auto-enriched from repository evidence and institution rules."
+      "sourceNote": "Official prospectus states that Lerotholi Polytechnic has 22 full-time programmes. Auto-enriched from repository evidence and institution rules.",
+      "mappingStatus": "suggested",
+      "durationStatus": null
     },
     {
       "id": "lerotholi-polytechnic-beng-tech-power-systems-engineering",
@@ -6614,14 +6197,12 @@ window.EDUGUIDE_ADMIN_DATA = {
         "Safety compliance"
       ],
       "sourceUrl": "https://www.lp.ac.ls/wp-content/uploads/2024/02/lerotholi-prospectus-2024-2025-embed1.pdf",
-      "sourcePath": null,
-      "supportingSourcePath": null,
-      "supportingFeeSourcePath": null,
       "feeNote": null,
       "sourceType": "official_prospectus_pdf",
-      "extractionMethod": "pdf_text_and_programme_list",
       "reviewStatus": "approved",
-      "sourceNote": "Official prospectus states that Lerotholi Polytechnic has 22 full-time programmes. Auto-enriched from repository evidence and institution rules."
+      "sourceNote": "Official prospectus states that Lerotholi Polytechnic has 22 full-time programmes. Auto-enriched from repository evidence and institution rules.",
+      "mappingStatus": "suggested",
+      "durationStatus": null
     },
     {
       "id": "lerotholi-polytechnic-mechanical-engineering",
@@ -6648,14 +6229,12 @@ window.EDUGUIDE_ADMIN_DATA = {
         "Safety compliance"
       ],
       "sourceUrl": "https://www.lp.ac.ls/wp-content/uploads/2024/02/lerotholi-prospectus-2024-2025-embed1.pdf",
-      "sourcePath": null,
-      "supportingSourcePath": null,
-      "supportingFeeSourcePath": null,
       "feeNote": null,
       "sourceType": "official_prospectus_pdf",
-      "extractionMethod": "pdf_text_and_programme_list",
       "reviewStatus": "approved",
-      "sourceNote": "Official prospectus states that Lerotholi Polytechnic has 22 full-time programmes. Auto-enriched from repository evidence and institution rules."
+      "sourceNote": "Official prospectus states that Lerotholi Polytechnic has 22 full-time programmes. Auto-enriched from repository evidence and institution rules.",
+      "mappingStatus": "suggested",
+      "durationStatus": null
     },
     {
       "id": "lerotholi-polytechnic-bachelor-of-engineering-in-irrigation-and-drainage",
@@ -6682,14 +6261,12 @@ window.EDUGUIDE_ADMIN_DATA = {
         "Safety compliance"
       ],
       "sourceUrl": "https://www.lp.ac.ls/wp-content/uploads/2024/02/lerotholi-prospectus-2024-2025-embed1.pdf",
-      "sourcePath": null,
-      "supportingSourcePath": null,
-      "supportingFeeSourcePath": null,
       "feeNote": null,
       "sourceType": "official_prospectus_pdf",
-      "extractionMethod": "pdf_text_and_programme_list",
       "reviewStatus": "approved",
-      "sourceNote": "Official prospectus states that Lerotholi Polytechnic has 22 full-time programmes. Auto-enriched from repository evidence and institution rules."
+      "sourceNote": "Official prospectus states that Lerotholi Polytechnic has 22 full-time programmes. Auto-enriched from repository evidence and institution rules.",
+      "mappingStatus": "suggested",
+      "durationStatus": null
     },
     {
       "id": "lerotholi-polytechnic-civil-engineering",
@@ -6716,14 +6293,12 @@ window.EDUGUIDE_ADMIN_DATA = {
         "Safety compliance"
       ],
       "sourceUrl": "https://www.lp.ac.ls/wp-content/uploads/2024/02/lerotholi-prospectus-2024-2025-embed1.pdf",
-      "sourcePath": null,
-      "supportingSourcePath": null,
-      "supportingFeeSourcePath": null,
       "feeNote": null,
       "sourceType": "official_prospectus_pdf",
-      "extractionMethod": "pdf_text_and_programme_list",
       "reviewStatus": "approved",
-      "sourceNote": "Official prospectus states that Lerotholi Polytechnic has 22 full-time programmes. Auto-enriched from repository evidence and institution rules."
+      "sourceNote": "Official prospectus states that Lerotholi Polytechnic has 22 full-time programmes. Auto-enriched from repository evidence and institution rules.",
+      "mappingStatus": "suggested",
+      "durationStatus": null
     },
     {
       "id": "lerotholi-polytechnic-construction-management",
@@ -6750,14 +6325,12 @@ window.EDUGUIDE_ADMIN_DATA = {
         "Project coordination"
       ],
       "sourceUrl": "https://www.lp.ac.ls/wp-content/uploads/2024/02/lerotholi-prospectus-2024-2025-embed1.pdf",
-      "sourcePath": null,
-      "supportingSourcePath": null,
-      "supportingFeeSourcePath": null,
       "feeNote": null,
       "sourceType": "official_prospectus_pdf",
-      "extractionMethod": "pdf_text_and_programme_list",
       "reviewStatus": "approved",
-      "sourceNote": "Official prospectus states that Lerotholi Polytechnic has 22 full-time programmes. Auto-enriched from repository evidence and institution rules."
+      "sourceNote": "Official prospectus states that Lerotholi Polytechnic has 22 full-time programmes. Auto-enriched from repository evidence and institution rules.",
+      "mappingStatus": "suggested",
+      "durationStatus": null
     },
     {
       "id": "lerotholi-polytechnic-water-environmental-engineering",
@@ -6784,14 +6357,12 @@ window.EDUGUIDE_ADMIN_DATA = {
         "Safety compliance"
       ],
       "sourceUrl": "https://www.lp.ac.ls/wp-content/uploads/2024/02/lerotholi-prospectus-2024-2025-embed1.pdf",
-      "sourcePath": null,
-      "supportingSourcePath": null,
-      "supportingFeeSourcePath": null,
       "feeNote": null,
       "sourceType": "official_prospectus_pdf",
-      "extractionMethod": "pdf_text_and_programme_list",
       "reviewStatus": "approved",
-      "sourceNote": "Official prospectus states that Lerotholi Polytechnic has 22 full-time programmes. Auto-enriched from repository evidence and institution rules."
+      "sourceNote": "Official prospectus states that Lerotholi Polytechnic has 22 full-time programmes. Auto-enriched from repository evidence and institution rules.",
+      "mappingStatus": "suggested",
+      "durationStatus": null
     },
     {
       "id": "lerotholi-polytechnic-automotive",
@@ -6818,14 +6389,12 @@ window.EDUGUIDE_ADMIN_DATA = {
         "Professional practice"
       ],
       "sourceUrl": "https://www.lp.ac.ls/wp-content/uploads/2024/02/lerotholi-prospectus-2024-2025-embed1.pdf",
-      "sourcePath": null,
-      "supportingSourcePath": null,
-      "supportingFeeSourcePath": null,
       "feeNote": null,
       "sourceType": "official_prospectus_pdf",
-      "extractionMethod": "pdf_text_and_programme_list",
       "reviewStatus": "approved",
-      "sourceNote": "Official prospectus states that Lerotholi Polytechnic has 22 full-time programmes. Auto-enriched from repository evidence and institution rules."
+      "sourceNote": "Official prospectus states that Lerotholi Polytechnic has 22 full-time programmes. Auto-enriched from repository evidence and institution rules.",
+      "mappingStatus": "suggested",
+      "durationStatus": null
     },
     {
       "id": "lerotholi-polytechnic-bricklaying-and-plastering",
@@ -6852,14 +6421,12 @@ window.EDUGUIDE_ADMIN_DATA = {
         "Professional practice"
       ],
       "sourceUrl": "https://www.lp.ac.ls/wp-content/uploads/2024/02/lerotholi-prospectus-2024-2025-embed1.pdf",
-      "sourcePath": null,
-      "supportingSourcePath": null,
-      "supportingFeeSourcePath": null,
       "feeNote": null,
       "sourceType": "official_prospectus_pdf",
-      "extractionMethod": "pdf_text_and_programme_list",
       "reviewStatus": "approved",
-      "sourceNote": "Official prospectus states that Lerotholi Polytechnic has 22 full-time programmes. Auto-enriched from repository evidence and institution rules."
+      "sourceNote": "Official prospectus states that Lerotholi Polytechnic has 22 full-time programmes. Auto-enriched from repository evidence and institution rules.",
+      "mappingStatus": "suggested",
+      "durationStatus": null
     },
     {
       "id": "lerotholi-polytechnic-carpentry-and-joinery",
@@ -6886,14 +6453,12 @@ window.EDUGUIDE_ADMIN_DATA = {
         "Professional practice"
       ],
       "sourceUrl": "https://www.lp.ac.ls/wp-content/uploads/2024/02/lerotholi-prospectus-2024-2025-embed1.pdf",
-      "sourcePath": null,
-      "supportingSourcePath": null,
-      "supportingFeeSourcePath": null,
       "feeNote": null,
       "sourceType": "official_prospectus_pdf",
-      "extractionMethod": "pdf_text_and_programme_list",
       "reviewStatus": "approved",
-      "sourceNote": "Official prospectus states that Lerotholi Polytechnic has 22 full-time programmes. Auto-enriched from repository evidence and institution rules."
+      "sourceNote": "Official prospectus states that Lerotholi Polytechnic has 22 full-time programmes. Auto-enriched from repository evidence and institution rules.",
+      "mappingStatus": "suggested",
+      "durationStatus": null
     },
     {
       "id": "lerotholi-polytechnic-electrical-installation",
@@ -6920,14 +6485,12 @@ window.EDUGUIDE_ADMIN_DATA = {
         "Safety compliance"
       ],
       "sourceUrl": "https://www.lp.ac.ls/wp-content/uploads/2024/02/lerotholi-prospectus-2024-2025-embed1.pdf",
-      "sourcePath": null,
-      "supportingSourcePath": null,
-      "supportingFeeSourcePath": null,
       "feeNote": null,
       "sourceType": "official_prospectus_pdf",
-      "extractionMethod": "pdf_text_and_programme_list",
       "reviewStatus": "approved",
-      "sourceNote": "Official prospectus states that Lerotholi Polytechnic has 22 full-time programmes. Auto-enriched from repository evidence and institution rules."
+      "sourceNote": "Official prospectus states that Lerotholi Polytechnic has 22 full-time programmes. Auto-enriched from repository evidence and institution rules.",
+      "mappingStatus": "suggested",
+      "durationStatus": null
     },
     {
       "id": "lerotholi-polytechnic-fitting-and-machining",
@@ -6954,14 +6517,12 @@ window.EDUGUIDE_ADMIN_DATA = {
         "Professional practice"
       ],
       "sourceUrl": "https://www.lp.ac.ls/wp-content/uploads/2024/02/lerotholi-prospectus-2024-2025-embed1.pdf",
-      "sourcePath": null,
-      "supportingSourcePath": null,
-      "supportingFeeSourcePath": null,
       "feeNote": null,
       "sourceType": "official_prospectus_pdf",
-      "extractionMethod": "pdf_text_and_programme_list",
       "reviewStatus": "approved",
-      "sourceNote": "Official prospectus states that Lerotholi Polytechnic has 22 full-time programmes. Auto-enriched from repository evidence and institution rules."
+      "sourceNote": "Official prospectus states that Lerotholi Polytechnic has 22 full-time programmes. Auto-enriched from repository evidence and institution rules.",
+      "mappingStatus": "suggested",
+      "durationStatus": null
     },
     {
       "id": "lerotholi-polytechnic-panel-beating-and-spray-painting",
@@ -6988,14 +6549,12 @@ window.EDUGUIDE_ADMIN_DATA = {
         "Professional practice"
       ],
       "sourceUrl": "https://www.lp.ac.ls/wp-content/uploads/2024/02/lerotholi-prospectus-2024-2025-embed1.pdf",
-      "sourcePath": null,
-      "supportingSourcePath": null,
-      "supportingFeeSourcePath": null,
       "feeNote": null,
       "sourceType": "official_prospectus_pdf",
-      "extractionMethod": "pdf_text_and_programme_list",
       "reviewStatus": "approved",
-      "sourceNote": "Official prospectus states that Lerotholi Polytechnic has 22 full-time programmes. Auto-enriched from repository evidence and institution rules."
+      "sourceNote": "Official prospectus states that Lerotholi Polytechnic has 22 full-time programmes. Auto-enriched from repository evidence and institution rules.",
+      "mappingStatus": "suggested",
+      "durationStatus": null
     },
     {
       "id": "lerotholi-polytechnic-plumbing-and-sheet-metal-work",
@@ -7022,14 +6581,12 @@ window.EDUGUIDE_ADMIN_DATA = {
         "Professional practice"
       ],
       "sourceUrl": "https://www.lp.ac.ls/wp-content/uploads/2024/02/lerotholi-prospectus-2024-2025-embed1.pdf",
-      "sourcePath": null,
-      "supportingSourcePath": null,
-      "supportingFeeSourcePath": null,
       "feeNote": null,
       "sourceType": "official_prospectus_pdf",
-      "extractionMethod": "pdf_text_and_programme_list",
       "reviewStatus": "approved",
-      "sourceNote": "Official prospectus states that Lerotholi Polytechnic has 22 full-time programmes. Auto-enriched from repository evidence and institution rules."
+      "sourceNote": "Official prospectus states that Lerotholi Polytechnic has 22 full-time programmes. Auto-enriched from repository evidence and institution rules.",
+      "mappingStatus": "suggested",
+      "durationStatus": null
     },
     {
       "id": "lerotholi-polytechnic-dressmaking",
@@ -7056,14 +6613,12 @@ window.EDUGUIDE_ADMIN_DATA = {
         "Professional practice"
       ],
       "sourceUrl": "https://www.lp.ac.ls/wp-content/uploads/2024/02/lerotholi-prospectus-2024-2025-embed1.pdf",
-      "sourcePath": null,
-      "supportingSourcePath": null,
-      "supportingFeeSourcePath": null,
       "feeNote": null,
       "sourceType": "official_prospectus_pdf",
-      "extractionMethod": "pdf_text_and_programme_list",
       "reviewStatus": "approved",
-      "sourceNote": "Official prospectus states that Lerotholi Polytechnic has 22 full-time programmes. Auto-enriched from repository evidence and institution rules."
+      "sourceNote": "Official prospectus states that Lerotholi Polytechnic has 22 full-time programmes. Auto-enriched from repository evidence and institution rules.",
+      "mappingStatus": "suggested",
+      "durationStatus": null
     },
     {
       "id": "lerotholi-polytechnic-tailoring",
@@ -7090,14 +6645,12 @@ window.EDUGUIDE_ADMIN_DATA = {
         "Professional practice"
       ],
       "sourceUrl": "https://www.lp.ac.ls/wp-content/uploads/2024/02/lerotholi-prospectus-2024-2025-embed1.pdf",
-      "sourcePath": null,
-      "supportingSourcePath": null,
-      "supportingFeeSourcePath": null,
       "feeNote": null,
       "sourceType": "official_prospectus_pdf",
-      "extractionMethod": "pdf_text_and_programme_list",
       "reviewStatus": "approved",
-      "sourceNote": "Official prospectus states that Lerotholi Polytechnic has 22 full-time programmes. Auto-enriched from repository evidence and institution rules."
+      "sourceNote": "Official prospectus states that Lerotholi Polytechnic has 22 full-time programmes. Auto-enriched from repository evidence and institution rules.",
+      "mappingStatus": "suggested",
+      "durationStatus": null
     },
     {
       "id": "roma-college-of-nursing-diploma-in-nursing",
@@ -7124,14 +6677,12 @@ window.EDUGUIDE_ADMIN_DATA = {
         "Care planning"
       ],
       "sourceUrl": "https://www.che.ac.ls/roma-college-of-nursing-rcn-accredited-programmes/",
-      "sourcePath": null,
-      "supportingSourcePath": null,
-      "supportingFeeSourcePath": null,
       "feeNote": null,
       "sourceType": "che_accredited_programmes_page",
-      "extractionMethod": "che_accreditation_listing",
       "reviewStatus": "approved",
-      "sourceNote": "Auto-enriched from repository evidence and institution rules."
+      "sourceNote": "Auto-enriched from repository evidence and institution rules.",
+      "mappingStatus": "suggested",
+      "durationStatus": null
     },
     {
       "id": "roma-college-of-nursing-diploma-in-midwifery",
@@ -7158,14 +6709,12 @@ window.EDUGUIDE_ADMIN_DATA = {
         "Care planning"
       ],
       "sourceUrl": "https://www.che.ac.ls/roma-college-of-nursing-rcn-accredited-programmes/",
-      "sourcePath": null,
-      "supportingSourcePath": null,
-      "supportingFeeSourcePath": null,
       "feeNote": null,
       "sourceType": "che_accredited_programmes_page",
-      "extractionMethod": "che_accreditation_listing",
       "reviewStatus": "approved",
-      "sourceNote": "Auto-enriched from repository evidence and institution rules."
+      "sourceNote": "Auto-enriched from repository evidence and institution rules.",
+      "mappingStatus": "suggested",
+      "durationStatus": null
     },
     {
       "id": "lesotho-agricultural-college-diploma-in-agriculture",
@@ -7192,14 +6741,12 @@ window.EDUGUIDE_ADMIN_DATA = {
         "Agricultural extension"
       ],
       "sourceUrl": "https://www.che.ac.ls/lesotho-agricultural-college-lac-accredited-programmes/",
-      "sourcePath": null,
-      "supportingSourcePath": null,
-      "supportingFeeSourcePath": null,
       "feeNote": null,
       "sourceType": "che_accredited_programmes_page",
-      "extractionMethod": "che_accreditation_listing",
       "reviewStatus": "approved",
-      "sourceNote": "Auto-enriched from repository evidence and institution rules."
+      "sourceNote": "Auto-enriched from repository evidence and institution rules.",
+      "mappingStatus": "suggested",
+      "durationStatus": null
     },
     {
       "id": "lesotho-agricultural-college-diploma-in-forestry-and-resource-management",
@@ -7226,14 +6773,12 @@ window.EDUGUIDE_ADMIN_DATA = {
         "Professional practice"
       ],
       "sourceUrl": "https://www.che.ac.ls/lesotho-agricultural-college-profile/",
-      "sourcePath": null,
-      "supportingSourcePath": null,
-      "supportingFeeSourcePath": null,
       "feeNote": null,
       "sourceType": "che_accredited_programmes_page",
-      "extractionMethod": "che_accreditation_listing",
       "reviewStatus": "approved",
-      "sourceNote": "Auto-enriched from repository evidence and institution rules."
+      "sourceNote": "Auto-enriched from repository evidence and institution rules.",
+      "mappingStatus": "suggested",
+      "durationStatus": null
     },
     {
       "id": "lesotho-agricultural-college-diploma-in-home-economics",
@@ -7260,14 +6805,12 @@ window.EDUGUIDE_ADMIN_DATA = {
         "Counselling skills"
       ],
       "sourceUrl": "https://www.che.ac.ls/lesotho-agricultural-college-profile/",
-      "sourcePath": null,
-      "supportingSourcePath": null,
-      "supportingFeeSourcePath": null,
       "feeNote": null,
       "sourceType": "che_accredited_programmes_page",
-      "extractionMethod": "che_accreditation_listing",
       "reviewStatus": "approved",
-      "sourceNote": "Auto-enriched from repository evidence and institution rules."
+      "sourceNote": "Auto-enriched from repository evidence and institution rules.",
+      "mappingStatus": "suggested",
+      "durationStatus": null
     },
     {
       "id": "lesotho-agricultural-college-diploma-in-home-economics-education",
@@ -7294,14 +6837,12 @@ window.EDUGUIDE_ADMIN_DATA = {
         "Curriculum development"
       ],
       "sourceUrl": "https://www.che.ac.ls/lesotho-agricultural-college-profile/",
-      "sourcePath": null,
-      "supportingSourcePath": null,
-      "supportingFeeSourcePath": null,
       "feeNote": null,
       "sourceType": "che_accredited_programmes_page",
-      "extractionMethod": "che_accreditation_listing",
       "reviewStatus": "approved",
-      "sourceNote": "Auto-enriched from repository evidence and institution rules."
+      "sourceNote": "Auto-enriched from repository evidence and institution rules.",
+      "mappingStatus": "suggested",
+      "durationStatus": null
     },
     {
       "id": "lesotho-agricultural-college-diploma-in-agricultural-engineering-land-and-water-management",
@@ -7328,14 +6869,12 @@ window.EDUGUIDE_ADMIN_DATA = {
         "Safety compliance"
       ],
       "sourceUrl": "https://www.che.ac.ls/lesotho-agricultural-college-profile/",
-      "sourcePath": null,
-      "supportingSourcePath": null,
-      "supportingFeeSourcePath": null,
       "feeNote": null,
       "sourceType": "che_accredited_programmes_page",
-      "extractionMethod": "che_accreditation_listing",
       "reviewStatus": "approved",
-      "sourceNote": "Auto-enriched from repository evidence and institution rules."
+      "sourceNote": "Auto-enriched from repository evidence and institution rules.",
+      "mappingStatus": "suggested",
+      "durationStatus": null
     },
     {
       "id": "centre-for-accounting-studies-certified-accounting-technician-certificate-cat",
@@ -7362,14 +6901,12 @@ window.EDUGUIDE_ADMIN_DATA = {
         "Bookkeeping"
       ],
       "sourceUrl": "https://cas.ac.ls/course/certified-accounting-certificate-cat/",
-      "sourcePath": null,
-      "supportingSourcePath": "C:/Users/lepha/Downloads/CAS Lesotho Student-Handbook-Volume-4.pdf",
-      "supportingFeeSourcePath": "data/real/fees/cas-fee-structure-partial-2024.json",
       "feeNote": "Fee schedule available: CAS fees partial manual extract (current evidence). Confirm the programme group and latest amount before payment.",
       "sourceType": "official_course_page",
-      "extractionMethod": "html_course_page_plus_manual_handbook_extract",
       "reviewStatus": "approved",
-      "sourceNote": "Auto-enriched from repository evidence and institution rules."
+      "sourceNote": "Auto-enriched from repository evidence and institution rules.",
+      "mappingStatus": "suggested",
+      "durationStatus": null
     },
     {
       "id": "centre-for-accounting-studies-association-of-chartered-certified-accountants-acca",
@@ -7396,14 +6933,12 @@ window.EDUGUIDE_ADMIN_DATA = {
         "Bookkeeping"
       ],
       "sourceUrl": "https://cas.ac.ls/course/acca/",
-      "sourcePath": null,
-      "supportingSourcePath": "C:/Users/lepha/Downloads/CAS Lesotho Student-Handbook-Volume-4.pdf",
-      "supportingFeeSourcePath": "data/real/fees/cas-fee-structure-partial-2024.json",
       "feeNote": "Fee schedule available: CAS fees partial manual extract (current evidence). Confirm the programme group and latest amount before payment.",
       "sourceType": "official_course_page",
-      "extractionMethod": "html_course_page_plus_manual_handbook_extract",
       "reviewStatus": "approved",
-      "sourceNote": "Auto-enriched from repository evidence and institution rules."
+      "sourceNote": "Auto-enriched from repository evidence and institution rules.",
+      "mappingStatus": "suggested",
+      "durationStatus": null
     },
     {
       "id": "centre-for-accounting-studies-chartered-institute-of-management-accountants-cima",
@@ -7430,14 +6965,12 @@ window.EDUGUIDE_ADMIN_DATA = {
         "Bookkeeping"
       ],
       "sourceUrl": "https://cas.ac.ls/course/cima/",
-      "sourcePath": null,
-      "supportingSourcePath": "C:/Users/lepha/Downloads/CAS Lesotho Student-Handbook-Volume-4.pdf",
-      "supportingFeeSourcePath": "data/real/fees/cas-fee-structure-partial-2024.json",
       "feeNote": "Fee schedule available: CAS fees partial manual extract (current evidence). Confirm the programme group and latest amount before payment.",
       "sourceType": "official_course_page",
-      "extractionMethod": "html_course_page_plus_manual_handbook_extract",
       "reviewStatus": "approved",
-      "sourceNote": "Auto-enriched from repository evidence and institution rules."
+      "sourceNote": "Auto-enriched from repository evidence and institution rules.",
+      "mappingStatus": "suggested",
+      "durationStatus": null
     },
     {
       "id": "centre-for-accounting-studies-chartered-institute-of-public-finance-and-accountancy-cipfa",
@@ -7464,14 +6997,12 @@ window.EDUGUIDE_ADMIN_DATA = {
         "Bookkeeping"
       ],
       "sourceUrl": "https://cas.ac.ls/course/certificate-in-international-public-financial-management/",
-      "sourcePath": null,
-      "supportingSourcePath": "C:/Users/lepha/Downloads/CAS Lesotho Student-Handbook-Volume-4.pdf",
-      "supportingFeeSourcePath": "data/real/fees/cas-fee-structure-partial-2024.json",
       "feeNote": "Fee schedule available: CAS fees partial manual extract (current evidence). Confirm the programme group and latest amount before payment.",
       "sourceType": "official_course_page",
-      "extractionMethod": "html_course_page_plus_manual_handbook_extract",
       "reviewStatus": "approved",
-      "sourceNote": "Auto-enriched from repository evidence and institution rules."
+      "sourceNote": "Auto-enriched from repository evidence and institution rules.",
+      "mappingStatus": "suggested",
+      "durationStatus": null
     },
     {
       "id": "centre-for-accounting-studies-bachelor-of-arts-in-financial-services-bafs",
@@ -7498,14 +7029,12 @@ window.EDUGUIDE_ADMIN_DATA = {
         "Bookkeeping"
       ],
       "sourceUrl": "https://cas.ac.ls/bachelor-of-arts-in-financial-services-bafs/",
-      "sourcePath": null,
-      "supportingSourcePath": null,
-      "supportingFeeSourcePath": "data/real/fees/cas-fee-structure-partial-2024.json",
       "feeNote": "Fee schedule available: CAS fees partial manual extract (current evidence). Confirm the programme group and latest amount before payment.",
       "sourceType": "official_course_page",
-      "extractionMethod": "html_course_page",
       "reviewStatus": "approved",
-      "sourceNote": "Auto-enriched from repository evidence and institution rules."
+      "sourceNote": "Auto-enriched from repository evidence and institution rules.",
+      "mappingStatus": "suggested",
+      "durationStatus": null
     },
     {
       "id": "centre-for-accounting-studies-lesotho-professional-accountancy-programme-lepap",
@@ -7532,14 +7061,12 @@ window.EDUGUIDE_ADMIN_DATA = {
         "Bookkeeping"
       ],
       "sourceUrl": "https://cas.ac.ls/course/lesotho-professional-accountancy-programmelepap",
-      "sourcePath": null,
-      "supportingSourcePath": null,
-      "supportingFeeSourcePath": "data/real/fees/cas-fee-structure-partial-2024.json",
       "feeNote": "Fee schedule available: CAS fees partial manual extract (current evidence). Confirm the programme group and latest amount before payment.",
       "sourceType": "official_course_page",
-      "extractionMethod": "known_course_listing_fetch_error",
       "reviewStatus": "approved",
-      "sourceNote": "Course is part of the known CAS catalogue, but the page timed out during the latest scrape; details need admin review from the official CAS source. Auto-enriched from repository evidence and institution rules."
+      "sourceNote": "Course is part of the known CAS catalogue, but the page timed out during the latest scrape; details need admin review from the official CAS source. Auto-enriched from repository evidence and institution rules.",
+      "mappingStatus": "suggested",
+      "durationStatus": null
     },
     {
       "id": "centre-for-accounting-studies-skills-based-computer-modules",
@@ -7566,14 +7093,12 @@ window.EDUGUIDE_ADMIN_DATA = {
         "Bookkeeping"
       ],
       "sourceUrl": "https://cas.ac.ls/course/skills-based-computer-modules/",
-      "sourcePath": null,
-      "supportingSourcePath": null,
-      "supportingFeeSourcePath": "data/real/fees/cas-fee-structure-partial-2024.json",
       "feeNote": "Fee schedule available: CAS fees partial manual extract (current evidence). Confirm the programme group and latest amount before payment.",
       "sourceType": "official_course_page",
-      "extractionMethod": "html_course_page",
       "reviewStatus": "approved",
-      "sourceNote": "Auto-enriched from repository evidence and institution rules."
+      "sourceNote": "Auto-enriched from repository evidence and institution rules.",
+      "mappingStatus": "suggested",
+      "durationStatus": null
     },
     {
       "id": "centre-for-accounting-studies-corporate-training-ct",
@@ -7600,14 +7125,12 @@ window.EDUGUIDE_ADMIN_DATA = {
         "Bookkeeping"
       ],
       "sourceUrl": "https://cas.ac.ls/course/corporate-training-ct/",
-      "sourcePath": null,
-      "supportingSourcePath": null,
-      "supportingFeeSourcePath": "data/real/fees/cas-fee-structure-partial-2024.json",
       "feeNote": "Fee schedule available: CAS fees partial manual extract (current evidence). Confirm the programme group and latest amount before payment.",
       "sourceType": "official_course_page",
-      "extractionMethod": "html_course_page",
       "reviewStatus": "approved",
-      "sourceNote": "Auto-enriched from repository evidence and institution rules."
+      "sourceNote": "Auto-enriched from repository evidence and institution rules.",
+      "mappingStatus": "suggested",
+      "durationStatus": null
     },
     {
       "id": "lesotho-college-of-education-advanced-diploma-in-special-education",
@@ -7634,14 +7157,12 @@ window.EDUGUIDE_ADMIN_DATA = {
         "Curriculum development"
       ],
       "sourceUrl": "https://mabumbe.com/official-lesotho-college-education-lce-courses/",
-      "sourcePath": null,
-      "supportingSourcePath": null,
-      "supportingFeeSourcePath": "data/real/fees/lce-fee-structure-2025-2026.json",
       "feeNote": "Fee schedule available: Lesotho College of Education Fee Structure 2025/26 (2025/26). Confirm the programme group and latest amount before payment.",
       "sourceType": "third_party_courses_fees_page",
-      "extractionMethod": "reviewed_web_page_listing",
       "reviewStatus": "approved",
-      "sourceNote": "Direct script fetch is blocked by Cloudflare; programme names are from the reachable Mabumbe page and must be confirmed against LCE official materials. Auto-enriched from repository evidence and institution rules."
+      "sourceNote": "Direct script fetch is blocked by Cloudflare; programme names are from the reachable Mabumbe page and must be confirmed against LCE official materials. Auto-enriched from repository evidence and institution rules.",
+      "mappingStatus": "suggested",
+      "durationStatus": null
     },
     {
       "id": "lesotho-college-of-education-diploma-in-education-primary",
@@ -7668,14 +7189,12 @@ window.EDUGUIDE_ADMIN_DATA = {
         "Curriculum development"
       ],
       "sourceUrl": "https://mabumbe.com/official-lesotho-college-education-lce-courses/",
-      "sourcePath": null,
-      "supportingSourcePath": null,
-      "supportingFeeSourcePath": "data/real/fees/lce-fee-structure-2025-2026.json",
       "feeNote": "Fee schedule available: Lesotho College of Education Fee Structure 2025/26 (2025/26). Confirm the programme group and latest amount before payment.",
       "sourceType": "third_party_courses_fees_page",
-      "extractionMethod": "reviewed_web_page_listing",
       "reviewStatus": "approved",
-      "sourceNote": "Direct script fetch is blocked by Cloudflare; programme names are from the reachable Mabumbe page and must be confirmed against LCE official materials. Auto-enriched from repository evidence and institution rules."
+      "sourceNote": "Direct script fetch is blocked by Cloudflare; programme names are from the reachable Mabumbe page and must be confirmed against LCE official materials. Auto-enriched from repository evidence and institution rules.",
+      "mappingStatus": "suggested",
+      "durationStatus": null
     },
     {
       "id": "lesotho-college-of-education-diploma-in-education-secondary",
@@ -7702,14 +7221,12 @@ window.EDUGUIDE_ADMIN_DATA = {
         "Curriculum development"
       ],
       "sourceUrl": "https://mabumbe.com/official-lesotho-college-education-lce-courses/",
-      "sourcePath": null,
-      "supportingSourcePath": null,
-      "supportingFeeSourcePath": "data/real/fees/lce-fee-structure-2025-2026.json",
       "feeNote": "Fee schedule available: Lesotho College of Education Fee Structure 2025/26 (2025/26). Confirm the programme group and latest amount before payment.",
       "sourceType": "third_party_courses_fees_page",
-      "extractionMethod": "reviewed_web_page_listing",
       "reviewStatus": "approved",
-      "sourceNote": "Direct script fetch is blocked by Cloudflare; programme names are from the reachable Mabumbe page and must be confirmed against LCE official materials. Auto-enriched from repository evidence and institution rules."
+      "sourceNote": "Direct script fetch is blocked by Cloudflare; programme names are from the reachable Mabumbe page and must be confirmed against LCE official materials. Auto-enriched from repository evidence and institution rules.",
+      "mappingStatus": "suggested",
+      "durationStatus": null
     },
     {
       "id": "lesotho-college-of-education-certificate-in-early-childhood-education",
@@ -7736,14 +7253,12 @@ window.EDUGUIDE_ADMIN_DATA = {
         "Curriculum development"
       ],
       "sourceUrl": "https://mabumbe.com/official-lesotho-college-education-lce-courses/",
-      "sourcePath": null,
-      "supportingSourcePath": null,
-      "supportingFeeSourcePath": "data/real/fees/lce-fee-structure-2025-2026.json",
       "feeNote": "Fee schedule available: Lesotho College of Education Fee Structure 2025/26 (2025/26). Confirm the programme group and latest amount before payment.",
       "sourceType": "third_party_courses_fees_page",
-      "extractionMethod": "reviewed_web_page_listing",
       "reviewStatus": "approved",
-      "sourceNote": "Direct script fetch is blocked by Cloudflare; programme names are from the reachable Mabumbe page and must be confirmed against LCE official materials. Auto-enriched from repository evidence and institution rules."
+      "sourceNote": "Direct script fetch is blocked by Cloudflare; programme names are from the reachable Mabumbe page and must be confirmed against LCE official materials. Auto-enriched from repository evidence and institution rules.",
+      "mappingStatus": "suggested",
+      "durationStatus": null
     },
     {
       "id": "lesotho-college-of-education-bachelor-of-education-in-primary-education",
@@ -7770,14 +7285,12 @@ window.EDUGUIDE_ADMIN_DATA = {
         "Curriculum development"
       ],
       "sourceUrl": null,
-      "sourcePath": "C:/Users/lepha/Downloads/Lesotho College Of Education.pdf",
-      "supportingSourcePath": null,
-      "supportingFeeSourcePath": "C:/Users/lepha/Downloads/Lesotho College Of Education fees.pdf",
       "feeNote": null,
       "sourceType": "official_local_pdf",
-      "extractionMethod": "manual_pdf_extract",
       "reviewStatus": "approved",
-      "sourceNote": "Added from the official LCE B.Ed programme document supplied locally; kept alongside older diploma/certificate records for transition-period coverage. Auto-enriched from repository evidence and institution rules."
+      "sourceNote": "Added from the official LCE B.Ed programme document supplied locally; kept alongside older diploma/certificate records for transition-period coverage. Auto-enriched from repository evidence and institution rules.",
+      "mappingStatus": "suggested",
+      "durationStatus": null
     },
     {
       "id": "lesotho-college-of-education-bachelor-of-education-in-preschool-and-foundation-phase-education",
@@ -7804,14 +7317,12 @@ window.EDUGUIDE_ADMIN_DATA = {
         "Curriculum development"
       ],
       "sourceUrl": null,
-      "sourcePath": "C:/Users/lepha/Downloads/Lesotho College Of Education.pdf",
-      "supportingSourcePath": null,
-      "supportingFeeSourcePath": "C:/Users/lepha/Downloads/Lesotho College Of Education fees.pdf",
       "feeNote": null,
       "sourceType": "official_local_pdf",
-      "extractionMethod": "manual_pdf_extract",
       "reviewStatus": "approved",
-      "sourceNote": "Added from the official LCE B.Ed programme document supplied locally; kept alongside older diploma/certificate records for transition-period coverage. Auto-enriched from repository evidence and institution rules."
+      "sourceNote": "Added from the official LCE B.Ed programme document supplied locally; kept alongside older diploma/certificate records for transition-period coverage. Auto-enriched from repository evidence and institution rules.",
+      "mappingStatus": "suggested",
+      "durationStatus": null
     },
     {
       "id": "paray-school-of-nursing-certificate-in-nursing-assistant",
@@ -7838,14 +7349,12 @@ window.EDUGUIDE_ADMIN_DATA = {
         "Care planning"
       ],
       "sourceUrl": "https://www.scribd.com/document/763854725/2024-2025-Final-Prospectus",
-      "sourcePath": "C:/Users/lepha/Downloads/data/Paray 2024-2025-final-prospectus.pdf",
-      "supportingSourcePath": null,
-      "supportingFeeSourcePath": "data/real/fees/paray-school-of-nursing-2024-2025.json",
       "feeNote": "Fee schedule available: Paray School of Nursing prospectus fee table (2024/2025). Confirm the programme group and latest amount before payment.",
       "sourceType": "official_local_pdf",
-      "extractionMethod": "pdf_text_extract",
       "reviewStatus": "approved",
-      "sourceNote": "Extracted from pages 10-11 and 22 of the supplied Paray 2024/2025 prospectus PDF. Auto-enriched from repository evidence and institution rules."
+      "sourceNote": "Extracted from pages 10-11 and 22 of the supplied Paray 2024/2025 prospectus PDF. Auto-enriched from repository evidence and institution rules.",
+      "mappingStatus": "suggested",
+      "durationStatus": null
     },
     {
       "id": "paray-school-of-nursing-diploma-in-nursing",
@@ -7872,14 +7381,12 @@ window.EDUGUIDE_ADMIN_DATA = {
         "Care planning"
       ],
       "sourceUrl": "https://www.scribd.com/document/763854725/2024-2025-Final-Prospectus",
-      "sourcePath": "C:/Users/lepha/Downloads/data/Paray 2024-2025-final-prospectus.pdf",
-      "supportingSourcePath": null,
-      "supportingFeeSourcePath": "data/real/fees/paray-school-of-nursing-2024-2025.json",
       "feeNote": "Fee schedule available: Paray School of Nursing prospectus fee table (2024/2025). Confirm the programme group and latest amount before payment.",
       "sourceType": "official_local_pdf",
-      "extractionMethod": "pdf_text_extract",
       "reviewStatus": "approved",
-      "sourceNote": "Extracted from pages 11-12 and 22-23 of the supplied Paray 2024/2025 prospectus PDF. Auto-enriched from repository evidence and institution rules."
+      "sourceNote": "Extracted from pages 11-12 and 22-23 of the supplied Paray 2024/2025 prospectus PDF. Auto-enriched from repository evidence and institution rules.",
+      "mappingStatus": "suggested",
+      "durationStatus": null
     },
     {
       "id": "paray-school-of-nursing-diploma-in-midwifery",
@@ -7906,802 +7413,12 @@ window.EDUGUIDE_ADMIN_DATA = {
         "Care planning"
       ],
       "sourceUrl": "https://www.scribd.com/document/763854725/2024-2025-Final-Prospectus",
-      "sourcePath": "C:/Users/lepha/Downloads/data/Paray 2024-2025-final-prospectus.pdf",
-      "supportingSourcePath": null,
-      "supportingFeeSourcePath": "data/real/fees/paray-school-of-nursing-2024-2025.json",
       "feeNote": "Fee schedule available: Paray School of Nursing prospectus fee table (2024/2025). Confirm the programme group and latest amount before payment.",
       "sourceType": "official_local_pdf",
-      "extractionMethod": "pdf_text_extract",
       "reviewStatus": "approved",
-      "sourceNote": "Extracted from pages 12-13 and 23 of the supplied Paray 2024/2025 prospectus PDF. Auto-enriched from repository evidence and institution rules."
-    },
-    {
-      "id": "imperial-business-college-bachelor-in-business-administration-bba",
-      "institution": "Imperial Business College",
-      "name": "Bachelor in Business Administration (BBA)",
-      "code": null,
-      "category": "Business & Commerce",
-      "faculty": "Management",
-      "level": "Degree",
-      "duration": "4 years / 8 semesters",
-      "deliveryMode": null,
-      "overview": null,
-      "requirementsSummary": "Minimum entry level for BBA and BHCM is Higher Secondary School Level (10+2) or equivalent A-Levels, CBSE or other courses recognised by the National Education Board of Nepal, with a minimum of second division (45% aggregate) or 2.0 CGPA and minimum Grade C in each subject. Students must also pass the college entrance test, group discussion, and interview.",
-      "careers": [
-        "Business Analyst",
-        "Operations Manager",
-        "Business Development Officer",
-        "Entrepreneur"
-      ],
-      "skills": [
-        "Strategic planning",
-        "Operations management",
-        "Leadership",
-        "Business communication"
-      ],
-      "sourceUrl": "https://www.imperialcollege.edu.np/",
-      "sourcePath": "C:/Users/lepha/Downloads/data/IBC prospectus-outlined-fonts.pdf",
-      "supportingSourcePath": null,
-      "supportingFeeSourcePath": null,
-      "feeNote": null,
-      "sourceType": "international_prospectus_local_pdf",
-      "extractionMethod": "visual_pdf_review_outlined_fonts",
-      "reviewStatus": "approved",
-      "sourceNote": "Visually extracted from the 2018/19 prospectus because the PDF uses outlined fonts that do not expose reliable text. Institution is in Kathmandu, Nepal and must be reviewed for EduGuide LS scope before publishing to students. Auto-enriched from repository evidence and institution rules."
-    },
-    {
-      "id": "imperial-business-college-bachelor-in-health-care-management-bhcm",
-      "institution": "Imperial Business College",
-      "name": "Bachelor in Health Care Management (BHCM)",
-      "code": null,
-      "category": "Health Sciences",
-      "faculty": "Health Care Management",
-      "level": "Degree",
-      "duration": "4 years / 8 semesters",
-      "deliveryMode": null,
-      "overview": null,
-      "requirementsSummary": "Minimum entry level for BBA and BHCM is Higher Secondary School Level (10+2) or equivalent A-Levels, CBSE or other courses recognised by the National Education Board of Nepal, with a minimum of second division (45% aggregate) or 2.0 CGPA and minimum Grade C in each subject. Students must also pass the college entrance test, group discussion, and interview.",
-      "careers": [
-        "Laboratory Technologist",
-        "Research Scientist",
-        "Science Teacher",
-        "Quality Control Analyst"
-      ],
-      "skills": [
-        "Laboratory practice",
-        "Scientific method",
-        "Data analysis",
-        "Research methods"
-      ],
-      "sourceUrl": "https://www.imperialcollege.edu.np/",
-      "sourcePath": "C:/Users/lepha/Downloads/data/IBC prospectus-outlined-fonts.pdf",
-      "supportingSourcePath": null,
-      "supportingFeeSourcePath": null,
-      "feeNote": null,
-      "sourceType": "international_prospectus_local_pdf",
-      "extractionMethod": "visual_pdf_review_outlined_fonts",
-      "reviewStatus": "approved",
-      "sourceNote": "Visually extracted from the 2018/19 prospectus because the PDF uses outlined fonts that do not expose reliable text. Institution is in Kathmandu, Nepal and must be reviewed for EduGuide LS scope before publishing to students. Auto-enriched from repository evidence and institution rules."
-    },
-    {
-      "id": "nhtc-certificate-auxiliary-social-work-che-2017",
-      "institution": "National Health Training College",
-      "name": "Certificate in Auxiliary Social Work",
-      "code": null,
-      "category": "Health & Medicine",
-      "faculty": "Health Sciences",
-      "level": "Certificate",
-      "duration": null,
-      "deliveryMode": null,
-      "overview": null,
-      "requirementsSummary": null,
-      "careers": [],
-      "skills": [],
-      "sourceUrl": null,
-      "sourcePath": "data/references/che-list-of-accredited-programmes-december-2017.pdf",
-      "supportingSourcePath": null,
-      "supportingFeeSourcePath": null,
-      "feeNote": null,
-      "sourceType": "official_regulator_historical_pdf",
-      "extractionMethod": "manual_text_extract",
-      "reviewStatus": "needs_admin_review",
-      "sourceNote": "Imported from the Council on Higher Education historical programme list dated December 2017. Its accreditation periods ended by 2023, so this is an admin-review candidate only and must not be treated as current admission, accreditation, fee, duration, or entry-requirement evidence."
-    },
-    {
-      "id": "nhtc-certificate-nursing-assistant-che-2017",
-      "institution": "National Health Training College",
-      "name": "Certificate in Nursing Assistant",
-      "code": null,
-      "category": "Health & Medicine",
-      "faculty": "Health Sciences",
-      "level": "Certificate",
-      "duration": null,
-      "deliveryMode": null,
-      "overview": null,
-      "requirementsSummary": null,
-      "careers": [],
-      "skills": [],
-      "sourceUrl": null,
-      "sourcePath": "data/references/che-list-of-accredited-programmes-december-2017.pdf",
-      "supportingSourcePath": null,
-      "supportingFeeSourcePath": null,
-      "feeNote": null,
-      "sourceType": "official_regulator_historical_pdf",
-      "extractionMethod": "manual_text_extract",
-      "reviewStatus": "needs_admin_review",
-      "sourceNote": "Imported from the Council on Higher Education historical programme list dated December 2017. Its accreditation periods ended by 2023, so this is an admin-review candidate only and must not be treated as current admission, accreditation, fee, duration, or entry-requirement evidence."
-    },
-    {
-      "id": "nhtc-diploma-environmental-health-che-2017",
-      "institution": "National Health Training College",
-      "name": "Diploma in Environmental Health",
-      "code": null,
-      "category": "Health & Medicine",
-      "faculty": "Health Sciences",
-      "level": "Diploma",
-      "duration": null,
-      "deliveryMode": null,
-      "overview": null,
-      "requirementsSummary": null,
-      "careers": [],
-      "skills": [],
-      "sourceUrl": null,
-      "sourcePath": "data/references/che-list-of-accredited-programmes-december-2017.pdf",
-      "supportingSourcePath": null,
-      "supportingFeeSourcePath": null,
-      "feeNote": null,
-      "sourceType": "official_regulator_historical_pdf",
-      "extractionMethod": "manual_text_extract",
-      "reviewStatus": "needs_admin_review",
-      "sourceNote": "Imported from the Council on Higher Education historical programme list dated December 2017. Its accreditation periods ended by 2023, so this is an admin-review candidate only and must not be treated as current admission, accreditation, fee, duration, or entry-requirement evidence."
-    },
-    {
-      "id": "nhtc-diploma-general-nursing-che-2017",
-      "institution": "National Health Training College",
-      "name": "Diploma in General Nursing",
-      "code": null,
-      "category": "Health & Medicine",
-      "faculty": "Health Sciences",
-      "level": "Diploma",
-      "duration": null,
-      "deliveryMode": null,
-      "overview": null,
-      "requirementsSummary": null,
-      "careers": [],
-      "skills": [],
-      "sourceUrl": null,
-      "sourcePath": "data/references/che-list-of-accredited-programmes-december-2017.pdf",
-      "supportingSourcePath": null,
-      "supportingFeeSourcePath": null,
-      "feeNote": null,
-      "sourceType": "official_regulator_historical_pdf",
-      "extractionMethod": "manual_text_extract",
-      "reviewStatus": "needs_admin_review",
-      "sourceNote": "Imported from the Council on Higher Education historical programme list dated December 2017. Its accreditation periods ended by 2023, so this is an admin-review candidate only and must not be treated as current admission, accreditation, fee, duration, or entry-requirement evidence."
-    },
-    {
-      "id": "nhtc-diploma-medical-laboratory-sciences-che-2017",
-      "institution": "National Health Training College",
-      "name": "Diploma in Medical Laboratory Sciences",
-      "code": null,
-      "category": "Health & Medicine",
-      "faculty": "Health Sciences",
-      "level": "Diploma",
-      "duration": null,
-      "deliveryMode": null,
-      "overview": null,
-      "requirementsSummary": null,
-      "careers": [],
-      "skills": [],
-      "sourceUrl": null,
-      "sourcePath": "data/references/che-list-of-accredited-programmes-december-2017.pdf",
-      "supportingSourcePath": null,
-      "supportingFeeSourcePath": null,
-      "feeNote": null,
-      "sourceType": "official_regulator_historical_pdf",
-      "extractionMethod": "manual_text_extract",
-      "reviewStatus": "needs_admin_review",
-      "sourceNote": "Imported from the Council on Higher Education historical programme list dated December 2017. Its accreditation periods ended by 2023, so this is an admin-review candidate only and must not be treated as current admission, accreditation, fee, duration, or entry-requirement evidence."
-    },
-    {
-      "id": "nhtc-diploma-midwifery-che-2017",
-      "institution": "National Health Training College",
-      "name": "Diploma in Midwifery",
-      "code": null,
-      "category": "Health & Medicine",
-      "faculty": "Health Sciences",
-      "level": "Diploma",
-      "duration": null,
-      "deliveryMode": null,
-      "overview": null,
-      "requirementsSummary": null,
-      "careers": [],
-      "skills": [],
-      "sourceUrl": null,
-      "sourcePath": "data/references/che-list-of-accredited-programmes-december-2017.pdf",
-      "supportingSourcePath": null,
-      "supportingFeeSourcePath": null,
-      "feeNote": null,
-      "sourceType": "official_regulator_historical_pdf",
-      "extractionMethod": "manual_text_extract",
-      "reviewStatus": "needs_admin_review",
-      "sourceNote": "Imported from the Council on Higher Education historical programme list dated December 2017. Its accreditation periods ended by 2023, so this is an admin-review candidate only and must not be treated as current admission, accreditation, fee, duration, or entry-requirement evidence."
-    },
-    {
-      "id": "nhtc-diploma-primary-health-care-nurse-clinician-che-2017",
-      "institution": "National Health Training College",
-      "name": "Diploma in Primary Health Care (Nurse Clinician)",
-      "code": null,
-      "category": "Health & Medicine",
-      "faculty": "Health Sciences",
-      "level": "Diploma",
-      "duration": null,
-      "deliveryMode": null,
-      "overview": null,
-      "requirementsSummary": null,
-      "careers": [],
-      "skills": [],
-      "sourceUrl": null,
-      "sourcePath": "data/references/che-list-of-accredited-programmes-december-2017.pdf",
-      "supportingSourcePath": null,
-      "supportingFeeSourcePath": null,
-      "feeNote": null,
-      "sourceType": "official_regulator_historical_pdf",
-      "extractionMethod": "manual_text_extract",
-      "reviewStatus": "needs_admin_review",
-      "sourceNote": "Imported from the Council on Higher Education historical programme list dated December 2017. Its accreditation periods ended by 2023, so this is an admin-review candidate only and must not be treated as current admission, accreditation, fee, duration, or entry-requirement evidence."
-    },
-    {
-      "id": "nhtc-diploma-ophthalmic-nursing-che-2017",
-      "institution": "National Health Training College",
-      "name": "Diploma in Ophthalmic Nursing",
-      "code": null,
-      "category": "Health & Medicine",
-      "faculty": "Health Sciences",
-      "level": "Diploma",
-      "duration": null,
-      "deliveryMode": null,
-      "overview": null,
-      "requirementsSummary": null,
-      "careers": [],
-      "skills": [],
-      "sourceUrl": null,
-      "sourcePath": "data/references/che-list-of-accredited-programmes-december-2017.pdf",
-      "supportingSourcePath": null,
-      "supportingFeeSourcePath": null,
-      "feeNote": null,
-      "sourceType": "official_regulator_historical_pdf",
-      "extractionMethod": "manual_text_extract",
-      "reviewStatus": "needs_admin_review",
-      "sourceNote": "Imported from the Council on Higher Education historical programme list dated December 2017. Its accreditation periods ended by 2023, so this is an admin-review candidate only and must not be treated as current admission, accreditation, fee, duration, or entry-requirement evidence."
-    },
-    {
-      "id": "nhtc-diploma-pharmacy-technology-che-2017",
-      "institution": "National Health Training College",
-      "name": "Diploma in Pharmacy Technology",
-      "code": null,
-      "category": "Health & Medicine",
-      "faculty": "Health Sciences",
-      "level": "Diploma",
-      "duration": null,
-      "deliveryMode": null,
-      "overview": null,
-      "requirementsSummary": null,
-      "careers": [],
-      "skills": [],
-      "sourceUrl": null,
-      "sourcePath": "data/references/che-list-of-accredited-programmes-december-2017.pdf",
-      "supportingSourcePath": null,
-      "supportingFeeSourcePath": null,
-      "feeNote": null,
-      "sourceType": "official_regulator_historical_pdf",
-      "extractionMethod": "manual_text_extract",
-      "reviewStatus": "needs_admin_review",
-      "sourceNote": "Imported from the Council on Higher Education historical programme list dated December 2017. Its accreditation periods ended by 2023, so this is an admin-review candidate only and must not be treated as current admission, accreditation, fee, duration, or entry-requirement evidence."
-    },
-    {
-      "id": "nhtc-diploma-psychiatric-mental-health-nursing-che-2017",
-      "institution": "National Health Training College",
-      "name": "Diploma in Psychiatric and Mental Health Nursing",
-      "code": null,
-      "category": "Health & Medicine",
-      "faculty": "Health Sciences",
-      "level": "Diploma",
-      "duration": null,
-      "deliveryMode": null,
-      "overview": null,
-      "requirementsSummary": null,
-      "careers": [],
-      "skills": [],
-      "sourceUrl": null,
-      "sourcePath": "data/references/che-list-of-accredited-programmes-december-2017.pdf",
-      "supportingSourcePath": null,
-      "supportingFeeSourcePath": null,
-      "feeNote": null,
-      "sourceType": "official_regulator_historical_pdf",
-      "extractionMethod": "manual_text_extract",
-      "reviewStatus": "needs_admin_review",
-      "sourceNote": "Imported from the Council on Higher Education historical programme list dated December 2017. Its accreditation periods ended by 2023, so this is an admin-review candidate only and must not be treated as current admission, accreditation, fee, duration, or entry-requirement evidence."
-    },
-    {
-      "id": "nhtc-diploma-dental-therapy-che-2017",
-      "institution": "National Health Training College",
-      "name": "Diploma in Dental Therapy",
-      "code": null,
-      "category": "Health & Medicine",
-      "faculty": "Health Sciences",
-      "level": "Diploma",
-      "duration": null,
-      "deliveryMode": null,
-      "overview": null,
-      "requirementsSummary": null,
-      "careers": [],
-      "skills": [],
-      "sourceUrl": null,
-      "sourcePath": "data/references/che-list-of-accredited-programmes-december-2017.pdf",
-      "supportingSourcePath": null,
-      "supportingFeeSourcePath": null,
-      "feeNote": null,
-      "sourceType": "official_regulator_historical_pdf",
-      "extractionMethod": "manual_text_extract",
-      "reviewStatus": "needs_admin_review",
-      "sourceNote": "Imported from the Council on Higher Education historical programme list dated December 2017. Its accreditation periods ended by 2023, so this is an admin-review candidate only and must not be treated as current admission, accreditation, fee, duration, or entry-requirement evidence."
-    },
-    {
-      "id": "mac-diploma-general-nursing-che-2017",
-      "institution": "Maluti Adventist College",
-      "name": "Diploma in General Nursing",
-      "code": null,
-      "category": "Health & Medicine",
-      "faculty": "Health Sciences",
-      "level": "Diploma",
-      "duration": null,
-      "deliveryMode": null,
-      "overview": null,
-      "requirementsSummary": null,
-      "careers": [],
-      "skills": [],
-      "sourceUrl": null,
-      "sourcePath": "data/references/che-list-of-accredited-programmes-december-2017.pdf",
-      "supportingSourcePath": null,
-      "supportingFeeSourcePath": null,
-      "feeNote": null,
-      "sourceType": "official_regulator_historical_pdf",
-      "extractionMethod": "manual_text_extract",
-      "reviewStatus": "needs_admin_review",
-      "sourceNote": "Imported from the Council on Higher Education historical programme list dated December 2017. Its accreditation periods ended by 2023, so this is an admin-review candidate only and must not be treated as current admission, accreditation, fee, duration, or entry-requirement evidence."
-    },
-    {
-      "id": "mac-diploma-midwifery-che-2017",
-      "institution": "Maluti Adventist College",
-      "name": "Diploma in Midwifery",
-      "code": null,
-      "category": "Health & Medicine",
-      "faculty": "Health Sciences",
-      "level": "Diploma",
-      "duration": null,
-      "deliveryMode": null,
-      "overview": null,
-      "requirementsSummary": null,
-      "careers": [],
-      "skills": [],
-      "sourceUrl": null,
-      "sourcePath": "data/references/che-list-of-accredited-programmes-december-2017.pdf",
-      "supportingSourcePath": null,
-      "supportingFeeSourcePath": null,
-      "feeNote": null,
-      "sourceType": "official_regulator_historical_pdf",
-      "extractionMethod": "manual_text_extract",
-      "reviewStatus": "needs_admin_review",
-      "sourceNote": "Imported from the Council on Higher Education historical programme list dated December 2017. Its accreditation periods ended by 2023, so this is an admin-review candidate only and must not be treated as current admission, accreditation, fee, duration, or entry-requirement evidence."
-    },
-    {
-      "id": "ssn-certificate-nursing-assistant-che-2017",
-      "institution": "Scott Hospital School of Nursing",
-      "name": "Certificate in Nursing Assistant",
-      "code": null,
-      "category": "Health & Medicine",
-      "faculty": "Health Sciences",
-      "level": "Certificate",
-      "duration": null,
-      "deliveryMode": null,
-      "overview": null,
-      "requirementsSummary": null,
-      "careers": [],
-      "skills": [],
-      "sourceUrl": null,
-      "sourcePath": "data/references/che-list-of-accredited-programmes-december-2017.pdf",
-      "supportingSourcePath": null,
-      "supportingFeeSourcePath": null,
-      "feeNote": null,
-      "sourceType": "official_regulator_historical_pdf",
-      "extractionMethod": "manual_text_extract",
-      "reviewStatus": "needs_admin_review",
-      "sourceNote": "Imported from the Council on Higher Education historical programme list dated December 2017. Its accreditation periods ended by 2023, so this is an admin-review candidate only and must not be treated as current admission, accreditation, fee, duration, or entry-requirement evidence."
-    },
-    {
-      "id": "ssn-diploma-general-nursing-che-2017",
-      "institution": "Scott Hospital School of Nursing",
-      "name": "Diploma in General Nursing",
-      "code": null,
-      "category": "Health & Medicine",
-      "faculty": "Health Sciences",
-      "level": "Diploma",
-      "duration": null,
-      "deliveryMode": null,
-      "overview": null,
-      "requirementsSummary": null,
-      "careers": [],
-      "skills": [],
-      "sourceUrl": null,
-      "sourcePath": "data/references/che-list-of-accredited-programmes-december-2017.pdf",
-      "supportingSourcePath": null,
-      "supportingFeeSourcePath": null,
-      "feeNote": null,
-      "sourceType": "official_regulator_historical_pdf",
-      "extractionMethod": "manual_text_extract",
-      "reviewStatus": "needs_admin_review",
-      "sourceNote": "Imported from the Council on Higher Education historical programme list dated December 2017. Its accreditation periods ended by 2023, so this is an admin-review candidate only and must not be treated as current admission, accreditation, fee, duration, or entry-requirement evidence."
-    },
-    {
-      "id": "ssn-diploma-midwifery-che-2017",
-      "institution": "Scott Hospital School of Nursing",
-      "name": "Diploma in Midwifery",
-      "code": null,
-      "category": "Health & Medicine",
-      "faculty": "Health Sciences",
-      "level": "Diploma",
-      "duration": null,
-      "deliveryMode": null,
-      "overview": null,
-      "requirementsSummary": null,
-      "careers": [],
-      "skills": [],
-      "sourceUrl": null,
-      "sourcePath": "data/references/che-list-of-accredited-programmes-december-2017.pdf",
-      "supportingSourcePath": null,
-      "supportingFeeSourcePath": null,
-      "feeNote": null,
-      "sourceType": "official_regulator_historical_pdf",
-      "extractionMethod": "manual_text_extract",
-      "reviewStatus": "needs_admin_review",
-      "sourceNote": "Imported from the Council on Higher Education historical programme list dated December 2017. Its accreditation periods ended by 2023, so this is an admin-review candidate only and must not be treated as current admission, accreditation, fee, duration, or entry-requirement evidence."
-    },
-    {
-      "id": "idm-diploma-human-resource-development-che-2017",
-      "institution": "Institute of Development Management",
-      "name": "Diploma in Human Resource and Development",
-      "code": null,
-      "category": "Business & Management",
-      "faculty": "Professional Studies",
-      "level": "Diploma",
-      "duration": null,
-      "deliveryMode": null,
-      "overview": null,
-      "requirementsSummary": null,
-      "careers": [],
-      "skills": [],
-      "sourceUrl": null,
-      "sourcePath": "data/references/che-list-of-accredited-programmes-december-2017.pdf",
-      "supportingSourcePath": null,
-      "supportingFeeSourcePath": null,
-      "feeNote": null,
-      "sourceType": "official_regulator_historical_pdf",
-      "extractionMethod": "manual_text_extract",
-      "reviewStatus": "needs_admin_review",
-      "sourceNote": "Imported from the Council on Higher Education historical programme list dated December 2017. Its accreditation periods ended by 2023, so this is an admin-review candidate only and must not be treated as current admission, accreditation, fee, duration, or entry-requirement evidence."
-    },
-    {
-      "id": "idm-advanced-diploma-project-management-che-2017",
-      "institution": "Institute of Development Management",
-      "name": "Advanced Diploma in Project Management",
-      "code": null,
-      "category": "Business & Management",
-      "faculty": "Professional Studies",
-      "level": "Advanced Diploma",
-      "duration": null,
-      "deliveryMode": null,
-      "overview": null,
-      "requirementsSummary": null,
-      "careers": [],
-      "skills": [],
-      "sourceUrl": null,
-      "sourcePath": "data/references/che-list-of-accredited-programmes-december-2017.pdf",
-      "supportingSourcePath": null,
-      "supportingFeeSourcePath": null,
-      "feeNote": null,
-      "sourceType": "official_regulator_historical_pdf",
-      "extractionMethod": "manual_text_extract",
-      "reviewStatus": "needs_admin_review",
-      "sourceNote": "Imported from the Council on Higher Education historical programme list dated December 2017. Its accreditation periods ended by 2023, so this is an admin-review candidate only and must not be treated as current admission, accreditation, fee, duration, or entry-requirement evidence."
-    },
-    {
-      "id": "idm-certificate-community-development-che-2017",
-      "institution": "Institute of Development Management",
-      "name": "Certificate in Community Development",
-      "code": null,
-      "category": "Social Work",
-      "faculty": "Professional Studies",
-      "level": "Certificate",
-      "duration": null,
-      "deliveryMode": null,
-      "overview": null,
-      "requirementsSummary": null,
-      "careers": [],
-      "skills": [],
-      "sourceUrl": null,
-      "sourcePath": "data/references/che-list-of-accredited-programmes-december-2017.pdf",
-      "supportingSourcePath": null,
-      "supportingFeeSourcePath": null,
-      "feeNote": null,
-      "sourceType": "official_regulator_historical_pdf",
-      "extractionMethod": "manual_text_extract",
-      "reviewStatus": "needs_admin_review",
-      "sourceNote": "Imported from the Council on Higher Education historical programme list dated December 2017. Its accreditation periods ended by 2023, so this is an admin-review candidate only and must not be treated as current admission, accreditation, fee, duration, or entry-requirement evidence."
-    },
-    {
-      "id": "idm-diploma-community-development-che-2017",
-      "institution": "Institute of Development Management",
-      "name": "Diploma in Community Development",
-      "code": null,
-      "category": "Social Work",
-      "faculty": "Professional Studies",
-      "level": "Diploma",
-      "duration": null,
-      "deliveryMode": null,
-      "overview": null,
-      "requirementsSummary": null,
-      "careers": [],
-      "skills": [],
-      "sourceUrl": null,
-      "sourcePath": "data/references/che-list-of-accredited-programmes-december-2017.pdf",
-      "supportingSourcePath": null,
-      "supportingFeeSourcePath": null,
-      "feeNote": null,
-      "sourceType": "official_regulator_historical_pdf",
-      "extractionMethod": "manual_text_extract",
-      "reviewStatus": "needs_admin_review",
-      "sourceNote": "Imported from the Council on Higher Education historical programme list dated December 2017. Its accreditation periods ended by 2023, so this is an admin-review candidate only and must not be treated as current admission, accreditation, fee, duration, or entry-requirement evidence."
-    },
-    {
-      "id": "idm-diploma-hiv-aids-management-che-2017",
-      "institution": "Institute of Development Management",
-      "name": "Diploma in HIV & AIDS Management",
-      "code": null,
-      "category": "Health & Medicine",
-      "faculty": "Professional Studies",
-      "level": "Diploma",
-      "duration": null,
-      "deliveryMode": null,
-      "overview": null,
-      "requirementsSummary": null,
-      "careers": [],
-      "skills": [],
-      "sourceUrl": null,
-      "sourcePath": "data/references/che-list-of-accredited-programmes-december-2017.pdf",
-      "supportingSourcePath": null,
-      "supportingFeeSourcePath": null,
-      "feeNote": null,
-      "sourceType": "official_regulator_historical_pdf",
-      "extractionMethod": "manual_text_extract",
-      "reviewStatus": "needs_admin_review",
-      "sourceNote": "Imported from the Council on Higher Education historical programme list dated December 2017. Its accreditation periods ended by 2023, so this is an admin-review candidate only and must not be treated as current admission, accreditation, fee, duration, or entry-requirement evidence."
-    },
-    {
-      "id": "idm-diploma-safety-health-che-2017",
-      "institution": "Institute of Development Management",
-      "name": "Diploma in Safety and Health",
-      "code": null,
-      "category": "Health & Medicine",
-      "faculty": "Professional Studies",
-      "level": "Diploma",
-      "duration": null,
-      "deliveryMode": null,
-      "overview": null,
-      "requirementsSummary": null,
-      "careers": [],
-      "skills": [],
-      "sourceUrl": null,
-      "sourcePath": "data/references/che-list-of-accredited-programmes-december-2017.pdf",
-      "supportingSourcePath": null,
-      "supportingFeeSourcePath": null,
-      "feeNote": null,
-      "sourceType": "official_regulator_historical_pdf",
-      "extractionMethod": "manual_text_extract",
-      "reviewStatus": "needs_admin_review",
-      "sourceNote": "Imported from the Council on Higher Education historical programme list dated December 2017. Its accreditation periods ended by 2023, so this is an admin-review candidate only and must not be treated as current admission, accreditation, fee, duration, or entry-requirement evidence."
-    },
-    {
-      "id": "idm-diploma-accounting-business-studies-che-2017",
-      "institution": "Institute of Development Management",
-      "name": "Diploma in Accounting and Business Studies",
-      "code": null,
-      "category": "Business & Management",
-      "faculty": "Professional Studies",
-      "level": "Diploma",
-      "duration": null,
-      "deliveryMode": null,
-      "overview": null,
-      "requirementsSummary": null,
-      "careers": [],
-      "skills": [],
-      "sourceUrl": null,
-      "sourcePath": "data/references/che-list-of-accredited-programmes-december-2017.pdf",
-      "supportingSourcePath": null,
-      "supportingFeeSourcePath": null,
-      "feeNote": null,
-      "sourceType": "official_regulator_historical_pdf",
-      "extractionMethod": "manual_text_extract",
-      "reviewStatus": "needs_admin_review",
-      "sourceNote": "Imported from the Council on Higher Education historical programme list dated December 2017. Its accreditation periods ended by 2023, so this is an admin-review candidate only and must not be treated as current admission, accreditation, fee, duration, or entry-requirement evidence."
-    },
-    {
-      "id": "idm-certificate-computer-engineering-che-2017",
-      "institution": "Institute of Development Management",
-      "name": "Certificate in Computer Engineering",
-      "code": null,
-      "category": "Technology & IT",
-      "faculty": "Professional Studies",
-      "level": "Certificate",
-      "duration": null,
-      "deliveryMode": null,
-      "overview": null,
-      "requirementsSummary": null,
-      "careers": [],
-      "skills": [],
-      "sourceUrl": null,
-      "sourcePath": "data/references/che-list-of-accredited-programmes-december-2017.pdf",
-      "supportingSourcePath": null,
-      "supportingFeeSourcePath": null,
-      "feeNote": null,
-      "sourceType": "official_regulator_historical_pdf",
-      "extractionMethod": "manual_text_extract",
-      "reviewStatus": "needs_admin_review",
-      "sourceNote": "Imported from the Council on Higher Education historical programme list dated December 2017. Its accreditation periods ended by 2023, so this is an admin-review candidate only and must not be treated as current admission, accreditation, fee, duration, or entry-requirement evidence."
-    },
-    {
-      "id": "idm-diploma-computer-engineering-che-2017",
-      "institution": "Institute of Development Management",
-      "name": "Diploma in Computer Engineering",
-      "code": null,
-      "category": "Technology & IT",
-      "faculty": "Professional Studies",
-      "level": "Diploma",
-      "duration": null,
-      "deliveryMode": null,
-      "overview": null,
-      "requirementsSummary": null,
-      "careers": [],
-      "skills": [],
-      "sourceUrl": null,
-      "sourcePath": "data/references/che-list-of-accredited-programmes-december-2017.pdf",
-      "supportingSourcePath": null,
-      "supportingFeeSourcePath": null,
-      "feeNote": null,
-      "sourceType": "official_regulator_historical_pdf",
-      "extractionMethod": "manual_text_extract",
-      "reviewStatus": "needs_admin_review",
-      "sourceNote": "Imported from the Council on Higher Education historical programme list dated December 2017. Its accreditation periods ended by 2023, so this is an admin-review candidate only and must not be treated as current admission, accreditation, fee, duration, or entry-requirement evidence."
-    },
-    {
-      "id": "idm-diploma-logistics-transport-che-2017",
-      "institution": "Institute of Development Management",
-      "name": "Diploma in Logistics and Transport",
-      "code": null,
-      "category": "Business & Management",
-      "faculty": "Professional Studies",
-      "level": "Diploma",
-      "duration": null,
-      "deliveryMode": null,
-      "overview": null,
-      "requirementsSummary": null,
-      "careers": [],
-      "skills": [],
-      "sourceUrl": null,
-      "sourcePath": "data/references/che-list-of-accredited-programmes-december-2017.pdf",
-      "supportingSourcePath": null,
-      "supportingFeeSourcePath": null,
-      "feeNote": null,
-      "sourceType": "official_regulator_historical_pdf",
-      "extractionMethod": "manual_text_extract",
-      "reviewStatus": "needs_admin_review",
-      "sourceNote": "Imported from the Council on Higher Education historical programme list dated December 2017. Its accreditation periods ended by 2023, so this is an admin-review candidate only and must not be treated as current admission, accreditation, fee, duration, or entry-requirement evidence."
-    },
-    {
-      "id": "idm-cips-programme-che-2017",
-      "institution": "Institute of Development Management",
-      "name": "Chartered Institute of Purchasing and Supply (CIPS) Programme",
-      "code": null,
-      "category": "Business & Management",
-      "faculty": "Professional Studies",
-      "level": "Professional Programme",
-      "duration": null,
-      "deliveryMode": null,
-      "overview": null,
-      "requirementsSummary": null,
-      "careers": [],
-      "skills": [],
-      "sourceUrl": null,
-      "sourcePath": "data/references/che-list-of-accredited-programmes-december-2017.pdf",
-      "supportingSourcePath": null,
-      "supportingFeeSourcePath": null,
-      "feeNote": null,
-      "sourceType": "official_regulator_historical_pdf",
-      "extractionMethod": "manual_text_extract",
-      "reviewStatus": "needs_admin_review",
-      "sourceNote": "Imported from the Council on Higher Education historical programme list dated December 2017. Its accreditation periods ended by 2023, so this is an admin-review candidate only and must not be treated as current admission, accreditation, fee, duration, or entry-requirement evidence."
-    },
-    {
-      "id": "lipam-diploma-public-administration-management-che-2017",
-      "institution": "Lesotho Institute of Public Administration and Management",
-      "name": "Diploma in Public Administration and Management",
-      "code": null,
-      "category": "Law & Government",
-      "faculty": "Public Administration",
-      "level": "Diploma",
-      "duration": null,
-      "deliveryMode": null,
-      "overview": null,
-      "requirementsSummary": null,
-      "careers": [],
-      "skills": [],
-      "sourceUrl": null,
-      "sourcePath": "data/references/che-list-of-accredited-programmes-december-2017.pdf",
-      "supportingSourcePath": null,
-      "supportingFeeSourcePath": null,
-      "feeNote": null,
-      "sourceType": "official_regulator_historical_pdf",
-      "extractionMethod": "manual_text_extract",
-      "reviewStatus": "needs_admin_review",
-      "sourceNote": "Imported from the Council on Higher Education historical programme list dated December 2017. Its accreditation periods ended by 2023, so this is an admin-review candidate only and must not be treated as current admission, accreditation, fee, duration, or entry-requirement evidence."
-    },
-    {
-      "id": "lipam-diploma-human-resources-labour-laws-che-2017",
-      "institution": "Lesotho Institute of Public Administration and Management",
-      "name": "Diploma in Human Resources Management and Labour Laws",
-      "code": null,
-      "category": "Law & Government",
-      "faculty": "Public Administration",
-      "level": "Diploma",
-      "duration": null,
-      "deliveryMode": null,
-      "overview": null,
-      "requirementsSummary": null,
-      "careers": [],
-      "skills": [],
-      "sourceUrl": null,
-      "sourcePath": "data/references/che-list-of-accredited-programmes-december-2017.pdf",
-      "supportingSourcePath": null,
-      "supportingFeeSourcePath": null,
-      "feeNote": null,
-      "sourceType": "official_regulator_historical_pdf",
-      "extractionMethod": "manual_text_extract",
-      "reviewStatus": "needs_admin_review",
-      "sourceNote": "Imported from the Council on Higher Education historical programme list dated December 2017. Its accreditation periods ended by 2023, so this is an admin-review candidate only and must not be treated as current admission, accreditation, fee, duration, or entry-requirement evidence."
-    },
-    {
-      "id": "leboha-family-medicine-specialty-training-che-2017",
-      "institution": "Lesotho Boston Health Alliance (LeBoHA)",
-      "name": "Family Medicine Specialty Training Programme",
-      "code": null,
-      "category": "Health & Medicine",
-      "faculty": "Health Sciences",
-      "level": "Postgraduate Training",
-      "duration": null,
-      "deliveryMode": null,
-      "overview": null,
-      "requirementsSummary": null,
-      "careers": [],
-      "skills": [],
-      "sourceUrl": null,
-      "sourcePath": "data/references/che-list-of-accredited-programmes-december-2017.pdf",
-      "supportingSourcePath": null,
-      "supportingFeeSourcePath": null,
-      "feeNote": null,
-      "sourceType": "official_regulator_historical_pdf",
-      "extractionMethod": "manual_text_extract",
-      "reviewStatus": "needs_admin_review",
-      "sourceNote": "Imported from the Council on Higher Education historical programme list dated December 2017. Its accreditation periods ended by 2023, so this is an admin-review candidate only and must not be treated as current admission, accreditation, fee, duration, or entry-requirement evidence."
+      "sourceNote": "Extracted from pages 12-13 and 23 of the supplied Paray 2024/2025 prospectus PDF. Auto-enriched from repository evidence and institution rules.",
+      "mappingStatus": "suggested",
+      "durationStatus": null
     }
   ],
   "fees": [
@@ -8713,7 +7430,7 @@ window.EDUGUIDE_ADMIN_DATA = {
       "currency": "LSL",
       "reviewStatus": "needs_admin_review",
       "sourceUrl": "https://cas.ac.ls/",
-      "sourcePath": null,
+      "sourceFile": null,
       "notes": [
         "The public CAS homepage exposes course listings and a course-fee search filter, but exact fee amounts were not visible in the static page text reviewed.",
         "Missing module and professional-body fee amounts should not block programme matching; they can be added when CAS Accounts Office or a fee schedule confirms them."
@@ -8758,7 +7475,7 @@ window.EDUGUIDE_ADMIN_DATA = {
       "currency": "LSL",
       "reviewStatus": "needs_admin_review",
       "sourceUrl": null,
-      "sourcePath": "C:/Users/lepha/Downloads/data/PROSPECTUS-2026-2027-FINAL-VERSION.docx",
+      "sourceFile": "PROSPECTUS-2026-2027-FINAL-VERSION.docx",
       "notes": [
         "Extracted from the IEMS-ODL rows in the supplied NUL 2026/2027 prospectus DOCX.",
         "Stored separately because EduGuide LS groups IEMS as its own institution/branch."
@@ -8895,7 +7612,7 @@ window.EDUGUIDE_ADMIN_DATA = {
       "currency": "LSL",
       "reviewStatus": "needs_admin_review",
       "sourceUrl": null,
-      "sourcePath": "C:/Users/lepha/Downloads/Lesotho College Of Education fees.pdf",
+      "sourceFile": "Lesotho College Of Education fees.pdf",
       "notes": [
         "Fees are subject to an annual 5% adjustment.",
         "The LCE programme document lists application fee as M420 while the fee structure lists M400; this discrepancy needs admin confirmation."
@@ -9128,6 +7845,313 @@ window.EDUGUIDE_ADMIN_DATA = {
       ]
     },
     {
+      "id": "fee-schedule-limkokwing-university-lesotho-diploma-in-broadcasting-radio-tv-semester-tuition-unknown",
+      "institution": "Limkokwing University Lesotho",
+      "title": "Diploma in Broadcasting Radio & TV semester tuition",
+      "academicYear": null,
+      "currency": "LSL",
+      "reviewStatus": "needs_admin_review",
+      "sourceUrl": "https://www.portal.co.ls/apply/courses?page=2",
+      "sourceFile": "Diploma in Broadcasting Radio & TV LUCT.png",
+      "notes": [
+        "Transcribed from a supplied Limkokwing course-portal screenshot.",
+        "The screenshot identifies a three-year, six-semester schedule but does not state an academic year.",
+        "Confirm the amount with Limkokwing before payment."
+      ],
+      "missingItems": [],
+      "items": [
+        {
+          "id": "fee-schedule-limkokwing-university-lesotho-diploma-in-broadcasting-radio-tv-semester-tuition-unknown-diploma-in-broadcasting-radio-tv-programme-total-1",
+          "programmeGroup": "Diploma in Broadcasting Radio & TV",
+          "name": "Programme total",
+          "type": "other",
+          "amount": 65696,
+          "studentCategory": null,
+          "attendanceMode": null,
+          "basis": "published programme total",
+          "note": "Total shown in the supplied Limkokwing semester breakdown."
+        },
+        {
+          "id": "fee-schedule-limkokwing-university-lesotho-diploma-in-broadcasting-radio-tv-semester-tuition-unknown-diploma-in-broadcasting-radio-tv-year-1-semester-1-2",
+          "programmeGroup": "Diploma in Broadcasting Radio & TV",
+          "name": "Year 1 - Semester 1",
+          "type": "other",
+          "amount": 10760,
+          "studentCategory": null,
+          "attendanceMode": null,
+          "basis": "semester; Aug-Dec",
+          "note": "Supplied Limkokwing semester breakdown."
+        },
+        {
+          "id": "fee-schedule-limkokwing-university-lesotho-diploma-in-broadcasting-radio-tv-semester-tuition-unknown-diploma-in-broadcasting-radio-tv-year-1-semester-2-3",
+          "programmeGroup": "Diploma in Broadcasting Radio & TV",
+          "name": "Year 1 - Semester 2",
+          "type": "other",
+          "amount": 10760,
+          "studentCategory": null,
+          "attendanceMode": null,
+          "basis": "semester; Feb-Jun",
+          "note": "Supplied Limkokwing semester breakdown."
+        },
+        {
+          "id": "fee-schedule-limkokwing-university-lesotho-diploma-in-broadcasting-radio-tv-semester-tuition-unknown-diploma-in-broadcasting-radio-tv-year-2-semester-3-4",
+          "programmeGroup": "Diploma in Broadcasting Radio & TV",
+          "name": "Year 2 - Semester 3",
+          "type": "other",
+          "amount": 11044,
+          "studentCategory": null,
+          "attendanceMode": null,
+          "basis": "semester; Aug-Dec",
+          "note": "Supplied Limkokwing semester breakdown."
+        },
+        {
+          "id": "fee-schedule-limkokwing-university-lesotho-diploma-in-broadcasting-radio-tv-semester-tuition-unknown-diploma-in-broadcasting-radio-tv-year-2-semester-4-5",
+          "programmeGroup": "Diploma in Broadcasting Radio & TV",
+          "name": "Year 2 - Semester 4",
+          "type": "other",
+          "amount": 11044,
+          "studentCategory": null,
+          "attendanceMode": null,
+          "basis": "semester; Feb-Jun",
+          "note": "Supplied Limkokwing semester breakdown."
+        },
+        {
+          "id": "fee-schedule-limkokwing-university-lesotho-diploma-in-broadcasting-radio-tv-semester-tuition-unknown-diploma-in-broadcasting-radio-tv-year-3-semester-5-6",
+          "programmeGroup": "Diploma in Broadcasting Radio & TV",
+          "name": "Year 3 - Semester 5",
+          "type": "other",
+          "amount": 11044,
+          "studentCategory": null,
+          "attendanceMode": null,
+          "basis": "semester; Aug-Dec",
+          "note": "Supplied Limkokwing semester breakdown."
+        },
+        {
+          "id": "fee-schedule-limkokwing-university-lesotho-diploma-in-broadcasting-radio-tv-semester-tuition-unknown-diploma-in-broadcasting-radio-tv-year-3-semester-6-7",
+          "programmeGroup": "Diploma in Broadcasting Radio & TV",
+          "name": "Year 3 - Semester 6",
+          "type": "other",
+          "amount": 11044,
+          "studentCategory": null,
+          "attendanceMode": null,
+          "basis": "semester; Feb-Jun",
+          "note": "Supplied Limkokwing semester breakdown."
+        }
+      ]
+    },
+    {
+      "id": "fee-schedule-limkokwing-university-lesotho-diploma-in-events-management-semester-tuition-unknown",
+      "institution": "Limkokwing University Lesotho",
+      "title": "Diploma in Events Management semester tuition",
+      "academicYear": null,
+      "currency": "LSL",
+      "reviewStatus": "needs_admin_review",
+      "sourceUrl": "https://www.portal.co.ls/apply/courses?page=2",
+      "sourceFile": "Events Management tuition LUCT.png",
+      "notes": [
+        "Transcribed from a supplied Limkokwing course-portal screenshot.",
+        "The screenshot identifies a three-year, six-semester schedule but does not state an academic year.",
+        "Confirm the amount with Limkokwing before payment."
+      ],
+      "missingItems": [],
+      "items": [
+        {
+          "id": "fee-schedule-limkokwing-university-lesotho-diploma-in-events-management-semester-tuition-unknown-diploma-in-events-management-programme-total-1",
+          "programmeGroup": "Diploma in Events Management",
+          "name": "Programme total",
+          "type": "other",
+          "amount": 65696,
+          "studentCategory": null,
+          "attendanceMode": null,
+          "basis": "published programme total",
+          "note": "Total shown in the supplied Limkokwing semester breakdown."
+        },
+        {
+          "id": "fee-schedule-limkokwing-university-lesotho-diploma-in-events-management-semester-tuition-unknown-diploma-in-events-management-year-1-semester-1-2",
+          "programmeGroup": "Diploma in Events Management",
+          "name": "Year 1 - Semester 1",
+          "type": "other",
+          "amount": 10760,
+          "studentCategory": null,
+          "attendanceMode": null,
+          "basis": "semester; Aug-Dec",
+          "note": "Supplied Limkokwing semester breakdown."
+        },
+        {
+          "id": "fee-schedule-limkokwing-university-lesotho-diploma-in-events-management-semester-tuition-unknown-diploma-in-events-management-year-1-semester-2-3",
+          "programmeGroup": "Diploma in Events Management",
+          "name": "Year 1 - Semester 2",
+          "type": "other",
+          "amount": 10760,
+          "studentCategory": null,
+          "attendanceMode": null,
+          "basis": "semester; Feb-Jun",
+          "note": "Supplied Limkokwing semester breakdown."
+        },
+        {
+          "id": "fee-schedule-limkokwing-university-lesotho-diploma-in-events-management-semester-tuition-unknown-diploma-in-events-management-year-2-semester-3-4",
+          "programmeGroup": "Diploma in Events Management",
+          "name": "Year 2 - Semester 3",
+          "type": "other",
+          "amount": 11044,
+          "studentCategory": null,
+          "attendanceMode": null,
+          "basis": "semester; Aug-Dec",
+          "note": "Supplied Limkokwing semester breakdown."
+        },
+        {
+          "id": "fee-schedule-limkokwing-university-lesotho-diploma-in-events-management-semester-tuition-unknown-diploma-in-events-management-year-2-semester-4-5",
+          "programmeGroup": "Diploma in Events Management",
+          "name": "Year 2 - Semester 4",
+          "type": "other",
+          "amount": 11044,
+          "studentCategory": null,
+          "attendanceMode": null,
+          "basis": "semester; Feb-Jun",
+          "note": "Supplied Limkokwing semester breakdown."
+        },
+        {
+          "id": "fee-schedule-limkokwing-university-lesotho-diploma-in-events-management-semester-tuition-unknown-diploma-in-events-management-year-3-semester-5-6",
+          "programmeGroup": "Diploma in Events Management",
+          "name": "Year 3 - Semester 5",
+          "type": "other",
+          "amount": 11044,
+          "studentCategory": null,
+          "attendanceMode": null,
+          "basis": "semester; Aug-Dec",
+          "note": "Supplied Limkokwing semester breakdown."
+        },
+        {
+          "id": "fee-schedule-limkokwing-university-lesotho-diploma-in-events-management-semester-tuition-unknown-diploma-in-events-management-year-3-semester-6-7",
+          "programmeGroup": "Diploma in Events Management",
+          "name": "Year 3 - Semester 6",
+          "type": "other",
+          "amount": 11044,
+          "studentCategory": null,
+          "attendanceMode": null,
+          "basis": "semester; Feb-Jun",
+          "note": "Supplied Limkokwing semester breakdown."
+        }
+      ]
+    },
+    {
+      "id": "fee-schedule-limkokwing-university-lesotho-diploma-in-information-technology-semester-tuition-unknown",
+      "institution": "Limkokwing University Lesotho",
+      "title": "Diploma in Information Technology semester tuition",
+      "academicYear": null,
+      "currency": "LSL",
+      "reviewStatus": "needs_admin_review",
+      "sourceUrl": "https://www.portal.co.ls/apply/courses?page=2",
+      "sourceFile": "IT tuition LUCT.png",
+      "notes": [
+        "Transcribed from a supplied Limkokwing course-portal screenshot.",
+        "The screenshot identifies a four-year, eight-semester schedule but does not state an academic year.",
+        "Confirm the amount with Limkokwing before payment."
+      ],
+      "missingItems": [],
+      "items": [
+        {
+          "id": "fee-schedule-limkokwing-university-lesotho-diploma-in-information-technology-semester-tuition-unknown-diploma-in-information-technology-programme-total-1",
+          "programmeGroup": "Diploma in Information Technology",
+          "name": "Programme total",
+          "type": "other",
+          "amount": 107036,
+          "studentCategory": null,
+          "attendanceMode": null,
+          "basis": "published programme total",
+          "note": "Total shown in the supplied Limkokwing semester breakdown."
+        },
+        {
+          "id": "fee-schedule-limkokwing-university-lesotho-diploma-in-information-technology-semester-tuition-unknown-diploma-in-information-technology-year-1-semester-1-2",
+          "programmeGroup": "Diploma in Information Technology",
+          "name": "Year 1 - Semester 1",
+          "type": "other",
+          "amount": 11044,
+          "studentCategory": null,
+          "attendanceMode": null,
+          "basis": "semester; Aug-Dec",
+          "note": "Supplied Limkokwing semester breakdown."
+        },
+        {
+          "id": "fee-schedule-limkokwing-university-lesotho-diploma-in-information-technology-semester-tuition-unknown-diploma-in-information-technology-year-1-semester-2-3",
+          "programmeGroup": "Diploma in Information Technology",
+          "name": "Year 1 - Semester 2",
+          "type": "other",
+          "amount": 11044,
+          "studentCategory": null,
+          "attendanceMode": null,
+          "basis": "semester; Feb-Jun",
+          "note": "Supplied Limkokwing semester breakdown."
+        },
+        {
+          "id": "fee-schedule-limkokwing-university-lesotho-diploma-in-information-technology-semester-tuition-unknown-diploma-in-information-technology-year-2-semester-3-4",
+          "programmeGroup": "Diploma in Information Technology",
+          "name": "Year 2 - Semester 3",
+          "type": "other",
+          "amount": 14158,
+          "studentCategory": null,
+          "attendanceMode": null,
+          "basis": "semester; Aug-Dec",
+          "note": "Supplied Limkokwing semester breakdown."
+        },
+        {
+          "id": "fee-schedule-limkokwing-university-lesotho-diploma-in-information-technology-semester-tuition-unknown-diploma-in-information-technology-year-2-semester-4-5",
+          "programmeGroup": "Diploma in Information Technology",
+          "name": "Year 2 - Semester 4",
+          "type": "other",
+          "amount": 14158,
+          "studentCategory": null,
+          "attendanceMode": null,
+          "basis": "semester; Feb-Jun",
+          "note": "Supplied Limkokwing semester breakdown."
+        },
+        {
+          "id": "fee-schedule-limkokwing-university-lesotho-diploma-in-information-technology-semester-tuition-unknown-diploma-in-information-technology-year-3-semester-5-6",
+          "programmeGroup": "Diploma in Information Technology",
+          "name": "Year 3 - Semester 5",
+          "type": "other",
+          "amount": 14158,
+          "studentCategory": null,
+          "attendanceMode": null,
+          "basis": "semester; Aug-Dec",
+          "note": "Supplied Limkokwing semester breakdown."
+        },
+        {
+          "id": "fee-schedule-limkokwing-university-lesotho-diploma-in-information-technology-semester-tuition-unknown-diploma-in-information-technology-year-3-semester-6-7",
+          "programmeGroup": "Diploma in Information Technology",
+          "name": "Year 3 - Semester 6",
+          "type": "other",
+          "amount": 14158,
+          "studentCategory": null,
+          "attendanceMode": null,
+          "basis": "semester; Feb-Jun",
+          "note": "Supplied Limkokwing semester breakdown."
+        },
+        {
+          "id": "fee-schedule-limkokwing-university-lesotho-diploma-in-information-technology-semester-tuition-unknown-diploma-in-information-technology-year-4-semester-7-8",
+          "programmeGroup": "Diploma in Information Technology",
+          "name": "Year 4 - Semester 7",
+          "type": "other",
+          "amount": 14158,
+          "studentCategory": null,
+          "attendanceMode": null,
+          "basis": "semester; Aug-Dec",
+          "note": "Supplied Limkokwing semester breakdown."
+        },
+        {
+          "id": "fee-schedule-limkokwing-university-lesotho-diploma-in-information-technology-semester-tuition-unknown-diploma-in-information-technology-year-4-semester-8-9",
+          "programmeGroup": "Diploma in Information Technology",
+          "name": "Year 4 - Semester 8",
+          "type": "other",
+          "amount": 14158,
+          "studentCategory": null,
+          "attendanceMode": null,
+          "basis": "semester; Feb-Jun",
+          "note": "Supplied Limkokwing semester breakdown."
+        }
+      ]
+    },
+    {
       "id": "fee-schedule-national-university-of-lesotho-nul-fee-structure-2024-25-2024-25",
       "institution": "National University of Lesotho",
       "title": "NUL Fee Structure 2024/25",
@@ -9135,7 +8159,7 @@ window.EDUGUIDE_ADMIN_DATA = {
       "currency": "LSL",
       "reviewStatus": "needs_admin_review",
       "sourceUrl": null,
-      "sourcePath": "C:/Users/lepha/Downloads/NUL Fee-Structure-2024_25.pdf",
+      "sourceFile": "NUL Fee-Structure-2024_25.pdf",
       "notes": [],
       "missingItems": [],
       "items": [
@@ -9669,7 +8693,7 @@ window.EDUGUIDE_ADMIN_DATA = {
       "currency": "LSL",
       "reviewStatus": "needs_admin_review",
       "sourceUrl": null,
-      "sourcePath": "C:/Users/lepha/Downloads/data/PROSPECTUS-2026-2027-FINAL-VERSION.docx",
+      "sourceFile": "PROSPECTUS-2026-2027-FINAL-VERSION.docx",
       "notes": [
         "Extracted from the fee structure table in the supplied NUL 2026/2027 prospectus DOCX.",
         "IEMS-ODL rows are stored in a separate IEMS schedule so branch programmes can display their fees."
@@ -11426,7 +10450,7 @@ window.EDUGUIDE_ADMIN_DATA = {
       "currency": "LSL",
       "reviewStatus": "needs_admin_review",
       "sourceUrl": "https://www.scribd.com/document/763854725/2024-2025-Final-Prospectus",
-      "sourcePath": "C:/Users/lepha/Downloads/data/Paray 2024-2025-final-prospectus.pdf",
+      "sourceFile": "Paray 2024-2025-final-prospectus.pdf",
       "notes": [
         "Fee values were captured from page 14 of the supplied Paray 2024/2025 prospectus PDF.",
         "The table did not show whether totals are annual or full-programme amounts; EduGuide stores the original table basis until admin confirmation."
@@ -12579,666 +11603,6 @@ window.EDUGUIDE_ADMIN_DATA = {
       "description": "Entry requirements were not captured from the current source data."
     },
     {
-      "id": "gap-nhtc-certificate-auxiliary-social-work-che-2017-duration",
-      "type": "duration_missing",
-      "priority": "medium",
-      "status": "open",
-      "institution": "National Health Training College",
-      "programmeId": "nhtc-certificate-auxiliary-social-work-che-2017",
-      "programmeName": "Certificate in Auxiliary Social Work",
-      "title": "Missing duration",
-      "description": "Duration was not captured from the current source data."
-    },
-    {
-      "id": "gap-nhtc-certificate-auxiliary-social-work-che-2017-requirements",
-      "type": "requirements_missing",
-      "priority": "high",
-      "status": "open",
-      "institution": "National Health Training College",
-      "programmeId": "nhtc-certificate-auxiliary-social-work-che-2017",
-      "programmeName": "Certificate in Auxiliary Social Work",
-      "title": "Missing entry requirements",
-      "description": "Entry requirements were not captured from the current source data."
-    },
-    {
-      "id": "gap-nhtc-certificate-nursing-assistant-che-2017-duration",
-      "type": "duration_missing",
-      "priority": "medium",
-      "status": "open",
-      "institution": "National Health Training College",
-      "programmeId": "nhtc-certificate-nursing-assistant-che-2017",
-      "programmeName": "Certificate in Nursing Assistant",
-      "title": "Missing duration",
-      "description": "Duration was not captured from the current source data."
-    },
-    {
-      "id": "gap-nhtc-certificate-nursing-assistant-che-2017-requirements",
-      "type": "requirements_missing",
-      "priority": "high",
-      "status": "open",
-      "institution": "National Health Training College",
-      "programmeId": "nhtc-certificate-nursing-assistant-che-2017",
-      "programmeName": "Certificate in Nursing Assistant",
-      "title": "Missing entry requirements",
-      "description": "Entry requirements were not captured from the current source data."
-    },
-    {
-      "id": "gap-nhtc-diploma-environmental-health-che-2017-duration",
-      "type": "duration_missing",
-      "priority": "medium",
-      "status": "open",
-      "institution": "National Health Training College",
-      "programmeId": "nhtc-diploma-environmental-health-che-2017",
-      "programmeName": "Diploma in Environmental Health",
-      "title": "Missing duration",
-      "description": "Duration was not captured from the current source data."
-    },
-    {
-      "id": "gap-nhtc-diploma-environmental-health-che-2017-requirements",
-      "type": "requirements_missing",
-      "priority": "high",
-      "status": "open",
-      "institution": "National Health Training College",
-      "programmeId": "nhtc-diploma-environmental-health-che-2017",
-      "programmeName": "Diploma in Environmental Health",
-      "title": "Missing entry requirements",
-      "description": "Entry requirements were not captured from the current source data."
-    },
-    {
-      "id": "gap-nhtc-diploma-general-nursing-che-2017-duration",
-      "type": "duration_missing",
-      "priority": "medium",
-      "status": "open",
-      "institution": "National Health Training College",
-      "programmeId": "nhtc-diploma-general-nursing-che-2017",
-      "programmeName": "Diploma in General Nursing",
-      "title": "Missing duration",
-      "description": "Duration was not captured from the current source data."
-    },
-    {
-      "id": "gap-nhtc-diploma-general-nursing-che-2017-requirements",
-      "type": "requirements_missing",
-      "priority": "high",
-      "status": "open",
-      "institution": "National Health Training College",
-      "programmeId": "nhtc-diploma-general-nursing-che-2017",
-      "programmeName": "Diploma in General Nursing",
-      "title": "Missing entry requirements",
-      "description": "Entry requirements were not captured from the current source data."
-    },
-    {
-      "id": "gap-nhtc-diploma-medical-laboratory-sciences-che-2017-duration",
-      "type": "duration_missing",
-      "priority": "medium",
-      "status": "open",
-      "institution": "National Health Training College",
-      "programmeId": "nhtc-diploma-medical-laboratory-sciences-che-2017",
-      "programmeName": "Diploma in Medical Laboratory Sciences",
-      "title": "Missing duration",
-      "description": "Duration was not captured from the current source data."
-    },
-    {
-      "id": "gap-nhtc-diploma-medical-laboratory-sciences-che-2017-requirements",
-      "type": "requirements_missing",
-      "priority": "high",
-      "status": "open",
-      "institution": "National Health Training College",
-      "programmeId": "nhtc-diploma-medical-laboratory-sciences-che-2017",
-      "programmeName": "Diploma in Medical Laboratory Sciences",
-      "title": "Missing entry requirements",
-      "description": "Entry requirements were not captured from the current source data."
-    },
-    {
-      "id": "gap-nhtc-diploma-midwifery-che-2017-duration",
-      "type": "duration_missing",
-      "priority": "medium",
-      "status": "open",
-      "institution": "National Health Training College",
-      "programmeId": "nhtc-diploma-midwifery-che-2017",
-      "programmeName": "Diploma in Midwifery",
-      "title": "Missing duration",
-      "description": "Duration was not captured from the current source data."
-    },
-    {
-      "id": "gap-nhtc-diploma-midwifery-che-2017-requirements",
-      "type": "requirements_missing",
-      "priority": "high",
-      "status": "open",
-      "institution": "National Health Training College",
-      "programmeId": "nhtc-diploma-midwifery-che-2017",
-      "programmeName": "Diploma in Midwifery",
-      "title": "Missing entry requirements",
-      "description": "Entry requirements were not captured from the current source data."
-    },
-    {
-      "id": "gap-nhtc-diploma-primary-health-care-nurse-clinician-che-2017-duration",
-      "type": "duration_missing",
-      "priority": "medium",
-      "status": "open",
-      "institution": "National Health Training College",
-      "programmeId": "nhtc-diploma-primary-health-care-nurse-clinician-che-2017",
-      "programmeName": "Diploma in Primary Health Care (Nurse Clinician)",
-      "title": "Missing duration",
-      "description": "Duration was not captured from the current source data."
-    },
-    {
-      "id": "gap-nhtc-diploma-primary-health-care-nurse-clinician-che-2017-requirements",
-      "type": "requirements_missing",
-      "priority": "high",
-      "status": "open",
-      "institution": "National Health Training College",
-      "programmeId": "nhtc-diploma-primary-health-care-nurse-clinician-che-2017",
-      "programmeName": "Diploma in Primary Health Care (Nurse Clinician)",
-      "title": "Missing entry requirements",
-      "description": "Entry requirements were not captured from the current source data."
-    },
-    {
-      "id": "gap-nhtc-diploma-ophthalmic-nursing-che-2017-duration",
-      "type": "duration_missing",
-      "priority": "medium",
-      "status": "open",
-      "institution": "National Health Training College",
-      "programmeId": "nhtc-diploma-ophthalmic-nursing-che-2017",
-      "programmeName": "Diploma in Ophthalmic Nursing",
-      "title": "Missing duration",
-      "description": "Duration was not captured from the current source data."
-    },
-    {
-      "id": "gap-nhtc-diploma-ophthalmic-nursing-che-2017-requirements",
-      "type": "requirements_missing",
-      "priority": "high",
-      "status": "open",
-      "institution": "National Health Training College",
-      "programmeId": "nhtc-diploma-ophthalmic-nursing-che-2017",
-      "programmeName": "Diploma in Ophthalmic Nursing",
-      "title": "Missing entry requirements",
-      "description": "Entry requirements were not captured from the current source data."
-    },
-    {
-      "id": "gap-nhtc-diploma-pharmacy-technology-che-2017-duration",
-      "type": "duration_missing",
-      "priority": "medium",
-      "status": "open",
-      "institution": "National Health Training College",
-      "programmeId": "nhtc-diploma-pharmacy-technology-che-2017",
-      "programmeName": "Diploma in Pharmacy Technology",
-      "title": "Missing duration",
-      "description": "Duration was not captured from the current source data."
-    },
-    {
-      "id": "gap-nhtc-diploma-pharmacy-technology-che-2017-requirements",
-      "type": "requirements_missing",
-      "priority": "high",
-      "status": "open",
-      "institution": "National Health Training College",
-      "programmeId": "nhtc-diploma-pharmacy-technology-che-2017",
-      "programmeName": "Diploma in Pharmacy Technology",
-      "title": "Missing entry requirements",
-      "description": "Entry requirements were not captured from the current source data."
-    },
-    {
-      "id": "gap-nhtc-diploma-psychiatric-mental-health-nursing-che-2017-duration",
-      "type": "duration_missing",
-      "priority": "medium",
-      "status": "open",
-      "institution": "National Health Training College",
-      "programmeId": "nhtc-diploma-psychiatric-mental-health-nursing-che-2017",
-      "programmeName": "Diploma in Psychiatric and Mental Health Nursing",
-      "title": "Missing duration",
-      "description": "Duration was not captured from the current source data."
-    },
-    {
-      "id": "gap-nhtc-diploma-psychiatric-mental-health-nursing-che-2017-requirements",
-      "type": "requirements_missing",
-      "priority": "high",
-      "status": "open",
-      "institution": "National Health Training College",
-      "programmeId": "nhtc-diploma-psychiatric-mental-health-nursing-che-2017",
-      "programmeName": "Diploma in Psychiatric and Mental Health Nursing",
-      "title": "Missing entry requirements",
-      "description": "Entry requirements were not captured from the current source data."
-    },
-    {
-      "id": "gap-nhtc-diploma-dental-therapy-che-2017-duration",
-      "type": "duration_missing",
-      "priority": "medium",
-      "status": "open",
-      "institution": "National Health Training College",
-      "programmeId": "nhtc-diploma-dental-therapy-che-2017",
-      "programmeName": "Diploma in Dental Therapy",
-      "title": "Missing duration",
-      "description": "Duration was not captured from the current source data."
-    },
-    {
-      "id": "gap-nhtc-diploma-dental-therapy-che-2017-requirements",
-      "type": "requirements_missing",
-      "priority": "high",
-      "status": "open",
-      "institution": "National Health Training College",
-      "programmeId": "nhtc-diploma-dental-therapy-che-2017",
-      "programmeName": "Diploma in Dental Therapy",
-      "title": "Missing entry requirements",
-      "description": "Entry requirements were not captured from the current source data."
-    },
-    {
-      "id": "gap-mac-diploma-general-nursing-che-2017-duration",
-      "type": "duration_missing",
-      "priority": "medium",
-      "status": "open",
-      "institution": "Maluti Adventist College",
-      "programmeId": "mac-diploma-general-nursing-che-2017",
-      "programmeName": "Diploma in General Nursing",
-      "title": "Missing duration",
-      "description": "Duration was not captured from the current source data."
-    },
-    {
-      "id": "gap-mac-diploma-general-nursing-che-2017-requirements",
-      "type": "requirements_missing",
-      "priority": "high",
-      "status": "open",
-      "institution": "Maluti Adventist College",
-      "programmeId": "mac-diploma-general-nursing-che-2017",
-      "programmeName": "Diploma in General Nursing",
-      "title": "Missing entry requirements",
-      "description": "Entry requirements were not captured from the current source data."
-    },
-    {
-      "id": "gap-mac-diploma-midwifery-che-2017-duration",
-      "type": "duration_missing",
-      "priority": "medium",
-      "status": "open",
-      "institution": "Maluti Adventist College",
-      "programmeId": "mac-diploma-midwifery-che-2017",
-      "programmeName": "Diploma in Midwifery",
-      "title": "Missing duration",
-      "description": "Duration was not captured from the current source data."
-    },
-    {
-      "id": "gap-mac-diploma-midwifery-che-2017-requirements",
-      "type": "requirements_missing",
-      "priority": "high",
-      "status": "open",
-      "institution": "Maluti Adventist College",
-      "programmeId": "mac-diploma-midwifery-che-2017",
-      "programmeName": "Diploma in Midwifery",
-      "title": "Missing entry requirements",
-      "description": "Entry requirements were not captured from the current source data."
-    },
-    {
-      "id": "gap-ssn-certificate-nursing-assistant-che-2017-duration",
-      "type": "duration_missing",
-      "priority": "medium",
-      "status": "open",
-      "institution": "Scott Hospital School of Nursing",
-      "programmeId": "ssn-certificate-nursing-assistant-che-2017",
-      "programmeName": "Certificate in Nursing Assistant",
-      "title": "Missing duration",
-      "description": "Duration was not captured from the current source data."
-    },
-    {
-      "id": "gap-ssn-certificate-nursing-assistant-che-2017-requirements",
-      "type": "requirements_missing",
-      "priority": "high",
-      "status": "open",
-      "institution": "Scott Hospital School of Nursing",
-      "programmeId": "ssn-certificate-nursing-assistant-che-2017",
-      "programmeName": "Certificate in Nursing Assistant",
-      "title": "Missing entry requirements",
-      "description": "Entry requirements were not captured from the current source data."
-    },
-    {
-      "id": "gap-ssn-diploma-general-nursing-che-2017-duration",
-      "type": "duration_missing",
-      "priority": "medium",
-      "status": "open",
-      "institution": "Scott Hospital School of Nursing",
-      "programmeId": "ssn-diploma-general-nursing-che-2017",
-      "programmeName": "Diploma in General Nursing",
-      "title": "Missing duration",
-      "description": "Duration was not captured from the current source data."
-    },
-    {
-      "id": "gap-ssn-diploma-general-nursing-che-2017-requirements",
-      "type": "requirements_missing",
-      "priority": "high",
-      "status": "open",
-      "institution": "Scott Hospital School of Nursing",
-      "programmeId": "ssn-diploma-general-nursing-che-2017",
-      "programmeName": "Diploma in General Nursing",
-      "title": "Missing entry requirements",
-      "description": "Entry requirements were not captured from the current source data."
-    },
-    {
-      "id": "gap-ssn-diploma-midwifery-che-2017-duration",
-      "type": "duration_missing",
-      "priority": "medium",
-      "status": "open",
-      "institution": "Scott Hospital School of Nursing",
-      "programmeId": "ssn-diploma-midwifery-che-2017",
-      "programmeName": "Diploma in Midwifery",
-      "title": "Missing duration",
-      "description": "Duration was not captured from the current source data."
-    },
-    {
-      "id": "gap-ssn-diploma-midwifery-che-2017-requirements",
-      "type": "requirements_missing",
-      "priority": "high",
-      "status": "open",
-      "institution": "Scott Hospital School of Nursing",
-      "programmeId": "ssn-diploma-midwifery-che-2017",
-      "programmeName": "Diploma in Midwifery",
-      "title": "Missing entry requirements",
-      "description": "Entry requirements were not captured from the current source data."
-    },
-    {
-      "id": "gap-idm-diploma-human-resource-development-che-2017-duration",
-      "type": "duration_missing",
-      "priority": "medium",
-      "status": "open",
-      "institution": "Institute of Development Management",
-      "programmeId": "idm-diploma-human-resource-development-che-2017",
-      "programmeName": "Diploma in Human Resource and Development",
-      "title": "Missing duration",
-      "description": "Duration was not captured from the current source data."
-    },
-    {
-      "id": "gap-idm-diploma-human-resource-development-che-2017-requirements",
-      "type": "requirements_missing",
-      "priority": "high",
-      "status": "open",
-      "institution": "Institute of Development Management",
-      "programmeId": "idm-diploma-human-resource-development-che-2017",
-      "programmeName": "Diploma in Human Resource and Development",
-      "title": "Missing entry requirements",
-      "description": "Entry requirements were not captured from the current source data."
-    },
-    {
-      "id": "gap-idm-advanced-diploma-project-management-che-2017-duration",
-      "type": "duration_missing",
-      "priority": "medium",
-      "status": "open",
-      "institution": "Institute of Development Management",
-      "programmeId": "idm-advanced-diploma-project-management-che-2017",
-      "programmeName": "Advanced Diploma in Project Management",
-      "title": "Missing duration",
-      "description": "Duration was not captured from the current source data."
-    },
-    {
-      "id": "gap-idm-advanced-diploma-project-management-che-2017-requirements",
-      "type": "requirements_missing",
-      "priority": "high",
-      "status": "open",
-      "institution": "Institute of Development Management",
-      "programmeId": "idm-advanced-diploma-project-management-che-2017",
-      "programmeName": "Advanced Diploma in Project Management",
-      "title": "Missing entry requirements",
-      "description": "Entry requirements were not captured from the current source data."
-    },
-    {
-      "id": "gap-idm-certificate-community-development-che-2017-duration",
-      "type": "duration_missing",
-      "priority": "medium",
-      "status": "open",
-      "institution": "Institute of Development Management",
-      "programmeId": "idm-certificate-community-development-che-2017",
-      "programmeName": "Certificate in Community Development",
-      "title": "Missing duration",
-      "description": "Duration was not captured from the current source data."
-    },
-    {
-      "id": "gap-idm-certificate-community-development-che-2017-requirements",
-      "type": "requirements_missing",
-      "priority": "high",
-      "status": "open",
-      "institution": "Institute of Development Management",
-      "programmeId": "idm-certificate-community-development-che-2017",
-      "programmeName": "Certificate in Community Development",
-      "title": "Missing entry requirements",
-      "description": "Entry requirements were not captured from the current source data."
-    },
-    {
-      "id": "gap-idm-diploma-community-development-che-2017-duration",
-      "type": "duration_missing",
-      "priority": "medium",
-      "status": "open",
-      "institution": "Institute of Development Management",
-      "programmeId": "idm-diploma-community-development-che-2017",
-      "programmeName": "Diploma in Community Development",
-      "title": "Missing duration",
-      "description": "Duration was not captured from the current source data."
-    },
-    {
-      "id": "gap-idm-diploma-community-development-che-2017-requirements",
-      "type": "requirements_missing",
-      "priority": "high",
-      "status": "open",
-      "institution": "Institute of Development Management",
-      "programmeId": "idm-diploma-community-development-che-2017",
-      "programmeName": "Diploma in Community Development",
-      "title": "Missing entry requirements",
-      "description": "Entry requirements were not captured from the current source data."
-    },
-    {
-      "id": "gap-idm-diploma-hiv-aids-management-che-2017-duration",
-      "type": "duration_missing",
-      "priority": "medium",
-      "status": "open",
-      "institution": "Institute of Development Management",
-      "programmeId": "idm-diploma-hiv-aids-management-che-2017",
-      "programmeName": "Diploma in HIV & AIDS Management",
-      "title": "Missing duration",
-      "description": "Duration was not captured from the current source data."
-    },
-    {
-      "id": "gap-idm-diploma-hiv-aids-management-che-2017-requirements",
-      "type": "requirements_missing",
-      "priority": "high",
-      "status": "open",
-      "institution": "Institute of Development Management",
-      "programmeId": "idm-diploma-hiv-aids-management-che-2017",
-      "programmeName": "Diploma in HIV & AIDS Management",
-      "title": "Missing entry requirements",
-      "description": "Entry requirements were not captured from the current source data."
-    },
-    {
-      "id": "gap-idm-diploma-safety-health-che-2017-duration",
-      "type": "duration_missing",
-      "priority": "medium",
-      "status": "open",
-      "institution": "Institute of Development Management",
-      "programmeId": "idm-diploma-safety-health-che-2017",
-      "programmeName": "Diploma in Safety and Health",
-      "title": "Missing duration",
-      "description": "Duration was not captured from the current source data."
-    },
-    {
-      "id": "gap-idm-diploma-safety-health-che-2017-requirements",
-      "type": "requirements_missing",
-      "priority": "high",
-      "status": "open",
-      "institution": "Institute of Development Management",
-      "programmeId": "idm-diploma-safety-health-che-2017",
-      "programmeName": "Diploma in Safety and Health",
-      "title": "Missing entry requirements",
-      "description": "Entry requirements were not captured from the current source data."
-    },
-    {
-      "id": "gap-idm-diploma-accounting-business-studies-che-2017-duration",
-      "type": "duration_missing",
-      "priority": "medium",
-      "status": "open",
-      "institution": "Institute of Development Management",
-      "programmeId": "idm-diploma-accounting-business-studies-che-2017",
-      "programmeName": "Diploma in Accounting and Business Studies",
-      "title": "Missing duration",
-      "description": "Duration was not captured from the current source data."
-    },
-    {
-      "id": "gap-idm-diploma-accounting-business-studies-che-2017-requirements",
-      "type": "requirements_missing",
-      "priority": "high",
-      "status": "open",
-      "institution": "Institute of Development Management",
-      "programmeId": "idm-diploma-accounting-business-studies-che-2017",
-      "programmeName": "Diploma in Accounting and Business Studies",
-      "title": "Missing entry requirements",
-      "description": "Entry requirements were not captured from the current source data."
-    },
-    {
-      "id": "gap-idm-certificate-computer-engineering-che-2017-duration",
-      "type": "duration_missing",
-      "priority": "medium",
-      "status": "open",
-      "institution": "Institute of Development Management",
-      "programmeId": "idm-certificate-computer-engineering-che-2017",
-      "programmeName": "Certificate in Computer Engineering",
-      "title": "Missing duration",
-      "description": "Duration was not captured from the current source data."
-    },
-    {
-      "id": "gap-idm-certificate-computer-engineering-che-2017-requirements",
-      "type": "requirements_missing",
-      "priority": "high",
-      "status": "open",
-      "institution": "Institute of Development Management",
-      "programmeId": "idm-certificate-computer-engineering-che-2017",
-      "programmeName": "Certificate in Computer Engineering",
-      "title": "Missing entry requirements",
-      "description": "Entry requirements were not captured from the current source data."
-    },
-    {
-      "id": "gap-idm-diploma-computer-engineering-che-2017-duration",
-      "type": "duration_missing",
-      "priority": "medium",
-      "status": "open",
-      "institution": "Institute of Development Management",
-      "programmeId": "idm-diploma-computer-engineering-che-2017",
-      "programmeName": "Diploma in Computer Engineering",
-      "title": "Missing duration",
-      "description": "Duration was not captured from the current source data."
-    },
-    {
-      "id": "gap-idm-diploma-computer-engineering-che-2017-requirements",
-      "type": "requirements_missing",
-      "priority": "high",
-      "status": "open",
-      "institution": "Institute of Development Management",
-      "programmeId": "idm-diploma-computer-engineering-che-2017",
-      "programmeName": "Diploma in Computer Engineering",
-      "title": "Missing entry requirements",
-      "description": "Entry requirements were not captured from the current source data."
-    },
-    {
-      "id": "gap-idm-diploma-logistics-transport-che-2017-duration",
-      "type": "duration_missing",
-      "priority": "medium",
-      "status": "open",
-      "institution": "Institute of Development Management",
-      "programmeId": "idm-diploma-logistics-transport-che-2017",
-      "programmeName": "Diploma in Logistics and Transport",
-      "title": "Missing duration",
-      "description": "Duration was not captured from the current source data."
-    },
-    {
-      "id": "gap-idm-diploma-logistics-transport-che-2017-requirements",
-      "type": "requirements_missing",
-      "priority": "high",
-      "status": "open",
-      "institution": "Institute of Development Management",
-      "programmeId": "idm-diploma-logistics-transport-che-2017",
-      "programmeName": "Diploma in Logistics and Transport",
-      "title": "Missing entry requirements",
-      "description": "Entry requirements were not captured from the current source data."
-    },
-    {
-      "id": "gap-idm-cips-programme-che-2017-duration",
-      "type": "duration_missing",
-      "priority": "medium",
-      "status": "open",
-      "institution": "Institute of Development Management",
-      "programmeId": "idm-cips-programme-che-2017",
-      "programmeName": "Chartered Institute of Purchasing and Supply (CIPS) Programme",
-      "title": "Missing duration",
-      "description": "Duration was not captured from the current source data."
-    },
-    {
-      "id": "gap-idm-cips-programme-che-2017-requirements",
-      "type": "requirements_missing",
-      "priority": "high",
-      "status": "open",
-      "institution": "Institute of Development Management",
-      "programmeId": "idm-cips-programme-che-2017",
-      "programmeName": "Chartered Institute of Purchasing and Supply (CIPS) Programme",
-      "title": "Missing entry requirements",
-      "description": "Entry requirements were not captured from the current source data."
-    },
-    {
-      "id": "gap-lipam-diploma-public-administration-management-che-2017-duration",
-      "type": "duration_missing",
-      "priority": "medium",
-      "status": "open",
-      "institution": "Lesotho Institute of Public Administration and Management",
-      "programmeId": "lipam-diploma-public-administration-management-che-2017",
-      "programmeName": "Diploma in Public Administration and Management",
-      "title": "Missing duration",
-      "description": "Duration was not captured from the current source data."
-    },
-    {
-      "id": "gap-lipam-diploma-public-administration-management-che-2017-requirements",
-      "type": "requirements_missing",
-      "priority": "high",
-      "status": "open",
-      "institution": "Lesotho Institute of Public Administration and Management",
-      "programmeId": "lipam-diploma-public-administration-management-che-2017",
-      "programmeName": "Diploma in Public Administration and Management",
-      "title": "Missing entry requirements",
-      "description": "Entry requirements were not captured from the current source data."
-    },
-    {
-      "id": "gap-lipam-diploma-human-resources-labour-laws-che-2017-duration",
-      "type": "duration_missing",
-      "priority": "medium",
-      "status": "open",
-      "institution": "Lesotho Institute of Public Administration and Management",
-      "programmeId": "lipam-diploma-human-resources-labour-laws-che-2017",
-      "programmeName": "Diploma in Human Resources Management and Labour Laws",
-      "title": "Missing duration",
-      "description": "Duration was not captured from the current source data."
-    },
-    {
-      "id": "gap-lipam-diploma-human-resources-labour-laws-che-2017-requirements",
-      "type": "requirements_missing",
-      "priority": "high",
-      "status": "open",
-      "institution": "Lesotho Institute of Public Administration and Management",
-      "programmeId": "lipam-diploma-human-resources-labour-laws-che-2017",
-      "programmeName": "Diploma in Human Resources Management and Labour Laws",
-      "title": "Missing entry requirements",
-      "description": "Entry requirements were not captured from the current source data."
-    },
-    {
-      "id": "gap-leboha-family-medicine-specialty-training-che-2017-duration",
-      "type": "duration_missing",
-      "priority": "medium",
-      "status": "open",
-      "institution": "Lesotho Boston Health Alliance (LeBoHA)",
-      "programmeId": "leboha-family-medicine-specialty-training-che-2017",
-      "programmeName": "Family Medicine Specialty Training Programme",
-      "title": "Missing duration",
-      "description": "Duration was not captured from the current source data."
-    },
-    {
-      "id": "gap-leboha-family-medicine-specialty-training-che-2017-requirements",
-      "type": "requirements_missing",
-      "priority": "high",
-      "status": "open",
-      "institution": "Lesotho Boston Health Alliance (LeBoHA)",
-      "programmeId": "leboha-family-medicine-specialty-training-che-2017",
-      "programmeName": "Family Medicine Specialty Training Programme",
-      "title": "Missing entry requirements",
-      "description": "Entry requirements were not captured from the current source data."
-    },
-    {
       "id": "gap-fee-schedule-centre-for-accounting-studies-cas-fees-partial-manual-extract-unknown-tuition-per-module",
       "type": "fee_missing",
       "priority": "medium",
@@ -13336,7 +11700,6 @@ window.EDUGUIDE_ADMIN_DATA = {
     },
     {
       "institution": "National University of Lesotho",
-      "source_path": "C:/Users/lepha/Downloads/NUL Fee-Structure-2024_25.pdf",
       "status": "manual_extract",
       "records_extracted": 0,
       "data_found": [
@@ -13347,11 +11710,11 @@ window.EDUGUIDE_ADMIN_DATA = {
       ],
       "shortage": [
         "PDF is scanned/image-only, so OCR is still useful for page-level verification"
-      ]
+      ],
+      "sourceFile": "NUL Fee-Structure-2024_25.pdf"
     },
     {
       "institution": "National University of Lesotho",
-      "source_path": "C:/Users/lepha/Downloads/data/PROSPECTUS-2026-2027-FINAL-VERSION.docx",
       "status": "manual_extract",
       "records_extracted": 0,
       "data_found": [
@@ -13363,7 +11726,8 @@ window.EDUGUIDE_ADMIN_DATA = {
       ],
       "shortage": [
         "programme-level requirements from the long prospectus still need deeper structured parsing if we want to replace the web-scraped NUL requirement snippets"
-      ]
+      ],
+      "sourceFile": "PROSPECTUS-2026-2027-FINAL-VERSION.docx"
     },
     {
       "institution": "Limkokwing University Lesotho",
@@ -13477,7 +11841,6 @@ window.EDUGUIDE_ADMIN_DATA = {
     },
     {
       "institution": "Lesotho College of Education",
-      "source_path": "C:/Users/lepha/Downloads/Lesotho College Of Education.pdf",
       "status": "manual_extract",
       "records_extracted": 2,
       "data_found": [
@@ -13490,11 +11853,11 @@ window.EDUGUIDE_ADMIN_DATA = {
       "shortage": [
         "application fee differs from fee structure PDF and needs admin confirmation",
         "older diploma/certificate programme details still need current official confirmation"
-      ]
+      ],
+      "sourceFile": "Lesotho College Of Education.pdf"
     },
     {
       "institution": "Lesotho College of Education",
-      "source_path": "C:/Users/lepha/Downloads/Lesotho College Of Education fees.pdf",
       "status": "manual_extract",
       "records_extracted": 0,
       "data_found": [
@@ -13507,12 +11870,12 @@ window.EDUGUIDE_ADMIN_DATA = {
       ],
       "shortage": [
         "application fee discrepancy with programme document needs confirmation"
-      ]
+      ],
+      "sourceFile": "Lesotho College Of Education fees.pdf"
     },
     {
       "institution": "Paray School of Nursing",
       "source_url": "https://www.scribd.com/document/763854725/2024-2025-Final-Prospectus",
-      "source_path": "C:/Users/lepha/Downloads/data/Paray 2024-2025-final-prospectus.pdf",
       "status": "manual_extract_added",
       "records_extracted": 3,
       "data_found": [
@@ -13527,7 +11890,8 @@ window.EDUGUIDE_ADMIN_DATA = {
       ],
       "shortage": [
         "2026/27 Paray data not yet available; 2024/25 prospectus should be treated as historical/current-until-replaced"
-      ]
+      ],
+      "sourceFile": "Paray 2024-2025-final-prospectus.pdf"
     },
     {
       "institution": "Roma College of Nursing",
@@ -13593,7 +11957,6 @@ window.EDUGUIDE_ADMIN_DATA = {
     },
     {
       "institution": "Centre for Accounting Studies",
-      "source_path": "C:/Users/lepha/Downloads/CAS Lesotho Student-Handbook-Volume-4.pdf",
       "status": "manual_extract",
       "records_extracted": 3,
       "data_found": [
@@ -13611,12 +11974,12 @@ window.EDUGUIDE_ADMIN_DATA = {
       "shortage": [
         "tuition-per-module, subscription, registration, and exam fee amounts are not listed in the handbook",
         "PDF is scanned/image-only, so OCR is still useful for page-level verification"
-      ]
+      ],
+      "sourceFile": "CAS Lesotho Student-Handbook-Volume-4.pdf"
     },
     {
       "institution": "Imperial Business College",
       "source_url": "https://www.imperialcollege.edu.np/",
-      "source_path": "C:/Users/lepha/Downloads/data/IBC prospectus-outlined-fonts.pdf",
       "status": "visual_extract_added",
       "records_extracted": 2,
       "data_found": [
@@ -13631,7 +11994,8 @@ window.EDUGUIDE_ADMIN_DATA = {
         "PDF uses outlined fonts, so automated text extraction only gets page headers",
         "institution is in Kathmandu, Nepal and needs scope review before final EduGuide LS publication",
         "fees not found in the visible prospectus pages"
-      ]
+      ],
+      "sourceFile": "IBC prospectus-outlined-fonts.pdf"
     },
     {
       "institution": "Scribd general",
@@ -13715,7 +12079,6 @@ window.EDUGUIDE_ADMIN_DATA = {
     },
     {
       "institution": "Council on Higher Education (CHE)",
-      "source_path": "data/references/che-list-of-accredited-programmes-december-2017.pdf",
       "status": "historical_candidate_import",
       "records_extracted": 30,
       "data_found": [
@@ -13728,11 +12091,11 @@ window.EDUGUIDE_ADMIN_DATA = {
         "Document is dated December 2017 and its listed validity periods ended by 2023.",
         "No current entry requirements, programme durations, fees, intake status, or application routes were imported.",
         "All imported records remain private until current official verification."
-      ]
+      ],
+      "sourceFile": "che-list-of-accredited-programmes-december-2017.pdf"
     },
     {
       "institution": "Council on Higher Education (CHE)",
-      "source_path": "data/references/che-profiles-of-heis-2017.pdf",
       "status": "historical_context_reference",
       "records_extracted": 0,
       "data_found": [
@@ -13743,7 +12106,8 @@ window.EDUGUIDE_ADMIN_DATA = {
       "shortage": [
         "Document is a 2017 profile and is retained only to cross-check historical institution and programme names.",
         "Do not use it as current admissions, fee, accreditation, or programme-availability evidence."
-      ]
+      ],
+      "sourceFile": "che-profiles-of-heis-2017.pdf"
     },
     {
       "institution": "Lesotho higher education sector",

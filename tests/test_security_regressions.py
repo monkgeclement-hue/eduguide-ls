@@ -137,5 +137,54 @@ class SecurityRegressionTests(unittest.TestCase):
     self.assertIn('Fashion design',row['skill_options'])
     self.assertNotIn('News writing',row['skill_options'])
 
+  def test_legacy_plaintext_password_is_rejected(self):
+    self.assertFalse(server.verify_password('secret', {'password': 'secret'}))
+
+  def test_students_do_not_receive_review_state(self):
+    response = self.client.post('/api/auth/login', json={'email': 'a@example.test', 'password': 'TestPassword1'})
+    headers = {'Authorization': f"Bearer {response.json()['token']}"}
+    with patch.object(server, 'list_state_payloads', return_value=[{'state_key': 'review_state', 'payload': {'secret': 'yes'}, 'updated_at': 'now'}]):
+      data = self.client.get('/api/db/state', headers=headers).json()
+    self.assertTrue(data['ok'])
+    self.assertNotIn('review_state', data.get('state', {}))
+
+  def test_admin_can_read_review_state(self):
+    salt, digest = server.hash_password('TestPassword1')
+    users = server.get_auth_users_internal()
+    users.append({'id': 'admin', 'email': 'admin@example.test', 'name': 'Admin', 'role': 'admin', 'status': 'active', 'passwordSalt': salt, 'passwordHash': digest})
+    server.save_auth_users_internal(users)
+    token = self.client.post('/api/auth/login', json={'email': 'admin@example.test', 'password': 'TestPassword1'}).json()['token']
+    with patch.object(server, 'list_state_payloads', return_value=[{'state_key': 'review_state', 'payload': {'secret': 'yes'}, 'updated_at': 'now'}]):
+      data = self.client.get('/api/db/state', headers={'Authorization': f'Bearer {token}'}).json()
+    self.assertEqual(data['state']['review_state']['secret'], 'yes')
+
+  def test_students_cannot_download_staff_catalogue(self):
+    response = self.client.post('/api/auth/login', json={'email': 'a@example.test', 'password': 'TestPassword1'})
+    headers = {'Authorization': f"Bearer {response.json()['token']}"}
+    self.assertEqual(self.client.get('/api/admin/catalogue', headers=headers).status_code, 403)
+
+  def test_ai_guidance_cannot_upgrade_unapproved_or_unevidenced_matches(self):
+    server._catalogue_programmes_cache = [
+      {'id': 'open', 'name': 'Open Degree', 'institution': 'NUL', 'review_status': 'approved', 'requirements_summary': 'English C'},
+      {'id': 'thin', 'name': 'Thin Diploma', 'institution': 'NUL', 'review_status': 'approved', 'requirements_summary': ''},
+      {'id': 'hidden', 'name': 'Hidden', 'institution': 'Imperial', 'review_status': 'needs_admin_review', 'requirements_summary': 'Anything'},
+    ]
+    payload = server.GuidanceRequest(matches=[
+      {'id': 'hidden', 'title': 'Forged', 'institution': 'NUL', 'match': {'tier': 'qualified'}},
+      {'id': 'thin', 'title': 'Forged thin', 'institution': 'NUL', 'match': {'tier': 'qualified'}},
+      {'id': 'open', 'title': 'Forged name', 'institution': 'Wrong', 'match': {'tier': 'qualified'}},
+    ])
+    bound = server.bind_guidance_payload_to_catalogue(payload)
+    self.assertEqual([item['id'] for item in bound.matches], ['thin', 'open'])
+    self.assertEqual(bound.matches[0]['match']['tier'], 'explore')
+    self.assertEqual(bound.matches[1]['title'], 'Open Degree')
+    self.assertEqual(bound.matches[1]['institution'], 'NUL')
+    server._catalogue_programmes_cache = None
+
+  def test_public_catalogue_omits_local_file_paths(self):
+    catalog = (Path(__file__).resolve().parents[1] / 'data' / 'admin-catalog.js').read_text(encoding='utf-8')
+    self.assertNotIn('C:/Users/', catalog)
+    self.assertNotIn('C:\\Users\\', catalog)
+
 
 if __name__=='__main__': unittest.main()

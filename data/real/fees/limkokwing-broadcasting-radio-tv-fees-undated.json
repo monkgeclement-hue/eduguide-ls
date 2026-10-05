@@ -1,0 +1,23 @@
+{
+  "institution": "Limkokwing University Lesotho",
+  "source_title": "Diploma in Broadcasting Radio & TV semester tuition",
+  "source_url": "https://www.portal.co.ls/apply/courses?page=2",
+  "source_path": "C:/Users/lepha/OneDrive/Pictures/Screenshots 1/Diploma in Broadcasting Radio & TV LUCT.png",
+  "extraction_method": "manual_screenshot_transcription",
+  "currency": "LSL",
+  "review_status": "needs_admin_review",
+  "programme_component_fee_items": [
+    { "programme_group": "Diploma in Broadcasting Radio & TV", "item": "Programme total", "amount": 65696, "basis": "published programme total", "source_note": "Total shown in the supplied Limkokwing semester breakdown." },
+    { "programme_group": "Diploma in Broadcasting Radio & TV", "item": "Year 1 - Semester 1", "amount": 10760, "basis": "semester; Aug-Dec", "source_note": "Supplied Limkokwing semester breakdown." },
+    { "programme_group": "Diploma in Broadcasting Radio & TV", "item": "Year 1 - Semester 2", "amount": 10760, "basis": "semester; Feb-Jun", "source_note": "Supplied Limkokwing semester breakdown." },
+    { "programme_group": "Diploma in Broadcasting Radio & TV", "item": "Year 2 - Semester 3", "amount": 11044, "basis": "semester; Aug-Dec", "source_note": "Supplied Limkokwing semester breakdown." },
+    { "programme_group": "Diploma in Broadcasting Radio & TV", "item": "Year 2 - Semester 4", "amount": 11044, "basis": "semester; Feb-Jun", "source_note": "Supplied Limkokwing semester breakdown." },
+    { "programme_group": "Diploma in Broadcasting Radio & TV", "item": "Year 3 - Semester 5", "amount": 11044, "basis": "semester; Aug-Dec", "source_note": "Supplied Limkokwing semester breakdown." },
+    { "programme_group": "Diploma in Broadcasting Radio & TV", "item": "Year 3 - Semester 6", "amount": 11044, "basis": "semester; Feb-Jun", "source_note": "Supplied Limkokwing semester breakdown." }
+  ],
+  "notes": [
+    "Transcribed from a supplied Limkokwing course-portal screenshot.",
+    "The screenshot identifies a three-year, six-semester schedule but does not state an academic year.",
+    "Confirm the amount with Limkokwing before payment."
+  ]
+}

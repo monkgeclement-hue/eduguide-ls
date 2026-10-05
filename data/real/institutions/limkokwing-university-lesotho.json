@@ -216,12 +216,14 @@
     "category": "Creative Arts & Communication",
     "faculty": "Faculty of Film, Television & Broadcasting",
     "level": "Diploma",
-    "duration": null,
+    "duration": "3 years",
     "requirements_summary": "You must pass at least 3 subjects with a grade of C or better and 2 subjects with a grade of D or better",
     "source_url": "https://www.portal.co.ls/apply/courses?page=2",
     "source_type": "official_course_portal",
     "extraction_method": "html_course_cards",
-    "review_status": "needs_admin_review"
+    "review_status": "needs_admin_review",
+    "fee_note": "Semester tuition schedule captured from the Limkokwing course portal. The screenshot does not show an academic year; confirm the current amount with the institution before payment.",
+    "supporting_fee_source_path": "C:/Users/lepha/OneDrive/Pictures/Screenshots 1/Diploma in Broadcasting Radio & TV LUCT.png"
   },
   {
     "id": "limkokwing-university-lesotho-diploma-in-creative-advertising",
@@ -244,12 +246,14 @@
     "category": "Business & Commerce",
     "faculty": "Faculty of Creativity in Tourism & Hospitality",
     "level": "Diploma",
-    "duration": null,
+    "duration": "3 years",
     "requirements_summary": "You must pass at least 3 subjects with a grade of C or better and 2 subjects with a grade of D or better",
     "source_url": "https://www.portal.co.ls/apply/courses?page=2",
     "source_type": "official_course_portal",
     "extraction_method": "html_course_cards",
-    "review_status": "needs_admin_review"
+    "review_status": "needs_admin_review",
+    "fee_note": "Semester tuition schedule captured from the Limkokwing course portal. The screenshot does not show an academic year; confirm the current amount with the institution before payment.",
+    "supporting_fee_source_path": "C:/Users/lepha/OneDrive/Pictures/Screenshots 1/Events Management tuition LUCT.png"
   },
   {
     "id": "limkokwing-university-lesotho-diploma-in-fashion-apparel-design",
@@ -314,12 +318,14 @@
     "category": "Technology & ICT",
     "faculty": "Faculty of Information & Communication Technology",
     "level": "Diploma",
-    "duration": null,
+    "duration": "4 years",
     "requirements_summary": "You must pass at least 3 subjects with a grade of C or better and 2 subjects with a grade of D or better",
     "source_url": "https://www.portal.co.ls/apply/courses?page=2",
     "source_type": "official_course_portal",
     "extraction_method": "html_course_cards",
-    "review_status": "needs_admin_review"
+    "review_status": "needs_admin_review",
+    "fee_note": "Semester tuition schedule captured from the Limkokwing course portal. The screenshot does not show an academic year; confirm the current amount with the institution before payment.",
+    "supporting_fee_source_path": "C:/Users/lepha/OneDrive/Pictures/Screenshots 1/IT tuition LUCT.png"
   },
   {
     "id": "limkokwing-university-lesotho-diploma-in-journalism-media",

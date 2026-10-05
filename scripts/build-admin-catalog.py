@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import json
 import re
+from decimal import Decimal, InvalidOperation, ROUND_HALF_UP
 from pathlib import Path
 from typing import Any
 
@@ -9,6 +10,7 @@ from typing import Any
 ROOT = Path(__file__).resolve().parents[1]
 REAL_DIR = ROOT / "data" / "real"
 OUT_FILE = ROOT / "data" / "admin-catalog.js"
+STAFF_FILE = ROOT / "data" / "staff-catalog.json"
 
 
 def load_json(path: Path) -> Any:
@@ -19,6 +21,31 @@ def slug(value: str) -> str:
     value = value.lower()
     value = re.sub(r"[^a-z0-9]+", "-", value)
     return value.strip("-") or "item"
+
+
+def public_source_filename(value: Any) -> str | None:
+    text = str(value or "").strip().replace("\\", "/")
+    if not text:
+        return None
+    return Path(text).name
+
+
+def is_approved(record: dict[str, Any]) -> bool:
+    status = str(record.get("reviewStatus") or record.get("review_status") or "").strip().lower()
+    return status in {"approved", "verified"}
+
+
+def is_student_scope(record: dict[str, Any]) -> bool:
+    institution = str(record.get("institution") or "").casefold()
+    note = str(record.get("sourceNote") or record.get("source_note") or "").casefold()
+    source_type = str(record.get("sourceType") or record.get("source_type") or "").casefold()
+    if "imperial business college" in institution:
+        return False
+    if "kathmandu" in note or "nepal" in note:
+        return False
+    if "international_prospectus" in source_type:
+        return False
+    return True
 
 
 def compact_programme(record: dict[str, Any]) -> dict[str, Any]:
@@ -37,9 +64,9 @@ def compact_programme(record: dict[str, Any]) -> dict[str, Any]:
         "careers": record.get("career_options") or [],
         "skills": record.get("skill_options") or [],
         "sourceUrl": record.get("source_url"),
-        "sourcePath": record.get("source_path"),
-        "supportingSourcePath": record.get("supporting_source_path"),
-        "supportingFeeSourcePath": record.get("supporting_fee_source_path"),
+        "sourceFile": public_source_filename(record.get("source_path")),
+        "supportingSourceFile": public_source_filename(record.get("supporting_source_path")),
+        "supportingFeeSourceFile": public_source_filename(record.get("supporting_fee_source_path")),
         "feeNote": record.get("fee_note"),
         "sourceType": record.get("source_type"),
         "extractionMethod": record.get("extraction_method"),
@@ -48,6 +75,22 @@ def compact_programme(record: dict[str, Any]) -> dict[str, Any]:
         "mappingStatus": record.get("mapping_status", "suggested"),
         "durationStatus": record.get("duration_status"),
     }
+
+
+def public_programme(record: dict[str, Any]) -> dict[str, Any]:
+    return {
+        key: value
+        for key, value in record.items()
+        if key not in {"sourceFile", "supportingSourceFile", "supportingFeeSourceFile", "extractionMethod"}
+    }
+
+
+def public_source(entry: dict[str, Any]) -> dict[str, Any]:
+    cleaned = {key: value for key, value in entry.items() if key != "source_path"}
+    filename = public_source_filename(entry.get("source_path"))
+    if filename:
+        cleaned["sourceFile"] = filename
+    return cleaned
 
 
 def fee_item_type(name: str) -> str:
@@ -67,8 +110,44 @@ def fee_item_type(name: str) -> str:
     return "other"
 
 
+def fee_amount_in_cents(value: Any) -> int:
+    try:
+        return int((Decimal(str(value)) * 100).quantize(Decimal("1"), rounding=ROUND_HALF_UP))
+    except (InvalidOperation, TypeError, ValueError) as error:
+        raise ValueError(f"Invalid fee amount: {value!r}") from error
+
+
+def validate_fee_schedule(fee: dict[str, Any], path: Path) -> None:
+    """Reject a captured programme total that does not match its listed components."""
+    grouped: dict[str, dict[str, list[int]]] = {}
+    for item in fee.get("programme_component_fee_items", []):
+        programme_group = str(item.get("programme_group") or "").strip()
+        item_name = str(item.get("item") or "").strip().casefold()
+        amount = item.get("amount")
+        if not programme_group or amount is None:
+            continue
+        group = grouped.setdefault(programme_group, {"totals": [], "components": []})
+        if item_name == "programme total":
+            group["totals"].append(fee_amount_in_cents(amount))
+        else:
+            group["components"].append(fee_amount_in_cents(amount))
+
+    for programme_group, values in grouped.items():
+        totals = values["totals"]
+        components = values["components"]
+        if len(totals) > 1:
+            raise ValueError(f"{path.name}: {programme_group} has more than one Programme total.")
+        if totals and components and totals[0] != sum(components):
+            total = Decimal(totals[0]) / Decimal(100)
+            component_total = Decimal(sum(components)) / Decimal(100)
+            raise ValueError(
+                f"{path.name}: {programme_group} Programme total {total} does not match component total {component_total}."
+            )
+
+
 def flatten_fee_schedule(path: Path) -> dict[str, Any]:
     fee = load_json(path)
+    validate_fee_schedule(fee, path)
     title = fee.get("source_title") or path.stem
     academic_year = fee.get("academic_year")
     schedule_id = f"fee-schedule-{slug(fee.get('institution', 'institution'))}-{slug(title)}-{slug(academic_year or 'unknown')}"
@@ -170,7 +249,7 @@ def flatten_fee_schedule(path: Path) -> dict[str, Any]:
         "currency": fee.get("currency", "LSL"),
         "reviewStatus": fee.get("review_status", "needs_admin_review"),
         "sourceUrl": fee.get("source_url"),
-        "sourcePath": fee.get("source_path"),
+        "sourceFile": public_source_filename(fee.get("source_path")),
         "notes": fee.get("notes") or [],
         "missingItems": fee.get("missing_fee_items") or [],
         "items": items,
@@ -235,41 +314,54 @@ def institution_review_status(name: str) -> str:
 def main() -> None:
     summary = load_json(REAL_DIR / "summary.json")
     programmes = [compact_programme(record) for record in load_json(REAL_DIR / "programmes.flat.json")]
+    public_programmes = [public_programme(item) for item in programmes if is_approved(item) and is_student_scope(item)]
+    public_ids = {item.get("id") for item in public_programmes}
     fees = [flatten_fee_schedule(path) for path in sorted((REAL_DIR / "fees").glob("*.json"))]
-    source_audit = load_json(REAL_DIR / "source-audit.json")
-    gaps = build_data_gaps(programmes, fees)
+    source_audit = [public_source(item) for item in load_json(REAL_DIR / "source-audit.json")]
+    all_gaps = build_data_gaps(programmes, fees)
+    public_gaps = [gap for gap in all_gaps if not gap.get("programmeId") or gap.get("programmeId") in public_ids]
+    public_counts: dict[str, int] = {}
+    for item in public_programmes:
+        name = str(item.get("institution") or "").strip()
+        if name:
+            public_counts[name] = public_counts.get(name, 0) + 1
     institutions = [
         {
             "name": name,
             "programmeCount": count,
             "reviewStatus": institution_review_status(name),
         }
-        for name, count in sorted(summary.get("institutions", {}).items())
+        for name, count in sorted(public_counts.items())
     ]
 
-    payload = {
+    public_payload = {
         "summary": {
-            "programmeCount": len(programmes),
+            "programmeCount": len(public_programmes),
             "institutionCount": len(institutions),
             "sourceCount": len(source_audit),
             "feeScheduleCount": len(fees),
             "feeItemCount": sum(len(schedule["items"]) for schedule in fees),
-            "openGapCount": len(gaps),
+            "openGapCount": len(public_gaps),
         },
         "institutions": institutions,
-        "programmes": programmes,
+        "programmes": public_programmes,
         "fees": fees,
-        "dataGaps": gaps,
+        "dataGaps": public_gaps,
         "sources": source_audit,
+    }
+    staff_payload = {
+        "programmes": programmes,
+        "dataGaps": all_gaps,
     }
 
     OUT_FILE.write_text(
         "window.EDUGUIDE_ADMIN_DATA = "
-        + json.dumps(payload, indent=2, ensure_ascii=True)
+        + json.dumps(public_payload, indent=2, ensure_ascii=True)
         + ";\n",
         encoding="utf-8",
     )
-    print(json.dumps(payload["summary"], indent=2))
+    STAFF_FILE.write_text(json.dumps(staff_payload, ensure_ascii=True), encoding="utf-8")
+    print(json.dumps({"public": public_payload["summary"], "staffProgrammeCount": len(programmes)}, indent=2))
 
 
 if __name__ == "__main__":

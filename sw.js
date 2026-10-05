@@ -1,9 +1,9 @@
-const CACHE_NAME = "eduguide-ls-shell-v88";
+const CACHE_NAME = "eduguide-ls-shell-v92";
 const APP_SHELL = [
   "/",
   "/index.html",
-  "/styles.css?v=57",
-  "/app.js?v=88",
+  "/styles.css?v=60",
+  "/app.js?v=92",
   "/vendor/lucide.min.js",
   "/data/catalog.js",
   "/data/admin-catalog.js",

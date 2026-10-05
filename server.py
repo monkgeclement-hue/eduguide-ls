@@ -1410,6 +1410,120 @@ def extract_document_content(document_id: str) -> sqlite3.Row | dict[str, Any]:
       temporary_path.unlink(missing_ok=True)
 
 
+STAFF_CATALOG_PATH = ROOT / "data" / "staff-catalog.json"
+FLAT_PROGRAMMES_PATH = ROOT / "data" / "real" / "programmes.flat.json"
+MATCH_TIER_RANK = {"blocked": -1, "explore": 0, "almost": 1, "qualified": 2}
+_catalogue_programmes_cache: list[dict[str, Any]] | None = None
+
+
+def public_source_filename(value: Any) -> str | None:
+  text = str(value or "").strip().replace("\\", "/")
+  if not text:
+    return None
+  return Path(text).name
+
+
+def is_approved_catalogue_record(record: dict[str, Any]) -> bool:
+  status = str(record.get("reviewStatus") or record.get("review_status") or "").strip().lower()
+  return status in {"approved", "verified"}
+
+
+def catalogue_requirement_summary(record: dict[str, Any]) -> str:
+  return str(record.get("requirementsSummary") or record.get("requirements_summary") or "").strip()
+
+
+def load_catalogue_programmes() -> list[dict[str, Any]]:
+  global _catalogue_programmes_cache
+  if _catalogue_programmes_cache is not None:
+    return _catalogue_programmes_cache
+  programmes: list[dict[str, Any]] = []
+  if STAFF_CATALOG_PATH.exists():
+    payload = json.loads(STAFF_CATALOG_PATH.read_text(encoding="utf-8"))
+    programmes = payload.get("programmes", []) if isinstance(payload, dict) else payload
+  elif FLAT_PROGRAMMES_PATH.exists():
+    programmes = json.loads(FLAT_PROGRAMMES_PATH.read_text(encoding="utf-8"))
+  _catalogue_programmes_cache = [item for item in programmes if isinstance(item, dict)]
+  return _catalogue_programmes_cache
+
+
+def catalogue_records_by_id() -> dict[str, dict[str, Any]]:
+  return {str(item.get("id")): item for item in load_catalogue_programmes() if item.get("id")}
+
+
+def cap_client_match_tier(client_tier: Any, maximum_tier: str) -> str:
+  requested = str(client_tier or "explore").strip().lower()
+  if requested == "blocked":
+    return "blocked"
+  if requested not in MATCH_TIER_RANK:
+    requested = "explore"
+  if MATCH_TIER_RANK[requested] > MATCH_TIER_RANK.get(maximum_tier, 0):
+    return maximum_tier
+  return requested
+
+
+def staff_catalogue_record(record: dict[str, Any]) -> dict[str, Any]:
+  source_url = str(record.get("sourceUrl") or record.get("source_url") or "").strip()
+  return {
+    "id": record.get("id"),
+    "institution": record.get("institution"),
+    "name": record.get("name") or record.get("title"),
+    "category": record.get("category"),
+    "faculty": record.get("faculty"),
+    "level": record.get("level"),
+    "duration": record.get("duration"),
+    "overview": record.get("overview"),
+    "requirementsSummary": catalogue_requirement_summary(record),
+    "careers": record.get("careers") or record.get("career_options") or [],
+    "skills": record.get("skills") or record.get("skill_options") or [],
+    "sourceUrl": source_url or None,
+    "sourceFile": public_source_filename(record.get("sourcePath") or record.get("source_path") or record.get("sourceFile")),
+    "sourceType": record.get("sourceType") or record.get("source_type"),
+    "reviewStatus": record.get("reviewStatus") or record.get("review_status") or "needs_admin_review",
+    "sourceNote": record.get("sourceNote") or record.get("source_note"),
+  }
+
+
+def bind_guidance_match_to_catalogue(match: dict[str, Any], catalogue: dict[str, dict[str, Any]]) -> dict[str, Any] | None:
+  record = catalogue.get(str(match.get("id") or ""))
+  if not record or not is_approved_catalogue_record(record):
+    return None
+  bound = dict(match)
+  summary = catalogue_requirement_summary(record)
+  source_url = str(record.get("sourceUrl") or record.get("source_url") or "").strip()
+  bound["id"] = record.get("id")
+  bound["title"] = record.get("name") or record.get("title")
+  bound["institution"] = record.get("institution")
+  bound["reviewStatus"] = record.get("reviewStatus") or record.get("review_status")
+  bound["requirementsSummary"] = summary
+  bound["source"] = source_url or "Official catalogue"
+  bound["sourceUrl"] = source_url or None
+  bound.pop("sourcePath", None)
+  maximum_tier = "explore" if not summary else "qualified"
+  match_block = bound.get("match") if isinstance(bound.get("match"), dict) else {}
+  capped = cap_client_match_tier(match_block.get("tier") or bound.get("tier"), maximum_tier)
+  if match_block:
+    bound["match"] = {**match_block, "tier": capped}
+  bound["tier"] = capped
+  return bound
+
+
+def bind_guidance_payload_to_catalogue(payload: GuidanceRequest) -> GuidanceRequest:
+  catalogue = catalogue_records_by_id()
+  matches = []
+  for item in payload.matches or []:
+    if isinstance(item, dict):
+      bound = bind_guidance_match_to_catalogue(item, catalogue)
+      if bound:
+        matches.append(bound)
+  blocked = []
+  for item in payload.blockedMatches or []:
+    if isinstance(item, dict):
+      bound = bind_guidance_match_to_catalogue(item, catalogue)
+      if bound:
+        blocked.append(bound)
+  return payload.model_copy(update={"matches": matches, "blockedMatches": blocked})
+
+
 def compact_match(match: dict[str, Any]) -> dict[str, Any]:
   scores = match.get("scores") or match.get("match") or {}
   requirements = (match.get("requirements") or [])[:4]
@@ -1942,11 +2056,10 @@ def hash_password(password: str, salt: str | None = None) -> tuple[str, str]:
 def verify_password(password: str, user: dict[str, Any]) -> bool:
   password_hash = user.get("passwordHash")
   password_salt = user.get("passwordSalt")
-  if password_hash and password_salt:
-    _, digest = hash_password(password, password_salt)
-    return secrets.compare_digest(digest, str(password_hash))
-  legacy_password = user.get("password")
-  return bool(legacy_password) and secrets.compare_digest(str(legacy_password), password)
+  if not password_hash or not password_salt:
+    return False
+  _, digest = hash_password(password, password_salt)
+  return secrets.compare_digest(digest, str(password_hash))
 
 
 def load_state_payload(state_key: str, fallback: Any = None) -> Any:
@@ -2409,7 +2522,6 @@ def normalize_auth_user(user: dict[str, Any]) -> dict[str, Any] | None:
     "email": email,
     "passwordHash": user.get("passwordHash"),
     "passwordSalt": user.get("passwordSalt"),
-    "password": user.get("password"),
     "role": role,
     "isDemo": bool(user.get("isDemo") or user_id in {"demo-student", "demo-admin"} or str(user_id).startswith("demo-institution-")),
     "managedInstitution": managed_institution if role == "institution_admin" else "",
@@ -3379,16 +3491,12 @@ def get_database_state(request: Request, authorization: str | None = Header(defa
 
   state = {}
   updated_at = {}
-
-  # Only expose shared state that authenticated EduGuide users actually need.
-  allowed_state_keys = {"review_state"}
+  can_read_review_state = current_user.get("role") in {"owner", "admin"}
 
   for row in list_state_payloads():
     state_key = row.get("state_key")
-
-    if state_key not in allowed_state_keys:
+    if state_key != "review_state" or not can_read_review_state:
       continue
-
     state[state_key] = parse_jsonish(row.get("payload"), row.get("payload"))
     updated_at[state_key] = row.get("updated_at")
 
@@ -3455,11 +3563,7 @@ def auth_login(payload: AuthLoginRequest, request: Request) -> dict[str, Any]:
     raise HTTPException(status_code=403, detail="This account is suspended.")
   users = get_auth_users_internal()
   stored = next((item for item in users if item["id"] == user["id"]), user)
-  if stored.get("password"):
-    salt, password_hash = hash_password(payload.password)
-    stored["passwordSalt"] = salt
-    stored["passwordHash"] = password_hash
-    stored.pop("password", None)
+  stored.pop("password", None)
   add_user_activity(stored, "login", "Logged in", stored)
   save_auth_users_internal(users)
   safe_insert_runtime_event(stored["id"], "auth_login_success", "Logged in", {"role": stored.get("role"), "ip": get_request_ip(request)})
@@ -4393,6 +4497,19 @@ def counsellor_update_followup(followup_id: str, payload: CounsellorFollowupUpda
   return {"ok": True, "followup": counsellor_followup_view(followup)}
 
 
+@app.get("/api/admin/catalogue")
+def admin_catalogue(request: Request, authorization: str | None = Header(default=None)) -> dict[str, Any]:
+  actor = require_current_user(authorization)
+  if actor.get("role") not in {"owner", "admin", "institution_admin"}:
+    raise HTTPException(status_code=403, detail="Admin access required.")
+  check_rate_limit(request, "admin_catalogue", 40, 3600, actor["id"])
+  programmes = [staff_catalogue_record(item) for item in load_catalogue_programmes()]
+  if actor.get("role") == "institution_admin":
+    managed = get_user_managed_institution(actor)
+    programmes = [item for item in programmes if normalize_institution_name(item.get("institution")) == managed]
+  return {"ok": True, "programmes": programmes}
+
+
 @app.get("/api/admin/intelligence")
 def admin_intelligence(request: Request, authorization: str | None = Header(default=None)) -> dict[str, Any]:
   check_rate_limit(request, "admin_intelligence", 120, 3600)
@@ -4931,7 +5048,7 @@ def ai_chat_clear(authorization: str | None = Header(default=None)) -> dict[str,
 @app.post("/api/ai/guidance")
 def ai_guidance(payload: GuidanceRequest, request: Request, authorization: str | None = Header(default=None)) -> dict[str, Any]:
   current_user = require_current_user(authorization)
-  safe_payload = validate_and_sanitize_guidance_payload(payload)
+  safe_payload = bind_guidance_payload_to_catalogue(validate_and_sanitize_guidance_payload(payload))
   if not safe_payload.matches and not safe_payload.blockedMatches:
     return {
       "mode": "local_fallback",

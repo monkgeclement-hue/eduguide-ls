@@ -13,7 +13,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Playfair+Display:wght@600;700&display=swap" />
-    <link rel="stylesheet" href="/styles.css?v=57" />
+    <link rel="stylesheet" href="/styles.css?v=60" />
   </head>
   <body>
     <a href="/privacy" class="privacy-link" style="display:block;text-align:center;padding:8px">Privacy and data use</a>
@@ -35,6 +35,13 @@
         <div class="auth-tabs" role="tablist" aria-label="Authentication mode">
           <button class="auth-tab active" type="button" data-auth-mode="login">Login</button>
           <button class="auth-tab" type="button" data-auth-mode="register">Register</button>
+        </div>
+
+        <div class="auth-email-help">
+          <div>
+            <strong>Using a shared phone or school computer?</strong>
+            <span>Log out when you finish. Closing the tab does not clear saved profile copies.</span>
+          </div>
         </div>
 
         <div class="auth-email-help">
@@ -258,6 +265,11 @@
             </button>
           </div>
         </header>
+
+        <p class="app-network-status" id="app-network-status" role="status" aria-live="polite" hidden>
+          <i data-lucide="wifi-off"></i>
+          <span></span>
+        </p>
 
         <section class="view active" id="view-student">
           <div class="summary-band">
@@ -674,6 +686,7 @@
                   <i data-lucide="log-out"></i>
                   Log out
                 </button>
+                <p class="profile-logout-hint">On a shared device, log out before you leave. Sign-out clears EduGuide profile copies on this browser.</p>
               </div>
             </section>
             <section class="profile-stats-grid">
@@ -1287,6 +1300,6 @@
     <script src="/vendor/lucide.min.js" defer></script>
     <script src="/data/catalog.js" defer></script>
     <script src="/data/admin-catalog.js" defer></script>
-    <script src="/app.js?v=88" defer></script>
+    <script src="/app.js?v=92" defer></script>
   </body>
 </html>
