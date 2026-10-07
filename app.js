@@ -4016,6 +4016,14 @@ function getProgrammeApplicationDetails(programme = {}) {
   };
 }
 
+function getApplicationDetailCheck(programme = {}, key) {
+  return getProgrammeApplicationDetails(programme).checks.find((check) => check.key === key) || null;
+}
+
+function isApplicationDetailMissing(programme = {}, key) {
+  return !getApplicationDetailCheck(programme, key)?.ready;
+}
+
 function getApplicationDocumentChecklist(programmes = []) {
   const signals = getUploadedDocumentSignals();
   const allProgrammeText = programmes.map((programme) => `${programme.title} ${programme.institution} ${programme.faculty} ${programme.level}`).join(" ").toLowerCase();
@@ -9161,6 +9169,14 @@ function programmeMatchesQualityFilter(programme) {
   const filter = adminState.qualityFilter || "all";
   if (filter === "all") return true;
   const quality = getProgrammeQualityChecks(programme);
+  const applicationDetailFilterKeys = {
+    missing_application_route: "route",
+    missing_application_timing: "timing",
+    missing_application_documents: "documents"
+  };
+  if (applicationDetailFilterKeys[filter]) {
+    return isApplicationDetailMissing(programme, applicationDetailFilterKeys[filter]);
+  }
   if (filter === "ready") return quality.percent >= 85 && programme.reviewStatus === "approved";
   if (filter === "open_gaps") return quality.openGaps.length > 0;
   if (filter === "needs_review") return programme.reviewStatus === "needs_admin_review" || programme.reviewStatus === "flagged";
@@ -9178,6 +9194,9 @@ function getAdminQualityFilterOptions() {
     { key: "missing_requirements", label: "Missing requirements", count: count((programme) => !programme.requirementsSummary) },
     { key: "missing_duration", label: "Missing duration", count: count((programme) => !programme.duration) },
     { key: "missing_fees", label: "Missing fees", count: count((programme) => !hasProgrammeFeeEvidence(programme)) },
+    { key: "missing_application_route", label: "Missing apply route", count: count((programme) => isApplicationDetailMissing(programme, "route")) },
+    { key: "missing_application_timing", label: "Missing intake/deadline", count: count((programme) => isApplicationDetailMissing(programme, "timing")) },
+    { key: "missing_application_documents", label: "Missing document list", count: count((programme) => isApplicationDetailMissing(programme, "documents")) },
     { key: "missing_application", label: "Incomplete application details", count: count((programme) => !getProgrammeApplicationDetails(programme).complete) },
     { key: "missing_source", label: "Missing source", count: count((programme) => !(programme.sourceUrl || programme.supportingSourcePath || programme.sourcePath)) },
     { key: "open_gaps", label: "Open gaps", count: count((programme) => getProgrammeQualityChecks(programme).openGaps.length > 0) },

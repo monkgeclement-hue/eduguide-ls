@@ -412,6 +412,9 @@ class RoleWorkflowTests(unittest.TestCase):
     self.assertIn("links.prospectusLinks?.[0]", app_script)
     self.assertIn("Incomplete application details", app_script)
     self.assertIn("getProgrammeApplicationDetails(programme).complete", app_script)
+    self.assertIn("missing_application_route", app_script)
+    self.assertIn("missing_application_timing", app_script)
+    self.assertIn("missing_application_documents", app_script)
 
   def test_change_request_requires_feedback_and_locks_the_decision(self):
     proposal = {

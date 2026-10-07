@@ -118,6 +118,19 @@ test('application details stay incomplete until route, timing, and documents are
   assert.equal(partial.complete, false);
   assert.equal(complete.complete, true);
 });
+test('application detail filters identify the specific missing field', () => {
+  const isApplicationDetailMissing = load('isApplicationDetailMissing', {
+    getApplicationDetailCheck: (programme, key) => ({
+      route: { ready: Boolean(programme.applicationUrl) },
+      timing: { ready: Boolean(programme.applicationDeadline) },
+      documents: { ready: Boolean(programme.applicationDocuments?.length) }
+    })[key] || null
+  });
+  const partial = { applicationUrl: 'https://example.edu/apply' };
+  assert.equal(isApplicationDetailMissing(partial, 'route'), false);
+  assert.equal(isApplicationDetailMissing(partial, 'timing'), true);
+  assert.equal(isApplicationDetailMissing(partial, 'documents'), true);
+});
 test('unclassified application status is never promoted to a verified deadline', () => {
   const normalizeDeadlineStatus = load('normalizeDeadlineStatus');
   const plainStatus = normalizeDeadlineStatus('Admissions information has been captured.');
