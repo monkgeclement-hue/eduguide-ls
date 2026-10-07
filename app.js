@@ -486,16 +486,16 @@ const fundingDocumentChecks = [
 
 const nmdsPortalUrl = "https://www.scholarships.manp.gov.ls";
 const institutionApplicationLinks = [
-  { pattern: /limkokwing|luct/i, label: "Limkokwing application/course portal", url: "https://www.portal.co.ls/apply/courses" },
-  { pattern: /botho/i, label: "Botho Lesotho programmes page", url: "https://www.bothouniversity.com/lesotho/programmes" },
-  { pattern: /national university of lesotho|nul/i, label: "NUL official website", url: "https://nul.ls/" },
-  { pattern: /iems|extra mural/i, label: "NUL IEMS official page", url: "https://nul.ls/iems-2/" },
-  { pattern: /lerotholi/i, label: "Lerotholi Polytechnic prospectus", url: "https://www.lp.ac.ls/wp-content/uploads/2024/02/lerotholi-prospectus-2024-2025-embed1.pdf" },
-  { pattern: /lesotho agricultural college|lac/i, label: "Lesotho Agricultural College website", url: "https://lac.org.ls/" },
-  { pattern: /centre for accounting studies|cas/i, label: "Centre for Accounting Studies website", url: "https://cas.ac.ls/" },
-  { pattern: /roma college of nursing/i, label: "Roma College of Nursing CHE listing", url: "https://www.che.ac.ls/roma-college-of-nursing-rcn-accredited-programmes/" },
-  { pattern: /paray/i, label: "Paray School of Nursing website", url: "https://www.parayson.ac.ls" },
-  { pattern: /lesotho college of education|lce/i, label: "Lesotho College of Education source", url: "https://mabumbe.com/official-lesotho-college-education-lce-courses/" }
+  { pattern: /limkokwing|luct/i, label: "Limkokwing application/course portal", url: "https://www.portal.co.ls/apply/courses", kind: "application" },
+  { pattern: /botho/i, label: "Botho Lesotho programmes page", url: "https://www.bothouniversity.com/lesotho/programmes", kind: "source" },
+  { pattern: /national university of lesotho|nul/i, label: "NUL official website", url: "https://nul.ls/", kind: "source" },
+  { pattern: /iems|extra mural/i, label: "NUL IEMS official page", url: "https://nul.ls/iems-2/", kind: "source" },
+  { pattern: /lerotholi/i, label: "Lerotholi Polytechnic prospectus", url: "https://www.lp.ac.ls/wp-content/uploads/2024/02/lerotholi-prospectus-2024-2025-embed1.pdf", kind: "source" },
+  { pattern: /lesotho agricultural college|lac/i, label: "Lesotho Agricultural College website", url: "https://lac.org.ls/", kind: "source" },
+  { pattern: /centre for accounting studies|cas/i, label: "Centre for Accounting Studies website", url: "https://cas.ac.ls/", kind: "source" },
+  { pattern: /roma college of nursing/i, label: "Roma College of Nursing CHE listing", url: "https://www.che.ac.ls/roma-college-of-nursing-rcn-accredited-programmes/", kind: "source" },
+  { pattern: /paray/i, label: "Paray School of Nursing website", url: "https://www.parayson.ac.ls", kind: "source" },
+  { pattern: /lesotho college of education|lce/i, label: "Lesotho College of Education source", url: "https://mabumbe.com/official-lesotho-college-education-lce-courses/", kind: "source" }
 ];
 
 const aiInterviewQuestions = [
@@ -2671,6 +2671,7 @@ function valuesAreEqual(previous, next) {
 
 function getManualProgrammeGaps(programme) {
   const gapBase = `gap-${programme.id}`;
+  const applicationDetails = getProgrammeApplicationDetails(programme);
   return [
     {
       id: `${gapBase}-duration`,
@@ -2720,12 +2721,12 @@ function getManualProgrammeGaps(programme) {
       id: `${gapBase}-application`,
       type: "application_info_missing",
       priority: "medium",
-      status: programme.applicationUrl || programme.applicationDeadline || programme.intakeStatus ? "resolved" : "open",
+      status: applicationDetails.complete ? "resolved" : "open",
       institution: programme.institution,
       programmeId: programme.id,
       programmeName: programme.name,
-      title: "Missing application information",
-      description: "Add a verified apply-online route, intake status, or closing date when the institution confirms it."
+      title: "Incomplete application details",
+      description: "Add the institution-confirmed apply-online route, intake or closing-date status, and required documents."
     }
   ];
 }
@@ -2853,7 +2854,7 @@ async function saveProgrammeEdit(id) {
         autoResolvedGaps.push(gap);
       });
   }
-  if (programme.applicationUrl || programme.applicationDeadline || programme.intakeStatus) {
+  if (getProgrammeApplicationDetails(programme).complete) {
     adminGaps
       .filter((gap) => gap.programmeId === programme.id && gap.type === "application_info_missing" && gap.status === "open")
       .forEach((gap) => {
@@ -3674,7 +3675,7 @@ function getSafeExternalUrl(value) {
 
 function getInstitutionApplicationLink(institution) {
   const match = institutionApplicationLinks.find((item) => item.pattern.test(institution || ""));
-  return match ? { label: match.label, url: match.url } : null;
+  return match ? { label: match.label, url: match.url, kind: match.kind || "source" } : null;
 }
 
 function getMatchProgrammeTitle(programme = {}) {
@@ -3697,29 +3698,32 @@ function getApplicationLinkPack(institution, programmes = []) {
     : { application: null, prospectusLinks: [], sourceLinks: [], allLinks: [] };
   const directProgrammeApplicationLinks = dedupeLinks(programmes.map((programme) => ({
     label: `${getMatchProgrammeTitle(programme)} apply online`,
-    url: programme.applicationUrl
+    url: programme.applicationUrl,
+    kind: "application"
   })));
   const programmeLinks = programmes.flatMap((programme) => {
     const title = getMatchProgrammeTitle(programme);
     return [
-      { label: `${title} apply online`, url: programme.applicationUrl },
-      { label: `${title} source`, url: programme.sourceUrl || programme.source },
-      { label: `${title} supporting source`, url: programme.supportingSourcePath },
-      { label: `${title} fee evidence`, url: programme.supportingFeeSourcePath }
+      { label: `${title} apply online`, url: programme.applicationUrl, kind: "application" },
+      { label: `${title} source`, url: programme.sourceUrl || programme.source, kind: "source" },
+      { label: `${title} supporting source`, url: programme.supportingSourcePath, kind: "source" },
+      { label: `${title} fee evidence`, url: programme.supportingFeeSourcePath, kind: "source" }
     ];
   });
   const allLinks = dedupeLinks([
     ...directProgrammeApplicationLinks,
-    explorerLinks.application ? { label: explorerLinks.application.label || "Apply / visit institution", url: explorerLinks.application.url } : null,
+    explorerLinks.application ? { label: explorerLinks.application.label || "Open institution source", url: explorerLinks.application.url, kind: explorerLinks.application.kind || "source" } : null,
     ...programmeLinks,
     ...explorerLinks.allLinks
   ].filter(Boolean));
   const applicationLink = directProgrammeApplicationLinks[0]
-    || allLinks.find((link) => /apply|application|portal|admission|course|programmes|official website/i.test(`${link.label} ${link.url}`))
+    || allLinks.find((link) => link.kind === "application")
+    || null;
+  const fallbackLink = allLinks.find((link) => link.kind !== "application")
     || allLinks[0]
     || null;
   const prospectusLinks = allLinks.filter((link) => isProspectusLike(`${link.label} ${link.url}`));
-  const sourceLinks = allLinks.filter((link) => link !== applicationLink && !prospectusLinks.includes(link));
+  const sourceLinks = allLinks.filter((link) => link !== applicationLink && link !== fallbackLink && !prospectusLinks.includes(link));
   const localEvidence = unique(programmes.flatMap((programme) => [
     getEvidenceFileLabel(programme.sourcePath),
     getEvidenceFileLabel(programme.supportingSourcePath),
@@ -3728,6 +3732,7 @@ function getApplicationLinkPack(institution, programmes = []) {
   ].filter(Boolean)));
   return {
     applicationLink,
+    fallbackLink,
     prospectusLinks,
     sourceLinks,
     allLinks,
@@ -3762,27 +3767,26 @@ function formatFeeAmount(amount, currency = "LSL") {
 function formatFeeItem(item) {
   const amount = formatFeeAmount(item.amount ?? item.annualEstimate, item.schedule?.currency || "LSL");
   const context = [item.studentCategory, item.basis].filter(Boolean).join(", ");
-  const label = [item.programmeGroup, item.name || item.type].filter(Boolean).join(" - ");
+  const scopedLabel = [item.programmeGroup, item.name || item.type].filter(Boolean).join(" - ");
+  const label = item.programmeGroup ? scopedLabel : `Institution-wide - ${item.name || item.type || "Fee item"}`;
   return `${label || "Fee item"}${amount ? `: ${amount}` : ""}${context ? ` (${context})` : ""}`;
 }
 
 function getApplicationFeeSummary(institution, programmes = []) {
   const schedules = getInstitutionFeeSchedules(institution);
-  const scheduleItems = schedules.flatMap((schedule) => (schedule.items || []).map((item) => ({ ...item, schedule })));
-  const matchedItems = scheduleItems.filter((item) => programmes.some((programme) => {
-    const programmeText = `${getMatchProgrammeTitle(programme)} ${programme.faculty} ${programme.level}`;
-    return hasFeeTextOverlap(programmeText, item.programmeGroup || "") || hasFeeTextOverlap(programme.faculty, item.faculty || "");
-  }));
-  const fallbackItems = matchedItems.length
-    ? matchedItems
-    : scheduleItems.filter((item) => /application|acceptance|registration|tuition/i.test(`${item.type} ${item.name}`));
+  const matchedItems = programmes
+    .flatMap((programme) => getProgrammeFeeMatches(programme, 4))
+    .filter((item, index, items) => {
+      const key = item.id || `${item.programmeGroup}-${item.name}-${item.studentCategory}-${item.amount}`;
+      return items.findIndex((candidate) => (candidate.id || `${candidate.programmeGroup}-${candidate.name}-${candidate.studentCategory}-${candidate.amount}`) === key) === index;
+    });
   const explicitNotes = unique(programmes.flatMap((programme) => [
     programme.feeNote,
     programme.supportingFeeSourcePath ? `Fee evidence captured: ${getEvidenceFileLabel(programme.supportingFeeSourcePath) || programme.supportingFeeSourcePath}` : ""
   ].filter(Boolean)));
   const lines = unique([
     ...explicitNotes,
-    ...fallbackItems.slice(0, 4).map(formatFeeItem)
+    ...matchedItems.slice(0, 4).map(formatFeeItem)
   ].filter(Boolean)).slice(0, 5);
   const missing = unique(schedules.flatMap((schedule) => schedule.missingItems || [])).slice(0, 4);
   const source = schedules.find((schedule) => schedule.sourceUrl || schedule.sourcePath);
@@ -3936,7 +3940,11 @@ function getApplicationStepList(programmes, checklist, linkPack, feeSummary) {
     },
     {
       title: "Open the school route",
-      note: linkPack.applicationLink ? `Use: ${linkPack.applicationLink.label}.` : "No direct application link is captured yet; use the school/source profile before applying."
+      note: linkPack.applicationLink
+        ? `Apply online using: ${linkPack.applicationLink.label}.`
+        : linkPack.fallbackLink
+          ? `Open the available source: ${linkPack.fallbackLink.label}. A direct application link is not captured yet.`
+          : "No direct application link is captured yet; use the school/source profile before applying."
     },
     {
       title: "Prepare documents",
@@ -3958,12 +3966,13 @@ function getApplicationStepList(programmes, checklist, linkPack, feeSummary) {
 function getProgrammeApplicationSummary(programme) {
   const sourceUrl = getSafeExternalUrl(programme.source || programme.sourceUrl || programme.supportingSourcePath);
   const knownLink = getInstitutionApplicationLink(programme.institution);
-  const link = sourceUrl ? { label: "Open programme source", url: sourceUrl } : knownLink;
+  const link = sourceUrl ? { label: "Open programme source", url: sourceUrl, kind: "source" } : knownLink;
   const links = getApplicationLinkPack(programme.institution, [programme]);
   const feeSummary = getApplicationFeeSummary(programme.institution, [programme]);
   const deadlineSummary = getApplicationDeadlineSummary([programme]);
   return {
-    link: links.applicationLink || link,
+    link: links.applicationLink || links.fallbackLink || link,
+    linkKind: links.applicationLink ? "application" : (links.fallbackLink || link)?.kind || "source",
     links,
     feeSummary,
     nmdsPortal: nmdsPortalUrl,
@@ -5750,8 +5759,8 @@ function renderApplicationGroup(group) {
       <div class="application-status-strip">
         <div>
           <span>Application route</span>
-          <strong>${linkPack.applicationLink ? "Link ready" : "Link missing"}</strong>
-          <small>${escapeHtml(linkPack.applicationLink?.label || "Use school profile/source until admin confirms a direct apply link.")}</small>
+          <strong>${linkPack.applicationLink ? "Apply online ready" : linkPack.fallbackLink ? "Source available" : "Link missing"}</strong>
+          <small>${escapeHtml(linkPack.applicationLink?.label || linkPack.fallbackLink?.label || "Use school profile/source until admin confirms a direct apply link.")}</small>
         </div>
         <div>
           <span>Fees</span>
@@ -5831,7 +5840,9 @@ function renderApplicationGroup(group) {
         ${
           linkPack.applicationLink?.url
             ? `<a class="primary-button small" href="${escapeHtml(linkPack.applicationLink.url)}" target="_blank" rel="noreferrer"><i data-lucide="external-link"></i>${escapeHtml(linkPack.applicationLink.label || "Apply / visit")}</a>`
-            : `<span>No direct application link captured yet</span>`
+            : linkPack.fallbackLink?.url
+              ? `<a class="secondary-action" href="${escapeHtml(linkPack.fallbackLink.url)}" target="_blank" rel="noreferrer"><i data-lucide="external-link"></i>${escapeHtml(linkPack.fallbackLink.label || "Open source")}</a><span>Direct application link is not captured yet.</span>`
+              : `<span>No direct application link captured yet</span>`
         }
         ${linkPack.prospectusLinks.slice(0, 2).map((link) => `<a class="secondary-link" href="${escapeHtml(link.url)}" target="_blank" rel="noreferrer">Open prospectus/source</a>`).join("")}
         ${linkPack.sourceLinks.slice(0, 2).map((link) => `<a class="secondary-link" href="${escapeHtml(link.url)}" target="_blank" rel="noreferrer">${escapeHtml(link.label || "Open source")}</a>`).join("")}
@@ -6823,7 +6834,7 @@ function getInstitutionSourcesForExplorer(institution) {
       status: source.status,
       data_found: source.tags || [],
       shortage: [],
-      label: source.type || "Official source"
+      label: source.type || "Source page"
     }));
   const auditedSources = (adminSources || []).filter((source) => source.institution === institution);
   return [...auditedSources, ...starterSources];
@@ -6846,13 +6857,20 @@ function getInstitutionExplorerLinks(institution) {
   const programmeLinks = getInstitutionProgrammes(institution)
     .flatMap((programme) => [programme.sourceUrl, programme.supportingSourcePath, programme.supportingFeeSourcePath])
     .filter(Boolean)
-    .map((url) => ({ label: "Programme/source page", url }));
+    .map((url) => ({ label: "Programme/source page", url, kind: "source" }));
   const sourceLinks = institutionSources
-    .map((source) => source.source_url || source.url)
-    .filter(Boolean)
-    .map((url) => ({ label: /prospectus|pdf|docx/i.test(url) ? "Prospectus/source document" : "Official source", url }));
+    .map((source) => ({
+      url: source.source_url || source.url,
+      label: source.label || ""
+    }))
+    .filter((source) => source.url)
+    .map((source) => ({
+      label: source.label || (/prospectus|pdf|docx/i.test(source.url) ? "Prospectus/source document" : "Source page"),
+      url: source.url,
+      kind: "source"
+    }));
   const allLinks = dedupeLinks([
-    application ? { label: application.label || "Apply/open school site", url: application.url } : null,
+    application ? { label: application.label || "Open school site", url: application.url, kind: application.kind || "source" } : null,
     ...sourceLinks,
     ...programmeLinks
   ].filter(Boolean));
@@ -7215,7 +7233,7 @@ function renderSelectedSchoolProfile(institution) {
           <span>${escapeHtml(profileNarrative)}</span>
         </div>
         <div class="school-profile-actions">
-          ${links.application?.url ? `<a class="primary-button small" href="${escapeHtml(links.application.url)}" target="_blank" rel="noreferrer"><i data-lucide="external-link"></i> Apply online / Visit</a>` : `<span class="badge amber">Apply link missing</span>`}
+          ${links.application?.url ? `<a class="primary-button small" href="${escapeHtml(links.application.url)}" target="_blank" rel="noreferrer"><i data-lucide="external-link"></i> ${links.application.kind === "application" ? "Apply online" : "Open school source"}</a>` : `<span class="badge amber">Official route missing</span>`}
           ${links.prospectusLinks[0]?.url ? `<a class="secondary-action" href="${escapeHtml(links.prospectusLinks[0].url)}" target="_blank" rel="noreferrer"><i data-lucide="download"></i> Prospectus</a>` : ""}
           <a class="secondary-action" href="${nmdsPortalUrl}" target="_blank" rel="noreferrer"><i data-lucide="wallet-cards"></i> NMDS</a>
         </div>
@@ -7317,7 +7335,7 @@ function renderExplorerCourseProfile(programme) {
             <i data-lucide="bot"></i>
             Ask AI
           </button>
-          ${application.link?.url ? `<a class="primary-button small" href="${escapeHtml(application.link.url)}" target="_blank" rel="noreferrer"><i data-lucide="external-link"></i> Apply online / Source</a>` : ""}
+          ${application.link?.url ? `<a class="primary-button small" href="${escapeHtml(application.link.url)}" target="_blank" rel="noreferrer"><i data-lucide="external-link"></i> ${application.linkKind === "application" ? "Apply online" : "Open source"}</a>` : ""}
         </div>
       </div>
       <div class="application-status-strip course-status-strip">
@@ -7798,6 +7816,8 @@ function renderInstitutionDetail(programme) {
   const links = getApplicationLinkPack(programme.institution, [programme]);
   const applicationDetails = getProgrammeApplicationDetails(programme);
   const quality = getProgrammeQualityChecks(programme);
+  const directApplicationRoute = links.applicationLink;
+  const officialSourceRoute = directApplicationRoute ? links.fallbackLink : (links.fallbackLink || links.applicationLink);
   const reviewFeedbackProposals = proposals.filter((proposal) => ["changes_requested", "rejected"].includes(proposal.status) && proposal.reviewNote);
   const pendingProposals = proposals.filter((proposal) => proposal.status === "pending_admin_review");
   panel.innerHTML = `
@@ -7815,10 +7835,10 @@ function renderInstitutionDetail(programme) {
         <div><span>Code</span><strong>${escapeHtml(programme.code || "Missing")}</strong></div>
       </div>
       <div class="detail-section">
-        <h4>Application links</h4>
+        <h4>Application routes and sources</h4>
         <div class="application-links compact-links">
-          ${links.application ? `<a class="primary-button small" href="${escapeHtml(links.application.url)}" target="_blank" rel="noreferrer"><i data-lucide="external-link"></i>${escapeHtml(links.application.label)}</a>` : `<span class="badge amber">Apply link missing</span>`}
-          ${links.prospectus ? `<a class="secondary-action" href="${escapeHtml(links.prospectus.url)}" target="_blank" rel="noreferrer"><i data-lucide="download"></i>${escapeHtml(links.prospectus.label)}</a>` : `<span class="badge amber">Prospectus missing</span>`}
+          ${directApplicationRoute ? `<a class="primary-button small" href="${escapeHtml(directApplicationRoute.url)}" target="_blank" rel="noreferrer"><i data-lucide="external-link"></i>Apply online</a>` : officialSourceRoute ? `<a class="secondary-action" href="${escapeHtml(officialSourceRoute.url)}" target="_blank" rel="noreferrer"><i data-lucide="external-link"></i>Open source</a><span class="badge amber">Direct application route missing</span>` : `<span class="badge amber">Source route missing</span>`}
+          ${links.prospectusLinks?.[0] ? `<a class="secondary-action" href="${escapeHtml(links.prospectusLinks[0].url)}" target="_blank" rel="noreferrer"><i data-lucide="download"></i>${escapeHtml(links.prospectusLinks[0].label || "Open prospectus")}</a>` : `<span class="badge amber">Prospectus missing</span>`}
         </div>
       </div>
       <div class="detail-section">
@@ -8334,9 +8354,9 @@ function getAdminIntelligence() {
       .slice(0, 3)
       .map((programme) => `${programme.institution}: fee evidence missing for ${programme.name}`),
     ...adminProgrammes
-      .filter((programme) => !(programme.applicationUrl || programme.applicationDeadline || programme.intakeStatus))
+      .filter((programme) => !getProgrammeApplicationDetails(programme).complete)
       .slice(0, 3)
-      .map((programme) => `${programme.institution}: application route/status missing for ${programme.name}`)
+      .map((programme) => `${programme.institution}: application details incomplete for ${programme.name}`)
   ].slice(0, 5);
   const blockedByMathScience = students
     .filter((user) => {
@@ -9107,9 +9127,9 @@ function getProgrammeQualityChecks(programme) {
     },
     {
       key: "application",
-      label: "Application",
-      ready: Boolean(programme.applicationUrl || programme.applicationDeadline || programme.intakeStatus),
-      issue: "Missing application information"
+      label: "Application details",
+      ready: getProgrammeApplicationDetails(programme).complete,
+      issue: "Incomplete application details"
     },
     {
       key: "careers",
@@ -9158,7 +9178,7 @@ function getAdminQualityFilterOptions() {
     { key: "missing_requirements", label: "Missing requirements", count: count((programme) => !programme.requirementsSummary) },
     { key: "missing_duration", label: "Missing duration", count: count((programme) => !programme.duration) },
     { key: "missing_fees", label: "Missing fees", count: count((programme) => !hasProgrammeFeeEvidence(programme)) },
-    { key: "missing_application", label: "Missing application info", count: count((programme) => !(programme.applicationUrl || programme.applicationDeadline || programme.intakeStatus)) },
+    { key: "missing_application", label: "Incomplete application details", count: count((programme) => !getProgrammeApplicationDetails(programme).complete) },
     { key: "missing_source", label: "Missing source", count: count((programme) => !(programme.sourceUrl || programme.supportingSourcePath || programme.sourcePath)) },
     { key: "open_gaps", label: "Open gaps", count: count((programme) => getProgrammeQualityChecks(programme).openGaps.length > 0) },
     { key: "ready", label: "Ready", count: count((programme) => {
@@ -9229,28 +9249,31 @@ function getFilteredAdminFees() {
 function getDerivedAdminSources() {
   return adminProgrammes
     .filter((programme) => isCustomAdminProgramme(programme) || programme.sourceNote || programme.feeNote || programme.supportingSourcePath || programme.supportingFeeSourcePath || programme.applicationUrl || programme.applicationDeadline || programme.intakeStatus)
-    .map((programme) => ({
-      institution: programme.institution,
-      source_url: programme.sourceUrl || "",
-      source_path: programme.supportingSourcePath || programme.supportingFeeSourcePath || "",
-      status: programme.reviewStatus || "needs_admin_review",
-      records_extracted: 1,
-      data_found: [
-        "programme record",
-        programme.requirementsSummary ? "requirements" : null,
-        programme.duration ? "duration" : null,
-        hasProgrammeFeeEvidence(programme) ? "fee note/evidence" : null,
-        programme.applicationUrl || programme.applicationDeadline || programme.intakeStatus ? "application route/status" : null
-      ].filter(Boolean),
-      shortage: [
-        programme.requirementsSummary ? null : "requirements missing",
-        programme.duration ? null : "duration missing",
-        hasProgrammeFeeEvidence(programme) ? null : "fee evidence missing",
-        programme.sourceUrl || programme.supportingSourcePath ? null : "official source missing",
-        programme.applicationUrl || programme.applicationDeadline || programme.intakeStatus ? null : "application route/status missing"
-      ].filter(Boolean),
-      programmeName: programme.name
-    }));
+    .map((programme) => {
+      const applicationDetails = getProgrammeApplicationDetails(programme);
+      return {
+        institution: programme.institution,
+        source_url: programme.sourceUrl || "",
+        source_path: programme.supportingSourcePath || programme.supportingFeeSourcePath || "",
+        status: programme.reviewStatus || "needs_admin_review",
+        records_extracted: 1,
+        data_found: [
+          "programme record",
+          programme.requirementsSummary ? "requirements" : null,
+          programme.duration ? "duration" : null,
+          hasProgrammeFeeEvidence(programme) ? "fee note/evidence" : null,
+          applicationDetails.readyCount ? `application details ${applicationDetails.readyCount}/${applicationDetails.total}` : null
+        ].filter(Boolean),
+        shortage: [
+          programme.requirementsSummary ? null : "requirements missing",
+          programme.duration ? null : "duration missing",
+          hasProgrammeFeeEvidence(programme) ? null : "fee evidence missing",
+          programme.sourceUrl || programme.supportingSourcePath ? null : "official source missing",
+          applicationDetails.complete ? null : `application details incomplete (${applicationDetails.checks.filter((check) => !check.ready).map((check) => check.label.toLowerCase()).join(", ")})`
+        ].filter(Boolean),
+        programmeName: programme.name
+      };
+    });
 }
 
 function getAllAdminSources() {

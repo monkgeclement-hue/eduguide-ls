@@ -53,6 +53,71 @@ test('programme fee evidence requires a matched charge or its own supporting not
   assert.equal(withoutMatches({ feeNote: 'Confirm with the institution.' }), true);
   assert.equal(withMatches({ institution: 'Example University' }), true);
 });
+test('application fee summaries do not borrow another course tuition', () => {
+  const getApplicationFeeSummary = load('getApplicationFeeSummary', {
+    getInstitutionFeeSchedules: () => [{ items: [] }],
+    getProgrammeFeeMatches: (programme) => programme.id === 'matching' ? [{ id: 'tuition', programmeGroup: 'Matching course', name: 'Tuition', amount: 1234 }] : [],
+    unique: (items) => [...new Set(items)],
+    getEvidenceFileLabel: () => '',
+    formatFeeItem: (item) => `${item.programmeGroup}: ${item.amount}`,
+    getSafeExternalUrl: () => ''
+  });
+  const summary = getApplicationFeeSummary('Example University', [{ id: 'unmatched', title: 'Unmatched course' }]);
+  const matchedSummary = getApplicationFeeSummary('Example University', [{ id: 'matching', title: 'Matching course' }]);
+  assert.equal(summary.label, 'Fees under review');
+  assert.deepEqual(summary.lines, []);
+  assert.deepEqual(matchedSummary.lines, ['Matching course: 1234']);
+});
+test('only captured application routes are presented as application links', () => {
+  const getApplicationLinkPack = load('getApplicationLinkPack', {
+    getInstitutionExplorerLinks: () => ({
+      application: { label: 'Official university website', url: 'https://example.edu', kind: 'source' },
+      allLinks: []
+    }),
+    dedupeLinks: (links) => links.filter((link) => link.url),
+    getMatchProgrammeTitle: (programme) => programme.title || 'Programme',
+    unique: (items) => [...new Set(items)],
+    getEvidenceFileLabel: () => '',
+    isProspectusLike: () => false
+  });
+  const sourceOnly = getApplicationLinkPack('Example University', []);
+  const withApplication = getApplicationLinkPack('Example University', [{ title: 'Example Degree', applicationUrl: 'https://example.edu/apply' }]);
+  assert.equal(sourceOnly.applicationLink, null);
+  assert.equal(sourceOnly.fallbackLink.label, 'Official university website');
+  assert.equal(withApplication.applicationLink.url, 'https://example.edu/apply');
+});
+test('institution application routes retain their application classification', () => {
+  const getInstitutionApplicationLink = load('getInstitutionApplicationLink', {
+    institutionApplicationLinks: [
+      { pattern: /example university/i, label: 'Example application portal', url: 'https://example.edu/apply', kind: 'application' }
+    ]
+  });
+  const route = getInstitutionApplicationLink('Example University');
+  assert.equal(route.kind, 'application');
+  assert.equal(route.url, 'https://example.edu/apply');
+});
+test('institution source labels preserve their stated authority', () => {
+  const getInstitutionSourcesForExplorer = load('getInstitutionSourcesForExplorer', {
+    sources: [{ name: 'Example University', type: 'Third-party profile', status: 'reference', url: 'https://example.edu/profile', tags: [] }],
+    adminSources: []
+  });
+  assert.equal(getInstitutionSourcesForExplorer('Example University')[0].label, 'Third-party profile');
+});
+test('application details stay incomplete until route, timing, and documents are captured', () => {
+  const getProgrammeApplicationDetails = load('getProgrammeApplicationDetails', {
+    parseListText: () => [],
+    getSafeExternalUrl: (value) => /^https?:\/\//.test(value || '') ? value : ''
+  });
+  const partial = getProgrammeApplicationDetails({ applicationUrl: 'https://example.edu/apply' });
+  const complete = getProgrammeApplicationDetails({
+    applicationUrl: 'https://example.edu/apply',
+    applicationDeadline: '31 October 2026',
+    applicationDocuments: ['Results certificate']
+  });
+  assert.equal(partial.readyCount, 1);
+  assert.equal(partial.complete, false);
+  assert.equal(complete.complete, true);
+});
 test('unclassified application status is never promoted to a verified deadline', () => {
   const normalizeDeadlineStatus = load('normalizeDeadlineStatus');
   const plainStatus = normalizeDeadlineStatus('Admissions information has been captured.');

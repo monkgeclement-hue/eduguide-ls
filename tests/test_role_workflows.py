@@ -209,6 +209,7 @@ class RoleWorkflowTests(unittest.TestCase):
     self.assertIn("function hasProgrammeFeeEvidence", app_script)
     self.assertIn("getInstitutionWideFeeItems(programme.institution)", app_script)
     self.assertIn('status: hasProgrammeFeeEvidence(programme) ? "resolved" : "open"', app_script)
+    self.assertIn(".flatMap((programme) => getProgrammeFeeMatches(programme, 4))", app_script)
     self.assertIn("No programme-specific or institution-wide application fee captured yet.", app_script)
     self.assertIn("const programmeFeeItems = getProgrammeFeeMatches(programme, 20);", app_script)
     self.assertIn(".filter((programme) => !hasProgrammeFeeEvidence(programme))", app_script)
@@ -402,6 +403,15 @@ class RoleWorkflowTests(unittest.TestCase):
     link_pack = app_script.split("function getApplicationLinkPack", 1)[1].split("function normalizeFeeText", 1)[0]
     self.assertIn("const directProgrammeApplicationLinks", link_pack)
     self.assertIn("const applicationLink = directProgrammeApplicationLinks[0]", link_pack)
+    self.assertIn('link.kind === "application"', link_pack)
+    self.assertIn("const fallbackLink", link_pack)
+    self.assertIn("Direct application link is not captured yet.", app_script)
+    self.assertIn("Open the available source", app_script)
+    self.assertIn("Source available", app_script)
+    self.assertIn("Application routes and sources", app_script)
+    self.assertIn("links.prospectusLinks?.[0]", app_script)
+    self.assertIn("Incomplete application details", app_script)
+    self.assertIn("getProgrammeApplicationDetails(programme).complete", app_script)
 
   def test_change_request_requires_feedback_and_locks_the_decision(self):
     proposal = {
