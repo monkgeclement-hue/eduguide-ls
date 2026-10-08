@@ -1426,6 +1426,7 @@ async function refreshAppData() {
         }
       }
     }
+    await loadPublicCatalogueRuntime();
     await loadServerDatabaseState();
     if (serverDatabaseAvailable) {
       seedServerDatabaseState();
@@ -2415,6 +2416,24 @@ function loadStaffCatalogue() {
     .catch((error) => {
       lastPersistenceMessage = error.message || "Staff catalogue unavailable";
     });
+}
+
+async function loadPublicCatalogueRuntime() {
+  try {
+    const response = await fetch("/api/catalogue/runtime", { headers: { Accept: "application/json" } });
+    const data = await response.json().catch(() => ({}));
+    if (!response.ok || !data.ok || !Array.isArray(data.programmes)) return false;
+
+    const byId = new Map(adminProgrammes.map((programme) => [programme.id, programme]));
+    data.programmes.forEach((programme) => {
+      if (!programme?.id || !byId.has(programme.id)) return;
+      Object.assign(byId.get(programme.id), programme);
+    });
+    return true;
+  } catch {
+    // The packaged catalogue remains a usable offline fallback.
+    return false;
+  }
 }
 
 function applyReviewState(snapshot) {
@@ -11859,6 +11878,7 @@ async function init() {
   refreshAuthConnectionStatus();
   loadAuthUsers();
   loadLocalReviewState();
+  await loadPublicCatalogueRuntime();
   renderGrades();
   renderInterests();
   loadAiChatMessages();

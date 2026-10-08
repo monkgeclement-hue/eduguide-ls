@@ -231,6 +231,57 @@ class SecurityRegressionTests(unittest.TestCase):
     finally:
       server._catalogue_programmes_cache = None
 
+  def test_public_catalogue_runtime_applies_safe_live_edits_without_private_review_data(self):
+    server._catalogue_programmes_cache = [
+      {
+        'id': 'open',
+        'institution': 'NUL',
+        'name': 'Open Degree',
+        'review_status': 'approved',
+        'requirements_summary': 'English C',
+        'source_url': 'https://old.example/programmes',
+        'source_path': 'data/private-source.pdf',
+        'source_note': 'Internal review note',
+      },
+      {
+        'id': 'flagged',
+        'institution': 'NUL',
+        'name': 'Flagged Degree',
+        'review_status': 'approved',
+        'requirements_summary': 'English C',
+      },
+    ]
+    review_state = {
+      'programmeStatuses': {'flagged': 'flagged'},
+      'programmeEdits': {
+        'open': {
+          'reviewStatus': 'approved',
+          'requirementsSummary': 'English C or better',
+          'sourceUrl': 'https://current.example/programmes',
+          'reviewedAt': server.now_iso(),
+          'sourcePath': 'C:/staff/private.pdf',
+          'sourceNote': 'Do not expose this',
+          'feeNote': 'Private draft note',
+        }
+      },
+    }
+    try:
+      with patch.object(server, 'load_state_payload', return_value=review_state):
+        response = self.client.get('/api/catalogue/runtime')
+      self.assertEqual(response.status_code, 200, response.text)
+      self.assertEqual(response.headers['cache-control'], 'no-store')
+      programmes = {item['id']: item for item in response.json()['programmes']}
+      self.assertEqual(programmes['open']['requirementsSummary'], 'English C or better')
+      self.assertEqual(programmes['open']['sourceUrl'], 'https://current.example/programmes')
+      self.assertIn('reviewedAt', programmes['open'])
+      self.assertEqual(programmes['flagged'], {'id': 'flagged', 'reviewStatus': 'flagged'})
+      serialized = json.dumps(programmes)
+      self.assertNotIn('private.pdf', serialized)
+      self.assertNotIn('Do not expose this', serialized)
+      self.assertNotIn('Private draft note', serialized)
+    finally:
+      server._catalogue_programmes_cache = None
+
   def test_public_catalogue_omits_local_file_paths(self):
     catalog = (Path(__file__).resolve().parents[1] / 'data' / 'admin-catalog.js').read_text(encoding='utf-8')
     self.assertNotIn('C:/Users/', catalog)

@@ -1419,6 +1419,25 @@ STAFF_CATALOG_PATH = ROOT / "data" / "staff-catalog.json"
 FLAT_PROGRAMMES_PATH = ROOT / "data" / "real" / "programmes.flat.json"
 MATCH_TIER_RANK = {"blocked": -1, "explore": 0, "almost": 1, "qualified": 2}
 _catalogue_programmes_cache: list[dict[str, Any]] | None = None
+CATALOGUE_REVIEW_STATUSES = {"approved", "verified", "needs_admin_review", "flagged", "rejected", "archived"}
+PUBLIC_CATALOGUE_TEXT_FIELDS = {
+  "institution": 180,
+  "name": 240,
+  "code": 100,
+  "category": 160,
+  "faculty": 240,
+  "level": 80,
+  "duration": 160,
+  "deliveryMode": 120,
+  "requirementsSummary": 4000,
+  "overview": 5000,
+  "applicationDeadline": 240,
+  "intakeStatus": 240,
+  "sourceType": 120,
+  "reviewedAt": 64,
+}
+PUBLIC_CATALOGUE_LIST_FIELDS = {"careers", "skills", "applicationDocuments"}
+PUBLIC_CATALOGUE_URL_FIELDS = {"sourceUrl", "applicationUrl"}
 
 
 def public_source_filename(value: Any) -> str | None:
@@ -1463,24 +1482,54 @@ def get_catalogue_review_overrides() -> tuple[dict[str, Any], dict[str, Any]]:
   )
 
 
+def public_catalogue_text(value: Any, limit: int) -> str | None:
+  text = sanitize_guidance_text(value, limit)
+  return text or None
+
+
+def public_catalogue_url(value: Any) -> str | None:
+  url = sanitize_guidance_text(value, 2000)
+  return url if re.fullmatch(r"https?://[^\s]{1,2000}", url, flags=re.IGNORECASE) else None
+
+
+def public_catalogue_list(value: Any) -> list[str]:
+  if isinstance(value, str):
+    items = re.split(r"[\n,;]+", value)
+  elif isinstance(value, list):
+    items = value
+  else:
+    items = []
+  return [text for text in (public_catalogue_text(item, 240) for item in items[:20]) if text]
+
+
 def apply_catalogue_review_overlay(record: dict[str, Any], statuses: dict[str, Any], edits: dict[str, Any]) -> dict[str, Any]:
-  """Apply only server-owned review/source metadata to a static catalogue record."""
+  """Apply public, admin-owned changes to a static catalogue record."""
   effective = dict(record)
   programme_id = str(record.get("id") or "")
   edit = edits.get(programme_id) if isinstance(edits.get(programme_id), dict) else {}
-  allowed_statuses = {"approved", "verified", "needs_admin_review", "flagged", "rejected", "archived"}
   status = str(edit.get("reviewStatus") or statuses.get(programme_id) or "").strip().lower()
-  if status in allowed_statuses:
+  if status in CATALOGUE_REVIEW_STATUSES:
     effective["reviewStatus"] = status
 
-  for field in ("reviewedAt", "sourcePath", "supportingSourcePath", "supportingFeeSourcePath"):
-    value = sanitize_guidance_text(edit.get(field), 2000)
-    if value:
-      effective[field] = value
+  for field, limit in PUBLIC_CATALOGUE_TEXT_FIELDS.items():
+    if field in edit:
+      effective[field] = public_catalogue_text(edit.get(field), limit)
 
-  source_url = sanitize_guidance_text(edit.get("sourceUrl"), 2000)
-  if source_url and re.fullmatch(r"https?://[^\s]{1,2000}", source_url, flags=re.IGNORECASE):
-    effective["sourceUrl"] = source_url
+  for field in PUBLIC_CATALOGUE_LIST_FIELDS:
+    if field in edit:
+      effective[field] = public_catalogue_list(edit.get(field))
+
+  for field in PUBLIC_CATALOGUE_URL_FIELDS:
+    if field in edit:
+      effective[field] = public_catalogue_url(edit.get(field))
+
+  # These trace fields remain available to server-side evidence checks but
+  # never leave the staff catalogue through the public runtime endpoint.
+  for field in ("sourcePath", "supportingSourcePath", "supportingFeeSourcePath"):
+    if field in edit:
+      value = sanitize_guidance_text(edit.get(field), 2000)
+      effective[field] = value or None
+
   return effective
 
 
@@ -1491,6 +1540,37 @@ def catalogue_records_by_id() -> dict[str, dict[str, Any]]:
     for item in load_catalogue_programmes()
     if item.get("id")
   }
+
+
+def public_catalogue_runtime_record(record: dict[str, Any]) -> dict[str, Any] | None:
+  """Return only fields that are suitable for the browser's public catalogue."""
+  programme_id = public_catalogue_text(record.get("id"), 180)
+  if not programme_id:
+    return None
+  status = str(record.get("reviewStatus") or record.get("review_status") or "needs_admin_review").strip().lower()
+  public_record: dict[str, Any] = {
+    "id": programme_id,
+    "reviewStatus": status if status in CATALOGUE_REVIEW_STATUSES else "needs_admin_review",
+  }
+  # A hidden record only needs its current publication status. Its static data
+  # is already packaged in the app, so returning less here avoids leaking any
+  # staff-only edit content for a record removed from public view.
+  if not is_approved_catalogue_record(public_record):
+    return public_record
+
+  for field, limit in PUBLIC_CATALOGUE_TEXT_FIELDS.items():
+    value = public_catalogue_text(record.get(field), limit)
+    if value is not None:
+      public_record[field] = value
+  for field in PUBLIC_CATALOGUE_LIST_FIELDS:
+    value = public_catalogue_list(record.get(field))
+    if value:
+      public_record[field] = value
+  for field in PUBLIC_CATALOGUE_URL_FIELDS:
+    value = public_catalogue_url(record.get(field))
+    if value:
+      public_record[field] = value
+  return public_record
 
 
 def catalogue_source_review_summary(record: dict[str, Any], now: datetime | None = None) -> dict[str, Any]:
@@ -4626,6 +4706,17 @@ def admin_catalogue(request: Request, authorization: str | None = Header(default
     managed = get_user_managed_institution(actor)
     programmes = [item for item in programmes if normalize_institution_name(item.get("institution")) == managed]
   return {"ok": True, "programmes": programmes}
+
+
+@app.get("/api/catalogue/runtime")
+def public_catalogue_runtime() -> dict[str, Any]:
+  """Serve live public status and approved corrections without exposing reviews."""
+  programmes = [
+    public_record
+    for record in catalogue_records_by_id().values()
+    if (public_record := public_catalogue_runtime_record(record)) is not None
+  ]
+  return {"ok": True, "generatedAt": now_iso(), "programmes": programmes}
 
 
 @app.get("/api/admin/intelligence")
