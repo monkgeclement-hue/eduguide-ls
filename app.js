@@ -1518,12 +1518,28 @@ function getProgrammeVerificationPayload(programme) {
   };
 }
 
+function getProgrammeSourceReviewState(programme = {}, now = Date.now()) {
+  if (!hasProgrammeReviewableSource(programme)) return "missing_source";
+  const reviewedAt = new Date(programme.reviewedAt || "").getTime();
+  if (!Number.isFinite(reviewedAt)) return "unreviewed";
+  const ageDays = Math.max(0, Math.floor((now - reviewedAt) / 86400000));
+  if (ageDays > programmeFreshnessThresholds.reviewSoonDays) return "overdue";
+  if (ageDays > programmeFreshnessThresholds.currentDays) return "due";
+  return "current";
+}
+
+function programmeNeedsSourceReview(programme = {}) {
+  return ["unreviewed", "due", "overdue"].includes(getProgrammeSourceReviewState(programme));
+}
+
 function getSourceFreshnessMeta(programme = {}) {
+  const reviewState = getProgrammeSourceReviewState(programme);
   const reviewedAt = programme.reviewedAt || null;
-  if (!reviewedAt) return { tone: "amber", label: "Source date not recorded", detail: "Ask the institution or admin to confirm the latest source." };
+  if (reviewState === "missing_source") return { tone: "red", label: "Source not linked", detail: "Ask the institution or admin to add an official source before this record is trusted." };
+  if (reviewState === "unreviewed") return { tone: "amber", label: "Source check needed", detail: "Evidence is linked, but an admin has not confirmed it is current yet." };
   const ageDays = Math.max(0, Math.floor((Date.now() - new Date(reviewedAt).getTime()) / 86400000));
-  if (ageDays <= programmeFreshnessThresholds.currentDays) return { tone: "green", label: "Source checked recently", detail: `Checked ${formatDateOnly(reviewedAt)}.` };
-  if (ageDays <= programmeFreshnessThresholds.reviewSoonDays) return { tone: "amber", label: "Source review due", detail: `Last checked ${formatDateOnly(reviewedAt)}.` };
+  if (reviewState === "current") return { tone: "green", label: "Source checked recently", detail: `Checked ${formatDateOnly(reviewedAt)}.` };
+  if (reviewState === "due") return { tone: "amber", label: "Source review due", detail: `Last checked ${formatDateOnly(reviewedAt)}.` };
   return { tone: "red", label: "Source review overdue", detail: `Last checked ${formatDateOnly(reviewedAt)}.` };
 }
 
@@ -9197,6 +9213,7 @@ function programmeMatchesQualityFilter(programme) {
   if (filter === "open_gaps") return quality.openGaps.length > 0;
   if (filter === "needs_review") return programme.reviewStatus === "needs_admin_review" || programme.reviewStatus === "flagged";
   if (filter === "historical_candidates") return isHistoricalCatalogueCandidate(programme);
+  if (filter === "source_check_needed") return programmeNeedsSourceReview(programme);
   return quality.missingKeys.includes(filter.replace("missing_", ""));
 }
 
@@ -9215,6 +9232,7 @@ function getAdminQualityFilterOptions() {
     { key: "missing_application_documents", label: "Missing document list", count: count((programme) => isApplicationDetailMissing(programme, "documents")) },
     { key: "missing_application", label: "Incomplete application details", count: count((programme) => !getProgrammeApplicationDetails(programme).complete) },
     { key: "missing_source", label: "Missing source", count: count((programme) => !(programme.sourceUrl || programme.supportingSourcePath || programme.sourcePath)) },
+    { key: "source_check_needed", label: "Source check needed", count: count(programmeNeedsSourceReview) },
     { key: "open_gaps", label: "Open gaps", count: count((programme) => getProgrammeQualityChecks(programme).openGaps.length > 0) },
     { key: "ready", label: "Ready", count: count((programme) => {
       const quality = getProgrammeQualityChecks(programme);

@@ -143,6 +143,18 @@ test('source review can only be recorded when a safe source trace exists', () =>
   assert.equal(hasProgrammeReviewableSource({ sourceUrl: 'Source under review' }), false);
   assert.equal(hasProgrammeReviewableSource({ sourceNote: 'Someone said this is current.' }), false);
 });
+test('source freshness separates missing, unreviewed, due, overdue, and current evidence', () => {
+  const now = new Date('2026-10-08T00:00:00Z').getTime();
+  const getProgrammeSourceReviewState = load('getProgrammeSourceReviewState', {
+    hasProgrammeReviewableSource: (programme) => Boolean(programme.sourceUrl),
+    programmeFreshnessThresholds: { currentDays: 180, reviewSoonDays: 365 }
+  });
+  assert.equal(getProgrammeSourceReviewState({}, now), 'missing_source');
+  assert.equal(getProgrammeSourceReviewState({ sourceUrl: 'https://institution.example' }, now), 'unreviewed');
+  assert.equal(getProgrammeSourceReviewState({ sourceUrl: 'https://institution.example', reviewedAt: '2026-01-01T00:00:00Z' }, now), 'due');
+  assert.equal(getProgrammeSourceReviewState({ sourceUrl: 'https://institution.example', reviewedAt: '2025-01-01T00:00:00Z' }, now), 'overdue');
+  assert.equal(getProgrammeSourceReviewState({ sourceUrl: 'https://institution.example', reviewedAt: '2026-09-30T00:00:00Z' }, now), 'current');
+});
 test('unclassified application status is never promoted to a verified deadline', () => {
   const normalizeDeadlineStatus = load('normalizeDeadlineStatus');
   const plainStatus = normalizeDeadlineStatus('Admissions information has been captured.');
