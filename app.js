@@ -1527,6 +1527,22 @@ function getSourceFreshnessMeta(programme = {}) {
   return { tone: "red", label: "Source review overdue", detail: `Last checked ${formatDateOnly(reviewedAt)}.` };
 }
 
+function getProgrammeReviewableSources(programme = {}) {
+  return [
+    programme.sourceUrl,
+    programme.sourcePath,
+    programme.supportingSourcePath,
+    programme.supportingFeeSourcePath
+  ]
+    .map((value) => String(value || "").trim())
+    .filter((value) => value && !/^(?:javascript|data):/i.test(value))
+    .filter((value) => getSafeExternalUrl(value) || getEvidenceFileLabel(value));
+}
+
+function hasProgrammeReviewableSource(programme = {}) {
+  return getProgrammeReviewableSources(programme).length > 0;
+}
+
 function addActivityToUser(user, type, label, metadata = {}, options = {}) {
   if (!user) return false;
   const now = new Date().toISOString();
@@ -10122,6 +10138,8 @@ function renderAdminDetail() {
   const isEditing = adminState.editingProgrammeId === programme.id;
   const approvalBlocker = getProgrammeApprovalBlocker(programme);
   const historicalEvidence = getHistoricalCandidateEvidenceStatus(programme);
+  const sourceFreshness = getSourceFreshnessMeta(programme);
+  const reviewableSources = getProgrammeReviewableSources(programme);
 
   if (isEditing) {
     panel.innerHTML = `
@@ -10306,6 +10324,20 @@ function renderAdminDetail() {
         </div>
       </div>
       <div class="detail-section">
+        <h4>Source freshness</h4>
+        <div class="badge-row">
+          <span class="badge ${escapeHtml(sourceFreshness.tone)}">${escapeHtml(sourceFreshness.label)}</span>
+        </div>
+        <p>${escapeHtml(sourceFreshness.detail)}</p>
+        <p class="muted-inline">Record this only after checking the linked evidence is still current.</p>
+        <div class="detail-actions">
+          <button class="secondary-action" type="button" title="${escapeHtml(reviewableSources.length ? "Confirm that you checked the linked source today" : "Add a source URL or evidence path before recording a source review")}" data-admin-source-reviewed="${escapeHtml(programme.id)}" ${reviewableSources.length ? "" : "disabled"}>
+            <i data-lucide="badge-check"></i>
+            Confirm source checked today
+          </button>
+        </div>
+      </div>
+      <div class="detail-section">
         <h4>Open gaps</h4>
         ${
           gaps.length
@@ -10402,6 +10434,44 @@ async function setProgrammeReviewStatus(id, status) {
     programme.reviewStatus = previousStatus;
     programme.reviewedAt = previousReviewedAt;
     lastPersistenceMessage = `Sync failed: ${error.message || "programme update"}`;
+    setAdminActionStatus(lastPersistenceMessage, "danger");
+  }
+  renderAdmin();
+  updateCounts();
+  calculateMatches();
+}
+
+async function markProgrammeSourceReviewed(id) {
+  if (!isAdmin()) return;
+  const programme = adminProgrammes.find((item) => item.id === id);
+  if (!programme) return;
+  if (!hasProgrammeReviewableSource(programme)) {
+    setAdminActionStatus("Add a source URL or evidence path before recording a source review.", "warning");
+    renderAdmin();
+    return;
+  }
+
+  const previousReviewedAt = programme.reviewedAt || null;
+  const reviewedAt = new Date().toISOString();
+  programme.reviewedAt = reviewedAt;
+  adminState.selectedProgrammeId = id;
+  lastPersistenceMessage = serverDatabaseAvailable ? "Saving source review..." : "Saved locally";
+  renderAdmin();
+  try {
+    await persistProgrammeEdit(programme, { reviewedAt: { from: previousReviewedAt, to: reviewedAt } });
+    lastPersistenceMessage = serverDatabaseAvailable
+      ? (persistenceMode === "server-supabase" ? "Synced source review to Supabase" : "Synced source review to database")
+      : "Saved locally";
+    setAdminActionStatus("Source review recorded.", "success");
+    recordCurrentUserActivity("admin_programme_source_reviewed", "Confirmed a programme source review", {
+      programmeId: programme.id,
+      programmeName: programme.name,
+      reviewedAt,
+      sourceCount: getProgrammeReviewableSources(programme).length
+    });
+  } catch (error) {
+    programme.reviewedAt = previousReviewedAt;
+    lastPersistenceMessage = `Sync failed: ${error.message || "source review"}`;
     setAdminActionStatus(lastPersistenceMessage, "danger");
   }
   renderAdmin();
@@ -11663,6 +11733,12 @@ function bindEvents() {
       if (actionButton.dataset.adminAction === "flag") setProgrammeReviewStatus(id, "flagged");
       if (actionButton.dataset.adminAction === "reject") setProgrammeReviewStatus(id, "rejected");
       if (actionButton.dataset.adminAction === "delete") deleteProgramme(id);
+      return;
+    }
+
+    const sourceReviewButton = event.target.closest("[data-admin-source-reviewed]");
+    if (sourceReviewButton) {
+      markProgrammeSourceReviewed(sourceReviewButton.dataset.adminSourceReviewed);
       return;
     }
 

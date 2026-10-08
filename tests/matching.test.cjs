@@ -131,6 +131,18 @@ test('application detail filters identify the specific missing field', () => {
   assert.equal(isApplicationDetailMissing(partial, 'timing'), true);
   assert.equal(isApplicationDetailMissing(partial, 'documents'), true);
 });
+test('source review can only be recorded when a safe source trace exists', () => {
+  const getProgrammeReviewableSources = load('getProgrammeReviewableSources', {
+    getSafeExternalUrl: (value) => /^https?:\/\//.test(value || '') ? value : '',
+    getEvidenceFileLabel: (value) => (!/^https?:\/\//.test(value || '') && !/under review/i.test(value || '') ? value : '')
+  });
+  const hasProgrammeReviewableSource = load('hasProgrammeReviewableSource', { getProgrammeReviewableSources });
+  assert.equal(hasProgrammeReviewableSource({ sourceUrl: 'https://institution.example/prospectus' }), true);
+  assert.equal(hasProgrammeReviewableSource({ supportingSourcePath: 'data/institution-prospectus.pdf' }), true);
+  assert.equal(hasProgrammeReviewableSource({ sourceUrl: 'javascript:alert(1)' }), false);
+  assert.equal(hasProgrammeReviewableSource({ sourceUrl: 'Source under review' }), false);
+  assert.equal(hasProgrammeReviewableSource({ sourceNote: 'Someone said this is current.' }), false);
+});
 test('unclassified application status is never promoted to a verified deadline', () => {
   const normalizeDeadlineStatus = load('normalizeDeadlineStatus');
   const plainStatus = normalizeDeadlineStatus('Admissions information has been captured.');

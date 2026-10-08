@@ -279,6 +279,16 @@ class RoleWorkflowTests(unittest.TestCase):
         server.record_runtime_event(event, None, "Bearer test")
     self.assertEqual(error.exception.status_code, 403)
 
+  def test_admin_source_review_requires_evidence_and_is_auditable(self):
+    root = Path(__file__).resolve().parents[1]
+    app_script = (root / "app.js").read_text(encoding="utf-8")
+
+    self.assertIn("function getProgrammeReviewableSources", app_script)
+    self.assertIn("function markProgrammeSourceReviewed", app_script)
+    self.assertIn('data-admin-source-reviewed', app_script)
+    self.assertIn('admin_programme_source_reviewed', app_script)
+    self.assertIn("Add a source URL or evidence path before recording a source review.", app_script)
+
   def test_admin_can_write_privileged_audit_events(self):
     admin = {"id": "admin-1", "role": "admin"}
     event = server.RuntimeEventRequest(eventType="admin_programme_approved", label="Approved programme")
