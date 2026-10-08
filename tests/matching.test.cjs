@@ -155,6 +155,20 @@ test('source freshness separates missing, unreviewed, due, overdue, and current 
   assert.equal(getProgrammeSourceReviewState({ sourceUrl: 'https://institution.example', reviewedAt: '2025-01-01T00:00:00Z' }, now), 'overdue');
   assert.equal(getProgrammeSourceReviewState({ sourceUrl: 'https://institution.example', reviewedAt: '2026-09-30T00:00:00Z' }, now), 'current');
 });
+test('source review groups only records with the exact same linked source', () => {
+  const getProgrammeSourceReviewGroup = load('getProgrammeSourceReviewGroup', {
+    adminProgrammes: [
+      { id: 'one', sourceUrl: 'https://institution.example/programmes' },
+      { id: 'two', sourceUrl: 'https://institution.example/programmes' },
+      { id: 'three', sourceUrl: 'https://institution.example/other-programmes' }
+    ],
+    getProgrammeReviewableSources: (programme) => programme.sourceUrl ? [programme.sourceUrl] : []
+  });
+  assert.deepEqual(
+    Array.from(getProgrammeSourceReviewGroup({ id: 'one', sourceUrl: 'https://institution.example/programmes' })).map((item) => item.id),
+    ['one', 'two']
+  );
+});
 test('unclassified application status is never promoted to a verified deadline', () => {
   const normalizeDeadlineStatus = load('normalizeDeadlineStatus');
   const plainStatus = normalizeDeadlineStatus('Admissions information has been captured.');

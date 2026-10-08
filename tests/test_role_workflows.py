@@ -290,6 +290,9 @@ class RoleWorkflowTests(unittest.TestCase):
     self.assertIn("Add a source URL or evidence path before recording a source review.", app_script)
     self.assertIn('key: "source_check_needed"', app_script)
     self.assertIn("function programmeNeedsSourceReview", app_script)
+    self.assertIn("function markProgrammeSourceReviewGroup", app_script)
+    self.assertIn('data-admin-source-review-group', app_script)
+    self.assertIn('admin_programme_source_group_reviewed', app_script)
 
   def test_admin_can_write_privileged_audit_events(self):
     admin = {"id": "admin-1", "role": "admin"}

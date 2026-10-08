@@ -1559,6 +1559,12 @@ function hasProgrammeReviewableSource(programme = {}) {
   return getProgrammeReviewableSources(programme).length > 0;
 }
 
+function getProgrammeSourceReviewGroup(programme = {}) {
+  const source = getProgrammeReviewableSources(programme)[0] || "";
+  if (!source) return [];
+  return adminProgrammes.filter((item) => getProgrammeReviewableSources(item)[0] === source);
+}
+
 function addActivityToUser(user, type, label, metadata = {}, options = {}) {
   if (!user) return false;
   const now = new Date().toISOString();
@@ -10158,6 +10164,8 @@ function renderAdminDetail() {
   const historicalEvidence = getHistoricalCandidateEvidenceStatus(programme);
   const sourceFreshness = getSourceFreshnessMeta(programme);
   const reviewableSources = getProgrammeReviewableSources(programme);
+  const sourceReviewGroup = getProgrammeSourceReviewGroup(programme);
+  const sourceReviewGroupPendingCount = sourceReviewGroup.filter(programmeNeedsSourceReview).length;
 
   if (isEditing) {
     panel.innerHTML = `
@@ -10353,6 +10361,14 @@ function renderAdminDetail() {
             <i data-lucide="badge-check"></i>
             Confirm source checked today
           </button>
+          ${
+            sourceReviewGroupPendingCount > 1
+              ? `<button class="secondary-action" type="button" title="Confirm this exact source after checking it, then update only linked records still needing review" data-admin-source-review-group="${escapeHtml(programme.id)}">
+                  <i data-lucide="files"></i>
+                  Confirm source for ${sourceReviewGroupPendingCount} linked records
+                </button>`
+              : ""
+          }
         </div>
       </div>
       <div class="detail-section">
@@ -10489,6 +10505,54 @@ async function markProgrammeSourceReviewed(id) {
     });
   } catch (error) {
     programme.reviewedAt = previousReviewedAt;
+    lastPersistenceMessage = `Sync failed: ${error.message || "source review"}`;
+    setAdminActionStatus(lastPersistenceMessage, "danger");
+  }
+  renderAdmin();
+  updateCounts();
+  calculateMatches();
+}
+
+async function markProgrammeSourceReviewGroup(id) {
+  if (!isAdmin()) return;
+  const programme = adminProgrammes.find((item) => item.id === id);
+  if (!programme) return;
+  const records = getProgrammeSourceReviewGroup(programme).filter(programmeNeedsSourceReview);
+  if (records.length < 2) {
+    markProgrammeSourceReviewed(id);
+    return;
+  }
+  const confirmed = window.confirm(
+    `Confirm that you checked this exact source today? This will record a source review for ${records.length} linked programme records that still need one.`
+  );
+  if (!confirmed) return;
+
+  const previousReviewedAt = new Map(records.map((item) => [item.id, item.reviewedAt || null]));
+  const reviewedAt = new Date().toISOString();
+  records.forEach((item) => {
+    item.reviewedAt = reviewedAt;
+  });
+  adminState.selectedProgrammeId = id;
+  lastPersistenceMessage = serverDatabaseAvailable ? "Saving source reviews..." : "Saved locally";
+  renderAdmin();
+  try {
+    await persistProgrammeEdit(programme, { reviewedAt: { groupCount: records.length, to: reviewedAt } });
+    lastPersistenceMessage = serverDatabaseAvailable
+      ? (persistenceMode === "server-supabase" ? "Synced source reviews to Supabase" : "Synced source reviews to database")
+      : "Saved locally";
+    setAdminActionStatus(`Source review recorded for ${records.length} linked records.`, "success");
+    recordCurrentUserActivity("admin_programme_source_group_reviewed", "Confirmed a shared programme source review", {
+      programmeId: programme.id,
+      programmeName: programme.name,
+      programmeIds: records.map((item) => item.id).slice(0, 80),
+      reviewedAt,
+      recordCount: records.length,
+      source: getProgrammeReviewableSources(programme)[0]
+    });
+  } catch (error) {
+    records.forEach((item) => {
+      item.reviewedAt = previousReviewedAt.get(item.id) || null;
+    });
     lastPersistenceMessage = `Sync failed: ${error.message || "source review"}`;
     setAdminActionStatus(lastPersistenceMessage, "danger");
   }
@@ -11757,6 +11821,12 @@ function bindEvents() {
     const sourceReviewButton = event.target.closest("[data-admin-source-reviewed]");
     if (sourceReviewButton) {
       markProgrammeSourceReviewed(sourceReviewButton.dataset.adminSourceReviewed);
+      return;
+    }
+
+    const sourceReviewGroupButton = event.target.closest("[data-admin-source-review-group]");
+    if (sourceReviewGroupButton) {
+      markProgrammeSourceReviewGroup(sourceReviewGroupButton.dataset.adminSourceReviewGroup);
       return;
     }
 
