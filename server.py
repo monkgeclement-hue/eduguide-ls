@@ -48,6 +48,8 @@ AI_GUIDANCE_MAX_QUESTION_LENGTH = 900
 AI_GUIDANCE_MAX_MESSAGE_LENGTH = 1200
 AI_GUIDANCE_MAX_CONVERSATION_ITEMS = 12
 AI_GUIDANCE_MAX_PAYLOAD_BYTES = 150000
+CATALOGUE_SOURCE_CURRENT_DAYS = 180
+CATALOGUE_SOURCE_REVIEW_DUE_DAYS = 365
 EMAIL_VERIFICATION_TTL_MINUTES = 10
 EMAIL_VERIFICATION_RESEND_SECONDS = 45
 EMAIL_VERIFICATION_MAX_ATTEMPTS = 6
@@ -779,6 +781,9 @@ under review, say the student should verify it with the institution/admin.
 Every recommendation must cite evidence from the supplied programme object,
 such as requirements, reasons, cautions, requirement_gaps, source, application,
 or applicationDocuments. If evidence is weak, say so instead of sounding certain.
+Source review status is server-verified evidence. If it says a source check is
+needed, due, overdue, or missing, say that plainly before advising the student to
+rely on changing details such as fees, deadlines, application links, or documents.
 """
 
 
@@ -1446,8 +1451,99 @@ def load_catalogue_programmes() -> list[dict[str, Any]]:
   return _catalogue_programmes_cache
 
 
+def get_catalogue_review_overrides() -> tuple[dict[str, Any], dict[str, Any]]:
+  review_state = load_state_payload("review_state", {})
+  if not isinstance(review_state, dict):
+    return {}, {}
+  statuses = review_state.get("programmeStatuses")
+  edits = review_state.get("programmeEdits")
+  return (
+    statuses if isinstance(statuses, dict) else {},
+    edits if isinstance(edits, dict) else {},
+  )
+
+
+def apply_catalogue_review_overlay(record: dict[str, Any], statuses: dict[str, Any], edits: dict[str, Any]) -> dict[str, Any]:
+  """Apply only server-owned review/source metadata to a static catalogue record."""
+  effective = dict(record)
+  programme_id = str(record.get("id") or "")
+  edit = edits.get(programme_id) if isinstance(edits.get(programme_id), dict) else {}
+  allowed_statuses = {"approved", "verified", "needs_admin_review", "flagged", "rejected", "archived"}
+  status = str(edit.get("reviewStatus") or statuses.get(programme_id) or "").strip().lower()
+  if status in allowed_statuses:
+    effective["reviewStatus"] = status
+
+  for field in ("reviewedAt", "sourcePath", "supportingSourcePath", "supportingFeeSourcePath"):
+    value = sanitize_guidance_text(edit.get(field), 2000)
+    if value:
+      effective[field] = value
+
+  source_url = sanitize_guidance_text(edit.get("sourceUrl"), 2000)
+  if source_url and re.fullmatch(r"https?://[^\s]{1,2000}", source_url, flags=re.IGNORECASE):
+    effective["sourceUrl"] = source_url
+  return effective
+
+
 def catalogue_records_by_id() -> dict[str, dict[str, Any]]:
-  return {str(item.get("id")): item for item in load_catalogue_programmes() if item.get("id")}
+  statuses, edits = get_catalogue_review_overrides()
+  return {
+    str(item.get("id")): apply_catalogue_review_overlay(item, statuses, edits)
+    for item in load_catalogue_programmes()
+    if item.get("id")
+  }
+
+
+def catalogue_source_review_summary(record: dict[str, Any], now: datetime | None = None) -> dict[str, Any]:
+  source_trace = any(
+    str(record.get(field) or "").strip()
+    and not re.search(r"under review", str(record.get(field) or ""), flags=re.IGNORECASE)
+    for field in ("sourceUrl", "source_url", "sourcePath", "source_path", "supportingSourcePath", "supportingFeeSourcePath")
+  )
+  if not source_trace:
+    return {
+      "status": "missing_source",
+      "label": "Source not linked",
+      "detail": "No official source trace is currently linked to this programme.",
+      "reviewedAt": None,
+    }
+
+  reviewed_at = str(record.get("reviewedAt") or record.get("reviewed_at") or "").strip()
+  try:
+    reviewed_on = datetime.fromisoformat(reviewed_at.replace("Z", "+00:00")) if reviewed_at else None
+  except ValueError:
+    reviewed_on = None
+  if not reviewed_on:
+    return {
+      "status": "unreviewed",
+      "label": "Source check needed",
+      "detail": "Evidence is linked, but an admin has not confirmed it is current yet.",
+      "reviewedAt": None,
+    }
+
+  current_time = now or datetime.now(timezone.utc)
+  if reviewed_on.tzinfo is None:
+    reviewed_on = reviewed_on.replace(tzinfo=timezone.utc)
+  age_days = max(0, (current_time - reviewed_on).days)
+  if age_days > CATALOGUE_SOURCE_REVIEW_DUE_DAYS:
+    return {
+      "status": "overdue",
+      "label": "Source review overdue",
+      "detail": "The source needs a fresh check before it is relied on for a current application decision.",
+      "reviewedAt": reviewed_at,
+    }
+  if age_days > CATALOGUE_SOURCE_CURRENT_DAYS:
+    return {
+      "status": "due",
+      "label": "Source review due",
+      "detail": "The linked source should be checked again before the student relies on changing details.",
+      "reviewedAt": reviewed_at,
+    }
+  return {
+    "status": "current",
+    "label": "Source checked recently",
+    "detail": "An admin confirmed the linked source within the current review window.",
+    "reviewedAt": reviewed_at,
+  }
 
 
 def cap_client_match_tier(client_tier: Any, maximum_tier: str) -> str:
@@ -1494,9 +1590,11 @@ def bind_guidance_match_to_catalogue(match: dict[str, Any], catalogue: dict[str,
   bound["title"] = record.get("name") or record.get("title")
   bound["institution"] = record.get("institution")
   bound["reviewStatus"] = record.get("reviewStatus") or record.get("review_status")
+  bound["reviewedAt"] = record.get("reviewedAt") or record.get("reviewed_at")
   bound["requirementsSummary"] = summary
   bound["source"] = source_url or "Official catalogue"
   bound["sourceUrl"] = source_url or None
+  bound["sourceReview"] = catalogue_source_review_summary(record)
   bound.pop("sourcePath", None)
   maximum_tier = "explore" if not summary else "qualified"
   match_block = bound.get("match") if isinstance(bound.get("match"), dict) else {}
@@ -1533,6 +1631,7 @@ def compact_match(match: dict[str, Any]) -> dict[str, Any]:
   application = match.get("application") if isinstance(match.get("application"), dict) else {}
   application_documents = match.get("applicationDocuments") or match.get("application_documents") or []
   source = match.get("source")
+  source_review = match.get("sourceReview") if isinstance(match.get("sourceReview"), dict) else {}
   evidence = []
   if requirements:
     evidence.append(f"Captured requirements: {'; '.join(str(item) for item in requirements[:2])}")
@@ -1544,6 +1643,8 @@ def compact_match(match: dict[str, Any]) -> dict[str, Any]:
     evidence.append(f"Caution: {cautions[0]}")
   if source:
     evidence.append(f"Source: {source}")
+  if source_review.get("label"):
+    evidence.append(f"Source review: {source_review['label']}")
   if application.get("link"):
     link = application.get("link") or {}
     evidence.append(f"Application/source link: {link.get('label') or link.get('url')}")
@@ -1558,6 +1659,12 @@ def compact_match(match: dict[str, Any]) -> dict[str, Any]:
     "level": match.get("level"),
     "source": source,
     "source_type": match.get("sourceType") or match.get("source_type"),
+    "source_review": {
+      "status": source_review.get("status"),
+      "label": source_review.get("label"),
+      "detail": source_review.get("detail"),
+      "reviewed_at": source_review.get("reviewedAt"),
+    },
     "careers": (match.get("careers") or [])[:4],
     "skills": (match.get("skills") or [])[:4],
     "requirements": requirements,
@@ -1621,8 +1728,19 @@ def evidence_text(match: dict[str, Any]) -> str:
   return " | ".join(fallback[:3]) or "Evidence is limited; verify this programme with the institution before applying."
 
 
+def source_review_caution(match: dict[str, Any]) -> str:
+  source_review = match.get("source_review") if isinstance(match.get("source_review"), dict) else {}
+  if source_review.get("status") in {"missing_source", "unreviewed", "due", "overdue"}:
+    return str(source_review.get("detail") or source_review.get("label") or "Verify the latest programme source before relying on this information.")
+  return ""
+
+
 def recommendation_from_match(match: dict[str, Any]) -> dict[str, Any]:
   caution_parts = match.get("cautions") or match.get("requirement_gaps") or []
+  source_caution = source_review_caution(match)
+  caution = "; ".join(caution_parts[:2]) if caution_parts else "Verify final requirements with the institution before applying."
+  if source_caution and source_caution not in caution:
+    caution = f"{caution} {source_caution}".strip()
   return {
     "programme": match.get("programme"),
     "institution": match.get("institution"),
@@ -1630,7 +1748,7 @@ def recommendation_from_match(match: dict[str, Any]) -> dict[str, Any]:
     "evidence": evidence_text(match),
     "evidence_source": match.get("source") or "Captured catalogue record",
     "why": "; ".join(match.get("reasons") or ["This is supported by the matcher using your current grades, interests, and captured requirements."]),
-    "caution": "; ".join(caution_parts[:2]) if caution_parts else "Verify final requirements with the institution before applying.",
+    "caution": caution[:1200],
     "action": "Open the programme or institution profile, check requirements and documents, then apply only through the captured official/source link.",
   }
 
@@ -1675,7 +1793,7 @@ def normalize_ai_guidance(guidance: dict[str, Any] | None, payload: GuidanceRequ
       "evidence": evidence_text(matched),
       "evidence_source": matched.get("source") or "Captured catalogue record",
       "strength": "; ".join(matched.get("reasons") or ["Supported by current matcher evidence."])[:900],
-      "concern": "; ".join(matched.get("cautions") or matched.get("requirement_gaps") or ["Confirm final entry requirements."])[:900],
+      "concern": "; ".join(matched.get("cautions") or matched.get("requirement_gaps") or [source_review_caution(matched) or "Confirm final entry requirements."])[:900],
     })
   if not safe_comparison and safe_recommendations:
     safe_comparison = [

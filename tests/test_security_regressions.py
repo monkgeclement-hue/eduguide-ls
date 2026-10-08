@@ -181,6 +181,56 @@ class SecurityRegressionTests(unittest.TestCase):
     self.assertEqual(bound.matches[1]['institution'], 'NUL')
     server._catalogue_programmes_cache = None
 
+  def test_ai_guidance_uses_the_latest_admin_source_review(self):
+    server._catalogue_programmes_cache = [
+      {
+        'id': 'open',
+        'name': 'Open Degree',
+        'institution': 'NUL',
+        'review_status': 'approved',
+        'requirements_summary': 'English C',
+        'source_url': 'https://old.example/programmes',
+      }
+    ]
+    review_state = {
+      'programmeStatuses': {'open': 'approved'},
+      'programmeEdits': {
+        'open': {
+          'reviewStatus': 'approved',
+          'reviewedAt': server.now_iso(),
+          'sourceUrl': 'https://current.example/programmes',
+        }
+      },
+    }
+    payload = server.GuidanceRequest(matches=[{'id': 'open', 'match': {'tier': 'qualified'}}])
+    try:
+      with patch.object(server, 'load_state_payload', return_value=review_state):
+        bound = server.bind_guidance_payload_to_catalogue(payload)
+      self.assertEqual(bound.matches[0]['sourceUrl'], 'https://current.example/programmes')
+      self.assertEqual(bound.matches[0]['sourceReview']['status'], 'current')
+      compact = server.compact_match(bound.matches[0])
+      self.assertIn('Source review: Source checked recently', compact['evidence'])
+    finally:
+      server._catalogue_programmes_cache = None
+
+  def test_ai_guidance_respects_a_later_admin_flag(self):
+    server._catalogue_programmes_cache = [
+      {
+        'id': 'flagged',
+        'name': 'Flagged Degree',
+        'institution': 'NUL',
+        'review_status': 'approved',
+        'requirements_summary': 'English C',
+      }
+    ]
+    payload = server.GuidanceRequest(matches=[{'id': 'flagged', 'match': {'tier': 'qualified'}}])
+    try:
+      with patch.object(server, 'load_state_payload', return_value={'programmeStatuses': {'flagged': 'flagged'}}):
+        bound = server.bind_guidance_payload_to_catalogue(payload)
+      self.assertEqual(bound.matches, [])
+    finally:
+      server._catalogue_programmes_cache = None
+
   def test_public_catalogue_omits_local_file_paths(self):
     catalog = (Path(__file__).resolve().parents[1] / 'data' / 'admin-catalog.js').read_text(encoding='utf-8')
     self.assertNotIn('C:/Users/', catalog)
