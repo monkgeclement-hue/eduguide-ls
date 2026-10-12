@@ -93,6 +93,8 @@ PUBLIC_ICON_FILES = {"icon-192.svg", "icon-512.svg", "icon-192.png", "icon-512.p
 PUBLIC_REFERENCE_FILES = {
   "che-list-of-accredited-programmes-december-2017.pdf",
   "che-profiles-of-heis-2017.pdf",
+  "siac-prospectus-2025-2026.pdf",
+  "st-elizabeth-college-subject-prospectus-supplied.pdf",
 }
 HISTORICAL_CANDIDATE_SOURCE_TYPES = {"official_regulator_historical_pdf"}
 HISTORICAL_CANDIDATE_FILE = ROOT / "data" / "real" / "programmes.flat.json"

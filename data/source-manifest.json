@@ -240,5 +240,21 @@
     "priority": 2,
     "extract": ["historical_institution_profiles", "historical_programme_lists"],
     "note": "Historical cross-check only. Do not use this document for current admissions, fees, or programme availability."
+  },
+  {
+    "name": "St Mary's Integrative Applied College (SIAC) prospectus 2025-2026",
+    "kind": "supplied_prospectus_pdf",
+    "local_path": "data/references/siac-prospectus-2025-2026.pdf",
+    "priority": 2,
+    "extract": ["programmes", "requirements", "duration", "career_opportunities"],
+    "note": "Supplied prospectus dated 2025-2026. Confirm current admissions, fees, programme availability, and accreditation before presenting changing information to students."
+  },
+  {
+    "name": "St Elizabeth College supplied subject prospectus",
+    "kind": "supplied_college_prospectus_pdf",
+    "local_path": "data/references/st-elizabeth-college-subject-prospectus-supplied.pdf",
+    "priority": 3,
+    "extract": ["programmes", "requirements", "nmds_bursary_note"],
+    "note": "Prepared from supplied college information. The material did not include a publication date, fee schedule, official contact details, or an application link; confirm all changing details directly with the college."
   }
 ]

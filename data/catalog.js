@@ -66,6 +66,20 @@ window.EDUGUIDE_DATA = {
       tags: ["programmes", "agriculture"]
     },
     {
+      name: "St Mary's Integrative Applied College (SIAC)",
+      type: "Prospectus PDF (2025-2026)",
+      status: "historical-reference",
+      url: "/source-documents/siac-prospectus-2025-2026.pdf",
+      tags: ["consumer science", "entry requirements", "career pathways"]
+    },
+    {
+      name: "St Elizabeth College",
+      type: "Supplied subject prospectus (undated)",
+      status: "needs-verification",
+      url: "/source-documents/st-elizabeth-college-subject-prospectus-supplied.pdf",
+      tags: ["consumer science", "business", "office administration"]
+    },
+    {
       name: "NMDS Government Bursary Service",
       type: "Government service page",
       status: "verified-core",

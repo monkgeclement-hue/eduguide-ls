@@ -3730,6 +3730,12 @@ function getSafeExternalUrl(value) {
   return /^https?:\/\//i.test(url) ? url : "";
 }
 
+function getSafeSourceDocumentUrl(value) {
+  const url = String(value || "").trim();
+  if (/^\/source-documents\/[a-z0-9][a-z0-9._-]*\.pdf$/i.test(url)) return url;
+  return getSafeExternalUrl(url);
+}
+
 function getInstitutionApplicationLink(institution) {
   const match = institutionApplicationLinks.find((item) => item.pattern.test(institution || ""));
   return match ? { label: match.label, url: match.url, kind: match.kind || "source" } : null;
@@ -6761,14 +6767,15 @@ async function requestAiGuidance(mode = "guidance") {
 function renderSources() {
   qs("#source-grid").innerHTML = sources
     .map((source) => {
-      const sourceUrl = getSafeExternalUrl(source.url);
+      const sourceUrl = getSafeSourceDocumentUrl(source.url);
+      const isLibraryDocument = sourceUrl.startsWith("/source-documents/");
       return `
         <article class="source-card">
           <div>
             <h4>${escapeHtml(source.name)}</h4>
             <p class="programme-meta">${escapeHtml(source.type)}</p>
           </div>
-          ${sourceUrl ? `<a href="${escapeHtml(sourceUrl)}" target="_blank" rel="noreferrer">${escapeHtml(sourceUrl)}</a>` : `<span class="muted-inline">Source link is unavailable.</span>`}
+          ${sourceUrl ? `<a href="${escapeHtml(sourceUrl)}" ${isLibraryDocument ? "download" : 'target="_blank" rel="noreferrer"'}>${escapeHtml(isLibraryDocument ? "Download PDF" : sourceUrl)}</a>` : `<span class="muted-inline">Source link is unavailable.</span>`}
           <div class="source-tags">
             ${(source.tags || []).map((tag) => `<span class="badge green">${escapeHtml(tag)}</span>`).join("")}
           </div>
@@ -9364,7 +9371,9 @@ function getSourceAuditOpenUrl(source = {}) {
   const localPath = String(source.source_path || "").replace(/\\/g, "/");
   const referenceFiles = {
     "data/references/che-list-of-accredited-programmes-december-2017.pdf": "/source-documents/che-list-of-accredited-programmes-december-2017.pdf",
-    "data/references/che-profiles-of-heis-2017.pdf": "/source-documents/che-profiles-of-heis-2017.pdf"
+    "data/references/che-profiles-of-heis-2017.pdf": "/source-documents/che-profiles-of-heis-2017.pdf",
+    "data/references/siac-prospectus-2025-2026.pdf": "/source-documents/siac-prospectus-2025-2026.pdf",
+    "data/references/st-elizabeth-college-subject-prospectus-supplied.pdf": "/source-documents/st-elizabeth-college-subject-prospectus-supplied.pdf"
   };
   return referenceFiles[localPath] || "";
 }

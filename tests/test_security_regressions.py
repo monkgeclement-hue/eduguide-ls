@@ -287,5 +287,16 @@ class SecurityRegressionTests(unittest.TestCase):
     self.assertNotIn('C:/Users/', catalog)
     self.assertNotIn('C:\\Users\\', catalog)
 
+  def test_public_source_library_serves_only_allowlisted_prospectuses(self):
+    for file_name in (
+      'siac-prospectus-2025-2026.pdf',
+      'st-elizabeth-college-subject-prospectus-supplied.pdf',
+    ):
+      response = self.client.get(f'/source-documents/{file_name}')
+      self.assertEqual(response.status_code, 200, response.text)
+      self.assertEqual(response.headers['content-type'], 'application/pdf')
+      self.assertTrue(response.content.startswith(b'%PDF'))
+    self.assertEqual(self.client.get('/source-documents/private-review.pdf').status_code, 404)
+
 
 if __name__=='__main__': unittest.main()
