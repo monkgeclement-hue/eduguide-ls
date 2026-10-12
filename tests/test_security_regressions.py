@@ -287,6 +287,29 @@ class SecurityRegressionTests(unittest.TestCase):
     self.assertNotIn('C:/Users/', catalog)
     self.assertNotIn('C:\\Users\\', catalog)
 
+  def test_public_runtime_can_publish_an_allowlisted_prospectus_without_leaking_its_path(self):
+    server._catalogue_programmes_cache = [{
+      'id': 'siac-candidate',
+      'institution': "St Mary's Integrative Applied College (SIAC)",
+      'name': 'Diploma in Tourism and Travel Management',
+      'review_status': 'needs_admin_review',
+      'requirements_summary': 'Two credits including English and Geography or History.',
+      'source_file': 'siac-prospectus-2025-2026.pdf',
+      'source_path': 'C:/staff/supplied/siac-prospectus-2025-2026.pdf',
+    }]
+    try:
+      with patch.object(server, 'load_state_payload', return_value={'programmeStatuses': {'siac-candidate': 'approved'}}):
+        response = self.client.get('/api/catalogue/runtime')
+      self.assertEqual(response.status_code, 200, response.text)
+      candidate = next(item for item in response.json()['programmes'] if item['id'] == 'siac-candidate')
+      self.assertEqual(candidate['sourceUrl'], '/source-documents/siac-prospectus-2025-2026.pdf')
+      self.assertEqual(candidate['reviewStatus'], 'approved')
+      self.assertNotIn('sourcePath', candidate)
+      self.assertNotIn('sourceFile', candidate)
+      self.assertNotIn('C:/staff', json.dumps(candidate))
+    finally:
+      server._catalogue_programmes_cache = None
+
   def test_public_source_library_serves_only_allowlisted_prospectuses(self):
     for file_name in (
       'siac-prospectus-2025-2026.pdf',

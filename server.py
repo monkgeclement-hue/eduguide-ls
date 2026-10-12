@@ -1449,6 +1449,13 @@ def public_source_filename(value: Any) -> str | None:
   return Path(text).name
 
 
+def public_reference_document_url(value: Any) -> str | None:
+  filename = public_source_filename(value)
+  if filename in PUBLIC_REFERENCE_FILES:
+    return f"/source-documents/{filename}"
+  return None
+
+
 def is_approved_catalogue_record(record: dict[str, Any]) -> bool:
   status = str(record.get("reviewStatus") or record.get("review_status") or "").strip().lower()
   return status in {"approved", "verified"}
@@ -1572,6 +1579,12 @@ def public_catalogue_runtime_record(record: dict[str, Any]) -> dict[str, Any] | 
     value = public_catalogue_url(record.get(field))
     if value:
       public_record[field] = value
+  if not public_record.get("sourceUrl"):
+    reference_url = public_reference_document_url(
+      record.get("sourcePath") or record.get("source_path") or record.get("sourceFile")
+    )
+    if reference_url:
+      public_record["sourceUrl"] = reference_url
   return public_record
 
 

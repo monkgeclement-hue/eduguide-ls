@@ -2426,14 +2426,33 @@ async function loadPublicCatalogueRuntime() {
 
     const byId = new Map(adminProgrammes.map((programme) => [programme.id, programme]));
     data.programmes.forEach((programme) => {
-      if (!programme?.id || !byId.has(programme.id)) return;
-      Object.assign(byId.get(programme.id), programme);
+      if (!programme?.id) return;
+      const existing = byId.get(programme.id);
+      if (existing) {
+        Object.assign(existing, programme);
+      } else if (isPublishedRuntimeProgramme(programme)) {
+        const publishedProgramme = {
+          ...programme,
+          careers: Array.isArray(programme.careers) ? programme.careers : [],
+          skills: Array.isArray(programme.skills) ? programme.skills : []
+        };
+        adminProgrammes.push(publishedProgramme);
+        byId.set(publishedProgramme.id, publishedProgramme);
+      }
     });
     return true;
   } catch {
     // The packaged catalogue remains a usable offline fallback.
     return false;
   }
+}
+
+function isPublishedRuntimeProgramme(programme = {}) {
+  const status = String(programme.reviewStatus || programme.status || "").toLowerCase();
+  return ["approved", "verified"].includes(status)
+    && Boolean(String(programme.id || "").trim())
+    && Boolean(String(programme.institution || "").trim())
+    && Boolean(String(programme.name || programme.title || "").trim());
 }
 
 function applyReviewState(snapshot) {

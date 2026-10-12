@@ -240,6 +240,15 @@ class RoleWorkflowTests(unittest.TestCase):
     self.assertIn('return isLibrarySourceDocumentUrl(url) ? "download"', app_script)
     self.assertIn("const url = getSafeSourceDocumentUrl(link?.url);", app_script)
 
+  def test_public_runtime_can_add_newly_approved_catalogue_records(self):
+    root = Path(__file__).resolve().parents[1]
+    app_script = (root / "app.js").read_text(encoding="utf-8")
+
+    self.assertIn("function isPublishedRuntimeProgramme", app_script)
+    self.assertIn("else if (isPublishedRuntimeProgramme(programme))", app_script)
+    self.assertIn("adminProgrammes.push(publishedProgramme);", app_script)
+    self.assertIn("careers: Array.isArray(programme.careers) ? programme.careers : []", app_script)
+
   def test_historical_candidates_need_current_evidence_before_approval(self):
     candidate_id = next(iter(server.get_historical_candidate_ids()))
     incomplete_state = {
