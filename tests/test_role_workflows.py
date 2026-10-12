@@ -222,6 +222,24 @@ class RoleWorkflowTests(unittest.TestCase):
       server.public_reference_document("../../server.py")
     self.assertEqual(error.exception.status_code, 404)
 
+  def test_school_profiles_offer_privacy_first_maps_directions(self):
+    root = Path(__file__).resolve().parents[1]
+    app_script = (root / "app.js").read_text(encoding="utf-8")
+
+    self.assertIn("function getInstitutionMapDirectionsUrl", app_script)
+    self.assertIn("https://www.google.com/maps/dir/?api=1&destination=", app_script)
+    self.assertIn("Directions in Maps", app_script)
+    self.assertIn("EduGuide does not collect or store your location.", app_script)
+
+  def test_school_profiles_keep_allowlisted_source_documents_downloadable(self):
+    root = Path(__file__).resolve().parents[1]
+    app_script = (root / "app.js").read_text(encoding="utf-8")
+
+    self.assertIn("function isLibrarySourceDocumentUrl", app_script)
+    self.assertIn("function getSourceLinkAttributes", app_script)
+    self.assertIn('return isLibrarySourceDocumentUrl(url) ? "download"', app_script)
+    self.assertIn("const url = getSafeSourceDocumentUrl(link?.url);", app_script)
+
   def test_historical_candidates_need_current_evidence_before_approval(self):
     candidate_id = next(iter(server.get_historical_candidate_ids()))
     incomplete_state = {
@@ -394,8 +412,8 @@ class RoleWorkflowTests(unittest.TestCase):
     self.assertIn("function getSafeSourceDocumentUrl", app_script)
     self.assertIn('^\\/source-documents\\/[a-z0-9][a-z0-9._-]*\\.pdf$', app_script)
     self.assertIn("const sourceUrl = getSafeSourceDocumentUrl(source.url);", app_script)
-    self.assertIn("const courseSourceUrl = getSafeExternalUrl(programme.sourceUrl);", app_script)
-    self.assertIn("getSafeExternalUrl(source.url || source.sourceUrl || source.path)", app_script)
+    self.assertIn("const courseSourceUrl = getSafeSourceDocumentUrl(programme.sourceUrl);", app_script)
+    self.assertIn("getSafeSourceDocumentUrl(source.url || source.sourceUrl || source.path)", app_script)
 
   def test_application_fields_are_kept_in_review_state_snapshots(self):
     app_script = (Path(__file__).resolve().parents[1] / "app.js").read_text(encoding="utf-8")

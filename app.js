@@ -3736,6 +3736,20 @@ function getSafeSourceDocumentUrl(value) {
   return getSafeExternalUrl(url);
 }
 
+function isLibrarySourceDocumentUrl(value) {
+  return /^\/source-documents\/[a-z0-9][a-z0-9._-]*\.pdf$/i.test(String(value || "").trim());
+}
+
+function getSourceLinkAttributes(url) {
+  return isLibrarySourceDocumentUrl(url) ? "download" : 'target="_blank" rel="noreferrer"';
+}
+
+function getInstitutionMapDirectionsUrl(institution) {
+  const name = String(institution || "").trim();
+  if (!name) return "";
+  return `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(`${name}, Lesotho`)}`;
+}
+
 function getInstitutionApplicationLink(institution) {
   const match = institutionApplicationLinks.find((item) => item.pattern.test(institution || ""));
   return match ? { label: match.label, url: match.url, kind: match.kind || "source" } : null;
@@ -6915,7 +6929,7 @@ function getInstitutionSourcesForExplorer(institution) {
 function dedupeLinks(links = []) {
   const seen = new Set();
   return links.filter((link) => {
-    const url = getSafeExternalUrl(link?.url);
+    const url = getSafeSourceDocumentUrl(link?.url);
     if (!url || seen.has(url)) return false;
     seen.add(url);
     link.url = url;
@@ -7141,7 +7155,7 @@ function renderCourseEvidenceLinks(programme, application) {
   }
   return `
     <ul class="course-evidence-list">
-      ${links.map((link) => `<li><a href="${escapeHtml(link.url)}" target="_blank" rel="noreferrer">${escapeHtml(link.label)}</a></li>`).join("")}
+      ${links.map((link) => `<li><a href="${escapeHtml(link.url)}" ${getSourceLinkAttributes(link.url)}>${escapeHtml(link.label)}</a></li>`).join("")}
       ${localEvidence.map((label) => `<li><span>${escapeHtml(label)}</span></li>`).join("")}
     </ul>
   `;
@@ -7292,6 +7306,7 @@ function renderSchoolCards(institutions) {
 function renderSelectedSchoolProfile(institution) {
   const meta = getInstitutionProfileMeta(institution);
   const links = meta.links;
+  const directionsUrl = getInstitutionMapDirectionsUrl(institution);
   const profileNarrative = getInstitutionProfileNarrative(meta);
   const topProgrammes = meta.programmes.slice(0, 6);
   const sourceStatus = meta.sources.length ? `${meta.sources.length} source${meta.sources.length === 1 ? "" : "s"}` : "sources pending";
@@ -7306,7 +7321,8 @@ function renderSelectedSchoolProfile(institution) {
         </div>
         <div class="school-profile-actions">
           ${links.application?.url ? `<a class="primary-button small" href="${escapeHtml(links.application.url)}" target="_blank" rel="noreferrer"><i data-lucide="external-link"></i> ${links.application.kind === "application" ? "Apply online" : "Open school source"}</a>` : `<span class="badge amber">Official route missing</span>`}
-          ${links.prospectusLinks[0]?.url ? `<a class="secondary-action" href="${escapeHtml(links.prospectusLinks[0].url)}" target="_blank" rel="noreferrer"><i data-lucide="download"></i> Prospectus</a>` : ""}
+          ${links.prospectusLinks[0]?.url ? `<a class="secondary-action" href="${escapeHtml(links.prospectusLinks[0].url)}" ${getSourceLinkAttributes(links.prospectusLinks[0].url)}><i data-lucide="download"></i> Prospectus</a>` : ""}
+          ${directionsUrl ? `<a class="secondary-action" href="${escapeHtml(directionsUrl)}" target="_blank" rel="noreferrer"><i data-lucide="map-pinned"></i> Directions in Maps</a>` : ""}
           <a class="secondary-action" href="${nmdsPortalUrl}" target="_blank" rel="noreferrer"><i data-lucide="wallet-cards"></i> NMDS</a>
         </div>
       </div>
@@ -7321,7 +7337,7 @@ function renderSelectedSchoolProfile(institution) {
           <h5>Prospectus & apply links</h5>
           ${
             links.prospectusLinks.length
-              ? `<ul>${links.prospectusLinks.slice(0, 4).map((link) => `<li><a href="${escapeHtml(link.url)}" target="_blank" rel="noreferrer">${escapeHtml(link.label)}</a></li>`).join("")}</ul>`
+              ? `<ul>${links.prospectusLinks.slice(0, 4).map((link) => `<li><a href="${escapeHtml(link.url)}" ${getSourceLinkAttributes(link.url)}>${escapeHtml(link.label)}</a></li>`).join("")}</ul>`
               : `<p class="muted-inline">No downloadable prospectus link captured yet. Add it in admin when available.</p>`
           }
           ${links.application?.url ? `<a class="secondary-link" href="${escapeHtml(links.application.url)}" target="_blank" rel="noreferrer">Open application route</a>` : ""}
@@ -7353,14 +7369,19 @@ function renderSelectedSchoolProfile(institution) {
               : `<p class="muted-inline">No major shortage noted for this school profile.</p>`
           }
         </div>
+        <div class="detail-block">
+          <h5>Travel & location</h5>
+          <p>Open directions in Google Maps to choose a starting point and see the current road route and distance. EduGuide does not collect or store your location.</p>
+          ${directionsUrl ? `<a class="secondary-link" href="${escapeHtml(directionsUrl)}" target="_blank" rel="noreferrer">Get route in Maps</a>` : `<p class="muted-inline">Location route needs a confirmed school name.</p>`}
+        </div>
         <div class="detail-block full">
           <h5>Source & prospectus evidence</h5>
           ${
               meta.sources.length
                 ? `<ul class="course-evidence-list">${meta.sources.slice(0, 6).map((source) => {
-                    const sourceUrl = getSafeExternalUrl(source.url || source.sourceUrl || source.path);
+                    const sourceUrl = getSafeSourceDocumentUrl(source.url || source.sourceUrl || source.path);
                     const sourceLabel = source.label || source.name || source.title || "Institution source";
-                    return `<li>${sourceUrl ? `<a href="${escapeHtml(sourceUrl)}" target="_blank" rel="noreferrer">${escapeHtml(sourceLabel)}</a>` : `<span>${escapeHtml(sourceLabel)}</span>`}</li>`;
+                    return `<li>${sourceUrl ? `<a href="${escapeHtml(sourceUrl)}" ${getSourceLinkAttributes(sourceUrl)}>${escapeHtml(sourceLabel)}</a>` : `<span>${escapeHtml(sourceLabel)}</span>`}</li>`;
                   }).join("")}</ul>`
                 : `<p class="muted-inline">No institution-level evidence is captured yet. Admin review is still needed.</p>`
           }
@@ -7377,7 +7398,7 @@ function renderExplorerCourseProfile(programme) {
   const matchingProgramme = getMatchingProgrammeFromAdmin(programme);
   const title = getProgrammeDisplayName(programme);
   const application = getProgrammeApplicationSummary(matchingProgramme);
-  const courseSourceUrl = getSafeExternalUrl(programme.sourceUrl);
+  const courseSourceUrl = getSafeSourceDocumentUrl(programme.sourceUrl);
   const saved = currentUser?.shortlist?.includes(programme.id);
   const profile = getDomainProfile(programme);
   const requirementItems = matchingProgramme.requirements?.length ? matchingProgramme.requirements : [programme.requirementsSummary || "Entry requirements need confirmation."];
@@ -7451,8 +7472,8 @@ function renderExplorerCourseProfile(programme) {
         </div>
       </div>
       <div class="application-links explorer-link-row">
-        ${courseSourceUrl ? `<a class="secondary-link" href="${escapeHtml(courseSourceUrl)}" target="_blank" rel="noreferrer">Open course source</a>` : ""}
-        ${application.links?.prospectusLinks?.[0]?.url ? `<a class="secondary-link" href="${escapeHtml(application.links.prospectusLinks[0].url)}" target="_blank" rel="noreferrer">Download prospectus/source</a>` : ""}
+        ${courseSourceUrl ? `<a class="secondary-link" href="${escapeHtml(courseSourceUrl)}" ${getSourceLinkAttributes(courseSourceUrl)}>Open course source</a>` : ""}
+        ${application.links?.prospectusLinks?.[0]?.url ? `<a class="secondary-link" href="${escapeHtml(application.links.prospectusLinks[0].url)}" ${getSourceLinkAttributes(application.links.prospectusLinks[0].url)}>Download prospectus/source</a>` : ""}
         <a class="secondary-link" href="${nmdsPortalUrl}" target="_blank" rel="noreferrer">Open NMDS sponsorship portal</a>
         <button class="secondary-action" type="button" data-report-source="${escapeHtml(programme.id)}"><i data-lucide="flag"></i> Report outdated source</button>
         <button class="secondary-action" type="button" data-view-target="results"><i data-lucide="sparkles"></i> Compare with my marks</button>
