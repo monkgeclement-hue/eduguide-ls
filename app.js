@@ -1547,9 +1547,12 @@ function getSourceFreshnessMeta(programme = {}) {
 function getProgrammeReviewableSources(programme = {}) {
   return [
     programme.sourceUrl,
+    programme.sourceFile,
     programme.sourcePath,
     programme.supportingSourcePath,
-    programme.supportingFeeSourcePath
+    programme.supportingSourceFile,
+    programme.supportingFeeSourcePath,
+    programme.supportingFeeSourceFile
   ]
     .map((value) => String(value || "").trim())
     .filter((value) => value && !/^(?:javascript|data):/i.test(value))
@@ -3749,10 +3752,24 @@ function getSafeExternalUrl(value) {
   return /^https?:\/\//i.test(url) ? url : "";
 }
 
+const publicReferenceDocumentRoutes = Object.freeze({
+  "che-list-of-accredited-programmes-december-2017.pdf": "/source-documents/che-list-of-accredited-programmes-december-2017.pdf",
+  "che-profiles-of-heis-2017.pdf": "/source-documents/che-profiles-of-heis-2017.pdf",
+  "siac-prospectus-2025-2026.pdf": "/source-documents/siac-prospectus-2025-2026.pdf",
+  "st-elizabeth-college-subject-prospectus-supplied.pdf": "/source-documents/st-elizabeth-college-subject-prospectus-supplied.pdf"
+});
+
+function getKnownReferenceDocumentUrl(value) {
+  const path = String(value || "").trim().replace(/\\/g, "/");
+  if (!path) return "";
+  const filename = path.split("/").filter(Boolean).pop() || "";
+  return publicReferenceDocumentRoutes[filename] || "";
+}
+
 function getSafeSourceDocumentUrl(value) {
   const url = String(value || "").trim();
   if (/^\/source-documents\/[a-z0-9][a-z0-9._-]*\.pdf$/i.test(url)) return url;
-  return getSafeExternalUrl(url);
+  return getSafeExternalUrl(url) || getKnownReferenceDocumentUrl(url);
 }
 
 function isLibrarySourceDocumentUrl(value) {
@@ -9228,7 +9245,7 @@ function getProgrammeQualityChecks(programme) {
       label: historicalEvidence.requiresCurrentEvidence ? "Current evidence" : "Source",
       ready: historicalEvidence.requiresCurrentEvidence
         ? historicalEvidence.ready
-        : Boolean(programme.sourceUrl || programme.supportingSourcePath || programme.sourcePath),
+        : Boolean(programme.sourceUrl || programme.sourceFile || programme.supportingSourcePath || programme.supportingSourceFile || programme.sourcePath),
       issue: historicalEvidence.requiresCurrentEvidence ? "Current official evidence required" : "Missing source"
     },
     {
@@ -9406,16 +9423,7 @@ function getAllAdminSources() {
 }
 
 function getSourceAuditOpenUrl(source = {}) {
-  const externalUrl = getSafeExternalUrl(source.source_url);
-  if (externalUrl) return externalUrl;
-  const localPath = String(source.source_path || "").replace(/\\/g, "/");
-  const referenceFiles = {
-    "data/references/che-list-of-accredited-programmes-december-2017.pdf": "/source-documents/che-list-of-accredited-programmes-december-2017.pdf",
-    "data/references/che-profiles-of-heis-2017.pdf": "/source-documents/che-profiles-of-heis-2017.pdf",
-    "data/references/siac-prospectus-2025-2026.pdf": "/source-documents/siac-prospectus-2025-2026.pdf",
-    "data/references/st-elizabeth-college-subject-prospectus-supplied.pdf": "/source-documents/st-elizabeth-college-subject-prospectus-supplied.pdf"
-  };
-  return referenceFiles[localPath] || "";
+  return getSafeSourceDocumentUrl(source.source_url) || getKnownReferenceDocumentUrl(source.source_path);
 }
 
 function getFilteredAdminSources() {
@@ -10218,14 +10226,24 @@ function renderAdminDetail() {
       .filter(Boolean)
       .map((schedule) => [schedule.id || schedule.title, schedule])
   ).values());
-  const sourceLabel = programme.sourceUrl || programme.sourcePath || programme.supportingSourcePath || "Source not linked";
+  const sourceLabel = programme.sourceUrl || programme.sourceFile || programme.sourcePath || programme.supportingSourcePath || "Source not linked";
   const evidenceItems = [
     programme.sourceUrl,
+    programme.sourceFile,
     programme.supportingSourcePath,
+    programme.supportingSourceFile,
     programme.supportingFeeSourcePath,
+    programme.supportingFeeSourceFile,
     programme.sourceNote,
     programme.feeNote
   ].filter(Boolean);
+  const evidenceLinks = [
+    { label: "Official source", value: programme.sourceUrl || programme.sourceFile || programme.sourcePath },
+    { label: "Supporting evidence", value: programme.supportingSourcePath || programme.supportingSourceFile },
+    { label: "Fee evidence", value: programme.supportingFeeSourcePath || programme.supportingFeeSourceFile }
+  ]
+    .map((item) => ({ ...item, url: getSafeSourceDocumentUrl(item.value) }))
+    .filter((item, index, items) => item.url && items.findIndex((candidate) => candidate.url === item.url) === index);
   const careerItems = programme.careers?.length ? programme.careers : [];
   const isEditing = adminState.editingProgrammeId === programme.id;
   const approvalBlocker = getProgrammeApprovalBlocker(programme);
@@ -10407,6 +10425,11 @@ function renderAdminDetail() {
       <div class="detail-section">
         <h4>Evidence</h4>
         <p>${escapeHtml(sourceLabel)}</p>
+        ${
+          evidenceLinks.length
+            ? `<div class="detail-actions evidence-actions">${evidenceLinks.map((item) => `<a class="detail-source-link" href="${escapeHtml(item.url)}" ${getSourceLinkAttributes(item.url)}><i data-lucide="${isLibrarySourceDocumentUrl(item.url) ? "download" : "external-link"}"></i>${escapeHtml(isLibrarySourceDocumentUrl(item.url) ? `Download ${item.label}` : `Open ${item.label}`)}</a>`).join("")}</div>`
+            : ""
+        }
         ${
           evidenceItems.length
             ? `<ul class="detail-list evidence-list">${evidenceItems.map((item) => `<li>${escapeHtml(item)}</li>`).join("")}</ul>`

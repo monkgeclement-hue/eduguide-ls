@@ -138,6 +138,7 @@ test('source review can only be recorded when a safe source trace exists', () =>
   });
   const hasProgrammeReviewableSource = load('hasProgrammeReviewableSource', { getProgrammeReviewableSources });
   assert.equal(hasProgrammeReviewableSource({ sourceUrl: 'https://institution.example/prospectus' }), true);
+  assert.equal(hasProgrammeReviewableSource({ sourceFile: 'siac-prospectus-2025-2026.pdf' }), true);
   assert.equal(hasProgrammeReviewableSource({ supportingSourcePath: 'data/institution-prospectus.pdf' }), true);
   assert.equal(hasProgrammeReviewableSource({ sourceUrl: 'javascript:alert(1)' }), false);
   assert.equal(hasProgrammeReviewableSource({ sourceUrl: 'Source under review' }), false);

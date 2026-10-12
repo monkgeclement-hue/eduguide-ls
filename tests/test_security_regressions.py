@@ -163,6 +163,41 @@ class SecurityRegressionTests(unittest.TestCase):
     headers = {'Authorization': f"Bearer {response.json()['token']}"}
     self.assertEqual(self.client.get('/api/admin/catalogue', headers=headers).status_code, 403)
 
+  def test_staff_catalogue_exposes_allowlisted_prospectus_evidence_without_local_paths(self):
+    record = server.staff_catalogue_record({
+      'id': 'siac-candidate',
+      'institution': 'SIAC',
+      'name': 'Diploma in Tourism',
+      'source_path': 'C:/staff/supplied/siac-prospectus-2025-2026.pdf',
+      'supportingFeeSourcePath': 'data/references/siac-prospectus-2025-2026.pdf',
+      'fee_note': 'Confirm the current fee before payment.',
+      'application_documents': ['Results slip'],
+    })
+    self.assertEqual(record['sourceUrl'], '/source-documents/siac-prospectus-2025-2026.pdf')
+    self.assertEqual(record['supportingFeeSourcePath'], '/source-documents/siac-prospectus-2025-2026.pdf')
+    self.assertEqual(record['sourceFile'], 'siac-prospectus-2025-2026.pdf')
+    self.assertEqual(record['feeNote'], 'Confirm the current fee before payment.')
+    self.assertEqual(record['applicationDocuments'], ['Results slip'])
+    self.assertNotIn('C:/staff', json.dumps(record))
+
+  def test_ai_guidance_can_cite_an_approved_allowlisted_prospectus(self):
+    server._catalogue_programmes_cache = [{
+      'id': 'siac-candidate',
+      'institution': 'SIAC',
+      'name': 'Diploma in Tourism',
+      'review_status': 'approved',
+      'requirements_summary': 'English D or better.',
+      'source_file': 'siac-prospectus-2025-2026.pdf',
+    }]
+    try:
+      payload = server.GuidanceRequest(matches=[{'id': 'siac-candidate', 'match': {'tier': 'qualified'}}])
+      bound = server.bind_guidance_payload_to_catalogue(payload)
+      self.assertEqual(bound.matches[0]['sourceUrl'], '/source-documents/siac-prospectus-2025-2026.pdf')
+      self.assertEqual(bound.matches[0]['source'], '/source-documents/siac-prospectus-2025-2026.pdf')
+      self.assertEqual(bound.matches[0]['sourceReview']['status'], 'unreviewed')
+    finally:
+      server._catalogue_programmes_cache = None
+
   def test_ai_guidance_cannot_upgrade_unapproved_or_unevidenced_matches(self):
     server._catalogue_programmes_cache = [
       {'id': 'open', 'name': 'Open Degree', 'institution': 'NUL', 'review_status': 'approved', 'requirements_summary': 'English C'},

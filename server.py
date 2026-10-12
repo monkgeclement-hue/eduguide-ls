@@ -1581,7 +1581,7 @@ def public_catalogue_runtime_record(record: dict[str, Any]) -> dict[str, Any] | 
       public_record[field] = value
   if not public_record.get("sourceUrl"):
     reference_url = public_reference_document_url(
-      record.get("sourcePath") or record.get("source_path") or record.get("sourceFile")
+      record.get("sourcePath") or record.get("source_path") or record.get("sourceFile") or record.get("source_file")
     )
     if reference_url:
       public_record["sourceUrl"] = reference_url
@@ -1592,7 +1592,18 @@ def catalogue_source_review_summary(record: dict[str, Any], now: datetime | None
   source_trace = any(
     str(record.get(field) or "").strip()
     and not re.search(r"under review", str(record.get(field) or ""), flags=re.IGNORECASE)
-    for field in ("sourceUrl", "source_url", "sourcePath", "source_path", "supportingSourcePath", "supportingFeeSourcePath")
+    for field in (
+      "sourceUrl",
+      "source_url",
+      "sourcePath",
+      "source_path",
+      "sourceFile",
+      "source_file",
+      "supportingSourcePath",
+      "supportingSourceFile",
+      "supportingFeeSourcePath",
+      "supportingFeeSourceFile",
+    )
   )
   if not source_trace:
     return {
@@ -1654,6 +1665,14 @@ def cap_client_match_tier(client_tier: Any, maximum_tier: str) -> str:
 
 def staff_catalogue_record(record: dict[str, Any]) -> dict[str, Any]:
   source_url = str(record.get("sourceUrl") or record.get("source_url") or "").strip()
+  source_file = public_source_filename(record.get("sourcePath") or record.get("source_path") or record.get("sourceFile") or record.get("source_file"))
+  source_reference_url = public_reference_document_url(source_file)
+  supporting_source_file = public_source_filename(
+    record.get("supportingSourcePath") or record.get("supporting_source_path") or record.get("supportingSourceFile") or record.get("supporting_source_file")
+  )
+  supporting_fee_source_file = public_source_filename(
+    record.get("supportingFeeSourcePath") or record.get("supporting_fee_source_path") or record.get("supportingFeeSourceFile") or record.get("supporting_fee_source_file")
+  )
   return {
     "id": record.get("id"),
     "institution": record.get("institution"),
@@ -1666,8 +1685,18 @@ def staff_catalogue_record(record: dict[str, Any]) -> dict[str, Any]:
     "requirementsSummary": catalogue_requirement_summary(record),
     "careers": record.get("careers") or record.get("career_options") or [],
     "skills": record.get("skills") or record.get("skill_options") or [],
-    "sourceUrl": source_url or None,
-    "sourceFile": public_source_filename(record.get("sourcePath") or record.get("source_path") or record.get("sourceFile")),
+    "sourceUrl": source_url or source_reference_url,
+    "sourceFile": source_file,
+    "supportingSourcePath": public_reference_document_url(supporting_source_file),
+    "supportingSourceFile": supporting_source_file,
+    "supportingFeeSourcePath": public_reference_document_url(supporting_fee_source_file),
+    "supportingFeeSourceFile": supporting_fee_source_file,
+    "feeNote": record.get("feeNote") or record.get("fee_note"),
+    "applicationUrl": record.get("applicationUrl") or record.get("application_url"),
+    "applicationDeadline": record.get("applicationDeadline") or record.get("application_deadline"),
+    "intakeStatus": record.get("intakeStatus") or record.get("intake_status"),
+    "applicationDocuments": record.get("applicationDocuments") or record.get("application_documents") or [],
+    "reviewedAt": record.get("reviewedAt") or record.get("reviewed_at"),
     "sourceType": record.get("sourceType") or record.get("source_type"),
     "reviewStatus": record.get("reviewStatus") or record.get("review_status") or "needs_admin_review",
     "sourceNote": record.get("sourceNote") or record.get("source_note"),
@@ -1681,6 +1710,10 @@ def bind_guidance_match_to_catalogue(match: dict[str, Any], catalogue: dict[str,
   bound = dict(match)
   summary = catalogue_requirement_summary(record)
   source_url = str(record.get("sourceUrl") or record.get("source_url") or "").strip()
+  if not source_url:
+    source_url = public_reference_document_url(
+      record.get("sourcePath") or record.get("source_path") or record.get("sourceFile") or record.get("source_file")
+    ) or ""
   bound["id"] = record.get("id")
   bound["title"] = record.get("name") or record.get("title")
   bound["institution"] = record.get("institution")

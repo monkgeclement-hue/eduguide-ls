@@ -418,11 +418,15 @@ class RoleWorkflowTests(unittest.TestCase):
 
   def test_source_links_are_validated_before_they_are_rendered(self):
     app_script = (Path(__file__).resolve().parents[1] / "app.js").read_text(encoding="utf-8")
+    self.assertIn("const publicReferenceDocumentRoutes", app_script)
+    self.assertIn("function getKnownReferenceDocumentUrl", app_script)
     self.assertIn("function getSafeSourceDocumentUrl", app_script)
     self.assertIn('^\\/source-documents\\/[a-z0-9][a-z0-9._-]*\\.pdf$', app_script)
     self.assertIn("const sourceUrl = getSafeSourceDocumentUrl(source.url);", app_script)
     self.assertIn("const courseSourceUrl = getSafeSourceDocumentUrl(programme.sourceUrl);", app_script)
     self.assertIn("getSafeSourceDocumentUrl(source.url || source.sourceUrl || source.path)", app_script)
+    self.assertIn("Download ${item.label}", app_script)
+    self.assertIn("programme.sourceFile", app_script)
 
   def test_application_fields_are_kept_in_review_state_snapshots(self):
     app_script = (Path(__file__).resolve().parents[1] / "app.js").read_text(encoding="utf-8")
