@@ -2,7 +2,7 @@ window.EDUGUIDE_ADMIN_DATA = {
   "summary": {
     "programmeCount": 230,
     "institutionCount": 10,
-    "sourceCount": 28,
+    "sourceCount": 30,
     "feeScheduleCount": 9,
     "feeItemCount": 306,
     "openGapCount": 90
@@ -12122,6 +12122,42 @@ window.EDUGUIDE_ADMIN_DATA = {
       "shortage": [
         "LTEN is a sector guide, not the canonical source for requirements, fees, applications, or accreditation decisions."
       ]
+    },
+    {
+      "institution": "St Mary's Integrative Applied College (SIAC)",
+      "status": "private_admin_candidate_extract",
+      "records_extracted": 5,
+      "data_found": [
+        "five programme names",
+        "entry requirements",
+        "durations",
+        "application windows for two programmes",
+        "career opportunities for consumer science programmes",
+        "2025-2026 fee details"
+      ],
+      "shortage": [
+        "Prospectus is for 2025-2026 and must not be treated as current after its published year.",
+        "No verified current official application link was supplied.",
+        "Programme availability, fees, application dates, and accreditation need current official confirmation before publication."
+      ],
+      "sourceFile": "siac-prospectus-2025-2026.pdf"
+    },
+    {
+      "institution": "St Elizabeth College",
+      "status": "private_admin_candidate_extract",
+      "records_extracted": 6,
+      "data_found": [
+        "six programme names",
+        "entry requirements",
+        "programme durations",
+        "NMDS loan bursary note"
+      ],
+      "shortage": [
+        "Source material has no publication date.",
+        "No fee schedule, official contact details, application link, or accreditation evidence was supplied.",
+        "All programme details require direct college confirmation before publication."
+      ],
+      "sourceFile": "st-elizabeth-college-subject-prospectus-supplied.pdf"
     }
   ]
 };

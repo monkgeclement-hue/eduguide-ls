@@ -1,7 +1,7 @@
 {
   "generated_at": "2026-06-09T18:03:08Z",
-  "programme_count": 262,
-  "institution_count": 17,
+  "programme_count": 273,
+  "institution_count": 19,
   "institutions": {
     "Botho University Lesotho": 20,
     "Centre for Accounting Studies": 8,
@@ -19,11 +19,13 @@
     "National University of Lesotho": 128,
     "Paray School of Nursing": 3,
     "Roma College of Nursing": 2,
-    "Scott Hospital School of Nursing": 3
+    "Scott Hospital School of Nursing": 3,
+    "St Elizabeth College": 6,
+    "St Mary's Integrative Applied College (SIAC)": 5
   },
   "review_status_counts": {
     "approved": 232,
-    "needs_admin_review": 30
+    "needs_admin_review": 41
   },
-  "update_note": "CHE 2017 historical candidates imported to the private admin-review queue; they require current institution/CHE verification before publication."
+  "update_note": "CHE historical candidates and supplied SIAC/St Elizabeth prospectus candidates remain private until current official verification and admin approval."
 }

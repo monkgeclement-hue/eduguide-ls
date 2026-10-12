@@ -104,5 +104,21 @@
     "coverage_type": "sector_context_and_official_link_discovery",
     "status": "current_context_reference",
     "note": "Useful current landscape context and official-link discovery. Institution pages and regulator sources remain required for programme facts."
+  },
+  {
+    "name": "SIAC prospectus 2025-2026",
+    "local_path": "data/references/siac-prospectus-2025-2026.pdf",
+    "institution": "St Mary's Integrative Applied College (SIAC)",
+    "coverage_type": "institution_prospectus_document",
+    "status": "private_admin_candidates_only",
+    "note": "Five programme candidates and dated fee notes were captured for admin review only. Confirm all current details directly with SIAC before publishing."
+  },
+  {
+    "name": "St Elizabeth College supplied subject prospectus",
+    "local_path": "data/references/st-elizabeth-college-subject-prospectus-supplied.pdf",
+    "institution": "St Elizabeth College",
+    "coverage_type": "supplied_college_prospectus_document",
+    "status": "private_admin_candidates_only",
+    "note": "Six programme candidates were captured from undated supplied material. Confirm all current details directly with St Elizabeth College before publishing."
   }
 ]

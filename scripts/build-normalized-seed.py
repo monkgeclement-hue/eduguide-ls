@@ -30,6 +30,8 @@ INSTITUTION_META = {
     "Institute of Development Management": {"short_name": "IDM", "type": "institute", "district": "Maseru", "verification_status": "needs_review"},
     "Lesotho Institute of Public Administration and Management": {"short_name": "LIPAM", "type": "institute", "district": "Maseru", "verification_status": "needs_review"},
     "Lesotho Boston Health Alliance (LeBoHA)": {"short_name": "LeBoHA", "type": "health_training", "district": "Maseru and Leribe", "verification_status": "needs_review"},
+    "St Mary's Integrative Applied College (SIAC)": {"short_name": "SIAC", "type": "technical_and_vocational_college", "verification_status": "needs_review"},
+    "St Elizabeth College": {"short_name": "St Elizabeth", "type": "college", "verification_status": "needs_review"},
 }
 
 SUBJECTS = [
