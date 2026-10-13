@@ -96,9 +96,13 @@ PUBLIC_REFERENCE_FILES = {
   "siac-prospectus-2025-2026.pdf",
   "st-elizabeth-college-subject-prospectus-supplied.pdf",
 }
-HISTORICAL_CANDIDATE_SOURCE_TYPES = {"official_regulator_historical_pdf"}
-HISTORICAL_CANDIDATE_FILE = ROOT / "data" / "real" / "programmes.flat.json"
-HISTORICAL_CANDIDATE_IDS: set[str] | None = None
+CURRENT_EVIDENCE_CANDIDATE_SOURCE_TYPES = {
+  "official_regulator_historical_pdf",
+  "supplied_institution_prospectus_pdf",
+  "manual_user_confirmation_prospectus_pdf",
+}
+CURRENT_EVIDENCE_CANDIDATE_FILE = ROOT / "data" / "real" / "programmes.flat.json"
+CURRENT_EVIDENCE_CANDIDATE_IDS: set[str] | None = None
 mimetypes.add_type("application/manifest+json", ".webmanifest")
 mimetypes.add_type("image/svg+xml", ".svg")
 CSP_POLICY = (
@@ -3598,30 +3602,31 @@ def delete_all_auth_sessions_for_user(user_id: str) -> None:
     connection.commit()
 
 
-def get_historical_candidate_ids() -> set[str]:
-  """Return the identifiers that originated in archived CHE evidence.
+def get_current_evidence_candidate_ids() -> set[str]:
+  """Return records that need a current official source before publication.
 
-  These records are useful review leads, but the archived 2017 list cannot
-  establish a current offering or accreditation decision.
+  Archived regulator records and supplied prospectuses are useful review
+  leads, but neither alone can establish a current offering, fee, or
+  accreditation decision.
   """
-  global HISTORICAL_CANDIDATE_IDS
-  if HISTORICAL_CANDIDATE_IDS is not None:
-    return HISTORICAL_CANDIDATE_IDS
+  global CURRENT_EVIDENCE_CANDIDATE_IDS
+  if CURRENT_EVIDENCE_CANDIDATE_IDS is not None:
+    return CURRENT_EVIDENCE_CANDIDATE_IDS
   try:
-    records = json.loads(HISTORICAL_CANDIDATE_FILE.read_text(encoding="utf-8"))
+    records = json.loads(CURRENT_EVIDENCE_CANDIDATE_FILE.read_text(encoding="utf-8"))
   except (OSError, json.JSONDecodeError):
     records = []
-  HISTORICAL_CANDIDATE_IDS = {
+  CURRENT_EVIDENCE_CANDIDATE_IDS = {
     str(record.get("id"))
     for record in records
     if isinstance(record, dict)
-    and record.get("source_type") in HISTORICAL_CANDIDATE_SOURCE_TYPES
+    and record.get("source_type") in CURRENT_EVIDENCE_CANDIDATE_SOURCE_TYPES
     and record.get("id")
   }
-  return HISTORICAL_CANDIDATE_IDS
+  return CURRENT_EVIDENCE_CANDIDATE_IDS
 
 
-def has_current_historical_candidate_evidence(programme: dict[str, Any]) -> bool:
+def has_current_candidate_evidence(programme: dict[str, Any]) -> bool:
   source_url = str(programme.get("sourceUrl") or "").strip()
   has_current_url = bool(re.fullmatch(r"https?://[^\s]{1,2000}", source_url, flags=re.IGNORECASE))
   current_detail_fields = ("duration", "requirementsSummary", "overview", "applicationUrl", "applicationDeadline", "intakeStatus")
@@ -3629,24 +3634,24 @@ def has_current_historical_candidate_evidence(programme: dict[str, Any]) -> bool
   return has_current_url and has_current_detail
 
 
-def validate_historical_catalogue_review_state(payload: dict[str, Any]) -> None:
-  """Prevent archived CHE candidates being published without current evidence."""
-  historical_ids = get_historical_candidate_ids()
-  if not historical_ids:
+def validate_current_evidence_catalogue_review_state(payload: dict[str, Any]) -> None:
+  """Prevent evidence candidates being published without a current official source."""
+  candidate_ids = get_current_evidence_candidate_ids()
+  if not candidate_ids:
     return
   statuses = payload.get("programmeStatuses") if isinstance(payload.get("programmeStatuses"), dict) else {}
   edits = payload.get("programmeEdits") if isinstance(payload.get("programmeEdits"), dict) else {}
   blocked_names: list[str] = []
-  for programme_id in historical_ids:
+  for programme_id in candidate_ids:
     edit = edits.get(programme_id) if isinstance(edits.get(programme_id), dict) else {}
     intended_status = str(edit.get("reviewStatus") or statuses.get(programme_id) or "").lower()
-    if intended_status == "approved" and not has_current_historical_candidate_evidence(edit):
+    if intended_status == "approved" and not has_current_candidate_evidence(edit):
       blocked_names.append(programme_id)
   if blocked_names:
     raise HTTPException(
       status_code=400,
       detail=(
-        "Historical CHE candidates require a current official source URL and at least one current programme detail "
+        "Historical or supplied prospectus candidates require a current official source URL and at least one current programme detail "
         "before they can be approved. Edit the record, add the current evidence, then retry."
       ),
     )
@@ -3711,7 +3716,7 @@ def build_student_source_reports(student_id: str, limit: int = 100) -> list[dict
 
 def sanitize_database_state_payload(state_key: str, payload: Any) -> Any:
   if state_key == "review_state" and isinstance(payload, dict):
-    validate_historical_catalogue_review_state(payload)
+    validate_current_evidence_catalogue_review_state(payload)
     payload = sanitize_source_report_resolutions(payload)
   if state_key != "auth_users" or not isinstance(payload, dict):
     return payload

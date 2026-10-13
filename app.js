@@ -228,7 +228,11 @@ const institutionProposalEditableFields = [
 ];
 const maxActivityItems = 45;
 const catalogueDataVersion = "2026-08-enrichment-1";
-const historicalCandidateSourceTypes = new Set(["official_regulator_historical_pdf"]);
+const currentEvidenceCandidateSourceTypes = new Set([
+  "official_regulator_historical_pdf",
+  "supplied_institution_prospectus_pdf",
+  "manual_user_confirmation_prospectus_pdf"
+]);
 const maxAiChatMessages = 24;
 const calibrationProfiles = {
   arts: {
@@ -6845,17 +6849,19 @@ function isPublicProgramme(programme = {}) {
   return statuses.includes("approved") || statuses.includes("verified");
 }
 
-function isHistoricalCatalogueCandidate(programme = {}) {
-  return historicalCandidateSourceTypes.has(String(programme.sourceType || "").trim());
+function requiresCurrentCandidateEvidence(programme = {}) {
+  return currentEvidenceCandidateSourceTypes.has(String(programme.sourceType || "").trim());
 }
 
-function getHistoricalCandidateEvidenceStatus(programme = {}) {
-  const requiresCurrentEvidence = isHistoricalCatalogueCandidate(programme);
+function getCandidateEvidenceStatus(programme = {}) {
+  const sourceType = String(programme.sourceType || "").trim();
+  const requiresCurrentEvidence = requiresCurrentCandidateEvidence(programme);
   const hasCurrentSource = Boolean(getSafeExternalUrl(programme.sourceUrl));
   const currentDetailFields = ["duration", "requirementsSummary", "overview", "applicationUrl", "applicationDeadline", "intakeStatus"];
   const hasCurrentDetail = currentDetailFields.some((field) => String(programme[field] || "").trim());
   return {
     requiresCurrentEvidence,
+    candidateLabel: sourceType === "official_regulator_historical_pdf" ? "Historical CHE candidate" : "Supplied prospectus candidate",
     hasCurrentSource,
     hasCurrentDetail,
     ready: !requiresCurrentEvidence || (hasCurrentSource && hasCurrentDetail)
@@ -6863,13 +6869,13 @@ function getHistoricalCandidateEvidenceStatus(programme = {}) {
 }
 
 function getProgrammeApprovalBlocker(programme = {}) {
-  const evidence = getHistoricalCandidateEvidenceStatus(programme);
+  const evidence = getCandidateEvidenceStatus(programme);
   if (!evidence.requiresCurrentEvidence || evidence.ready) return "";
   if (!evidence.hasCurrentSource && !evidence.hasCurrentDetail) {
-    return "Add a current official source URL and at least one current programme detail before approving this historical candidate.";
+    return `Add a current official source URL and at least one current programme detail before approving this ${evidence.candidateLabel.toLowerCase()}.`;
   }
-  if (!evidence.hasCurrentSource) return "Add a current official source URL before approving this historical candidate.";
-  return "Add at least one current programme detail before approving this historical candidate.";
+  if (!evidence.hasCurrentSource) return `Add a current official source URL before approving this ${evidence.candidateLabel.toLowerCase()}.`;
+  return `Add at least one current programme detail before approving this ${evidence.candidateLabel.toLowerCase()}.`;
 }
 
 function getPublicProgrammeCount() {
@@ -9226,7 +9232,7 @@ function adminSearchMatches(values) {
 
 function getProgrammeQualityChecks(programme) {
   const openGaps = adminGaps.filter((gap) => gap.programmeId === programme.id && gap.status !== "resolved");
-  const historicalEvidence = getHistoricalCandidateEvidenceStatus(programme);
+  const candidateEvidence = getCandidateEvidenceStatus(programme);
   const checks = [
     {
       key: "requirements",
@@ -9241,12 +9247,12 @@ function getProgrammeQualityChecks(programme) {
       issue: "Missing duration"
     },
     {
-      key: historicalEvidence.requiresCurrentEvidence ? "current_source" : "source",
-      label: historicalEvidence.requiresCurrentEvidence ? "Current evidence" : "Source",
-      ready: historicalEvidence.requiresCurrentEvidence
-        ? historicalEvidence.ready
+      key: candidateEvidence.requiresCurrentEvidence ? "current_source" : "source",
+      label: candidateEvidence.requiresCurrentEvidence ? "Current evidence" : "Source",
+      ready: candidateEvidence.requiresCurrentEvidence
+        ? candidateEvidence.ready
         : Boolean(programme.sourceUrl || programme.sourceFile || programme.supportingSourcePath || programme.supportingSourceFile || programme.sourcePath),
-      issue: historicalEvidence.requiresCurrentEvidence ? "Current official evidence required" : "Missing source"
+      issue: candidateEvidence.requiresCurrentEvidence ? "Current official evidence required" : "Missing source"
     },
     {
       key: "fees",
@@ -9301,7 +9307,7 @@ function programmeMatchesQualityFilter(programme) {
   if (filter === "ready") return quality.percent >= 85 && programme.reviewStatus === "approved";
   if (filter === "open_gaps") return quality.openGaps.length > 0;
   if (filter === "needs_review") return programme.reviewStatus === "needs_admin_review" || programme.reviewStatus === "flagged";
-  if (filter === "historical_candidates") return isHistoricalCatalogueCandidate(programme);
+  if (filter === "current_evidence_candidates") return requiresCurrentCandidateEvidence(programme);
   if (filter === "source_check_needed") return programmeNeedsSourceReview(programme);
   return quality.missingKeys.includes(filter.replace("missing_", ""));
 }
@@ -9312,7 +9318,7 @@ function getAdminQualityFilterOptions() {
   return [
     { key: "all", label: "All", count: visibleByInstitution.length },
     { key: "needs_review", label: "Needs review", count: count((programme) => programme.reviewStatus === "needs_admin_review" || programme.reviewStatus === "flagged") },
-    { key: "historical_candidates", label: "Historical candidates", count: count(isHistoricalCatalogueCandidate) },
+    { key: "current_evidence_candidates", label: "Needs current verification", count: count(requiresCurrentCandidateEvidence) },
     { key: "missing_requirements", label: "Missing requirements", count: count((programme) => !programme.requirementsSummary) },
     { key: "missing_duration", label: "Missing duration", count: count((programme) => !programme.duration) },
     { key: "missing_fees", label: "Missing fees", count: count((programme) => !hasProgrammeFeeEvidence(programme)) },
@@ -9535,7 +9541,7 @@ function renderAdminCatalogue() {
               <div class="admin-row-actions">
                 <span class="badge ${qualityTone}">Data ${quality.percent}%</span>
                 <span class="badge ${badgeClassForStatus(programme.reviewStatus)}">${formatStatus(programme.reviewStatus)}</span>
-                ${isHistoricalCatalogueCandidate(programme) ? `<span class="badge amber" title="Historical CHE candidate">Historical</span>` : ""}
+                ${requiresCurrentCandidateEvidence(programme) ? `<span class="badge amber" title="${escapeHtml(getCandidateEvidenceStatus(programme).candidateLabel)}">Needs current source</span>` : ""}
                 <button type="button" title="${escapeHtml(approvalBlocker || "Approve")}" data-admin-action="approve" data-programme-id="${escapeHtml(programme.id)}" ${approvalBlocker ? "disabled" : ""}>
                   <i data-lucide="check"></i>
                 </button>
@@ -10247,7 +10253,7 @@ function renderAdminDetail() {
   const careerItems = programme.careers?.length ? programme.careers : [];
   const isEditing = adminState.editingProgrammeId === programme.id;
   const approvalBlocker = getProgrammeApprovalBlocker(programme);
-  const historicalEvidence = getHistoricalCandidateEvidenceStatus(programme);
+  const candidateEvidence = getCandidateEvidenceStatus(programme);
   const sourceFreshness = getSourceFreshnessMeta(programme);
   const reviewableSources = getProgrammeReviewableSources(programme);
   const sourceReviewGroup = getProgrammeSourceReviewGroup(programme);
@@ -10262,8 +10268,8 @@ function renderAdminDetail() {
         </div>
         <h3>${escapeHtml(programme.name)}</h3>
         ${
-          historicalEvidence.requiresCurrentEvidence
-            ? `<div class="historical-review-notice"><i data-lucide="history"></i><div><strong>Historical CHE candidate</strong><p>Keep this record private until you add a current official source URL and at least one confirmed current detail.</p></div></div>`
+          candidateEvidence.requiresCurrentEvidence
+            ? `<div class="historical-review-notice"><i data-lucide="history"></i><div><strong>${escapeHtml(candidateEvidence.candidateLabel)}</strong><p>Keep this record private until you add a current official source URL and at least one confirmed current detail.</p></div></div>`
             : ""
         }
         <form class="edit-form" id="admin-edit-form" data-programme-id="${escapeHtml(programme.id)}">
@@ -10301,7 +10307,7 @@ function renderAdminDetail() {
               <input name="deliveryMode" value="${escapeHtml(programme.deliveryMode || "")}" placeholder="Full-time">
             </label>
             <label>
-              <span>${historicalEvidence.requiresCurrentEvidence ? "Current official source URL" : "Official source URL"}</span>
+              <span>${candidateEvidence.requiresCurrentEvidence ? "Current official source URL" : "Official source URL"}</span>
               <input name="sourceUrl" value="${escapeHtml(programme.sourceUrl || "")}" placeholder="https://...">
             </label>
             <label>
@@ -10389,8 +10395,8 @@ function renderAdminDetail() {
         </div>`;
       })()}
       ${
-        historicalEvidence.requiresCurrentEvidence
-          ? `<div class="historical-review-notice ${historicalEvidence.ready ? "ready" : ""}"><i data-lucide="${historicalEvidence.ready ? "badge-check" : "triangle-alert"}"></i><div><strong>${historicalEvidence.ready ? "Current evidence attached" : "Historical CHE candidate"}</strong><p>${escapeHtml(approvalBlocker || "This record now has a current official source and programme detail. Review it before publishing.")}</p></div></div>`
+        candidateEvidence.requiresCurrentEvidence
+          ? `<div class="historical-review-notice ${candidateEvidence.ready ? "ready" : ""}"><i data-lucide="${candidateEvidence.ready ? "badge-check" : "triangle-alert"}"></i><div><strong>${candidateEvidence.ready ? "Current evidence attached" : escapeHtml(candidateEvidence.candidateLabel)}</strong><p>${escapeHtml(approvalBlocker || "This record now has a current official source and programme detail. Review it before publishing.")}</p></div></div>`
           : ""
       }
       <div class="detail-meta-grid">

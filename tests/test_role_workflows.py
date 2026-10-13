@@ -240,6 +240,14 @@ class RoleWorkflowTests(unittest.TestCase):
     self.assertIn('return isLibrarySourceDocumentUrl(url) ? "download"', app_script)
     self.assertIn("const url = getSafeSourceDocumentUrl(link?.url);", app_script)
 
+  def test_service_worker_cache_tracks_the_html_app_bundle_version(self):
+    root = Path(__file__).resolve().parents[1]
+    index = (root / "index.html").read_text(encoding="utf-8")
+    service_worker = (root / "sw.js").read_text(encoding="utf-8")
+    app_version = index.split('/app.js?v=', 1)[1].split('"', 1)[0]
+    self.assertIn(f'const CACHE_NAME = "eduguide-ls-shell-v{app_version}";', service_worker)
+    self.assertIn(f'"/app.js?v={app_version}",', service_worker)
+
   def test_public_runtime_can_add_newly_approved_catalogue_records(self):
     root = Path(__file__).resolve().parents[1]
     app_script = (root / "app.js").read_text(encoding="utf-8")
@@ -249,8 +257,11 @@ class RoleWorkflowTests(unittest.TestCase):
     self.assertIn("adminProgrammes.push(publishedProgramme);", app_script)
     self.assertIn("careers: Array.isArray(programme.careers) ? programme.careers : []", app_script)
 
-  def test_historical_candidates_need_current_evidence_before_approval(self):
-    candidate_id = next(iter(server.get_historical_candidate_ids()))
+  def test_evidence_candidates_need_current_evidence_before_approval(self):
+    candidate_ids = server.get_current_evidence_candidate_ids()
+    candidate_id = "siac-diploma-tourism-travel-management-2025-2026"
+    self.assertIn(candidate_id, candidate_ids)
+    self.assertTrue(any(item.endswith("-che-2017") for item in candidate_ids))
     incomplete_state = {
       "programmeStatuses": {candidate_id: "approved"},
       "programmeEdits": {candidate_id: {"reviewStatus": "approved"}},
@@ -272,11 +283,12 @@ class RoleWorkflowTests(unittest.TestCase):
     }
     self.assertEqual(server.sanitize_database_state_payload("review_state", reviewed_state), reviewed_state)
 
-  def test_historical_candidate_approval_guard_is_visible_to_admins(self):
+  def test_evidence_candidate_approval_guard_is_visible_to_admins(self):
     app_script = (Path(__file__).resolve().parents[1] / "app.js").read_text(encoding="utf-8")
     self.assertIn("function getProgrammeApprovalBlocker", app_script)
     self.assertIn("Historical CHE candidate", app_script)
-    self.assertIn("historical_candidates", app_script)
+    self.assertIn("Supplied prospectus candidate", app_script)
+    self.assertIn("current_evidence_candidates", app_script)
 
   def test_requirements_helper_does_not_invent_placeholder_lines(self):
     app_script = (Path(__file__).resolve().parents[1] / "app.js").read_text(encoding="utf-8")

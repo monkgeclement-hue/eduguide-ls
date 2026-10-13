@@ -170,6 +170,28 @@ test('source review groups only records with the exact same linked source', () =
     ['one', 'two']
   );
 });
+test('supplied prospectuses need a current official URL before they can be approved', () => {
+  const requiresCurrentCandidateEvidence = load('requiresCurrentCandidateEvidence', {
+    currentEvidenceCandidateSourceTypes: new Set([
+      'official_regulator_historical_pdf',
+      'supplied_institution_prospectus_pdf',
+      'manual_user_confirmation_prospectus_pdf'
+    ])
+  });
+  const getCandidateEvidenceStatus = load('getCandidateEvidenceStatus', {
+    requiresCurrentCandidateEvidence,
+    getSafeExternalUrl: (value) => /^https?:\/\//.test(value || '') ? value : ''
+  });
+  const getProgrammeApprovalBlocker = load('getProgrammeApprovalBlocker', { getCandidateEvidenceStatus });
+  const candidate = {
+    sourceType: 'supplied_institution_prospectus_pdf',
+    sourceUrl: '/source-documents/siac-prospectus-2025-2026.pdf',
+    duration: '3 years'
+  };
+  assert.equal(getCandidateEvidenceStatus(candidate).candidateLabel, 'Supplied prospectus candidate');
+  assert.match(getProgrammeApprovalBlocker(candidate), /current official source URL/);
+  assert.equal(getProgrammeApprovalBlocker({ ...candidate, sourceUrl: 'https://institution.example/current-prospectus' }), '');
+});
 test('unclassified application status is never promoted to a verified deadline', () => {
   const normalizeDeadlineStatus = load('normalizeDeadlineStatus');
   const plainStatus = normalizeDeadlineStatus('Admissions information has been captured.');
