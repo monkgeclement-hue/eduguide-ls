@@ -1440,6 +1440,7 @@ PUBLIC_CATALOGUE_TEXT_FIELDS = {
   "applicationDeadline": 240,
   "intakeStatus": 240,
   "sourceType": 120,
+  "sourceCheckedAt": 64,
   "reviewedAt": 64,
 }
 PUBLIC_CATALOGUE_LIST_FIELDS = {"careers", "skills", "applicationDocuments"}
@@ -1617,11 +1618,10 @@ def catalogue_source_review_summary(record: dict[str, Any], now: datetime | None
       "reviewedAt": None,
     }
 
-  reviewed_at = str(record.get("reviewedAt") or record.get("reviewed_at") or "").strip()
-  try:
-    reviewed_on = datetime.fromisoformat(reviewed_at.replace("Z", "+00:00")) if reviewed_at else None
-  except ValueError:
-    reviewed_on = None
+  reviewed_at = str(
+    record.get("sourceCheckedAt") or record.get("source_checked_at") or record.get("reviewedAt") or record.get("reviewed_at") or ""
+  ).strip()
+  reviewed_on = parse_iso_datetime(reviewed_at)
   if not reviewed_on:
     return {
       "status": "unreviewed",
@@ -1700,6 +1700,7 @@ def staff_catalogue_record(record: dict[str, Any]) -> dict[str, Any]:
     "applicationDeadline": record.get("applicationDeadline") or record.get("application_deadline"),
     "intakeStatus": record.get("intakeStatus") or record.get("intake_status"),
     "applicationDocuments": record.get("applicationDocuments") or record.get("application_documents") or [],
+    "sourceCheckedAt": record.get("sourceCheckedAt") or record.get("source_checked_at"),
     "reviewedAt": record.get("reviewedAt") or record.get("reviewed_at"),
     "sourceType": record.get("sourceType") or record.get("source_type"),
     "reviewStatus": record.get("reviewStatus") or record.get("review_status") or "needs_admin_review",
@@ -3631,7 +3632,10 @@ def has_current_candidate_evidence(programme: dict[str, Any]) -> bool:
   has_current_url = bool(re.fullmatch(r"https?://[^\s]{1,2000}", source_url, flags=re.IGNORECASE))
   current_detail_fields = ("duration", "requirementsSummary", "overview", "applicationUrl", "applicationDeadline", "intakeStatus")
   has_current_detail = any(str(programme.get(field) or "").strip() for field in current_detail_fields)
-  return has_current_url and has_current_detail
+  source_checked_on = parse_iso_datetime(str(programme.get("sourceCheckedAt") or "").strip())
+  age_days = (datetime.now(timezone.utc) - source_checked_on).days if source_checked_on else CATALOGUE_SOURCE_CURRENT_DAYS + 1
+  has_recent_source_check = 0 <= age_days <= CATALOGUE_SOURCE_CURRENT_DAYS
+  return has_current_url and has_current_detail and has_recent_source_check
 
 
 def validate_current_evidence_catalogue_review_state(payload: dict[str, Any]) -> None:
@@ -3651,8 +3655,8 @@ def validate_current_evidence_catalogue_review_state(payload: dict[str, Any]) ->
     raise HTTPException(
       status_code=400,
       detail=(
-        "Historical or supplied prospectus candidates require a current official source URL and at least one current programme detail "
-        "before they can be approved. Edit the record, add the current evidence, then retry."
+        "Historical or supplied prospectus candidates require a current official source URL, at least one current programme detail, "
+        "and a source check confirmed within the last 180 days before they can be approved. Edit the record, confirm the source, then retry."
       ),
     )
 

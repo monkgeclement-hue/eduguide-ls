@@ -155,6 +155,19 @@ test('source freshness separates missing, unreviewed, due, overdue, and current 
   assert.equal(getProgrammeSourceReviewState({ sourceUrl: 'https://institution.example', reviewedAt: '2026-01-01T00:00:00Z' }, now), 'due');
   assert.equal(getProgrammeSourceReviewState({ sourceUrl: 'https://institution.example', reviewedAt: '2025-01-01T00:00:00Z' }, now), 'overdue');
   assert.equal(getProgrammeSourceReviewState({ sourceUrl: 'https://institution.example', reviewedAt: '2026-09-30T00:00:00Z' }, now), 'current');
+  assert.equal(getProgrammeSourceReviewState({ sourceUrl: 'https://institution.example', reviewedAt: '2025-01-01T00:00:00Z', sourceCheckedAt: '2026-09-30T00:00:00Z' }, now), 'current');
+});
+test('changing a linked source gives a programme a new source fingerprint', () => {
+  const getProgrammeSourceFingerprint = load('getProgrammeSourceFingerprint');
+  const original = getProgrammeSourceFingerprint({
+    sourceUrl: 'https://institution.example/prospectus-2025.pdf',
+    supportingFeeSourcePath: '/source-documents/fees-2025.pdf'
+  });
+  const changed = getProgrammeSourceFingerprint({
+    sourceUrl: 'https://institution.example/prospectus-2026.pdf',
+    supportingFeeSourcePath: '/source-documents/fees-2025.pdf'
+  });
+  assert.notEqual(changed, original);
 });
 test('source review groups only records with the exact same linked source', () => {
   const getProgrammeSourceReviewGroup = load('getProgrammeSourceReviewGroup', {
@@ -180,7 +193,8 @@ test('supplied prospectuses need a current official URL before they can be appro
   });
   const getCandidateEvidenceStatus = load('getCandidateEvidenceStatus', {
     requiresCurrentCandidateEvidence,
-    getSafeExternalUrl: (value) => /^https?:\/\//.test(value || '') ? value : ''
+    getSafeExternalUrl: (value) => /^https?:\/\//.test(value || '') ? value : '',
+    programmeFreshnessThresholds: { currentDays: 180 }
   });
   const getProgrammeApprovalBlocker = load('getProgrammeApprovalBlocker', { getCandidateEvidenceStatus });
   const candidate = {
@@ -190,7 +204,13 @@ test('supplied prospectuses need a current official URL before they can be appro
   };
   assert.equal(getCandidateEvidenceStatus(candidate).candidateLabel, 'Supplied prospectus candidate');
   assert.match(getProgrammeApprovalBlocker(candidate), /current official source URL/);
-  assert.equal(getProgrammeApprovalBlocker({ ...candidate, sourceUrl: 'https://institution.example/current-prospectus' }), '');
+  const currentSource = { ...candidate, sourceUrl: 'https://institution.example/current-prospectus' };
+  assert.match(getProgrammeApprovalBlocker(currentSource), /checked today/);
+  assert.equal(getProgrammeApprovalBlocker({ ...currentSource, sourceCheckedAt: new Date().toISOString() }), '');
+  assert.match(
+    getProgrammeApprovalBlocker({ ...currentSource, sourceCheckedAt: '2025-01-01T00:00:00Z' }),
+    /checked today/
+  );
 });
 test('unclassified application status is never promoted to a verified deadline', () => {
   const normalizeDeadlineStatus = load('normalizeDeadlineStatus');

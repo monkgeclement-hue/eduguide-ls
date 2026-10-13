@@ -1487,19 +1487,20 @@ function formatDateOnly(value) {
 function getProgrammeVerificationMeta(programme) {
   const reviewStatus = programme?.reviewStatus || "needs_admin_review";
   const reviewedAt = programme?.reviewedAt || null;
-  const ageDays = reviewedAt ? Math.max(0, Math.floor((Date.now() - new Date(reviewedAt).getTime()) / 86400000)) : null;
+  const sourceCheckedAt = programme?.sourceCheckedAt || reviewedAt;
+  const ageDays = sourceCheckedAt ? Math.max(0, Math.floor((Date.now() - new Date(sourceCheckedAt).getTime()) / 86400000)) : null;
   const sourceLabel = programme?.sourceUrl || programme?.sourcePath ? "Official source trace" : "Source not yet confirmed";
   if (reviewStatus === "approved") {
     if (ageDays === null) {
-      return { tone: "warning", label: "Approval pending recheck", summary: "Approved record needs a fresh review date.", icon: "shield-check", source: { label: sourceLabel, value: programme?.sourceUrl || programme?.sourcePath || "Not recorded" }, ageDays, status: "approved" };
+      return { tone: "warning", label: "Approval pending recheck", summary: "Approved record needs a source-check date.", icon: "shield-check", source: { label: sourceLabel, value: programme?.sourceUrl || programme?.sourcePath || "Not recorded" }, ageDays, status: "approved" };
     }
     if (ageDays <= programmeFreshnessThresholds.currentDays) {
-      return { tone: "success", label: "Verified current", summary: `Reviewed ${formatDateOnly(reviewedAt)} and still within the current evidence window.`, icon: "shield-check", source: { label: sourceLabel, value: programme?.sourceUrl || programme?.sourcePath || "Not recorded" }, ageDays, status: "approved" };
+      return { tone: "success", label: "Verified current", summary: `Source checked ${formatDateOnly(sourceCheckedAt)} and still within the current evidence window.`, icon: "shield-check", source: { label: sourceLabel, value: programme?.sourceUrl || programme?.sourcePath || "Not recorded" }, ageDays, status: "approved" };
     }
     if (ageDays <= programmeFreshnessThresholds.reviewSoonDays) {
-      return { tone: "warning", label: "Review recommended", summary: `Last verified ${formatDateOnly(reviewedAt)}; it is due for a fresh check soon.`, icon: "triangle-alert", source: { label: sourceLabel, value: programme?.sourceUrl || programme?.sourcePath || "Not recorded" }, ageDays, status: "approved" };
+      return { tone: "warning", label: "Review recommended", summary: `Source last checked ${formatDateOnly(sourceCheckedAt)}; it is due for a fresh check soon.`, icon: "triangle-alert", source: { label: sourceLabel, value: programme?.sourceUrl || programme?.sourcePath || "Not recorded" }, ageDays, status: "approved" };
     }
-    return { tone: "danger", label: "Stale approval", summary: `This record has not been reviewed for ${ageDays} days.`, icon: "triangle-alert", source: { label: sourceLabel, value: programme?.sourceUrl || programme?.sourcePath || "Not recorded" }, ageDays, status: "approved" };
+    return { tone: "danger", label: "Stale approval", summary: `This source has not been checked for ${ageDays} days.`, icon: "triangle-alert", source: { label: sourceLabel, value: programme?.sourceUrl || programme?.sourcePath || "Not recorded" }, ageDays, status: "approved" };
   }
   if (reviewStatus === "flagged") {
     return { tone: "warning", label: "Needs admin attention", summary: "This record was flagged and should be checked before it is trusted.", icon: "flag", source: { label: sourceLabel, value: programme?.sourceUrl || programme?.sourcePath || "Not recorded" }, ageDays, status: "flagged" };
@@ -1519,13 +1520,14 @@ function getProgrammeVerificationPayload(programme) {
     sourceLabel: verification.source?.label || "Source not yet confirmed",
     sourceUrl: verification.source?.value || null,
     reviewedAt: programme?.reviewedAt || null,
+    sourceCheckedAt: programme?.sourceCheckedAt || programme?.reviewedAt || null,
     ageDays: verification.ageDays
   };
 }
 
 function getProgrammeSourceReviewState(programme = {}, now = Date.now()) {
   if (!hasProgrammeReviewableSource(programme)) return "missing_source";
-  const reviewedAt = new Date(programme.reviewedAt || "").getTime();
+  const reviewedAt = new Date(programme.sourceCheckedAt || programme.reviewedAt || "").getTime();
   if (!Number.isFinite(reviewedAt)) return "unreviewed";
   const ageDays = Math.max(0, Math.floor((now - reviewedAt) / 86400000));
   if (ageDays > programmeFreshnessThresholds.reviewSoonDays) return "overdue";
@@ -1539,7 +1541,7 @@ function programmeNeedsSourceReview(programme = {}) {
 
 function getSourceFreshnessMeta(programme = {}) {
   const reviewState = getProgrammeSourceReviewState(programme);
-  const reviewedAt = programme.reviewedAt || null;
+  const reviewedAt = programme.sourceCheckedAt || programme.reviewedAt || null;
   if (reviewState === "missing_source") return { tone: "red", label: "Source not linked", detail: "Ask the institution or admin to add an official source before this record is trusted." };
   if (reviewState === "unreviewed") return { tone: "amber", label: "Source check needed", detail: "Evidence is linked, but an admin has not confirmed it is current yet." };
   const ageDays = Math.max(0, Math.floor((Date.now() - new Date(reviewedAt).getTime()) / 86400000));
@@ -1561,6 +1563,20 @@ function getProgrammeReviewableSources(programme = {}) {
     .map((value) => String(value || "").trim())
     .filter((value) => value && !/^(?:javascript|data):/i.test(value))
     .filter((value) => getSafeExternalUrl(value) || getEvidenceFileLabel(value));
+}
+
+function getProgrammeSourceFingerprint(programme = {}) {
+  return [
+    programme.sourceUrl,
+    programme.sourcePath,
+    programme.sourceFile,
+    programme.supportingSourcePath,
+    programme.supportingSourceFile,
+    programme.supportingFeeSourcePath,
+    programme.supportingFeeSourceFile
+  ]
+    .map((value) => String(value || "").trim())
+    .join("|");
 }
 
 function hasProgrammeReviewableSource(programme = {}) {
@@ -2334,6 +2350,7 @@ const programmePersistFields = [
   "sourcePath",
   "supportingSourcePath",
   "supportingFeeSourcePath",
+  "sourceCheckedAt",
   "applicationUrl",
   "applicationDeadline",
   "intakeStatus",
@@ -2849,6 +2866,7 @@ function createAdminProgramme() {
     sourceType: "manual_admin_entry",
     extractionMethod: "admin_dashboard",
     reviewStatus: "needs_admin_review",
+    sourceCheckedAt: null,
     sourceNote: "Created manually in the admin dashboard.",
     feeNote: null
   };
@@ -2875,6 +2893,7 @@ async function saveProgrammeEdit(id) {
   const previousGaps = structuredClone(adminGaps);
   const payload = getProgrammeEditPayload();
   const changes = {};
+  const previousSourceFingerprint = getProgrammeSourceFingerprint(programme);
 
   Object.entries(payload).forEach(([key, value]) => {
     if (!valuesAreEqual(programme[key], value)) {
@@ -2882,6 +2901,11 @@ async function saveProgrammeEdit(id) {
       programme[key] = value;
     }
   });
+
+  if (previousSourceFingerprint !== getProgrammeSourceFingerprint(programme) && programme.sourceCheckedAt) {
+    changes.sourceCheckedAt = { from: programme.sourceCheckedAt, to: null };
+    programme.sourceCheckedAt = null;
+  }
 
   if (!programme.name) programme.name = "Programme under review";
   if (!programme.institution) programme.institution = "Institution under review";
@@ -6859,12 +6883,18 @@ function getCandidateEvidenceStatus(programme = {}) {
   const hasCurrentSource = Boolean(getSafeExternalUrl(programme.sourceUrl));
   const currentDetailFields = ["duration", "requirementsSummary", "overview", "applicationUrl", "applicationDeadline", "intakeStatus"];
   const hasCurrentDetail = currentDetailFields.some((field) => String(programme[field] || "").trim());
+  const sourceCheckedAt = new Date(programme.sourceCheckedAt || "").getTime();
+  const sourceCheckAgeMs = Date.now() - sourceCheckedAt;
+  const hasCurrentSourceCheck = Number.isFinite(sourceCheckedAt)
+    && sourceCheckAgeMs >= 0
+    && Math.floor(sourceCheckAgeMs / 86400000) <= programmeFreshnessThresholds.currentDays;
   return {
     requiresCurrentEvidence,
     candidateLabel: sourceType === "official_regulator_historical_pdf" ? "Historical CHE candidate" : "Supplied prospectus candidate",
     hasCurrentSource,
     hasCurrentDetail,
-    ready: !requiresCurrentEvidence || (hasCurrentSource && hasCurrentDetail)
+    hasCurrentSourceCheck,
+    ready: !requiresCurrentEvidence || (hasCurrentSource && hasCurrentDetail && hasCurrentSourceCheck)
   };
 }
 
@@ -6875,7 +6905,8 @@ function getProgrammeApprovalBlocker(programme = {}) {
     return `Add a current official source URL and at least one current programme detail before approving this ${evidence.candidateLabel.toLowerCase()}.`;
   }
   if (!evidence.hasCurrentSource) return `Add a current official source URL before approving this ${evidence.candidateLabel.toLowerCase()}.`;
-  return `Add at least one current programme detail before approving this ${evidence.candidateLabel.toLowerCase()}.`;
+  if (!evidence.hasCurrentDetail) return `Add at least one current programme detail before approving this ${evidence.candidateLabel.toLowerCase()}.`;
+  return `Confirm the current official source was checked today before approving this ${evidence.candidateLabel.toLowerCase()}.`;
 }
 
 function getPublicProgrammeCount() {
@@ -10582,14 +10613,14 @@ async function markProgrammeSourceReviewed(id) {
     return;
   }
 
-  const previousReviewedAt = programme.reviewedAt || null;
-  const reviewedAt = new Date().toISOString();
-  programme.reviewedAt = reviewedAt;
+  const previousSourceCheckedAt = programme.sourceCheckedAt || null;
+  const sourceCheckedAt = new Date().toISOString();
+  programme.sourceCheckedAt = sourceCheckedAt;
   adminState.selectedProgrammeId = id;
   lastPersistenceMessage = serverDatabaseAvailable ? "Saving source review..." : "Saved locally";
   renderAdmin();
   try {
-    await persistProgrammeEdit(programme, { reviewedAt: { from: previousReviewedAt, to: reviewedAt } });
+    await persistProgrammeEdit(programme, { sourceCheckedAt: { from: previousSourceCheckedAt, to: sourceCheckedAt } });
     lastPersistenceMessage = serverDatabaseAvailable
       ? (persistenceMode === "server-supabase" ? "Synced source review to Supabase" : "Synced source review to database")
       : "Saved locally";
@@ -10597,11 +10628,11 @@ async function markProgrammeSourceReviewed(id) {
     recordCurrentUserActivity("admin_programme_source_reviewed", "Confirmed a programme source review", {
       programmeId: programme.id,
       programmeName: programme.name,
-      reviewedAt,
+      sourceCheckedAt,
       sourceCount: getProgrammeReviewableSources(programme).length
     });
   } catch (error) {
-    programme.reviewedAt = previousReviewedAt;
+    programme.sourceCheckedAt = previousSourceCheckedAt;
     lastPersistenceMessage = `Sync failed: ${error.message || "source review"}`;
     setAdminActionStatus(lastPersistenceMessage, "danger");
   }
@@ -10624,16 +10655,16 @@ async function markProgrammeSourceReviewGroup(id) {
   );
   if (!confirmed) return;
 
-  const previousReviewedAt = new Map(records.map((item) => [item.id, item.reviewedAt || null]));
-  const reviewedAt = new Date().toISOString();
+  const previousSourceCheckedAt = new Map(records.map((item) => [item.id, item.sourceCheckedAt || null]));
+  const sourceCheckedAt = new Date().toISOString();
   records.forEach((item) => {
-    item.reviewedAt = reviewedAt;
+    item.sourceCheckedAt = sourceCheckedAt;
   });
   adminState.selectedProgrammeId = id;
   lastPersistenceMessage = serverDatabaseAvailable ? "Saving source reviews..." : "Saved locally";
   renderAdmin();
   try {
-    await persistProgrammeEdit(programme, { reviewedAt: { groupCount: records.length, to: reviewedAt } });
+    await persistProgrammeEdit(programme, { sourceCheckedAt: { groupCount: records.length, to: sourceCheckedAt } });
     lastPersistenceMessage = serverDatabaseAvailable
       ? (persistenceMode === "server-supabase" ? "Synced source reviews to Supabase" : "Synced source reviews to database")
       : "Saved locally";
@@ -10642,13 +10673,13 @@ async function markProgrammeSourceReviewGroup(id) {
       programmeId: programme.id,
       programmeName: programme.name,
       programmeIds: records.map((item) => item.id).slice(0, 80),
-      reviewedAt,
+      sourceCheckedAt,
       recordCount: records.length,
       source: getProgrammeReviewableSources(programme)[0]
     });
   } catch (error) {
     records.forEach((item) => {
-      item.reviewedAt = previousReviewedAt.get(item.id) || null;
+      item.sourceCheckedAt = previousSourceCheckedAt.get(item.id) || null;
     });
     lastPersistenceMessage = `Sync failed: ${error.message || "source review"}`;
     setAdminActionStatus(lastPersistenceMessage, "danger");

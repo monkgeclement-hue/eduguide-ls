@@ -1,4 +1,5 @@
 import unittest
+from copy import deepcopy
 from unittest.mock import patch
 from datetime import datetime, timezone
 from pathlib import Path
@@ -278,10 +279,18 @@ class RoleWorkflowTests(unittest.TestCase):
           "reviewStatus": "approved",
           "sourceUrl": "https://example.edu/programmes/current-offering",
           "requirementsSummary": "Five credits including English.",
+          "sourceCheckedAt": server.now_iso(),
         }
       },
     }
     self.assertEqual(server.sanitize_database_state_payload("review_state", reviewed_state), reviewed_state)
+
+    stale_state = deepcopy(reviewed_state)
+    stale_state["programmeEdits"][candidate_id]["sourceCheckedAt"] = "2025-01-01T00:00:00Z"
+    with self.assertRaises(HTTPException) as error:
+      server.sanitize_database_state_payload("review_state", stale_state)
+    self.assertEqual(error.exception.status_code, 400)
+    self.assertIn("source check confirmed within the last 180 days", error.exception.detail)
 
   def test_evidence_candidate_approval_guard_is_visible_to_admins(self):
     app_script = (Path(__file__).resolve().parents[1] / "app.js").read_text(encoding="utf-8")
@@ -332,6 +341,8 @@ class RoleWorkflowTests(unittest.TestCase):
     self.assertIn("function markProgrammeSourceReviewGroup", app_script)
     self.assertIn('data-admin-source-review-group', app_script)
     self.assertIn('admin_programme_source_group_reviewed', app_script)
+    self.assertIn("sourceCheckedAt", app_script)
+    self.assertIn("getProgrammeSourceFingerprint", app_script)
 
   def test_admin_can_write_privileged_audit_events(self):
     admin = {"id": "admin-1", "role": "admin"}
