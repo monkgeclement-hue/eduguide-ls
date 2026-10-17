@@ -3662,6 +3662,14 @@ def validate_current_evidence_catalogue_review_state(payload: dict[str, Any]) ->
 
 
 SOURCE_REPORT_RESOLUTION_STATUSES = {"in_progress", "resolved"}
+COLLEGE_RESEARCH_LEAD_STATUSES = {"lead", "checking", "verified", "rejected"}
+COLLEGE_RESEARCH_LEAD_SOURCE_TYPES = {
+  "official_directory",
+  "official_document",
+  "public_social_post",
+  "community_referral",
+  "other",
+}
 
 
 def sanitize_source_report_resolutions(payload: dict[str, Any]) -> dict[str, Any]:
@@ -3685,6 +3693,70 @@ def sanitize_source_report_resolutions(payload: dict[str, Any]) -> dict[str, Any
       "reviewedAt": str(resolution.get("reviewedAt") or "").strip()[:64],
     }
   return {**payload, "sourceReportResolutions": clean_resolutions}
+
+
+def sanitize_college_research_leads(payload: dict[str, Any]) -> dict[str, Any]:
+  """Keep college-discovery leads private until official evidence is checked.
+
+  A public post, screenshot, or referral can help staff discover a college,
+  but never becomes catalogue evidence on its own. Only an official URL with a
+  current check can receive the verified lead status.
+  """
+  raw_leads = payload.get("collegeResearchLeads")
+  if raw_leads is None:
+    return payload
+  if not isinstance(raw_leads, list):
+    return {**payload, "collegeResearchLeads": []}
+
+  clean_leads: list[dict[str, str]] = []
+  seen_ids: set[str] = set()
+  now = datetime.now(timezone.utc)
+  for raw_lead in raw_leads[:120]:
+    if not isinstance(raw_lead, dict):
+      continue
+    lead_id = re.sub(r"[^a-zA-Z0-9_-]", "", str(raw_lead.get("id") or ""))[:100]
+    institution = sanitize_guidance_text(raw_lead.get("institution"), 180)
+    note = sanitize_guidance_text(raw_lead.get("note"), 1800)
+    if not lead_id.startswith("lead-") or lead_id in seen_ids or not institution or not note:
+      continue
+    source_type = str(raw_lead.get("leadSourceType") or "other").strip().lower()
+    if source_type not in COLLEGE_RESEARCH_LEAD_SOURCE_TYPES:
+      source_type = "other"
+    status = str(raw_lead.get("status") or "lead").strip().lower()
+    if status not in COLLEGE_RESEARCH_LEAD_STATUSES:
+      status = "lead"
+
+    official_source_url = public_catalogue_url(raw_lead.get("officialSourceUrl"))
+    source_checked_at = str(raw_lead.get("sourceCheckedAt") or "").strip()[:64]
+    checked_on = parse_iso_datetime(source_checked_at)
+    age_days = (now - checked_on).days if checked_on else CATALOGUE_SOURCE_CURRENT_DAYS + 1
+    has_current_official_evidence = bool(official_source_url and 0 <= age_days <= CATALOGUE_SOURCE_CURRENT_DAYS)
+    if status == "verified" and not has_current_official_evidence:
+      status = "checking"
+
+    created_at = str(raw_lead.get("createdAt") or "").strip()[:64]
+    if not parse_iso_datetime(created_at):
+      created_at = now_iso()
+    updated_at = str(raw_lead.get("updatedAt") or "").strip()[:64]
+    if not parse_iso_datetime(updated_at):
+      updated_at = now_iso()
+    clean_leads.append(
+      {
+        "id": lead_id,
+        "institution": institution,
+        "leadSourceType": source_type,
+        "leadSourceUrl": public_catalogue_url(raw_lead.get("leadSourceUrl")) or "",
+        "note": note,
+        "status": status,
+        "officialSourceUrl": official_source_url or "",
+        "sourceCheckedAt": source_checked_at if checked_on else "",
+        "verificationNote": sanitize_guidance_text(raw_lead.get("verificationNote"), 1000),
+        "createdAt": created_at,
+        "updatedAt": updated_at,
+      }
+    )
+    seen_ids.add(lead_id)
+  return {**payload, "collegeResearchLeads": clean_leads}
 
 
 def build_student_source_reports(student_id: str, limit: int = 100) -> list[dict[str, Any]]:
@@ -3722,6 +3794,7 @@ def sanitize_database_state_payload(state_key: str, payload: Any) -> Any:
   if state_key == "review_state" and isinstance(payload, dict):
     validate_current_evidence_catalogue_review_state(payload)
     payload = sanitize_source_report_resolutions(payload)
+    payload = sanitize_college_research_leads(payload)
   if state_key != "auth_users" or not isinstance(payload, dict):
     return payload
   users = payload.get("users")

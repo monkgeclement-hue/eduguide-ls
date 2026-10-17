@@ -299,6 +299,27 @@ class RoleWorkflowTests(unittest.TestCase):
     self.assertIn("Supplied prospectus candidate", app_script)
     self.assertIn("current_evidence_candidates", app_script)
 
+  def test_college_research_leads_need_current_official_evidence_before_verification(self):
+    lead = {
+      "id": "lead-college-example",
+      "institution": "Example College",
+      "leadSourceType": "public_social_post",
+      "leadSourceUrl": "https://www.facebook.com/example-college",
+      "note": "A public post says applications may be open.",
+      "status": "verified",
+      "createdAt": server.now_iso(),
+      "updatedAt": server.now_iso(),
+    }
+    state = server.sanitize_database_state_payload("review_state", {"collegeResearchLeads": [lead]})
+    self.assertEqual(state["collegeResearchLeads"][0]["status"], "checking")
+    self.assertEqual(state["collegeResearchLeads"][0]["officialSourceUrl"], "")
+
+    lead["officialSourceUrl"] = "https://example.edu.ls/prospectus"
+    lead["sourceCheckedAt"] = server.now_iso()
+    verified_state = server.sanitize_database_state_payload("review_state", {"collegeResearchLeads": [lead]})
+    self.assertEqual(verified_state["collegeResearchLeads"][0]["status"], "verified")
+    self.assertEqual(verified_state["collegeResearchLeads"][0]["leadSourceType"], "public_social_post")
+
   def test_requirements_helper_does_not_invent_placeholder_lines(self):
     app_script = (Path(__file__).resolve().parents[1] / "app.js").read_text(encoding="utf-8")
     helper = app_script.split("function getRequirementsForProgramme", 1)[1][:800]
@@ -343,6 +364,15 @@ class RoleWorkflowTests(unittest.TestCase):
     self.assertIn('admin_programme_source_group_reviewed', app_script)
     self.assertIn("sourceCheckedAt", app_script)
     self.assertIn("getProgrammeSourceFingerprint", app_script)
+
+  def test_admin_has_private_college_research_lead_queue(self):
+    root = Path(__file__).resolve().parents[1]
+    app_script = (root / "app.js").read_text(encoding="utf-8")
+    self.assertIn('id="college-research-lead-form"', app_script)
+    self.assertIn("function verifyCollegeResearchLead", app_script)
+    self.assertIn("admin_college_research_lead_verified", app_script)
+    self.assertIn("Public social post", app_script)
+    self.assertIn("never catalogue evidence by themselves", app_script)
 
   def test_admin_can_write_privileged_audit_events(self):
     admin = {"id": "admin-1", "role": "admin"}

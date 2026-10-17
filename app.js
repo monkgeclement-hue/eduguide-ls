@@ -128,6 +128,7 @@ let adminProgrammes = structuredClone(adminData.programmes || []);
 let adminGaps = structuredClone(adminData.dataGaps || []);
 let adminFees = structuredClone(adminData.fees || []);
 let adminSources = structuredClone(adminData.sources || []);
+let collegeResearchLeads = [];
 let adminState = {
   tab: "catalogue",
   search: "",
@@ -2416,6 +2417,7 @@ function getReviewStateSnapshot() {
     customGaps: adminGaps.filter(isCustomAdminGap).map((gap) => ({ ...gap })),
     gapStatuses: Object.fromEntries(adminGaps.map((gap) => [gap.id, gap.status])),
     sourceReportResolutions,
+    collegeResearchLeads,
     savedAt: new Date().toISOString()
   };
 }
@@ -2484,6 +2486,7 @@ function applyReviewState(snapshot) {
   applyCustomProgrammes(snapshot.customProgrammes || []);
   applyCustomGaps(snapshot.customGaps || []);
   sourceReportResolutions = normalizeSourceReportResolutions(snapshot.sourceReportResolutions);
+  collegeResearchLeads = normalizeCollegeResearchLeads(snapshot.collegeResearchLeads);
   const isCurrentCatalogue = snapshot.catalogueDataVersion === catalogueDataVersion;
   if (!isCurrentCatalogue) return false;
   const programmeStatuses = snapshot.programmeStatuses || {};
@@ -2999,6 +3002,7 @@ function resetLocalReviewState() {
   adminProgrammes = structuredClone(adminData.programmes || []);
   adminGaps = structuredClone(adminData.dataGaps || []);
   sourceReportResolutions = {};
+  collegeResearchLeads = [];
   adminState.selectedProgrammeId = adminProgrammes[0]?.id || null;
   adminState.editingProgrammeId = null;
   saveServerState("review_state", getReviewStateSnapshot());
@@ -9496,6 +9500,73 @@ function getSourceReportStatus(reportId) {
   return sourceReportResolutions[reportId]?.status || "open";
 }
 
+const collegeResearchLeadSourceLabels = Object.freeze({
+  official_directory: "Official directory",
+  official_document: "Official document",
+  public_social_post: "Public social post",
+  community_referral: "Community referral",
+  other: "Other lead"
+});
+
+function normalizeCollegeResearchLeads(leads = []) {
+  if (!Array.isArray(leads)) return [];
+  const seenIds = new Set();
+  return leads
+    .filter((lead) => lead && typeof lead === "object")
+    .map((lead) => {
+      const id = String(lead.id || "").trim().slice(0, 100);
+      const institution = String(lead.institution || "").trim().slice(0, 180);
+      const note = String(lead.note || "").trim().slice(0, 1800);
+      if (!id.startsWith("lead-") || seenIds.has(id) || !institution || !note) return null;
+      seenIds.add(id);
+      const leadSourceType = collegeResearchLeadSourceLabels[lead.leadSourceType] ? lead.leadSourceType : "other";
+      const status = ["lead", "checking", "verified", "rejected"].includes(lead.status) ? lead.status : "lead";
+      return {
+        id,
+        institution,
+        leadSourceType,
+        leadSourceUrl: getSafeExternalUrl(lead.leadSourceUrl) || "",
+        note,
+        status,
+        officialSourceUrl: getSafeExternalUrl(lead.officialSourceUrl) || "",
+        sourceCheckedAt: String(lead.sourceCheckedAt || "").slice(0, 64),
+        verificationNote: String(lead.verificationNote || "").trim().slice(0, 1000),
+        createdAt: String(lead.createdAt || "").slice(0, 64),
+        updatedAt: String(lead.updatedAt || "").slice(0, 64)
+      };
+    })
+    .filter(Boolean)
+    .slice(0, 120);
+}
+
+function getCollegeResearchLeadEvidence(lead = {}) {
+  const sourceCheckedAt = new Date(lead.sourceCheckedAt || "").getTime();
+  const ageMs = Date.now() - sourceCheckedAt;
+  const hasFreshOfficialSource = Boolean(getSafeExternalUrl(lead.officialSourceUrl))
+    && Number.isFinite(sourceCheckedAt)
+    && ageMs >= 0
+    && Math.floor(ageMs / 86400000) <= programmeFreshnessThresholds.currentDays;
+  if (hasFreshOfficialSource) return { ready: true, label: "Official source checked", tone: "green" };
+  if (getSafeExternalUrl(lead.officialSourceUrl)) return { ready: false, label: "Official source needs check", tone: "amber" };
+  return { ready: false, label: "Lead only", tone: "amber" };
+}
+
+function getFilteredCollegeResearchLeads() {
+  return collegeResearchLeads.filter((lead) => {
+    const institutionMatch = adminState.institution === "all" || lead.institution === adminState.institution;
+    const searchMatch = adminSearchMatches([
+      lead.institution,
+      lead.leadSourceType,
+      lead.leadSourceUrl,
+      lead.note,
+      lead.status,
+      lead.officialSourceUrl,
+      lead.verificationNote
+    ]);
+    return institutionMatch && searchMatch;
+  });
+}
+
 function getFilteredAdminSourceReports() {
   return adminAuditEvents
     .filter((event) => event.eventType === "source_outdated_reported")
@@ -9669,8 +9740,71 @@ function renderAdminFees() {
 function renderAdminSources() {
   const filteredSources = getFilteredAdminSources();
   const sourceReports = getFilteredAdminSourceReports();
+  const researchLeads = getFilteredCollegeResearchLeads();
   const openReports = sourceReports.filter((report) => report.status === "open").length;
-  qs("#source-audit-count").textContent = `${openReports} open report${openReports === 1 ? "" : "s"} - ${filteredSources.length} sources`;
+  const openResearchLeads = researchLeads.filter((lead) => !["verified", "rejected"].includes(lead.status)).length;
+  qs("#source-audit-count").textContent = `${openReports} open report${openReports === 1 ? "" : "s"} - ${openResearchLeads} college lead${openResearchLeads === 1 ? "" : "s"} - ${filteredSources.length} sources`;
+  const researchQueue = `
+    <section class="source-report-queue research-lead-queue" aria-label="College research leads">
+      <div class="source-report-queue-head">
+        <div>
+          <strong>College research leads</strong>
+          <span>Private discovery queue. Public posts and referrals are never catalogue evidence by themselves.</span>
+        </div>
+        <span class="badge blue">${researchLeads.length} lead${researchLeads.length === 1 ? "" : "s"}</span>
+      </div>
+      <form class="research-lead-form" id="college-research-lead-form">
+        <label><span>College name</span><input name="institution" maxlength="180" required placeholder="College or training institute" /></label>
+        <label><span>Lead type</span><select name="leadSourceType">${Object.entries(collegeResearchLeadSourceLabels).map(([value, label]) => `<option value="${escapeHtml(value)}">${escapeHtml(label)}</option>`).join("")}</select></label>
+        <label><span>Public lead URL</span><input name="leadSourceUrl" type="url" maxlength="2000" placeholder="https://..." /></label>
+        <label class="research-lead-note"><span>What does this lead say?</span><textarea name="note" rows="2" maxlength="1800" required placeholder="Programmes, prospectus location, contact route, or what still needs verification"></textarea></label>
+        <button class="secondary-action" type="submit"><i data-lucide="plus"></i>Add lead</button>
+      </form>
+      <div class="source-report-list">
+        ${
+          researchLeads.length
+            ? researchLeads.map((lead) => {
+                const evidence = getCollegeResearchLeadEvidence(lead);
+                const leadUrl = getSafeExternalUrl(lead.leadSourceUrl);
+                const officialUrl = getSafeExternalUrl(lead.officialSourceUrl);
+                return `
+                  <article class="source-report-row research-lead-row">
+                    <div class="admin-row-main">
+                      <div class="admin-row-title">
+                        <h4>${escapeHtml(lead.institution)}</h4>
+                        <span class="badge ${badgeClassForStatus(lead.status)}">${escapeHtml(formatStatus(lead.status))}</span>
+                        <span class="badge ${evidence.tone}">${escapeHtml(evidence.label)}</span>
+                      </div>
+                      <p>${escapeHtml(collegeResearchLeadSourceLabels[lead.leadSourceType] || "Other lead")}: ${escapeHtml(lead.note)}</p>
+                      <div class="admin-row-meta">
+                        <span>Added ${escapeHtml(formatDateTime(lead.createdAt))}</span>
+                        ${leadUrl ? `<a class="source-report-link" href="${escapeHtml(leadUrl)}" target="_blank" rel="noreferrer">Open lead</a>` : ""}
+                        ${officialUrl ? `<a class="source-report-link" href="${escapeHtml(officialUrl)}" target="_blank" rel="noreferrer">Open official source</a>` : ""}
+                        ${lead.sourceCheckedAt ? `<span>Checked ${escapeHtml(formatDateTime(lead.sourceCheckedAt))}</span>` : ""}
+                      </div>
+                      ${lead.verificationNote ? `<p class="muted-inline">${escapeHtml(lead.verificationNote)}</p>` : ""}
+                      <details class="research-lead-verification">
+                        <summary>Add or replace official evidence</summary>
+                        <form class="research-lead-verify-form" data-college-lead-verify="${escapeHtml(lead.id)}">
+                          <label><span>Official source URL</span><input name="officialSourceUrl" type="url" maxlength="2000" required value="${escapeHtml(officialUrl)}" placeholder="https://college.example/prospectus" /></label>
+                          <label><span>Verification note</span><textarea name="verificationNote" rows="2" maxlength="1000" placeholder="What did you confirm in the official source?">${escapeHtml(lead.verificationNote || "")}</textarea></label>
+                          <button class="secondary-action" type="submit"><i data-lucide="badge-check"></i>Confirm official source</button>
+                        </form>
+                      </details>
+                    </div>
+                    <div class="admin-row-actions source-report-actions">
+                      <button type="button" title="Mark checking" data-college-lead-status="checking" data-college-lead-id="${escapeHtml(lead.id)}" ${lead.status === "checking" ? "disabled" : ""}><i data-lucide="clock-3"></i></button>
+                      <button type="button" title="Mark rejected" class="reject" data-college-lead-status="rejected" data-college-lead-id="${escapeHtml(lead.id)}" ${lead.status === "rejected" ? "disabled" : ""}><i data-lucide="x"></i></button>
+                      ${lead.status !== "lead" ? `<button type="button" title="Return to lead" data-college-lead-status="lead" data-college-lead-id="${escapeHtml(lead.id)}"><i data-lucide="rotate-ccw"></i></button>` : ""}
+                    </div>
+                  </article>
+                `;
+              }).join("")
+            : `<p class="muted-inline">No research leads match the current filters.</p>`
+        }
+      </div>
+    </section>
+  `;
   const reportQueue = sourceReports.length
     ? `
       <section class="source-report-queue" aria-label="Student source reports">
@@ -9753,7 +9887,7 @@ function renderAdminSources() {
         })
         .join("")
     : `<article class="admin-empty"><h4>No sources match the filters.</h4><p>Try another institution.</p></article>`;
-  qs("#admin-source-list").innerHTML = `${reportQueue}${sourceList}`;
+  qs("#admin-source-list").innerHTML = `${researchQueue}${reportQueue}${sourceList}`;
 }
 
 async function loadAdminIntelligence() {
@@ -10769,6 +10903,102 @@ async function setSourceReportStatus(reportId, status) {
   renderAdmin();
 }
 
+async function saveCollegeResearchLeads(previousLeads, eventType, label, metadata = {}) {
+  lastPersistenceMessage = serverDatabaseAvailable ? "Saving college lead..." : "Saved locally";
+  renderAdmin();
+  try {
+    await saveServerState("review_state", getReviewStateSnapshot(), { throwOnError: true });
+    lastPersistenceMessage = serverDatabaseAvailable
+      ? (persistenceMode === "server-supabase" ? "Saved college lead to Supabase" : "Saved college lead to database")
+      : "Saved locally";
+    recordCurrentUserActivity(eventType, label, metadata);
+    setAdminActionStatus(label, "success");
+  } catch (error) {
+    collegeResearchLeads = previousLeads;
+    lastPersistenceMessage = `College lead sync failed: ${error.message || "database update"}`;
+    setAdminActionStatus(lastPersistenceMessage, "danger");
+  }
+  renderAdmin();
+}
+
+async function addCollegeResearchLead(form) {
+  if (!isAdmin()) return;
+  const values = new FormData(form);
+  const institution = String(values.get("institution") || "").trim();
+  const note = String(values.get("note") || "").trim();
+  const rawLeadUrl = String(values.get("leadSourceUrl") || "").trim();
+  const leadSourceUrl = getSafeExternalUrl(rawLeadUrl);
+  if (!institution || !note) {
+    setAdminActionStatus("Add the college name and what the lead says before saving it.", "warning");
+    return;
+  }
+  if (rawLeadUrl && !leadSourceUrl) {
+    setAdminActionStatus("Use a complete public https:// or http:// lead URL, or leave the URL blank for an offline referral or screenshot.", "warning");
+    return;
+  }
+  const previousLeads = structuredClone(collegeResearchLeads);
+  const now = new Date().toISOString();
+  const lead = {
+    id: generateUserId("lead"),
+    institution: institution.slice(0, 180),
+    leadSourceType: collegeResearchLeadSourceLabels[values.get("leadSourceType")] ? values.get("leadSourceType") : "other",
+    leadSourceUrl,
+    note: note.slice(0, 1800),
+    status: "lead",
+    officialSourceUrl: "",
+    sourceCheckedAt: "",
+    verificationNote: "",
+    createdAt: now,
+    updatedAt: now
+  };
+  collegeResearchLeads.unshift(lead);
+  await saveCollegeResearchLeads(previousLeads, "admin_college_research_lead_created", `Added college research lead for ${lead.institution}`, {
+    leadId: lead.id,
+    institution: lead.institution,
+    leadSourceType: lead.leadSourceType,
+    hasPublicLeadUrl: Boolean(lead.leadSourceUrl)
+  });
+}
+
+async function setCollegeResearchLeadStatus(leadId, status) {
+  if (!isAdmin() || !["lead", "checking", "rejected"].includes(status)) return;
+  const lead = collegeResearchLeads.find((item) => item.id === leadId);
+  if (!lead || lead.status === status) return;
+  const previousLeads = structuredClone(collegeResearchLeads);
+  lead.status = status;
+  if (status !== "verified") lead.sourceCheckedAt = "";
+  lead.updatedAt = new Date().toISOString();
+  await saveCollegeResearchLeads(previousLeads, "admin_college_research_lead_updated", `Marked college lead ${formatStatus(status)}`, {
+    leadId: lead.id,
+    institution: lead.institution,
+    status
+  });
+}
+
+async function verifyCollegeResearchLead(form) {
+  if (!isAdmin()) return;
+  const lead = collegeResearchLeads.find((item) => item.id === form.dataset.collegeLeadVerify);
+  if (!lead) return;
+  const values = new FormData(form);
+  const rawOfficialUrl = String(values.get("officialSourceUrl") || "").trim();
+  const officialSourceUrl = getSafeExternalUrl(rawOfficialUrl);
+  if (!officialSourceUrl) {
+    setAdminActionStatus("Add the institution or regulator's complete official https:// or http:// source before verifying this lead.", "warning");
+    return;
+  }
+  const previousLeads = structuredClone(collegeResearchLeads);
+  lead.officialSourceUrl = officialSourceUrl;
+  lead.sourceCheckedAt = new Date().toISOString();
+  lead.verificationNote = String(values.get("verificationNote") || "").trim().slice(0, 1000);
+  lead.status = "verified";
+  lead.updatedAt = new Date().toISOString();
+  await saveCollegeResearchLeads(previousLeads, "admin_college_research_lead_verified", `Verified official evidence for ${lead.institution}`, {
+    leadId: lead.id,
+    institution: lead.institution,
+    officialSourceUrl: lead.officialSourceUrl
+  });
+}
+
 function resolveGap(id) {
   return setGapStatus(id, "resolved");
 }
@@ -11752,9 +11982,12 @@ function bindEvents() {
     }
   });
   qs("#view-admin")?.addEventListener("submit", (event) => {
-    if (!event.target.matches("#admin-edit-form")) return;
+    const form = event.target;
+    if (!form.matches("#admin-edit-form, #college-research-lead-form, .research-lead-verify-form")) return;
     event.preventDefault();
-    saveProgrammeEdit(event.target.dataset.programmeId);
+    if (form.matches("#admin-edit-form")) saveProgrammeEdit(form.dataset.programmeId);
+    if (form.matches("#college-research-lead-form")) addCollegeResearchLead(form);
+    if (form.matches(".research-lead-verify-form")) verifyCollegeResearchLead(form);
   });
   qs("#view-admin")?.addEventListener("click", (event) => {
     const commandButton = event.target.closest("#add-programme, #reset-admin-state, #refresh-deployment-status, #test-email-delivery");
@@ -11784,6 +12017,13 @@ function bindEvents() {
     if (sourceReportsRefresh) {
       event.preventDefault();
       loadAdminAudit();
+      return;
+    }
+
+    const collegeLeadStatus = event.target.closest("[data-college-lead-status]");
+    if (collegeLeadStatus) {
+      event.preventDefault();
+      setCollegeResearchLeadStatus(collegeLeadStatus.dataset.collegeLeadId, collegeLeadStatus.dataset.collegeLeadStatus);
       return;
     }
 

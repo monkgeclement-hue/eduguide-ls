@@ -169,6 +169,21 @@ test('changing a linked source gives a programme a new source fingerprint', () =
   });
   assert.notEqual(changed, original);
 });
+test('college discovery leads stay unverified until a recent official source check exists', () => {
+  const getCollegeResearchLeadEvidence = load('getCollegeResearchLeadEvidence', {
+    getSafeExternalUrl: (value) => /^https?:\/\//.test(value || '') ? value : '',
+    programmeFreshnessThresholds: { currentDays: 180 }
+  });
+  assert.equal(getCollegeResearchLeadEvidence({ leadSourceUrl: 'https://facebook.example/college' }).ready, false);
+  assert.equal(
+    getCollegeResearchLeadEvidence({ officialSourceUrl: 'https://college.example/prospectus', sourceCheckedAt: new Date().toISOString() }).ready,
+    true
+  );
+  assert.equal(
+    getCollegeResearchLeadEvidence({ officialSourceUrl: 'https://college.example/prospectus', sourceCheckedAt: '2025-01-01T00:00:00Z' }).ready,
+    false
+  );
+});
 test('source review groups only records with the exact same linked source', () => {
   const getProgrammeSourceReviewGroup = load('getProgrammeSourceReviewGroup', {
     adminProgrammes: [
