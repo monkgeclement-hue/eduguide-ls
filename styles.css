@@ -4817,6 +4817,27 @@ textarea:focus {
   justify-self: start;
 }
 
+.research-lead-starters {
+  display: grid;
+  gap: 7px;
+  padding: 10px;
+  border: 1px dashed #a4cfc0;
+  border-radius: 7px;
+  background: #fbfffd;
+}
+
+.research-lead-starters > span {
+  color: var(--brand-deep);
+  font-size: 12px;
+  font-weight: 900;
+}
+
+.research-lead-starters > div {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
 .research-lead-verification {
   margin-top: 10px;
   padding-top: 10px;
@@ -6053,6 +6074,15 @@ textarea:focus {
   .research-lead-note,
   .research-lead-verify-form label:last-of-type {
     grid-column: auto;
+  }
+
+  .research-lead-starters > div {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .research-lead-starters .secondary-action {
+    justify-content: flex-start;
   }
 
   .admin-row-actions,

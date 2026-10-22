@@ -320,6 +320,21 @@ class RoleWorkflowTests(unittest.TestCase):
     self.assertEqual(verified_state["collegeResearchLeads"][0]["status"], "verified")
     self.assertEqual(verified_state["collegeResearchLeads"][0]["leadSourceType"], "public_social_post")
 
+  def test_official_directory_lead_is_not_catalogue_ready_without_current_programme_evidence(self):
+    lead = {
+      "id": "lead-college-directory",
+      "institution": "College from an Official Directory",
+      "leadSourceType": "official_directory",
+      "leadSourceUrl": "https://education.gov.ls/education/higher-education",
+      "note": "A directory confirms the provider exists, but not current programme details.",
+      "status": "verified",
+      "createdAt": server.now_iso(),
+      "updatedAt": server.now_iso(),
+    }
+    state = server.sanitize_database_state_payload("review_state", {"collegeResearchLeads": [lead]})
+    self.assertEqual(state["collegeResearchLeads"][0]["status"], "checking")
+    self.assertEqual(state["collegeResearchLeads"][0]["officialSourceUrl"], "")
+
   def test_requirements_helper_does_not_invent_placeholder_lines(self):
     app_script = (Path(__file__).resolve().parents[1] / "app.js").read_text(encoding="utf-8")
     helper = app_script.split("function getRequirementsForProgramme", 1)[1][:800]

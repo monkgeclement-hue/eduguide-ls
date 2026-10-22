@@ -184,6 +184,19 @@ test('college discovery leads stay unverified until a recent official source che
     false
   );
 });
+test('official directory starters omit institutions already queued for research', () => {
+  const getAvailableCollegeResearchStarters = load('getAvailableCollegeResearchStarters', {
+    officialCollegeResearchStarters: [
+      { id: 'one', institution: 'College One' },
+      { id: 'two', institution: 'College Two' }
+    ],
+    collegeResearchLeads: []
+  });
+  assert.deepEqual(
+    getAvailableCollegeResearchStarters([{ institution: 'college one' }]).map((starter) => starter.id),
+    ['two']
+  );
+});
 test('source review groups only records with the exact same linked source', () => {
   const getProgrammeSourceReviewGroup = load('getProgrammeSourceReviewGroup', {
     adminProgrammes: [

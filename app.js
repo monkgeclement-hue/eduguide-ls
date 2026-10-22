@@ -9508,6 +9508,38 @@ const collegeResearchLeadSourceLabels = Object.freeze({
   other: "Other lead"
 });
 
+// These are discovery prompts from a public government directory, not catalogue records.
+// They intentionally remain private until staff confirm current programme evidence.
+const officialCollegeResearchStarters = Object.freeze([
+  {
+    id: "college-of-health-and-safety",
+    institution: "College of Health and Safety",
+    leadSourceType: "official_directory",
+    leadSourceUrl: "https://www.education.gov.ls/education/higher-education",
+    note: "The Ministry of Education and Training directory identifies this Maseru private college and says it offers certificate and diploma study in health, safety, and environmental fields. A current prospectus, fees, entry requirements, and contact route still need direct confirmation."
+  },
+  {
+    id: "morija-theological-seminary",
+    institution: "Morija Theological Seminary",
+    leadSourceType: "official_directory",
+    leadSourceUrl: "https://www.education.gov.ls/education/higher-education",
+    note: "The Ministry of Education and Training directory identifies this institution as offering ministerial formation, biblical studies, pastoral training, and church leadership. A current prospectus, fees, entry requirements, and official application route still need direct confirmation."
+  }
+]);
+
+function getAvailableCollegeResearchStarters(leads = collegeResearchLeads) {
+  const knownInstitutions = new Set(
+    (Array.isArray(leads) ? leads : [])
+      .map((lead) => String(lead?.institution || "").trim().toLocaleLowerCase())
+      .filter(Boolean)
+  );
+  return officialCollegeResearchStarters.filter((starter) => !knownInstitutions.has(starter.institution.toLocaleLowerCase()));
+}
+
+function getCollegeResearchStarter(starterId) {
+  return officialCollegeResearchStarters.find((starter) => starter.id === starterId) || null;
+}
+
 function normalizeCollegeResearchLeads(leads = []) {
   if (!Array.isArray(leads)) return [];
   const seenIds = new Set();
@@ -9741,6 +9773,7 @@ function renderAdminSources() {
   const filteredSources = getFilteredAdminSources();
   const sourceReports = getFilteredAdminSourceReports();
   const researchLeads = getFilteredCollegeResearchLeads();
+  const starterLeads = getAvailableCollegeResearchStarters();
   const openReports = sourceReports.filter((report) => report.status === "open").length;
   const openResearchLeads = researchLeads.filter((lead) => !["verified", "rejected"].includes(lead.status)).length;
   qs("#source-audit-count").textContent = `${openReports} open report${openReports === 1 ? "" : "s"} - ${openResearchLeads} college lead${openResearchLeads === 1 ? "" : "s"} - ${filteredSources.length} sources`;
@@ -9760,6 +9793,14 @@ function renderAdminSources() {
         <label class="research-lead-note"><span>What does this lead say?</span><textarea name="note" rows="2" maxlength="1800" required placeholder="Programmes, prospectus location, contact route, or what still needs verification"></textarea></label>
         <button class="secondary-action" type="submit"><i data-lucide="plus"></i>Add lead</button>
       </form>
+      ${starterLeads.length ? `
+        <div class="research-lead-starters">
+          <span>Official directory starters</span>
+          <div>
+            ${starterLeads.map((starter) => `<button class="secondary-action compact-action" type="button" data-college-lead-starter="${escapeHtml(starter.id)}"><i data-lucide="plus"></i>${escapeHtml(starter.institution)}</button>`).join("")}
+          </div>
+        </div>
+      ` : ""}
       <div class="source-report-list">
         ${
           researchLeads.length
@@ -10960,6 +11001,40 @@ async function addCollegeResearchLead(form) {
   });
 }
 
+async function addCollegeResearchStarter(starterId) {
+  if (!isAdmin()) return;
+  const starter = getCollegeResearchStarter(starterId);
+  if (!starter) return;
+  const existingLead = collegeResearchLeads.find((lead) => lead.institution.toLocaleLowerCase() === starter.institution.toLocaleLowerCase());
+  if (existingLead) {
+    setAdminActionStatus(`${starter.institution} is already in the private research queue.`, "info");
+    return;
+  }
+  const previousLeads = structuredClone(collegeResearchLeads);
+  const now = new Date().toISOString();
+  const lead = {
+    id: generateUserId("lead"),
+    institution: starter.institution,
+    leadSourceType: starter.leadSourceType,
+    leadSourceUrl: starter.leadSourceUrl,
+    note: starter.note,
+    status: "checking",
+    officialSourceUrl: "",
+    sourceCheckedAt: "",
+    verificationNote: "",
+    createdAt: now,
+    updatedAt: now
+  };
+  collegeResearchLeads.unshift(lead);
+  await saveCollegeResearchLeads(previousLeads, "admin_college_research_lead_created", `Added official directory lead for ${lead.institution}`, {
+    leadId: lead.id,
+    institution: lead.institution,
+    leadSourceType: lead.leadSourceType,
+    leadSourceUrl: lead.leadSourceUrl,
+    starter: starter.id
+  });
+}
+
 async function setCollegeResearchLeadStatus(leadId, status) {
   if (!isAdmin() || !["lead", "checking", "rejected"].includes(status)) return;
   const lead = collegeResearchLeads.find((item) => item.id === leadId);
@@ -12024,6 +12099,13 @@ function bindEvents() {
     if (collegeLeadStatus) {
       event.preventDefault();
       setCollegeResearchLeadStatus(collegeLeadStatus.dataset.collegeLeadId, collegeLeadStatus.dataset.collegeLeadStatus);
+      return;
+    }
+
+    const collegeLeadStarter = event.target.closest("[data-college-lead-starter]");
+    if (collegeLeadStarter) {
+      event.preventDefault();
+      addCollegeResearchStarter(collegeLeadStarter.dataset.collegeLeadStarter);
       return;
     }
 
