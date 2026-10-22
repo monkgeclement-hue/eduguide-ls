@@ -197,6 +197,13 @@ test('official directory starters omit institutions already queued for research'
     ['two']
   );
 });
+test('official research starters keep regulator audit leads in the checking workflow', () => {
+  const source = require('node:fs').readFileSync('app.js', 'utf8');
+  assert.match(source, /Lesotho China Fellowship Collegiate/);
+  assert.match(source, /Machabeng College/);
+  assert.match(source, /CHE's institutional audit register/);
+  assert.match(source, /status: "checking"/);
+});
 test('source review groups only records with the exact same linked source', () => {
   const getProgrammeSourceReviewGroup = load('getProgrammeSourceReviewGroup', {
     adminProgrammes: [

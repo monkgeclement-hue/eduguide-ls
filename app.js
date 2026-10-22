@@ -9514,9 +9514,23 @@ const officialCollegeResearchStarters = Object.freeze([
   {
     id: "college-of-health-and-safety",
     institution: "College of Health and Safety",
-    leadSourceType: "official_directory",
-    leadSourceUrl: "https://www.education.gov.ls/education/higher-education",
-    note: "The Ministry of Education and Training directory identifies this Maseru private college and says it offers certificate and diploma study in health, safety, and environmental fields. A current prospectus, fees, entry requirements, and contact route still need direct confirmation."
+    leadSourceType: "official_document",
+    leadSourceUrl: "https://www.che.ac.ls/institutional-audits/",
+    note: "CHE's institutional audit register lists this provider as partially meeting standards through June 2027. The Ministry directory describes certificate and diploma study in health, safety, and environmental fields. A current prospectus, fees, entry requirements, and contact route still need direct confirmation."
+  },
+  {
+    id: "lesotho-china-fellowship-collegiate",
+    institution: "Lesotho China Fellowship Collegiate",
+    leadSourceType: "official_document",
+    leadSourceUrl: "https://www.che.ac.ls/institutional-audits/",
+    note: "CHE's institutional audit register lists this provider as partially meeting standards through June 2026. Confirm the current registration or audit position, then obtain an official prospectus, programme list, fees, entry requirements, and application route."
+  },
+  {
+    id: "machabeng-college",
+    institution: "Machabeng College",
+    leadSourceType: "official_document",
+    leadSourceUrl: "https://www.che.ac.ls/institutional-audits/",
+    note: "CHE's institutional audit register lists this provider as partially meeting standards through June 2031. The higher-education policy describes post-COSC International Baccalaureate study. Confirm the current programmes, fees, entry requirements, and official application route before any public catalogue entry."
   },
   {
     id: "morija-theological-seminary",
