@@ -13,7 +13,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Playfair+Display:wght@600;700&display=swap" />
-    <link rel="stylesheet" href="/styles.css?v=62" />
+    <link rel="stylesheet" href="/styles.css?v=63" />
   </head>
   <body>
     <a href="/privacy" class="privacy-link" style="display:block;text-align:center;padding:8px">Privacy and data use</a>
@@ -161,6 +161,8 @@
       </div>
     </section>
 
+    <a class="skip-link" href="#main-content">Skip to main content</a>
+
     <div class="app-shell is-auth-hidden" id="app-shell">
       <aside class="sidebar" aria-label="Primary navigation">
         <div class="brand">
@@ -244,11 +246,11 @@
         </div>
       </aside>
 
-      <main class="workspace">
+      <main class="workspace" id="main-content" tabindex="-1" aria-labelledby="page-title">
         <header class="topbar">
           <div>
             <div class="eyebrow">Lesotho guidance platform</div>
-            <h1 id="page-title">Student Dashboard</h1>
+            <h1 id="page-title" tabindex="-1">Student Dashboard</h1>
           </div>
           <div class="top-actions">
             <button class="icon-button" type="button" title="Refresh results" id="refresh-button">
@@ -1300,6 +1302,6 @@
     <script src="/vendor/lucide.min.js" defer></script>
     <script src="/data/catalog.js" defer></script>
     <script src="/data/admin-catalog.js" defer></script>
-  <script src="/app.js?v=106" defer></script>
+    <script src="/app.js?v=107" defer></script>
   </body>
 </html>

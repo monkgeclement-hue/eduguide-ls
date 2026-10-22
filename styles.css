@@ -21,6 +21,35 @@
   box-sizing: border-box;
 }
 
+body :is(a, button, input, select, textarea, summary, [tabindex]):focus-visible {
+  outline: 3px solid #0f6e56;
+  outline-offset: 3px;
+}
+
+.skip-link {
+  position: fixed;
+  top: 10px;
+  left: 10px;
+  z-index: 1100;
+  padding: 10px 14px;
+  border-radius: 6px;
+  background: #ffffff;
+  box-shadow: 0 8px 22px rgba(8, 80, 65, 0.2);
+  color: var(--brand-deep);
+  font-weight: 800;
+  text-decoration: none;
+  transform: translateY(-160%);
+  transition: transform 0.18s ease;
+}
+
+.skip-link:focus {
+  transform: translateY(0);
+}
+
+.auth-screen:not(.is-auth-hidden) + .skip-link {
+  display: none;
+}
+
 .comparison-tray {
   display: flex;
   align-items: center;
@@ -466,6 +495,11 @@ a {
   color: #fff;
   border-color: rgba(255, 255, 255, 0.16);
   background: rgba(255, 255, 255, 0.1);
+}
+
+.side-link:focus-visible {
+  border-color: #ffffff;
+  outline-color: #ffffff;
 }
 
 .sidebar-panel {
@@ -6510,3 +6544,14 @@ textarea:focus {
 #delete-account-dialog::backdrop { background: rgba(5, 35, 27, .45); }
 #delete-account-dialog button { min-height: 44px; margin: 8px 6px 0 0; }
 #delete-account-error { color: #9b2424; }
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}

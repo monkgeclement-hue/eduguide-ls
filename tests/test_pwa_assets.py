@@ -62,6 +62,21 @@ class PwaAssetTests(unittest.TestCase):
     self.assertIn("grid-template-columns: repeat(2, minmax(0, 1fr));", phone_styles)
     self.assertIn(".profile-actions .primary-button,\n  #profile-logout-button { grid-column: 1 / -1; }", phone_styles)
 
+  def test_keyboard_navigation_has_a_skip_link_focus_target_and_motion_fallback(self):
+    app_bundle = (PROJECT_ROOT / "app.js").read_text(encoding="utf-8")
+    styles = (PROJECT_ROOT / "styles.css").read_text(encoding="utf-8")
+
+    self.assertIn('class="skip-link" href="#main-content"', self.index_html)
+    self.assertIn('id="main-content" tabindex="-1" aria-labelledby="page-title"', self.index_html)
+    self.assertIn('id="page-title" tabindex="-1"', self.index_html)
+    self.assertIn("function getPreferredScrollBehavior", app_bundle)
+    self.assertIn("function focusWorkspaceHeading", app_bundle)
+    self.assertIn('link.setAttribute("aria-controls", `view-${link.dataset.view}`)', app_bundle)
+    self.assertIn('link.setAttribute("aria-current", "page")', app_bundle)
+    self.assertIn(".skip-link", styles)
+    self.assertIn(":focus-visible", styles)
+    self.assertIn("@media (prefers-reduced-motion: reduce)", styles)
+
   def test_signed_in_shell_explains_offline_and_reconnect_sync(self):
     app_bundle = (PROJECT_ROOT / "app.js").read_text(encoding="utf-8")
     styles = (PROJECT_ROOT / "styles.css").read_text(encoding="utf-8")

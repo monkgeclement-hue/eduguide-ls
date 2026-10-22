@@ -3014,7 +3014,15 @@ function resetLocalReviewState() {
   calculateMatches();
 }
 
-function setView(viewName) {
+function getPreferredScrollBehavior() {
+  return window.matchMedia?.("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth";
+}
+
+function focusWorkspaceHeading() {
+  window.requestAnimationFrame(() => qs("#page-title")?.focus({ preventScroll: true }));
+}
+
+function setView(viewName, { focusHeading = false } = {}) {
   if (!titles[viewName]) viewName = "student";
   if (!currentUser) {
     updateUserShell();
@@ -3038,9 +3046,16 @@ function setView(viewName) {
   }
   renderViewOnDemand(viewName);
   qsa(".view").forEach((view) => view.classList.toggle("active", view.id === `view-${viewName}`));
-  qsa(".side-link").forEach((link) => link.classList.toggle("active", link.dataset.view === viewName));
+  qsa(".side-link").forEach((link) => {
+    const isActive = link.dataset.view === viewName;
+    link.classList.toggle("active", isActive);
+    link.setAttribute("aria-controls", `view-${link.dataset.view}`);
+    if (isActive) link.setAttribute("aria-current", "page");
+    else link.removeAttribute("aria-current");
+  });
   qs("#page-title").textContent = titles[viewName];
-  window.scrollTo({ top: 0, behavior: "smooth" });
+  window.scrollTo({ top: 0, behavior: getPreferredScrollBehavior() });
+  if (focusHeading) focusWorkspaceHeading();
 }
 
 function renderGrades() {
@@ -11484,7 +11499,7 @@ function bindEvents() {
     appToastAction = null;
     handler?.();
   });
-  qs("#user-chip")?.addEventListener("click", () => setView("profile"));
+  qs("#user-chip")?.addEventListener("click", () => setView("profile", { focusHeading: true }));
   qs("#view-student")?.addEventListener("click", (event) => {
     const focusButton = event.target.closest("[data-student-focus]");
     if (!focusButton) return;
@@ -11496,10 +11511,10 @@ function bindEvents() {
     if (target === "#dropzone") qs("#file-input")?.click();
   });
   qsa("[data-view]").forEach((button) => {
-    button.addEventListener("click", () => setView(button.dataset.view));
+    button.addEventListener("click", () => setView(button.dataset.view, { focusHeading: true }));
   });
   qsa("[data-view-target]").forEach((button) => {
-    button.addEventListener("click", () => setView(button.dataset.viewTarget));
+    button.addEventListener("click", () => setView(button.dataset.viewTarget, { focusHeading: true }));
   });
   qs("#grade-grid")?.addEventListener("change", (event) => {
     const select = event.target.closest("[data-subject]");
@@ -11534,12 +11549,12 @@ function bindEvents() {
   });
   qs("#analyse-button")?.addEventListener("click", () => {
     calculateMatches();
-    setView("results");
+    setView("results", { focusHeading: true });
   });
   qs("#profile-view-matches")?.addEventListener("click", () => {
     syncCurrentUserProfile();
     calculateMatches();
-    setView("results");
+    setView("results", { focusHeading: true });
   });
   qs("#refresh-button")?.addEventListener("click", refreshAppData);
   qs("#sample-profile")?.addEventListener("click", loadSampleProfile);
@@ -11654,7 +11669,7 @@ function bindEvents() {
       recordCurrentUserActivity("application_school_profile_opened", `Opened ${schoolExplorerState.selectedInstitution} from application assistant`, {
         institution: schoolExplorerState.selectedInstitution
       }, { throttleMs: 45000 });
-      setView("schools");
+      setView("schools", { focusHeading: true });
       return;
     }
 
@@ -11906,7 +11921,7 @@ function bindEvents() {
 
     const viewTarget = event.target.closest("[data-view-target]");
     if (viewTarget) {
-      setView(viewTarget.dataset.viewTarget);
+      setView(viewTarget.dataset.viewTarget, { focusHeading: true });
       return;
     }
 
@@ -11962,7 +11977,7 @@ function bindEvents() {
   qs("#view-presentation")?.addEventListener("click", (event) => {
     const programmeButton = event.target.closest("[data-presentation-programme]");
     if (!programmeButton) return;
-    setView("schools");
+    setView("schools", { focusHeading: true });
     schoolExplorerState.selectedProgrammeId = programmeButton.dataset.presentationProgramme;
     schoolExplorerState.screen = "course";
     renderSchoolExplorer();
