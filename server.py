@@ -3780,6 +3780,7 @@ def build_student_source_reports(student_id: str, limit: int = 100) -> list[dict
         "programmeId": str(payload.get("programmeId") or "")[:160],
         "programmeName": str(payload.get("programmeName") or "Programme source")[:220],
         "institution": str(payload.get("institution") or "")[:180],
+        "detail": str(payload.get("detail") or "")[:700],
         "status": status if status in SOURCE_REPORT_RESOLUTION_STATUSES else "open",
         "createdAt": str(event.get("created_at") or "")[:64],
         "reviewedAt": str(resolution.get("reviewedAt") or "")[:64] if isinstance(resolution, dict) else "",

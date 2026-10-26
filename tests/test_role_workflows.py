@@ -482,6 +482,7 @@ class RoleWorkflowTests(unittest.TestCase):
       "programmeId": "programme-1",
       "programmeName": "Bachelor of Example",
       "institution": "Example University",
+      "detail": "",
       "status": "resolved",
       "createdAt": "2026-09-10T10:00:00Z",
       "reviewedAt": "2026-09-10T11:00:00Z",
@@ -552,6 +553,16 @@ class RoleWorkflowTests(unittest.TestCase):
     self.assertIn("Confirm latest details", app_script)
     self.assertIn("Confirm current fees, deadlines, requirements, and application routes directly with the institution before acting.", app_script)
     self.assertIn("getApplicationSourceConfidence(topProgrammes)", app_script)
+
+  def test_source_feedback_captures_an_optional_student_note_for_admin_review(self):
+    root = Path(__file__).resolve().parents[1]
+    app_script = (root / "app.js").read_text(encoding="utf-8")
+    server_script = (root / "server.py").read_text(encoding="utf-8")
+    self.assertIn("What needs checking? (optional)", app_script)
+    self.assertIn("data-source-report-detail", app_script)
+    self.assertIn("Student note:", app_script)
+    self.assertIn("detail: detail || null", app_script)
+    self.assertIn('\"detail\": str(payload.get(\"detail\") or \"\")[:700]', server_script)
 
   def test_change_request_requires_feedback_and_locks_the_decision(self):
     proposal = {

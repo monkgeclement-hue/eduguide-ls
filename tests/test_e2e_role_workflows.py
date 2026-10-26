@@ -178,7 +178,7 @@ class EndToEndRoleWorkflowTests(unittest.TestCase):
       json={
         "eventType": "source_outdated_reported",
         "label": "Reported a potentially outdated programme source",
-        "payload": {"programmeId": "example-computing", "programmeName": "Bachelor of Computing", "institution": "Example University"},
+        "payload": {"programmeId": "example-computing", "programmeName": "Bachelor of Computing", "institution": "Example University", "detail": "The listed application fee appears out of date."},
       },
     )
     self.assertEqual(submitted.status_code, 200, submitted.text)
@@ -188,6 +188,7 @@ class EndToEndRoleWorkflowTests(unittest.TestCase):
     open_report = self.client.get("/api/student/source-reports", headers=student_headers)
     self.assertEqual(open_report.status_code, 200, open_report.text)
     self.assertEqual(open_report.json()["reports"][0]["status"], "open")
+    self.assertEqual(open_report.json()["reports"][0]["detail"], "The listed application fee appears out of date.")
 
     review_state = self.client.put(
       "/api/db/state/review_state",

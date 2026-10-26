@@ -1294,7 +1294,8 @@ function renderStudentSourceReports() {
       const programme = report.programmeName || "Programme source";
       const institution = report.institution || "Institution not recorded";
       const reviewed = report.reviewedAt ? `Updated ${formatDateTime(report.reviewedAt)}` : `Reported ${formatDateTime(report.createdAt)}`;
-      return `<li><div><strong>${escapeHtml(programme)}</strong><small>${escapeHtml(institution)} - ${escapeHtml(reviewed)}</small></div><span class="badge ${status.tone}">${escapeHtml(status.label)}</span></li>`;
+      const detail = String(report.detail || "").trim();
+      return `<li><div><strong>${escapeHtml(programme)}</strong><small>${escapeHtml(institution)} - ${escapeHtml(reviewed)}</small>${detail ? `<small class="student-source-report-detail">Your note: ${escapeHtml(detail)}</small>` : ""}</div><span class="badge ${status.tone}">${escapeHtml(status.label)}</span></li>`;
     }).join("")}</ul>`
     : `<div class="consent-access-empty"><p>You have not reported a source yet.</p><small>Use “Report outdated source” on a programme page when something needs review.</small></div>`;
   if (window.lucide) window.lucide.createIcons();
@@ -7619,7 +7620,14 @@ function renderExplorerCourseProfile(programme) {
         ${courseSourceUrl ? `<a class="secondary-link" href="${escapeHtml(courseSourceUrl)}" ${getSourceLinkAttributes(courseSourceUrl)}>Open course source</a>` : ""}
         ${application.links?.prospectusLinks?.[0]?.url ? `<a class="secondary-link" href="${escapeHtml(application.links.prospectusLinks[0].url)}" ${getSourceLinkAttributes(application.links.prospectusLinks[0].url)}>Download prospectus/source</a>` : ""}
         <a class="secondary-link" href="${nmdsPortalUrl}" target="_blank" rel="noreferrer">Open NMDS sponsorship portal</a>
-        <button class="secondary-action" type="button" data-report-source="${escapeHtml(programme.id)}"><i data-lucide="flag"></i> Report outdated source</button>
+        <details class="source-report-control">
+          <summary><i data-lucide="flag"></i> Report a source issue</summary>
+          <div>
+            <p>Tell us if a fee, requirement, deadline, or link needs checking. Your report goes only to EduGuide admins.</p>
+            <label><span>What needs checking? (optional)</span><textarea data-source-report-detail maxlength="500" rows="2" placeholder="Example: the application fee has changed"></textarea></label>
+            <button class="secondary-action" type="button" data-report-source="${escapeHtml(programme.id)}"><i data-lucide="send"></i> Send report</button>
+          </div>
+        </details>
         <button class="secondary-action" type="button" data-view-target="results"><i data-lucide="sparkles"></i> Compare with my marks</button>
       </div>
       ${programme.overview ? `<p class="course-overview">${escapeHtml(programme.overview)}</p>` : ""}
@@ -9701,6 +9709,7 @@ function getFilteredAdminSourceReports() {
         institution,
         report.actor?.name,
         report.actor?.email,
+        report.payload?.detail,
         report.label
       ]);
       return institutionMatch && searchMatch;
@@ -9946,6 +9955,7 @@ function renderAdminSources() {
             const institution = report.payload?.institution || report.programme?.institution || "Institution not recorded";
             const status = report.status;
             const sourceUrl = getSafeExternalUrl(report.payload?.sourceUrl);
+            const detail = String(report.payload?.detail || "").trim();
             return `
               <article class="source-report-row">
                 <div class="admin-row-main">
@@ -9960,6 +9970,7 @@ function renderAdminSources() {
                     ${report.reviewedAt ? `<span>Updated ${escapeHtml(formatDateTime(report.reviewedAt))}</span>` : ""}
                     ${sourceUrl ? `<a class="source-report-link" href="${escapeHtml(sourceUrl)}" target="_blank" rel="noreferrer">Open reported source</a>` : ""}
                   </div>
+                  ${detail ? `<p class="source-report-detail">Student note: ${escapeHtml(detail)}</p>` : ""}
                 </div>
                 <div class="admin-row-actions source-report-actions">
                   <button type="button" title="Inspect programme" data-source-report-programme="${escapeHtml(report.payload?.programmeId || "")}" ${report.programme ? "" : "disabled"}>
@@ -12013,14 +12024,19 @@ function bindEvents() {
     const reportSourceButton = event.target.closest("[data-report-source]");
     if (reportSourceButton) {
       const programme = getExplorerProgrammes().find((item) => item.id === reportSourceButton.dataset.reportSource);
+      const reportDetailInput = reportSourceButton.closest(".source-report-control")?.querySelector("[data-source-report-detail]");
+      const detail = String(reportDetailInput?.value || "").trim().slice(0, 500);
       await recordCurrentUserActivity("source_outdated_reported", "Reported a potentially outdated programme source", {
         programmeId: programme?.id,
         programmeName: getProgrammeDisplayName(programme),
         institution: programme?.institution,
-        sourceUrl: programme?.sourceUrl || programme?.source || programme?.supportingSourcePath || null
+        sourceUrl: programme?.sourceUrl || programme?.source || programme?.supportingSourcePath || null,
+        detail: detail || null
       }, { throttleMs: 45000 });
-      reportSourceButton.textContent = "Report noted";
+      reportSourceButton.textContent = "Report sent";
       reportSourceButton.disabled = true;
+      reportSourceButton.closest(".source-report-control")?.removeAttribute("open");
+      showAppToast(detail ? "Source report sent with your note." : "Source report sent.", "success");
       studentSourceReports.loaded = false;
       if (qs("#view-profile")?.classList.contains("active")) loadStudentSourceReports({ force: true });
     }
