@@ -9719,6 +9719,57 @@ function getFilteredAdminSourceReports() {
     });
 }
 
+function getSourceReportQueueGroups(reports = []) {
+  const visibleReports = Array.isArray(reports) ? reports : [];
+  return {
+    active: visibleReports.filter((report) => report.status !== "resolved"),
+    resolved: visibleReports.filter((report) => report.status === "resolved")
+  };
+}
+
+function renderAdminSourceReportRow(report) {
+  const programmeName = report.payload?.programmeName || report.programme?.name || "Programme source";
+  const institution = report.payload?.institution || report.programme?.institution || "Institution not recorded";
+  const status = report.status;
+  const sourceUrl = getSafeExternalUrl(report.payload?.sourceUrl);
+  const detail = String(report.payload?.detail || "").trim();
+  const resolutionNote = String(report.resolutionNote || "").trim();
+  return `
+    <article class="source-report-row">
+      <div class="admin-row-main">
+        <div class="admin-row-title">
+          <h4>${escapeHtml(programmeName)}</h4>
+          <span class="badge ${badgeClassForStatus(status)}">${escapeHtml(formatStatus(status))}</span>
+        </div>
+        <p>${escapeHtml(institution)}</p>
+        <div class="admin-row-meta">
+          <span>Reported ${escapeHtml(formatDateTime(report.createdAt))}</span>
+          <span>${escapeHtml(report.actor?.name || "Student")}</span>
+          ${report.reviewedAt ? `<span>Updated ${escapeHtml(formatDateTime(report.reviewedAt))}</span>` : ""}
+          ${sourceUrl ? `<a class="source-report-link" href="${escapeHtml(sourceUrl)}" target="_blank" rel="noreferrer">Open reported source</a>` : ""}
+        </div>
+        ${detail ? `<p class="source-report-detail">Student note: ${escapeHtml(detail)}</p>` : ""}
+        <details class="source-report-response" ${resolutionNote ? "open" : ""}>
+          <summary>Private update to student</summary>
+          <label><span>What was checked or changed? (optional)</span><textarea data-source-report-note="${escapeHtml(report.id || "")}" maxlength="500" rows="2" placeholder="Example: We updated the fee from the latest prospectus.">${escapeHtml(resolutionNote)}</textarea></label>
+        </details>
+      </div>
+      <div class="admin-row-actions source-report-actions">
+        <button type="button" title="Inspect programme" data-source-report-programme="${escapeHtml(report.payload?.programmeId || "")}" ${report.programme ? "" : "disabled"}>
+          <i data-lucide="search"></i>
+        </button>
+        <button type="button" title="Mark in progress" data-source-report-status="in_progress" data-source-report-id="${escapeHtml(report.id || "")}" ${status === "in_progress" ? "disabled" : ""}>
+          <i data-lucide="clock-3"></i>
+        </button>
+        <button type="button" title="Resolve report" data-source-report-status="resolved" data-source-report-id="${escapeHtml(report.id || "")}" ${status === "resolved" ? "disabled" : ""}>
+          <i data-lucide="check-check"></i>
+        </button>
+        ${status !== "open" ? `<button type="button" title="Reopen report" data-source-report-status="open" data-source-report-id="${escapeHtml(report.id || "")}"><i data-lucide="rotate-ccw"></i></button>` : ""}
+      </div>
+    </article>
+  `;
+}
+
 function badgeClassForStatus(status) {
   if (status === "approved" || status === "resolved" || status === "scraped" || status === "manual_extract") return "green";
   if (status === "rejected" || status === "blocked_or_locked" || status === "blocked_or_unstable") return "red";
@@ -9865,6 +9916,9 @@ function renderAdminFees() {
 function renderAdminSources() {
   const filteredSources = getFilteredAdminSources();
   const sourceReports = getFilteredAdminSourceReports();
+  const sourceReportGroups = getSourceReportQueueGroups(sourceReports);
+  const activeSourceReports = sourceReportGroups.active;
+  const resolvedSourceReports = sourceReportGroups.resolved;
   const researchLeads = getFilteredCollegeResearchLeads();
   const starterLeads = getAvailableCollegeResearchStarters();
   const openReports = sourceReports.filter((report) => report.status === "open").length;
@@ -9945,7 +9999,7 @@ function renderAdminSources() {
         <div class="source-report-queue-head">
           <div>
             <strong>Student source reports</strong>
-            <span>${sourceReports.length} report${sourceReports.length === 1 ? "" : "s"} need${sourceReports.length === 1 ? "s" : ""} review</span>
+            <span>${activeSourceReports.length} active report${activeSourceReports.length === 1 ? "" : "s"} need${activeSourceReports.length === 1 ? "s" : ""} review${resolvedSourceReports.length ? ` - ${resolvedSourceReports.length} resolved` : ""}</span>
           </div>
           <button class="secondary-action compact-action" type="button" data-source-reports-refresh title="Refresh source reports">
             <i data-lucide="refresh-cw"></i>
@@ -9953,49 +10007,9 @@ function renderAdminSources() {
           </button>
         </div>
         <div class="source-report-list">
-          ${sourceReports.map((report) => {
-            const programmeName = report.payload?.programmeName || report.programme?.name || "Programme source";
-            const institution = report.payload?.institution || report.programme?.institution || "Institution not recorded";
-            const status = report.status;
-            const sourceUrl = getSafeExternalUrl(report.payload?.sourceUrl);
-            const detail = String(report.payload?.detail || "").trim();
-            const resolutionNote = String(report.resolutionNote || "").trim();
-            return `
-              <article class="source-report-row">
-                <div class="admin-row-main">
-                  <div class="admin-row-title">
-                    <h4>${escapeHtml(programmeName)}</h4>
-                    <span class="badge ${badgeClassForStatus(status)}">${escapeHtml(formatStatus(status))}</span>
-                  </div>
-                  <p>${escapeHtml(institution)}</p>
-                  <div class="admin-row-meta">
-                    <span>Reported ${escapeHtml(formatDateTime(report.createdAt))}</span>
-                    <span>${escapeHtml(report.actor?.name || "Student")}</span>
-                    ${report.reviewedAt ? `<span>Updated ${escapeHtml(formatDateTime(report.reviewedAt))}</span>` : ""}
-                    ${sourceUrl ? `<a class="source-report-link" href="${escapeHtml(sourceUrl)}" target="_blank" rel="noreferrer">Open reported source</a>` : ""}
-                  </div>
-                  ${detail ? `<p class="source-report-detail">Student note: ${escapeHtml(detail)}</p>` : ""}
-                  <details class="source-report-response" ${resolutionNote ? "open" : ""}>
-                    <summary>Private update to student</summary>
-                    <label><span>What was checked or changed? (optional)</span><textarea data-source-report-note="${escapeHtml(report.id || "")}" maxlength="500" rows="2" placeholder="Example: We updated the fee from the latest prospectus.">${escapeHtml(resolutionNote)}</textarea></label>
-                  </details>
-                </div>
-                <div class="admin-row-actions source-report-actions">
-                  <button type="button" title="Inspect programme" data-source-report-programme="${escapeHtml(report.payload?.programmeId || "")}" ${report.programme ? "" : "disabled"}>
-                    <i data-lucide="search"></i>
-                  </button>
-                  <button type="button" title="Mark in progress" data-source-report-status="in_progress" data-source-report-id="${escapeHtml(report.id || "")}" ${status === "in_progress" ? "disabled" : ""}>
-                    <i data-lucide="clock-3"></i>
-                  </button>
-                  <button type="button" title="Resolve report" data-source-report-status="resolved" data-source-report-id="${escapeHtml(report.id || "")}" ${status === "resolved" ? "disabled" : ""}>
-                    <i data-lucide="check-check"></i>
-                  </button>
-                  ${status !== "open" ? `<button type="button" title="Reopen report" data-source-report-status="open" data-source-report-id="${escapeHtml(report.id || "")}"><i data-lucide="rotate-ccw"></i></button>` : ""}
-                </div>
-              </article>
-            `;
-          }).join("")}
+          ${activeSourceReports.length ? activeSourceReports.map(renderAdminSourceReportRow).join("") : `<p class="muted-inline">No active student source reports.</p>`}
         </div>
+        ${resolvedSourceReports.length ? `<details class="source-report-resolved"><summary>Recent resolved reports (${resolvedSourceReports.length})</summary><div class="source-report-list">${resolvedSourceReports.slice(0, 12).map(renderAdminSourceReportRow).join("")}</div></details>` : ""}
       </section>
     `
     : "";

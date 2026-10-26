@@ -5067,6 +5067,23 @@ textarea:focus {
   resize: vertical;
 }
 
+.source-report-resolved {
+  margin-top: 10px;
+  padding-top: 10px;
+  border-top: 1px solid var(--line);
+}
+
+.source-report-resolved summary {
+  color: var(--brand-deep);
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.source-report-resolved[open] .source-report-list {
+  margin-top: 9px;
+}
+
 .detail-card {
   position: sticky;
   top: 20px;

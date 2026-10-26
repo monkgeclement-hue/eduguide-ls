@@ -576,6 +576,13 @@ class RoleWorkflowTests(unittest.TestCase):
     self.assertIn('\"note\": sanitize_guidance_text(resolution.get(\"note\"), 500)', server_script)
     self.assertIn('\"adminNote\": sanitize_guidance_text(resolution.get(\"note\"), 500)', server_script)
 
+  def test_admin_source_queue_separates_active_work_from_resolved_history(self):
+    app_script = (Path(__file__).resolve().parents[1] / "app.js").read_text(encoding="utf-8")
+    self.assertIn("function getSourceReportQueueGroups", app_script)
+    self.assertIn("activeSourceReports.length", app_script)
+    self.assertIn("Recent resolved reports", app_script)
+    self.assertIn("No active student source reports.", app_script)
+
   def test_change_request_requires_feedback_and_locks_the_decision(self):
     proposal = {
       "id": "proposal-1",

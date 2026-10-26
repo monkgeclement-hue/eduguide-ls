@@ -240,6 +240,16 @@ test('source review groups only records with the exact same linked source', () =
     ['one', 'two']
   );
 });
+test('source report queues separate active triage from resolved history', () => {
+  const getSourceReportQueueGroups = load('getSourceReportQueueGroups');
+  const groups = getSourceReportQueueGroups([
+    { id: 'open', status: 'open' },
+    { id: 'progress', status: 'in_progress' },
+    { id: 'resolved', status: 'resolved' }
+  ]);
+  assert.deepEqual(groups.active.map((report) => report.id), ['open', 'progress']);
+  assert.deepEqual(groups.resolved.map((report) => report.id), ['resolved']);
+});
 test('supplied prospectuses need a current official URL before they can be approved', () => {
   const requiresCurrentCandidateEvidence = load('requiresCurrentCandidateEvidence', {
     currentEvidenceCandidateSourceTypes: new Set([
