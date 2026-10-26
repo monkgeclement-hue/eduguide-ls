@@ -183,8 +183,20 @@ class RoleWorkflowTests(unittest.TestCase):
     self.assertIn('id="profile-sync-status"', index)
     self.assertIn("function getProfileSyncPresentation", app_script)
     self.assertIn("window.lucide.createIcons();", app_script)
-    self.assertIn("Profile saved to your account.", app_script)
-    self.assertIn("Reconnect or refresh to retry account sync.", app_script)
+    self.assertIn("Saved to your account.", app_script)
+    self.assertIn("Reconnect or refresh to retry the account sync.", app_script)
+
+  def test_application_planner_shows_pending_account_sync_without_claiming_a_server_save(self):
+    root = Path(__file__).resolve().parents[1]
+    app_script = (root / "app.js").read_text(encoding="utf-8")
+    styles = (root / "styles.css").read_text(encoding="utf-8")
+
+    self.assertIn("function renderApplicationSyncStatus", app_script)
+    self.assertIn('id="application-sync-status"', app_script)
+    self.assertIn("function renderApplicationAssistantTab", app_script)
+    self.assertIn("Application record saved on this device. Syncing to your account...", app_script)
+    self.assertIn("Application plan updated on this device:", app_script)
+    self.assertIn(".application-sync-status", styles)
 
   def test_application_planner_supports_progress_deadline_and_record_filters(self):
     root = Path(__file__).resolve().parents[1]

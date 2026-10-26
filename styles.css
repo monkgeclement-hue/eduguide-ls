@@ -2678,6 +2678,26 @@ textarea:focus {
   color: var(--brand-deep);
 }
 
+.application-sync-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin: 10px 0 0;
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 1.4;
+}
+
+.application-sync-status svg {
+  flex: 0 0 auto;
+  width: 15px;
+  height: 15px;
+}
+
+.application-sync-status[data-tone="warning"] { color: #936100; }
+.application-sync-status[data-tone="neutral"] { color: var(--brand-deep); }
+
 .application-filter-bar {
   display: flex;
   flex-wrap: wrap;

@@ -848,7 +848,7 @@ function getProfileSyncPresentation() {
       return {
         tone: "warning",
         icon: "triangle-alert",
-        label: "Profile changes need attention before they can sync."
+        label: "Your changes need attention before they can sync."
       };
     }
     const offline = typeof navigator !== "undefined" && navigator.onLine === false;
@@ -856,42 +856,41 @@ function getProfileSyncPresentation() {
       return {
         tone: "warning",
         icon: "wifi-off",
-        label: "Saved on this device. It will sync when you reconnect."
+        label: "Saved on this device. It will sync to your account when you reconnect."
       };
     }
     if (profileSyncLastError) {
       return {
         tone: "warning",
         icon: "cloud-off",
-        label: "Saved on this device. Reconnect or refresh to retry account sync."
+        label: "Saved on this device. Reconnect or refresh to retry the account sync."
       };
     }
     return {
       tone: "neutral",
       icon: "loader-circle",
-      label: "Saving your latest profile changes to your account..."
+      label: "Saving your latest changes to your account..."
     };
   }
   if (!authToken || !serverDatabaseAvailable) {
     return {
       tone: "neutral",
       icon: "shield-check",
-      label: "Profile saved on this device. Checking account sync..."
+      label: "Saved on this device. Checking account sync..."
     };
   }
   return {
     tone: "success",
     icon: "check-circle-2",
-    label: "Profile saved to your account."
+    label: "Saved to your account."
   };
 }
 
-function renderProfileSyncStatus() {
-  const root = qs("#profile-sync-status");
+function renderSyncStatus(root, state, { hideSuccess = false } = {}) {
   if (!root) return;
-  const state = getProfileSyncPresentation();
-  root.hidden = !state;
-  if (!state) return;
+  const visible = Boolean(state) && !(hideSuccess && state.tone === "success");
+  root.hidden = !visible;
+  if (!visible) return;
   root.dataset.tone = state.tone;
   const icon = document.createElement("i");
   icon.dataset.lucide = state.icon;
@@ -899,6 +898,16 @@ function renderProfileSyncStatus() {
   label.textContent = state.label;
   root.replaceChildren(icon, label);
   if (window.lucide) window.lucide.createIcons();
+}
+
+function renderApplicationSyncStatus() {
+  renderSyncStatus(qs("#application-sync-status"), getProfileSyncPresentation(), { hideSuccess: true });
+}
+
+function renderProfileSyncStatus() {
+  const state = getProfileSyncPresentation();
+  renderSyncStatus(qs("#profile-sync-status"), state);
+  renderApplicationSyncStatus();
 }
 
 function mergePendingProfileIntoCurrentUser(pending = getPendingProfileSync()) {
@@ -973,7 +982,11 @@ function saveAuthUsers({ sync = true } = {}) {
     delete safe.passwordSalt;
     return safe;
   })));
-  if (sync) syncCurrentUserToServer();
+  if (!sync) {
+    renderProfileSyncStatus();
+    return;
+  }
+  return syncCurrentUserToServer();
 }
 
 function scheduleCurrentUserProfileSync() {
@@ -5348,7 +5361,7 @@ function setApplicationProgress(programmeId, progress) {
   saveAuthUsers();
   renderResults();
   renderStudentDashboard();
-  showAppToast(`Application plan: ${applicationProgressLabels[progress]}`, "success");
+  showAppToast(`Application plan updated on this device: ${applicationProgressLabels[progress]}`, "success");
 }
 
 function setShortlistPathway(programmeId, pathway) {
@@ -6109,6 +6122,18 @@ function renderApplicationPlannerContext(programmes = []) {
   return `<div class="application-filter-context" aria-live="polite"><span>Showing ${visible.length} application pack${visible.length === 1 ? "" : "s"} ${scope}.${savedText}</span><strong>Next step</strong><p>${escapeHtml(getApplicationPlannerNextAction(visible))}</p></div>`;
 }
 
+function renderApplicationSyncStatusPlaceholder() {
+  return `<p class="application-sync-status" id="application-sync-status" role="status" aria-live="polite" hidden></p>`;
+}
+
+function renderApplicationAssistantTab() {
+  const panel = qs("#tab-applications");
+  if (!panel) return;
+  panel.innerHTML = renderApplicationAssistant();
+  renderApplicationSyncStatus();
+  if (window.lucide) window.lucide.createIcons();
+}
+
 function renderApplicationAssistant() {
   const groups = getInstitutionMatchGroups()
     .map((group) => ({
@@ -6130,7 +6155,7 @@ function renderApplicationAssistant() {
       : "Save qualified or almost-qualified programmes from the Programmes tab to build a focused plan here.";
     return `
       <div class="application-assistant-intro">
-        <div><p class="section-kicker">Application assistant</p><h4>${applicationFiltersActive() ? "Filtered application plan" : "Your saved application plan"}</h4><span>${filteredEmptyState}</span>${renderApplicationProgressSummary(plannerProgrammes)}${renderApplicationDeadlineSummary(plannerProgrammes)}</div>
+        <div><p class="section-kicker">Application assistant</p><h4>${applicationFiltersActive() ? "Filtered application plan" : "Your saved application plan"}</h4><span>${filteredEmptyState}</span>${renderApplicationSyncStatusPlaceholder()}${renderApplicationProgressSummary(plannerProgrammes)}${renderApplicationDeadlineSummary(plannerProgrammes)}</div>
         ${applicationSavedOnly ? `<button class="secondary-action" type="button" data-application-toggle-saved>Show all matches</button>` : ""}
       </div>
       ${renderApplicationFilterBar()}
@@ -6151,6 +6176,7 @@ function renderApplicationAssistant() {
         <p class="section-kicker">Application assistant</p>
         <h4>Prepare before you apply</h4>
         <span>These packs use current matched institutions, uploaded documents, source links, and NMDS readiness. When a deadline is known, it is shown as verified; otherwise the app keeps the source-check warning.</span>
+        ${renderApplicationSyncStatusPlaceholder()}
         ${renderApplicationProgressSummary(plannerProgrammes)}
         ${renderApplicationDeadlineSummary(plannerProgrammes)}
         ${renderApplicationPlannerContext(plannerProgrammes)}
@@ -6180,7 +6206,7 @@ function renderResults() {
         <p>Enter the subjects required for your target pathway. Technology usually needs Mathematics; engineering, architecture, and many science programmes need Mathematics plus Physical Science or a recognised science subject.</p>
       </article>` : getPublicProgrammeEmptyState("catalogue")}
     `;
-    qs("#tab-applications").innerHTML = renderApplicationAssistant();
+    renderApplicationAssistantTab();
     qs("#tab-skills").innerHTML = "";
     qs("#tab-labour").innerHTML = "";
     return;
@@ -6188,7 +6214,7 @@ function renderResults() {
   const groups = getInstitutionMatchGroups();
   qs("#results-heading").textContent = `${qs("#full-name").value || "Student"} - ${groups.length} matched institutions`;
   qs("#tab-programmes").innerHTML = renderInstitutionMatches();
-  qs("#tab-applications").innerHTML = renderApplicationAssistant();
+  renderApplicationAssistantTab();
 
   const skillScores = new Map();
   latestMatches.slice(0, 4).forEach((programme) => {
@@ -11132,7 +11158,7 @@ function setApplicationRecord(programmeId, form) {
   saveAuthUsers();
   renderResults();
   renderStudentDashboard();
-  showAppToast("Application record saved", "success");
+  showAppToast("Application record saved on this device. Syncing to your account...", "success");
 }
 
 async function loadCounsellorAssignments() {
@@ -11754,8 +11780,7 @@ function bindEvents() {
       const filterName = applicationFilter.dataset.applicationFilter;
       if (Object.prototype.hasOwnProperty.call(applicationFilters, filterName)) {
         applicationFilters[filterName] = applicationFilter.value;
-        qs("#tab-applications").innerHTML = renderApplicationAssistant();
-        if (window.lucide) window.lucide.createIcons();
+        renderApplicationAssistantTab();
       }
       return;
     }
