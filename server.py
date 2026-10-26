@@ -3691,6 +3691,7 @@ def sanitize_source_report_resolutions(payload: dict[str, Any]) -> dict[str, Any
     clean_resolutions[clean_id] = {
       "status": status,
       "reviewedAt": str(resolution.get("reviewedAt") or "").strip()[:64],
+      "note": sanitize_guidance_text(resolution.get("note"), 500),
     }
   return {**payload, "sourceReportResolutions": clean_resolutions}
 
@@ -3781,6 +3782,7 @@ def build_student_source_reports(student_id: str, limit: int = 100) -> list[dict
         "programmeName": str(payload.get("programmeName") or "Programme source")[:220],
         "institution": str(payload.get("institution") or "")[:180],
         "detail": str(payload.get("detail") or "")[:700],
+        "adminNote": sanitize_guidance_text(resolution.get("note"), 500) if isinstance(resolution, dict) else "",
         "status": status if status in SOURCE_REPORT_RESOLUTION_STATUSES else "open",
         "createdAt": str(event.get("created_at") or "")[:64],
         "reviewedAt": str(resolution.get("reviewedAt") or "")[:64] if isinstance(resolution, dict) else "",

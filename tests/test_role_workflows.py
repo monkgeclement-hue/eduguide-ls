@@ -443,7 +443,7 @@ class RoleWorkflowTests(unittest.TestCase):
     self.assertEqual(
       state["sourceReportResolutions"],
       {
-        "evt-123": {"status": "resolved", "reviewedAt": "2026-09-10T12:00:00Z"},
+        "evt-123": {"status": "resolved", "reviewedAt": "2026-09-10T12:00:00Z", "note": ""},
       },
     )
 
@@ -483,6 +483,7 @@ class RoleWorkflowTests(unittest.TestCase):
       "programmeName": "Bachelor of Example",
       "institution": "Example University",
       "detail": "",
+      "adminNote": "",
       "status": "resolved",
       "createdAt": "2026-09-10T10:00:00Z",
       "reviewedAt": "2026-09-10T11:00:00Z",
@@ -563,6 +564,17 @@ class RoleWorkflowTests(unittest.TestCase):
     self.assertIn("Student note:", app_script)
     self.assertIn("detail: detail || null", app_script)
     self.assertIn('\"detail\": str(payload.get(\"detail\") or \"\")[:700]', server_script)
+
+  def test_source_report_resolutions_can_include_a_private_admin_update(self):
+    root = Path(__file__).resolve().parents[1]
+    app_script = (root / "app.js").read_text(encoding="utf-8")
+    server_script = (root / "server.py").read_text(encoding="utf-8")
+    self.assertIn("Private update to student", app_script)
+    self.assertIn("data-source-report-note", app_script)
+    self.assertIn("Admin update:", app_script)
+    self.assertIn("hasStudentUpdate: Boolean(cleanNote)", app_script)
+    self.assertIn('\"note\": sanitize_guidance_text(resolution.get(\"note\"), 500)', server_script)
+    self.assertIn('\"adminNote\": sanitize_guidance_text(resolution.get(\"note\"), 500)', server_script)
 
   def test_change_request_requires_feedback_and_locks_the_decision(self):
     proposal = {

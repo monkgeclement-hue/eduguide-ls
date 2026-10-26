@@ -193,11 +193,12 @@ class EndToEndRoleWorkflowTests(unittest.TestCase):
     review_state = self.client.put(
       "/api/db/state/review_state",
       headers=admin_headers,
-      json={"payload": {"sourceReportResolutions": {report_id: {"status": "resolved", "reviewedAt": "2026-09-10T12:00:00Z"}}}},
+      json={"payload": {"sourceReportResolutions": {report_id: {"status": "resolved", "reviewedAt": "2026-09-10T12:00:00Z", "note": "The current prospectus was checked and the fee was updated."}}}},
     )
     self.assertEqual(review_state.status_code, 200, review_state.text)
     resolved_report = self.client.get("/api/student/source-reports", headers=student_headers)
     self.assertEqual(resolved_report.json()["reports"][0]["status"], "resolved")
+    self.assertEqual(resolved_report.json()["reports"][0]["adminNote"], "The current prospectus was checked and the fee was updated.")
 
   @patch.object(server, "send_verification_email")
   @patch.object(server.secrets, "randbelow", return_value=123456)

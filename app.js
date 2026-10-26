@@ -1295,7 +1295,8 @@ function renderStudentSourceReports() {
       const institution = report.institution || "Institution not recorded";
       const reviewed = report.reviewedAt ? `Updated ${formatDateTime(report.reviewedAt)}` : `Reported ${formatDateTime(report.createdAt)}`;
       const detail = String(report.detail || "").trim();
-      return `<li><div><strong>${escapeHtml(programme)}</strong><small>${escapeHtml(institution)} - ${escapeHtml(reviewed)}</small>${detail ? `<small class="student-source-report-detail">Your note: ${escapeHtml(detail)}</small>` : ""}</div><span class="badge ${status.tone}">${escapeHtml(status.label)}</span></li>`;
+      const adminNote = String(report.adminNote || "").trim();
+      return `<li><div><strong>${escapeHtml(programme)}</strong><small>${escapeHtml(institution)} - ${escapeHtml(reviewed)}</small>${detail ? `<small class="student-source-report-detail">Your note: ${escapeHtml(detail)}</small>` : ""}${adminNote ? `<small class="student-source-report-detail admin-update">Admin update: ${escapeHtml(adminNote)}</small>` : ""}</div><span class="badge ${status.tone}">${escapeHtml(status.label)}</span></li>`;
     }).join("")}</ul>`
     : `<div class="consent-access-empty"><p>You have not reported a source yet.</p><small>Use “Report outdated source” on a programme page when something needs review.</small></div>`;
   if (window.lucide) window.lucide.createIcons();
@@ -9566,7 +9567,8 @@ function normalizeSourceReportResolutions(resolutions = {}) {
       .slice(0, 300)
       .map(([id, value]) => [id, {
         status: value.status,
-        reviewedAt: value.reviewedAt || ""
+        reviewedAt: value.reviewedAt || "",
+        note: String(value.note || "").trim().slice(0, 500)
       }])
   );
 }
@@ -9697,7 +9699,8 @@ function getFilteredAdminSourceReports() {
         ...event,
         programme,
         status: getSourceReportStatus(event.id),
-        reviewedAt: sourceReportResolutions[event.id]?.reviewedAt || ""
+        reviewedAt: sourceReportResolutions[event.id]?.reviewedAt || "",
+        resolutionNote: sourceReportResolutions[event.id]?.note || ""
       };
     })
     .filter((report) => {
@@ -9956,6 +9959,7 @@ function renderAdminSources() {
             const status = report.status;
             const sourceUrl = getSafeExternalUrl(report.payload?.sourceUrl);
             const detail = String(report.payload?.detail || "").trim();
+            const resolutionNote = String(report.resolutionNote || "").trim();
             return `
               <article class="source-report-row">
                 <div class="admin-row-main">
@@ -9971,6 +9975,10 @@ function renderAdminSources() {
                     ${sourceUrl ? `<a class="source-report-link" href="${escapeHtml(sourceUrl)}" target="_blank" rel="noreferrer">Open reported source</a>` : ""}
                   </div>
                   ${detail ? `<p class="source-report-detail">Student note: ${escapeHtml(detail)}</p>` : ""}
+                  <details class="source-report-response" ${resolutionNote ? "open" : ""}>
+                    <summary>Private update to student</summary>
+                    <label><span>What was checked or changed? (optional)</span><textarea data-source-report-note="${escapeHtml(report.id || "")}" maxlength="500" rows="2" placeholder="Example: We updated the fee from the latest prospectus.">${escapeHtml(resolutionNote)}</textarea></label>
+                  </details>
                 </div>
                 <div class="admin-row-actions source-report-actions">
                   <button type="button" title="Inspect programme" data-source-report-programme="${escapeHtml(report.payload?.programmeId || "")}" ${report.programme ? "" : "disabled"}>
@@ -11002,13 +11010,14 @@ async function setGapStatus(id, status) {
   updateCounts();
 }
 
-async function setSourceReportStatus(reportId, status) {
+async function setSourceReportStatus(reportId, status, note = "") {
   if (!isAdmin() || !reportId || !["open", "in_progress", "resolved"].includes(status)) return;
   const report = adminAuditEvents.find((event) => event.id === reportId && event.eventType === "source_outdated_reported");
   if (!report) return;
   const previousResolutions = { ...sourceReportResolutions };
+  const cleanNote = String(note || "").trim().slice(0, 500);
   if (status === "open") delete sourceReportResolutions[reportId];
-  else sourceReportResolutions[reportId] = { status, reviewedAt: new Date().toISOString() };
+  else sourceReportResolutions[reportId] = { status, reviewedAt: new Date().toISOString(), note: cleanNote };
   lastPersistenceMessage = serverDatabaseAvailable ? "Saving..." : "Saved locally";
   renderAdmin();
   try {
@@ -11024,7 +11033,8 @@ async function setSourceReportStatus(reportId, status) {
         programmeId: report.payload?.programmeId,
         programmeName: report.payload?.programmeName,
         institution: report.payload?.institution,
-        status
+        status,
+        hasStudentUpdate: Boolean(cleanNote)
       }
     );
     setAdminActionStatus(`Source report marked ${formatStatus(status)}.`, "success");
@@ -12267,7 +12277,8 @@ function bindEvents() {
     const sourceReportStatus = event.target.closest("[data-source-report-status]");
     if (sourceReportStatus) {
       event.preventDefault();
-      setSourceReportStatus(sourceReportStatus.dataset.sourceReportId, sourceReportStatus.dataset.sourceReportStatus);
+      const responseNote = sourceReportStatus.closest(".source-report-row")?.querySelector("[data-source-report-note]")?.value || "";
+      setSourceReportStatus(sourceReportStatus.dataset.sourceReportId, sourceReportStatus.dataset.sourceReportStatus, responseNote);
       return;
     }
 

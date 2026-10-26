@@ -932,6 +932,11 @@ a {
   overflow-wrap: anywhere;
 }
 
+.student-source-report-detail.admin-update {
+  color: var(--brand-deep);
+  font-weight: 700;
+}
+
 .consent-access-empty {
   display: grid;
   gap: 8px;
@@ -5031,6 +5036,35 @@ textarea:focus {
   font-size: 12px;
   font-weight: 800;
   text-decoration: none;
+}
+
+.source-report-response {
+  margin-top: 8px;
+}
+
+.source-report-response summary {
+  color: var(--brand-mid);
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.source-report-response[open] {
+  display: grid;
+  gap: 7px;
+}
+
+.source-report-response label {
+  display: grid;
+  gap: 5px;
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.source-report-response textarea {
+  width: 100%;
+  max-width: 520px;
+  resize: vertical;
 }
 
 .detail-card {
