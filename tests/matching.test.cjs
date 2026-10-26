@@ -157,6 +157,28 @@ test('source freshness separates missing, unreviewed, due, overdue, and current 
   assert.equal(getProgrammeSourceReviewState({ sourceUrl: 'https://institution.example', reviewedAt: '2026-09-30T00:00:00Z' }, now), 'current');
   assert.equal(getProgrammeSourceReviewState({ sourceUrl: 'https://institution.example', reviewedAt: '2025-01-01T00:00:00Z', sourceCheckedAt: '2026-09-30T00:00:00Z' }, now), 'current');
 });
+test('application packs warn before students act on stale or unchecked source details', () => {
+  const getApplicationSourceConfidence = load('getApplicationSourceConfidence', {
+    getSourceFreshnessMeta: (programme) => programme.sourceMeta
+  });
+  const current = getApplicationSourceConfidence([
+    { sourceMeta: { tone: 'green', label: 'Source checked recently' } },
+    { sourceMeta: { tone: 'green', label: 'Source checked recently' } }
+  ]);
+  const due = getApplicationSourceConfidence([
+    { sourceMeta: { tone: 'green', label: 'Source checked recently' } },
+    { sourceMeta: { tone: 'amber', label: 'Source review due' } }
+  ]);
+  const overdue = getApplicationSourceConfidence([
+    { sourceMeta: { tone: 'red', label: 'Source review overdue' } }
+  ]);
+  assert.equal(current.label, 'Sources checked recently');
+  assert.equal(current.tone, 'green');
+  assert.equal(due.label, 'Confirm latest details');
+  assert.match(due.detail, /before you apply or pay/);
+  assert.equal(overdue.label, 'Confirm before acting');
+  assert.match(overdue.detail, /fees, deadlines, requirements, and application routes/);
+});
 test('changing a linked source gives a programme a new source fingerprint', () => {
   const getProgrammeSourceFingerprint = load('getProgrammeSourceFingerprint');
   const original = getProgrammeSourceFingerprint({

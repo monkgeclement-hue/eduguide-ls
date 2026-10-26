@@ -544,6 +544,15 @@ class RoleWorkflowTests(unittest.TestCase):
     self.assertIn("missing_application_timing", app_script)
     self.assertIn("missing_application_documents", app_script)
 
+  def test_application_assistant_explains_source_freshness_before_students_act(self):
+    app_script = (Path(__file__).resolve().parents[1] / "app.js").read_text(encoding="utf-8")
+    self.assertIn("function getApplicationSourceConfidence", app_script)
+    self.assertIn("<span>Source status</span>", app_script)
+    self.assertIn("Confirm before acting", app_script)
+    self.assertIn("Confirm latest details", app_script)
+    self.assertIn("Confirm current fees, deadlines, requirements, and application routes directly with the institution before acting.", app_script)
+    self.assertIn("getApplicationSourceConfidence(topProgrammes)", app_script)
+
   def test_change_request_requires_feedback_and_locks_the_decision(self):
     proposal = {
       "id": "proposal-1",

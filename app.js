@@ -1564,6 +1564,30 @@ function getSourceFreshnessMeta(programme = {}) {
   return { tone: "red", label: "Source review overdue", detail: `Last checked ${formatDateOnly(reviewedAt)}.` };
 }
 
+function getApplicationSourceConfidence(programmes = []) {
+  const sourceStates = (Array.isArray(programmes) ? programmes : []).map(getSourceFreshnessMeta);
+  const countForTone = (tone) => sourceStates.filter((item) => item.tone === tone).length;
+  const urgentCount = countForTone("red");
+  const cautionCount = countForTone("amber");
+  const currentCount = countForTone("green");
+  const tone = !sourceStates.length || urgentCount ? "red" : cautionCount ? "amber" : "green";
+  const label = !sourceStates.length
+    ? "Sources not available"
+    : urgentCount
+      ? "Confirm before acting"
+      : cautionCount
+        ? "Confirm latest details"
+        : "Sources checked recently";
+  const detail = !sourceStates.length
+    ? "No programme source is available for this application pack yet."
+    : urgentCount
+      ? `${urgentCount} programme source${urgentCount === 1 ? "" : "s"} needs an updated check. Confirm current fees, deadlines, requirements, and application routes directly with the institution before acting.`
+      : cautionCount
+        ? `${cautionCount} programme source${cautionCount === 1 ? "" : "s"} should be rechecked soon. Confirm the latest details with the institution before you apply or pay.`
+        : "All programme sources in this pack were checked within the current evidence window. The institution remains the final authority.";
+  return { tone, label, detail, urgentCount, cautionCount, currentCount, total: sourceStates.length };
+}
+
 function getProgrammeReviewableSources(programme = {}) {
   return [
     programme.sourceUrl,
@@ -5896,6 +5920,7 @@ function renderApplicationGroup(group) {
   const deadlineSummary = getApplicationDeadlineSummary(topProgrammes);
   const steps = getApplicationStepList(topProgrammes, checklist, linkPack, feeSummary);
   const programmeFeeSummaries = new Map(topProgrammes.map((programme) => [programme.id, getApplicationFeeSummary(group.institution, [programme])]));
+  const sourceConfidence = getApplicationSourceConfidence(topProgrammes);
   const fundingPolicyWarnings = unique(topProgrammes.map((programme) => programme.match?.fundingBreakdown?.policy?.caution).filter(Boolean));
   const readinessBadge = readiness >= 75 ? "green" : readiness >= 45 ? "amber" : "red";
   const sourceCount = linkPack.allLinks.length + linkPack.localEvidence.length;
@@ -5955,9 +5980,9 @@ function renderApplicationGroup(group) {
           <small class="application-deadline-reminder">${escapeHtml(getDeadlineReminder(deadlineSummary))}</small>
         </div>
         <div>
-          <span>Evidence</span>
-          <strong>${sourceCount || "Review"}</strong>
-          <small>${sourceCount ? "source/prospectus link(s) captured" : "source evidence still needs admin review"}</small>
+          <span>Source status</span>
+          <strong>${escapeHtml(sourceConfidence.label)}</strong>
+          <small>${escapeHtml(sourceConfidence.detail)}</small>
         </div>
       </div>
 
@@ -6014,6 +6039,7 @@ function renderApplicationGroup(group) {
         <span class="badge ${feeBadge}">${feeSummary.lines.length ? "Fee estimate ready" : "Fee under review"}</span>
         <span class="badge ${deadlineBadgeTone}">${escapeHtml(deadlineBadgeLabel)}</span>
         <span class="badge ${sourceBadge}">${sourceCount ? "Evidence linked" : "Evidence missing"}</span>
+        <span class="badge ${sourceConfidence.tone}">${escapeHtml(sourceConfidence.label)}</span>
         <span class="badge amber ${policyBadgeClass}">${escapeHtml(policyText)}</span>
       </div>
 
