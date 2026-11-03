@@ -6147,7 +6147,7 @@ function renderApplicationPlannerContext(programmes = []) {
   const saved = getSavedApplicationProgrammes(visible);
   const scope = applicationFiltersActive() ? "matching the active filters" : applicationSavedOnly ? "in your saved plan" : "in the current matches";
   const savedText = saved.length ? ` ${saved.length} saved programme${saved.length === 1 ? "" : "s"} are included.` : "";
-  return `<div class="application-filter-context" aria-live="polite"><span>Showing ${visible.length} application pack${visible.length === 1 ? "" : "s"} ${scope}.${savedText}</span><strong>Next step</strong><p>${escapeHtml(getApplicationPlannerNextAction(visible))}</p></div>`;
+  return `<div class="application-filter-context" aria-live="polite"><span>Showing ${visible.length} programme${visible.length === 1 ? "" : "s"} ${scope}.${savedText}</span><strong>Next step</strong><p>${escapeHtml(getApplicationPlannerNextAction(visible))}</p></div>`;
 }
 
 function renderApplicationSyncStatusPlaceholder() {
@@ -6162,21 +6162,22 @@ function renderApplicationAssistantTab() {
   if (window.lucide) window.lucide.createIcons();
 }
 
-function renderApplicationAssistant() {
-  const groups = getInstitutionMatchGroups()
+function getApplicationMatchGroups(groups) {
+  return groups
     .map((group) => ({
       ...group,
-      programmes: applicationSavedOnly
-        ? group.programmes.filter((programme) => currentUser?.shortlist?.includes(programme.id) && matchesApplicationFilters(programme))
-        : group.programmes.filter(matchesApplicationFilters)
+      programmes: group.programmes.filter((programme) =>
+        (programme.match?.tier === "qualified" || programme.match?.tier === "almost")
+        && (!applicationSavedOnly || currentUser?.shortlist?.includes(programme.id))
+        && matchesApplicationFilters(programme)
+      )
     }))
-    .filter((group) => group.programmes.some((programme) => programme.match.tier !== "explore"));
-  const fallbackGroups = groups.length
-    ? groups
-    : applicationSavedOnly || applicationFiltersActive()
-      ? []
-      : getInstitutionMatchGroups().slice(0, 6);
-  const plannerProgrammes = getUniqueApplicationProgrammes(fallbackGroups.flatMap((group) => group.programmes));
+    .filter((group) => group.programmes.length > 0);
+}
+
+function renderApplicationAssistant() {
+  const groups = getApplicationMatchGroups(getInstitutionMatchGroups());
+  const plannerProgrammes = getUniqueApplicationProgrammes(groups.flatMap((group) => group.programmes));
   if ((applicationSavedOnly || applicationFiltersActive()) && !groups.length) {
     const filteredEmptyState = applicationFiltersActive()
       ? "No application packs match these filters. Clear a filter or broaden your matches to continue."
@@ -6190,11 +6191,17 @@ function renderApplicationAssistant() {
       <article class="admin-empty"><h4>${applicationFiltersActive() ? "No matching application packs." : "No saved programmes yet."}</h4><p>${filteredEmptyState}</p>${applicationFiltersActive() ? `<button class="secondary-action" type="button" data-application-clear-filters>Clear filters</button>` : ""}</article>
     `;
   }
-  if (!fallbackGroups.length) {
+  if (!groups.length) {
+    const hasMatches = latestMatches.length > 0;
+    const hasEligibleMatches = latestMatches.some((programme) => programme.match?.tier === "qualified" || programme.match?.tier === "almost");
     return `
       <article class="admin-empty">
         <h4>No application packs yet.</h4>
-        <p>Run matches first. Application packs appear after EduGuide finds qualified or almost-qualified institution options.</p>
+        <p>${!hasMatches
+          ? "Run matches first. Application packs appear after EduGuide finds qualified or almost-qualified institution options."
+          : hasEligibleMatches
+            ? "No qualified or almost-qualified programmes match the current Programme filters. Review those filters to see application packs."
+            : "Explore-only paths are for discovery, not application recommendations. Review your qualification gaps in Programmes before planning an application."}</p>
       </article>
     `;
   }
@@ -6216,7 +6223,7 @@ function renderApplicationAssistant() {
     </div>
     ${renderApplicationFilterBar()}
     <div class="application-card-list">
-      ${fallbackGroups.slice(0, 8).map(renderApplicationGroup).join("")}
+      ${groups.slice(0, 8).map(renderApplicationGroup).join("")}
     </div>
   `;
 }

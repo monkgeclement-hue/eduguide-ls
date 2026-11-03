@@ -179,6 +179,49 @@ test('application packs warn before students act on stale or unchecked source de
   assert.equal(overdue.label, 'Confirm before acting');
   assert.match(overdue.detail, /fees, deadlines, requirements, and application routes/);
 });
+test('application packs contain only qualified and almost-qualified programmes', () => {
+  const groups = [
+    { institution: 'Mixed College', programmes: [
+      { id: 'qualified', match: { tier: 'qualified' } },
+      { id: 'explore', match: { tier: 'explore' } },
+      { id: 'almost', match: { tier: 'almost' } }
+    ] },
+    { institution: 'Explore College', programmes: [{ id: 'explore-only', match: { tier: 'explore' } }] }
+  ];
+  const all = load('getApplicationMatchGroups', {
+    applicationSavedOnly: false,
+    currentUser: { shortlist: ['almost'] },
+    matchesApplicationFilters: () => true
+  });
+  const saved = load('getApplicationMatchGroups', {
+    applicationSavedOnly: true,
+    currentUser: { shortlist: ['almost'] },
+    matchesApplicationFilters: () => true
+  });
+  assert.deepEqual(all(groups).map((group) => [group.institution, group.programmes.map((item) => item.id)]),
+    [['Mixed College', ['qualified', 'almost']]]);
+  assert.deepEqual(saved(groups).map((group) => group.programmes.map((item) => item.id)), [['almost']]);
+});
+test('explore-only matches never produce an application pack', () => {
+  const explore = { id: 'explore-only', match: { tier: 'explore' } };
+  const groups = [{ institution: 'Explore College', programmes: [explore] }];
+  const getApplicationMatchGroups = load('getApplicationMatchGroups', {
+    applicationSavedOnly: false,
+    currentUser: { shortlist: [] },
+    matchesApplicationFilters: () => true
+  });
+  const renderApplicationAssistant = load('renderApplicationAssistant', {
+    getApplicationMatchGroups,
+    getInstitutionMatchGroups: () => groups,
+    getUniqueApplicationProgrammes: (items) => items,
+    applicationSavedOnly: false,
+    applicationFiltersActive: () => false,
+    latestMatches: [explore]
+  });
+  const markup = renderApplicationAssistant();
+  assert.match(markup, /Explore-only paths are for discovery/);
+  assert.doesNotMatch(markup, /application-card-list/);
+});
 test('changing a linked source gives a programme a new source fingerprint', () => {
   const getProgrammeSourceFingerprint = load('getProgrammeSourceFingerprint');
   const original = getProgrammeSourceFingerprint({
