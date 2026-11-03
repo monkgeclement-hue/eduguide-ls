@@ -198,6 +198,107 @@ class SecurityRegressionTests(unittest.TestCase):
     finally:
       server._catalogue_programmes_cache = None
 
+  def test_ai_guidance_rebuilds_catalogue_facts_instead_of_trusting_browser_fields(self):
+    record = {
+      'id': 'real-course', 'name': 'Diploma in Media', 'institution': 'Example College',
+      'review_status': 'approved', 'requirements_summary': 'English D or better.',
+      'source_url': 'https://college.example/prospectus', 'source_type': 'official_prospectus',
+      'application_url': 'https://college.example/apply', 'application_documents': ['Results slip'],
+      'fee_note': 'Confirm the current fee with the college.', 'career_options': ['Producer'],
+      'skill_options': ['Editing'], 'faculty': 'Media', 'level': 'Diploma', 'duration': '3 years',
+    }
+    forged = {
+      'id': 'real-course', 'title': 'Guaranteed Admission', 'institution': 'Fake College',
+      'requirements': ['No grades required'], 'source': 'https://fake.example/offer',
+      'source_type': 'forged', 'careers': ['Surgeon'], 'skills': ['Surgery'],
+      'faculty': 'Medicine', 'level': 'Degree', 'duration': '1 month',
+      'application': {'link': {'url': 'https://fake.example/pay'}, 'feeSummary': {'lines': ['Free tuition']}},
+      'application_documents': ['No documents'], 'applicationDocuments': ['No documents'],
+      'scores': {'tier': 'qualified'}, 'match': {'tier': 'almost', 'tierLabel': 'Qualified'},
+    }
+    with patch.object(server, '_catalogue_programmes_cache', [record]):
+      bound = server.bind_guidance_payload_to_catalogue(server.GuidanceRequest(matches=[forged])).matches[0]
+    compact = server.compact_match(bound)
+    self.assertEqual((bound['title'], bound['institution'], bound['duration']), ('Diploma in Media', 'Example College', '3 years'))
+    self.assertEqual(bound['requirements'], ['English D or better.'])
+    self.assertEqual(bound['careers'], ['Producer'])
+    self.assertEqual(bound['skills'], ['Editing'])
+    self.assertEqual(bound['sourceType'], 'official_prospectus')
+    self.assertEqual(bound['applicationDocuments'], ['Results slip'])
+    self.assertEqual(bound['application']['link']['url'], 'https://college.example/apply')
+    self.assertEqual(bound['application']['feeSummary']['lines'], ['Confirm the current fee with the college.'])
+    self.assertEqual(compact['tier'], 'almost')
+    self.assertEqual(compact['tier_label'], 'Almost')
+    self.assertEqual(compact['evidence'][:2], ['Captured requirements: English D or better.', 'Source: https://college.example/prospectus'])
+    self.assertNotIn('fake.example', json.dumps(server.build_request_payload(server.GuidanceRequest(matches=[bound]))))
+
+  def test_explore_tier_and_missing_catalogue_evidence_cannot_be_promoted_by_labels_or_ai_text(self):
+    record = {'id': 'thin', 'name': 'Thin Diploma', 'institution': 'Example College', 'review_status': 'approved'}
+    forged = {
+      'id': 'thin', 'requirements': ['Everyone qualifies'], 'source': 'https://fake.example/source',
+      'application': {'link': {'url': 'https://fake.example/apply'}},
+      'match': {'tier': 'qualified', 'tierLabel': 'Qualified'},
+    }
+    with patch.object(server, '_catalogue_programmes_cache', [record]):
+      bound = server.bind_guidance_payload_to_catalogue(server.GuidanceRequest(matches=[forged], question='Can I apply?'))
+    compact = server.compact_match(bound.matches[0])
+    self.assertEqual(compact['tier'], 'explore')
+    self.assertEqual(compact['tier_label'], 'Explore')
+    self.assertEqual(compact['requirements'], [])
+    self.assertIsNone(compact['source'])
+    self.assertIsNone(compact['application']['link'])
+    self.assertFalse(server.is_recommendable_match(compact))
+    self.assertFalse(server.is_recommendable_match({'tier': 'explore', 'tier_label': 'Qualified'}))
+    guidance = server.normalize_ai_guidance({
+      'summary': 'You qualify for Thin Diploma.', 'direct_answer': 'Apply now.',
+      'top_recommendations': [{'programme': 'Thin Diploma', 'institution': 'Example College'}],
+      'study_plan': ['Pay the fee now.'],
+    }, bound)
+    self.assertEqual(guidance['top_recommendations'], [])
+    self.assertIn('No qualified or almost-qualified recommendation', guidance['summary'])
+    self.assertIn('explore-only path', guidance['direct_answer'])
+    self.assertNotIn('Pay the fee now.', guidance['study_plan'])
+
+  def test_ai_guidance_hard_gate_failure_overrides_favourable_tier(self):
+    record = {'id': 'math-course', 'name': 'Math Course', 'institution': 'Example College',
+              'review_status': 'approved', 'requirements_summary': 'Mathematics C or better.'}
+    with patch.object(server, '_catalogue_programmes_cache', [record]):
+      payload = server.bind_guidance_payload_to_catalogue(server.GuidanceRequest(matches=[{
+        'id': 'math-course', 'hard_gate_passed': False,
+        'match': {'tier': 'qualified', 'tierLabel': 'Qualified', 'hardGatePassed': True},
+      }]))
+    self.assertEqual(payload.matches, [])
+    compact = server.compact_match(payload.blockedMatches[0])
+    self.assertEqual(compact['tier'], 'blocked')
+    self.assertFalse(compact['hard_gate_passed'])
+    self.assertFalse(server.is_recommendable_match(compact))
+
+  def test_ai_guidance_endpoint_rejects_forged_catalogue_evidence(self):
+    record = {'id': 'real-course', 'name': 'Real Course', 'institution': 'Example College',
+              'review_status': 'approved', 'requirements_summary': 'English D or better.',
+              'source_url': 'https://college.example/prospectus'}
+    login = self.client.post('/api/auth/login', json={'email': 'a@example.test', 'password': 'TestPassword1'})
+    self.assertEqual(login.status_code, 200)
+    headers = {'Authorization': f"Bearer {login.json()['token']}"}
+    fake_result = {'mode': 'gemini', 'model': 'test', 'guidance': {
+      'summary': 'You qualify.', 'direct_answer': 'Apply now.',
+      'top_recommendations': [{'programme': 'Real Course', 'institution': 'Example College'}],
+    }}
+    with patch.object(server, '_catalogue_programmes_cache', [record]), patch.object(server, 'call_gemini', return_value=fake_result) as call_ai:
+      response = self.client.post('/api/ai/guidance', headers=headers, json={'matches': [{
+        'id': 'real-course', 'requirements': ['No grades required'],
+        'source': 'https://fake.example/prospectus',
+        'match': {'tier': 'qualified', 'tierLabel': 'Qualified'},
+      }]})
+    self.assertEqual(response.status_code, 200)
+    sent_match = call_ai.call_args.args[1]['recommendable_matches'][0]
+    self.assertEqual(sent_match['requirements'], ['English D or better.'])
+    self.assertEqual(sent_match['source'], 'https://college.example/prospectus')
+    self.assertNotIn('fake.example', json.dumps(sent_match))
+    recommendation = response.json()['guidance']['top_recommendations'][0]
+    self.assertIn('English D or better.', recommendation['evidence'])
+    self.assertEqual(recommendation['evidence_source'], 'https://college.example/prospectus')
+
   def test_ai_guidance_cannot_upgrade_unapproved_or_unevidenced_matches(self):
     server._catalogue_programmes_cache = [
       {'id': 'open', 'name': 'Open Degree', 'institution': 'NUL', 'review_status': 'approved', 'requirements_summary': 'English C'},

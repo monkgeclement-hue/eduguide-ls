@@ -1714,43 +1714,74 @@ def bind_guidance_match_to_catalogue(match: dict[str, Any], catalogue: dict[str,
     return None
   bound = dict(match)
   summary = catalogue_requirement_summary(record)
-  source_url = str(record.get("sourceUrl") or record.get("source_url") or "").strip()
+  source_url = public_catalogue_url(record.get("sourceUrl") or record.get("source_url"))
   if not source_url:
     source_url = public_reference_document_url(
       record.get("sourcePath") or record.get("source_path") or record.get("sourceFile") or record.get("source_file")
-    ) or ""
+    )
+  application_url = public_catalogue_url(record.get("applicationUrl") or record.get("application_url"))
+  fee_note = public_catalogue_text(record.get("feeNote") or record.get("fee_note"), 2000)
   bound["id"] = record.get("id")
   bound["title"] = record.get("name") or record.get("title")
   bound["institution"] = record.get("institution")
+  bound["faculty"] = record.get("faculty")
+  bound["level"] = record.get("level")
+  bound["duration"] = record.get("duration")
+  bound["careers"] = public_catalogue_list(record.get("careers") or record.get("career_options"))
+  bound["skills"] = public_catalogue_list(record.get("skills") or record.get("skill_options"))
+  bound["sourceType"] = public_catalogue_text(record.get("sourceType") or record.get("source_type"), 120)
   bound["reviewStatus"] = record.get("reviewStatus") or record.get("review_status")
   bound["reviewedAt"] = record.get("reviewedAt") or record.get("reviewed_at")
   bound["requirementsSummary"] = summary
-  bound["source"] = source_url or "Official catalogue"
+  bound["requirements"] = [summary] if summary else []
+  bound["applicationDocuments"] = public_catalogue_list(record.get("applicationDocuments") or record.get("application_documents"))
+  bound["application"] = {
+    "link": {"label": "Captured application route", "url": application_url} if application_url else None,
+    "deadlineStatus": public_catalogue_text(record.get("applicationDeadline") or record.get("application_deadline") or record.get("intakeStatus") or record.get("intake_status"), 240),
+    "feeSummary": {"label": "Fee note captured" if fee_note else "Fees under review", "lines": [fee_note] if fee_note else []},
+  }
+  bound["source"] = source_url
   bound["sourceUrl"] = source_url or None
   bound["sourceReview"] = catalogue_source_review_summary(record)
   bound.pop("sourcePath", None)
+  bound.pop("scores", None)
+  bound.pop("source_type", None)
+  bound.pop("application_documents", None)
   maximum_tier = "explore" if not summary else "qualified"
   match_block = bound.get("match") if isinstance(bound.get("match"), dict) else {}
   capped = cap_client_match_tier(match_block.get("tier") or bound.get("tier"), maximum_tier)
-  if match_block:
-    bound["match"] = {**match_block, "tier": capped}
+  hard_gate_blocked = (
+    match_block.get("hardGatePassed") is False or bound.get("hard_gate_passed") is False
+    or bool(match_block.get("hardGateFailures") or bound.get("hardGateFailures"))
+  )
+  if hard_gate_blocked:
+    capped = "blocked"
+  tier_label = {"qualified": "Qualified", "almost": "Almost", "explore": "Explore", "blocked": "Not eligible yet"}[capped]
+  bound["match"] = {**match_block, "tier": capped, "tierLabel": tier_label}
+  if hard_gate_blocked:
+    bound["match"]["hardGatePassed"] = False
   bound["tier"] = capped
+  bound["tierLabel"] = tier_label
   return bound
 
 
 def bind_guidance_payload_to_catalogue(payload: GuidanceRequest) -> GuidanceRequest:
   catalogue = catalogue_records_by_id()
   matches = []
+  blocked = []
   for item in payload.matches or []:
     if isinstance(item, dict):
       bound = bind_guidance_match_to_catalogue(item, catalogue)
       if bound:
-        matches.append(bound)
-  blocked = []
+        (blocked if bound["tier"] == "blocked" else matches).append(bound)
   for item in payload.blockedMatches or []:
     if isinstance(item, dict):
       bound = bind_guidance_match_to_catalogue(item, catalogue)
       if bound:
+        bound["tier"] = "blocked"
+        bound["tierLabel"] = "Not eligible yet"
+        bound["match"]["tier"] = "blocked"
+        bound["match"]["tierLabel"] = "Not eligible yet"
         blocked.append(bound)
   return payload.model_copy(update={"matches": matches, "blockedMatches": blocked})
 
@@ -1768,16 +1799,16 @@ def compact_match(match: dict[str, Any]) -> dict[str, Any]:
   evidence = []
   if requirements:
     evidence.append(f"Captured requirements: {'; '.join(str(item) for item in requirements[:2])}")
+  if source:
+    evidence.append(f"Source: {source}")
+  if source_review.get("label"):
+    evidence.append(f"Source review: {source_review['label']}")
   if reasons:
     evidence.append(f"Matcher reason: {reasons[0]}")
   if requirement_gaps:
     evidence.append(f"Requirement gap: {requirement_gaps[0]}")
   if cautions:
     evidence.append(f"Caution: {cautions[0]}")
-  if source:
-    evidence.append(f"Source: {source}")
-  if source_review.get("label"):
-    evidence.append(f"Source review: {source_review['label']}")
   if application.get("link"):
     link = application.get("link") or {}
     evidence.append(f"Application/source link: {link.get('label') or link.get('url')}")
@@ -1829,6 +1860,8 @@ def canonical_match_tier(match: dict[str, Any]) -> str:
   raw_label = str(match.get("tier_label") or "").strip().lower().replace("-", " ").replace("_", " ")
   if raw_tier in {"qualified", "almost"}:
     return raw_tier
+  if raw_tier in {"explore", "blocked"}:
+    return ""
   if raw_label == "qualified":
     return "qualified"
   if raw_label in {"almost", "almost qualified", "nearly qualified"}:
@@ -1942,6 +1975,12 @@ def normalize_ai_guidance(guidance: dict[str, Any] | None, payload: GuidanceRequ
       for item in safe_recommendations[:3]
     ]
 
+  if not recommendable:
+    fallback = build_fallback(payload)
+    response["summary"] = fallback["summary"]
+    response["direct_answer"] = fallback["direct_answer"]
+    response["study_plan"] = fallback["study_plan"]
+
   if not recommendable and blocked_matches:
     blocker = blocked_matches[0]
     gaps = blocker.get("requirement_gaps") or blocker.get("cautions") or blocker.get("hard_gate_failures") or []
@@ -2034,17 +2073,29 @@ def build_fallback(payload: GuidanceRequest, error: str | None = None) -> dict[s
       "If applicable, prepare residence/chief/guarantor evidence, prior NMDS documents, CHE evaluation, CV, or study leave letter.",
     ]
 
+  if top_matches:
+    direct_answer = (
+      f"For your question: {question} Based on the current evidence, use qualified/almost options first. "
+      f"{programme} at {institution} is the best available path to inspect, and blocked paths should only be used as future goals."
+    )
+  elif explore_matches:
+    direct_answer = (
+      f"For your question: {question} {programme} at {institution} is an explore-only path to research, "
+      "not a current application recommendation. Confirm your grades and entry requirements first."
+    )
+  else:
+    direct_answer = (
+      f"For your question: {question} No application recommendation is available yet. "
+      "Confirm your grades and entry requirements first."
+    )
+
   response = {
     "summary": (
       f"Your strongest realistic match is {programme} at {institution}. The matcher should still be treated as guidance, not an admission decision."
       if top_matches
       else f"No qualified or almost-qualified recommendation is strong enough yet.{blocked_summary} Add/confirm grades and check requirement gaps before applying."
     ),
-    "direct_answer": (
-      f"For your question: {question} Based on the current evidence, use qualified/almost options first. {programme} at {institution} is the best available path to inspect, and blocked paths should only be used as future goals."
-      if question
-      else "Use the tier labels first: qualified options are strongest, almost options need small fixes or confirmation, and explore options are interest-fit pathways, not application recommendations."
-    ),
+    "direct_answer": direct_answer if question else "Use the tier labels first: qualified options are strongest, almost options need small fixes or confirmation, and explore options are interest-fit pathways, not application recommendations.",
     "top_recommendations": [
       {
         "programme": item.get("programme"),
@@ -2074,6 +2125,10 @@ def build_fallback(payload: GuidanceRequest, error: str | None = None) -> dict[s
       "Keep Mathematics and English strong because many programmes use them for ranking.",
       "Focus revision on subjects connected to your top three matched pathways.",
       "Use blocked-pathway notes to identify missing or weak requirement areas.",
+    ] if top_matches else [
+      "Confirm your subject grades and check the current official entry requirements.",
+      "Use explore and blocked pathways as preparation goals, not application choices yet.",
+      "Identify the missing or weak subjects before planning an application.",
     ],
     "document_checklist": document_checklist,
     "scholarship_note": "The scholarship/NMDS-style score is only an estimate. Review academic fit, background/need, priority-programme alignment, and the sponsorship document checklist before treating a pathway as funding-ready. Final sponsorship decisions remain with the official portal and NMDS process.",
