@@ -222,6 +222,30 @@ test('explore-only matches never produce an application pack', () => {
   assert.match(markup, /Explore-only paths are for discovery/);
   assert.doesNotMatch(markup, /application-card-list/);
 });
+test('results tabs keep selection, focus order, and visible panel in sync', () => {
+  function makeElement(id, tabName) {
+    const classes = new Set();
+    return {
+      id, dataset: { resultsTab: tabName }, classes, attributes: {}, tabIndex: -1, focused: false,
+      classList: { toggle(name, active) { if (active) classes.add(name); else classes.delete(name); } },
+      setAttribute(name, value) { this.attributes[name] = value; },
+      focus() { this.focused = true; }
+    };
+  }
+  const tabs = [makeElement('results-tab-programmes', 'programmes'), makeElement('results-tab-applications', 'applications')];
+  const panels = [makeElement('tab-programmes'), makeElement('tab-applications')];
+  const setResultsTab = load('setResultsTab', {
+    qsa: (selector) => selector === '[data-results-tab]' ? tabs : panels
+  });
+  setResultsTab('applications', { focus: true });
+  assert.equal(tabs[0].attributes['aria-selected'], 'false');
+  assert.equal(tabs[0].tabIndex, -1);
+  assert.equal(tabs[1].attributes['aria-selected'], 'true');
+  assert.equal(tabs[1].tabIndex, 0);
+  assert.equal(tabs[1].focused, true);
+  assert.equal(panels[0].classes.has('active'), false);
+  assert.equal(panels[1].classes.has('active'), true);
+});
 test('changing a linked source gives a programme a new source fingerprint', () => {
   const getProgrammeSourceFingerprint = load('getProgrammeSourceFingerprint');
   const original = getProgrammeSourceFingerprint({

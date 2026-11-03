@@ -6228,6 +6228,22 @@ function renderApplicationAssistant() {
   `;
 }
 
+function setResultsTab(tabName, { focus = false } = {}) {
+  const tabs = qsa("[data-results-tab]");
+  const selectedTab = tabs.find((tab) => tab.dataset.resultsTab === tabName);
+  if (!selectedTab) return;
+  tabs.forEach((tab) => {
+    const active = tab === selectedTab;
+    tab.classList.toggle("active", active);
+    tab.setAttribute("aria-selected", String(active));
+    tab.tabIndex = active ? 0 : -1;
+  });
+  qsa("#view-results .tab-panel").forEach((panel) => {
+    panel.classList.toggle("active", panel.id === `tab-${tabName}`);
+  });
+  if (focus) selectedTab.focus();
+}
+
 function renderResults() {
   updateBlockedTabCount();
   updateComparisonTray();
@@ -11722,9 +11738,22 @@ function bindEvents() {
   });
   qsa("[data-results-tab]").forEach((button) => {
     button.addEventListener("click", () => {
-      qsa("[data-results-tab]").forEach((tab) => tab.classList.toggle("active", tab === button));
-      qsa(".tab-panel").forEach((panel) => panel.classList.toggle("active", panel.id === `tab-${button.dataset.resultsTab}`));
+      setResultsTab(button.dataset.resultsTab);
     });
+  });
+  qs("#view-results .result-tabs")?.addEventListener("keydown", (event) => {
+    const currentTab = event.target.closest("[data-results-tab]");
+    if (!currentTab) return;
+    const tabs = qsa("[data-results-tab]");
+    const index = tabs.indexOf(currentTab);
+    let nextIndex;
+    if (event.key === "ArrowRight" || event.key === "ArrowDown") nextIndex = (index + 1) % tabs.length;
+    else if (event.key === "ArrowLeft" || event.key === "ArrowUp") nextIndex = (index - 1 + tabs.length) % tabs.length;
+    else if (event.key === "Home") nextIndex = 0;
+    else if (event.key === "End") nextIndex = tabs.length - 1;
+    else return;
+    event.preventDefault();
+    setResultsTab(tabs[nextIndex].dataset.resultsTab, { focus: true });
   });
   qsa("[data-programme-score-toggle]").forEach((badge) => {
     badge.addEventListener("keydown", (event) => {

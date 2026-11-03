@@ -1,9 +1,25 @@
 import re
 import unittest
+from html.parser import HTMLParser
 from pathlib import Path
 
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
+
+
+class ResultTabsParser(HTMLParser):
+  def __init__(self):
+    super().__init__()
+    self.tabs = {}
+    self.panels = {}
+
+  def handle_starttag(self, tag, attrs):
+    attributes = dict(attrs)
+    element_id = attributes.get("id", "")
+    if tag == "button" and attributes.get("role") == "tab":
+      self.tabs[element_id] = attributes
+    elif tag == "div" and attributes.get("role") == "tabpanel":
+      self.panels[element_id] = attributes
 
 
 class PwaAssetTests(unittest.TestCase):
@@ -61,6 +77,25 @@ class PwaAssetTests(unittest.TestCase):
     self.assertIn(".profile-actions {\n    display: grid;", phone_styles)
     self.assertIn("grid-template-columns: repeat(2, minmax(0, 1fr));", phone_styles)
     self.assertIn(".profile-actions .primary-button,\n  #profile-logout-button { grid-column: 1 / -1; }", phone_styles)
+
+  def test_results_tabs_have_selected_state_and_labelled_panels(self):
+    parser = ResultTabsParser()
+    parser.feed(self.index_html)
+    self.assertEqual(len(parser.tabs), 5)
+    self.assertEqual(len(parser.panels), 5)
+    for tab_id, tab in parser.tabs.items():
+      panel_id = tab["aria-controls"]
+      self.assertIn(panel_id, parser.panels)
+      self.assertEqual(parser.panels[panel_id]["aria-labelledby"], tab_id)
+      self.assertEqual(tab["aria-selected"], "true" if tab_id == "results-tab-programmes" else "false")
+      self.assertEqual(tab.get("tabindex", "0"), "0" if tab_id == "results-tab-programmes" else "-1")
+
+  def test_phone_result_controls_and_toast_clear_the_bottom_navigation(self):
+    styles = (PROJECT_ROOT / "styles.css").read_text(encoding="utf-8")
+    phone_styles = styles.split("@media (max-width: 760px)", 1)[1]
+    self.assertIn("bottom: calc(86px + env(safe-area-inset-bottom));", phone_styles)
+    self.assertIn(".result-tab {\n    flex: none;\n    min-height: 44px;", phone_styles)
+    self.assertIn(".application-filter-bar select {\n    width: 100%;\n    min-height: 44px;", phone_styles)
 
   def test_keyboard_navigation_has_a_skip_link_focus_target_and_motion_fallback(self):
     app_bundle = (PROJECT_ROOT / "app.js").read_text(encoding="utf-8")

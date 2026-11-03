@@ -13,7 +13,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Playfair+Display:wght@600;700&display=swap" />
-    <link rel="stylesheet" href="/styles.css?v=67" />
+    <link rel="stylesheet" href="/styles.css?v=68" />
   </head>
   <body>
     <a href="/privacy" class="privacy-link" style="display:block;text-align:center;padding:8px">Privacy and data use</a>
@@ -773,12 +773,12 @@
                     Clear compare
                   </button>
                 </div>
-                <div class="result-tabs" role="tablist">
-                  <button class="result-tab active" type="button" data-results-tab="programmes">Programmes</button>
-                  <button class="result-tab" type="button" data-results-tab="applications">Applications</button>
-                  <button class="result-tab" type="button" data-results-tab="skills">Skills</button>
-                  <button class="result-tab" type="button" data-results-tab="labour">Labour</button>
-                  <button class="result-tab" type="button" data-results-tab="blocked">
+                <div class="result-tabs" role="tablist" aria-label="Guidance sections">
+                  <button class="result-tab active" id="results-tab-programmes" type="button" role="tab" aria-controls="tab-programmes" aria-selected="true" data-results-tab="programmes">Programmes</button>
+                  <button class="result-tab" id="results-tab-applications" type="button" role="tab" aria-controls="tab-applications" aria-selected="false" tabindex="-1" data-results-tab="applications">Applications</button>
+                  <button class="result-tab" id="results-tab-skills" type="button" role="tab" aria-controls="tab-skills" aria-selected="false" tabindex="-1" data-results-tab="skills">Skills</button>
+                  <button class="result-tab" id="results-tab-labour" type="button" role="tab" aria-controls="tab-labour" aria-selected="false" tabindex="-1" data-results-tab="labour">Labour</button>
+                  <button class="result-tab" id="results-tab-blocked" type="button" role="tab" aria-controls="tab-blocked" aria-selected="false" tabindex="-1" data-results-tab="blocked">
                     Not eligible yet
                     <span class="result-tab-count" id="blocked-tab-count"></span>
                   </button>
@@ -801,11 +801,11 @@
                   </button>
                 </div>
               </div>
-              <div class="tab-panel active" id="tab-programmes"></div>
-              <div class="tab-panel" id="tab-applications"></div>
-              <div class="tab-panel" id="tab-skills"></div>
-              <div class="tab-panel" id="tab-labour"></div>
-              <div class="tab-panel" id="tab-blocked"></div>
+              <div class="tab-panel active" id="tab-programmes" role="tabpanel" aria-labelledby="results-tab-programmes" tabindex="0"></div>
+              <div class="tab-panel" id="tab-applications" role="tabpanel" aria-labelledby="results-tab-applications" tabindex="0"></div>
+              <div class="tab-panel" id="tab-skills" role="tabpanel" aria-labelledby="results-tab-skills" tabindex="0"></div>
+              <div class="tab-panel" id="tab-labour" role="tabpanel" aria-labelledby="results-tab-labour" tabindex="0"></div>
+              <div class="tab-panel" id="tab-blocked" role="tabpanel" aria-labelledby="results-tab-blocked" tabindex="0"></div>
             </section>
 
             <aside class="surface-panel profile-score">
@@ -1302,6 +1302,6 @@
     <script src="/vendor/lucide.min.js" defer></script>
     <script src="/data/catalog.js" defer></script>
     <script src="/data/admin-catalog.js" defer></script>
-    <script src="/app.js?v=113" defer></script>
+    <script src="/app.js?v=114" defer></script>
   </body>
 </html>

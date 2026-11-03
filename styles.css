@@ -6046,6 +6046,20 @@ textarea:focus {
     overflow-x: hidden;
   }
 
+  .app-toast {
+    bottom: calc(86px + env(safe-area-inset-bottom));
+  }
+
+  .app-toast-action,
+  .app-toast-close {
+    min-height: 44px;
+  }
+
+  .app-toast-close {
+    min-width: 44px;
+    justify-content: center;
+  }
+
   .auth-email-help {
     align-items: stretch;
     flex-direction: column;
@@ -6312,10 +6326,23 @@ textarea:focus {
 
   .result-tab {
     flex: none;
-    min-height: 38px;
+    min-height: 44px;
     border-radius: 6px;
-    padding: 0 8px;
+    padding: 6px 8px;
     font-size: 11px;
+    line-height: 1.2;
+    text-align: center;
+    white-space: normal;
+  }
+
+  .application-filter-bar label {
+    flex-basis: 100%;
+    min-width: 0;
+  }
+
+  .application-filter-bar select {
+    width: 100%;
+    min-height: 44px;
   }
 
   .application-assistant-intro,
