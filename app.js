@@ -342,6 +342,7 @@ let institutionProposalsError = "";
 let databaseLoadedAuthUsers = false;
 let databaseLoadedReviewState = false;
 let aiChatLoadedFromServer = false;
+let aiChatResetVersion = 0;
 let aiInterviewState = {
   active: false,
   step: 0,
@@ -6488,16 +6489,21 @@ function loadAiChatMessages() {
 async function loadServerAiChatMessages() {
   if (!authToken || !serverDatabaseAvailable || aiChatLoadedFromServer) return;
   aiChatLoadedFromServer = true;
+  const resetVersion = aiChatResetVersion;
   try {
     const response = await fetch("/api/ai/chat", { headers: getAuthHeaders({ Accept: "application/json" }) });
     const data = await response.json().catch(() => ({}));
     if (!response.ok || !data.ok || !Array.isArray(data.messages)) throw new Error(data.detail || "AI chat history unavailable");
+    if (resetVersion !== aiChatResetVersion) return;
     aiChatMessages = mergeAiChatMessages(aiChatMessages.filter((item) => item.id !== "ai-welcome"), data.messages);
     if (!aiChatMessages.length) aiChatMessages = [getInitialAiChatMessage()];
     saveAiChatMessages();
     renderAiChatMessages();
   } catch (error) {
-    aiChatLoadedFromServer = false;
+    if (resetVersion === aiChatResetVersion) {
+      aiChatLoadedFromServer = false;
+      qs("#ai-guidance-status").textContent = "Account chat history could not load. This device may still have a copy.";
+    }
   }
 }
 
@@ -6535,25 +6541,51 @@ function renderAiChatMessages(typingText = "") {
   if (window.lucide) window.lucide.createIcons();
 }
 
-function appendAiChatMessage(role, content, html = "") {
-  const message = normalizeAiChatMessage({ role, content, html });
+function appendAiChatMessage(role, content, html = "", id = null) {
+  const message = normalizeAiChatMessage({ role, content, html, id });
   if (!message) return;
   aiChatMessages = [...aiChatMessages.filter((item) => item.id !== "ai-welcome"), message].slice(-maxAiChatMessages);
   saveAiChatMessages();
   renderAiChatMessages();
 }
 
-function resetAiChatMessages() {
+async function resetAiChatMessages() {
+  const clearButton = qs("#ai-clear-button");
+  const guidanceButton = qs("#ai-guidance-button");
+  const compareButton = qs("#ai-compare-button");
+  if (clearButton.disabled || guidanceButton.disabled || compareButton.disabled) return;
+  clearButton.disabled = true;
+  guidanceButton.disabled = true;
+  compareButton.disabled = true;
+  const status = qs("#ai-guidance-status");
+  if (authToken) {
+    status.textContent = "Clearing chat history...";
+    try {
+      const response = await fetch("/api/ai/chat", { method: "DELETE", headers: getAuthHeaders() });
+      const data = await response.json().catch(() => ({}));
+      if (!response.ok || data.ok !== true) throw new Error("Chat history could not be cleared.");
+    } catch (error) {
+      status.textContent = "Chat was not cleared. Please try again when the server is available.";
+      clearButton.disabled = false;
+      guidanceButton.disabled = false;
+      compareButton.disabled = false;
+      return;
+    }
+  }
+  aiChatResetVersion += 1;
+  aiChatLoadedFromServer = false;
   aiInterviewState = { active: false, step: 0, answers: [] };
   renderInterviewControls();
   aiChatMessages = [getInitialAiChatMessage()];
   saveAiChatMessages();
   renderAiChatMessages();
   qs("#ai-question").value = "";
-  qs("#ai-guidance-status").textContent = "New chat started. Your grades and latest matches are still used as context.";
-  if (authToken && serverDatabaseAvailable) {
-    fetch("/api/ai/chat", { method: "DELETE", headers: getAuthHeaders() }).catch(() => {});
-  }
+  status.textContent = authToken
+    ? "New chat started. Your grades and latest matches are still used as context."
+    : "New chat started on this device. Your grades and latest matches are still used as context.";
+  clearButton.disabled = false;
+  guidanceButton.disabled = false;
+  compareButton.disabled = false;
 }
 
 function renderInterviewControls() {
@@ -6736,7 +6768,19 @@ function getAiConversationPayload() {
     .slice(-12)
     .map((message) => ({ id: message.id, role: message.role, content: message.content, at: message.at }));
 }
-function renderAiGuidance(guidance, mode, model, serverChat = null) {
+function getAiGuidanceStatus(mode, model, chatSynced) {
+  if (mode !== "gemini" && mode !== "openai") {
+    return chatSynced === false
+      ? "Local fallback guidance shown. Chat could not fully sync to your account; this device has a copy."
+      : "Local fallback guidance shown because AI is not configured or unavailable.";
+  }
+  const providerLabel = mode === "gemini" ? "Gemini" : "OpenAI";
+  return chatSynced === false
+    ? `Generated with ${providerLabel} (${model}). Chat could not fully sync to your account; this device has a copy.`
+    : `Generated with ${providerLabel} (${model}). Conversation context is active.`;
+}
+
+function renderAiGuidance(guidance, mode, model, serverChat = null, chatSynced = true) {
   const recommendations = guidance.top_recommendations || [];
   const comparison = guidance.comparison || [];
   const hasPreviousGuidance = aiChatMessages.some((message) => message.role === "assistant" && message.id !== "ai-welcome" && message.content);
@@ -6854,22 +6898,22 @@ function renderAiGuidance(guidance, mode, model, serverChat = null) {
         : ""
     }
   `;
-  appendAiChatMessage("assistant", guidanceToConversationText(guidance, { includeRecommendations: showRecommendations }), answerMarkup);
+  const savedReply = Array.isArray(serverChat) ? serverChat.at(-1) : null;
+  const replyId = savedReply?.role === "assistant" ? savedReply.id : null;
+  appendAiChatMessage("assistant", guidanceToConversationText(guidance, { includeRecommendations: showRecommendations }), answerMarkup, replyId);
   if (Array.isArray(serverChat) && serverChat.length) {
     aiChatMessages = mergeAiChatMessages(aiChatMessages, serverChat);
     saveAiChatMessages();
     renderAiChatMessages();
   }
-  const providerLabel = mode === "gemini" ? "Gemini" : mode === "openai" ? "OpenAI" : "AI";
-  qs("#ai-guidance-status").textContent =
-    mode === "gemini" || mode === "openai"
-      ? `Generated with ${providerLabel} (${model}). Conversation context is active.`
-      : "Local fallback guidance shown because AI is not configured or unavailable.";
+  qs("#ai-guidance-status").textContent = getAiGuidanceStatus(mode, model, chatSynced);
 }
 async function requestAiGuidance(mode = "guidance") {
+  if (qs("#ai-guidance-button")?.disabled || qs("#ai-clear-button")?.disabled) return;
   if (!latestMatches.length) calculateMatches();
   const guidanceButton = qs("#ai-guidance-button");
   const compareButton = qs("#ai-compare-button");
+  const clearButton = qs("#ai-clear-button");
   const questionInput = qs("#ai-question");
   const questionText = questionInput?.value.trim() || "";
   if (aiInterviewState.active && mode === "guidance") {
@@ -6884,6 +6928,7 @@ async function requestAiGuidance(mode = "guidance") {
 
   guidanceButton.disabled = true;
   compareButton.disabled = true;
+  clearButton.disabled = true;
   if (questionText) appendAiChatMessage("user", questionText);
   renderAiChatMessages(
     mode === "compare"
@@ -6918,7 +6963,7 @@ async function requestAiGuidance(mode = "guidance") {
     });
     if (!response.ok) throw new Error(`AI server returned ${response.status}`);
     const data = await response.json();
-    renderAiGuidance(data.guidance || {}, data.mode, data.model, data.chat);
+    renderAiGuidance(data.guidance || {}, data.mode, data.model, data.chat, data.chatSynced);
     if (questionInput) questionInput.value = "";
     recordCurrentUserActivity(mode === "compare" ? "ai_compare" : "ai_guidance", mode === "compare" ? "Compared AI recommendations" : "Requested AI guidance", {
       question: payload.question.slice(0, 120)
@@ -6936,6 +6981,7 @@ async function requestAiGuidance(mode = "guidance") {
   } finally {
     guidanceButton.disabled = false;
     compareButton.disabled = false;
+    clearButton.disabled = false;
   }
 }
 function renderSources() {

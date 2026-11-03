@@ -12,6 +12,94 @@ function load(name, globals = {}) {
   vm.runInContext(source.slice(start, end), context);
   return context[name];
 }
+function loadAsync(name, globals) {
+  const start = source.indexOf(`async function ${name}(`);
+  assert.ok(start >= 0);
+  const end = source.indexOf('\n}', start) + 2;
+  const context = vm.createContext(globals);
+  vm.runInContext(source.slice(start, end), context);
+  return context;
+}
+function chatResetContext(fetchImpl) {
+  const controls = Object.fromEntries(['#ai-clear-button', '#ai-guidance-button', '#ai-compare-button', '#ai-guidance-status', '#ai-question'].map((key) => [key, { disabled: false, textContent: '', value: 'Question' }]));
+  const context = loadAsync('resetAiChatMessages', {
+    qs: (selector) => controls[selector],
+    fetch: fetchImpl,
+    getAuthHeaders: () => ({}),
+    getInitialAiChatMessage: () => ({ id: 'ai-welcome', role: 'assistant', content: 'Welcome' }),
+    renderInterviewControls: () => {},
+    saveAiChatMessages: () => {},
+    renderAiChatMessages: () => {},
+    authToken: 'session',
+    serverDatabaseAvailable: true,
+    aiChatResetVersion: 0,
+    aiChatLoadedFromServer: true,
+    aiInterviewState: { active: true },
+    aiChatMessages: [{ id: 'old', role: 'user', content: 'Question' }]
+  });
+  return { context, controls };
+}
+test('chat reset waits for server confirmation before clearing the device copy', async () => {
+  let resolveRequest;
+  const { context, controls } = chatResetContext(() => new Promise((resolve) => { resolveRequest = resolve; }));
+  const pending = context.resetAiChatMessages();
+  assert.equal(context.aiChatMessages[0].id, 'old');
+  assert.equal(controls['#ai-clear-button'].disabled, true);
+  resolveRequest({ ok: true, json: async () => ({ ok: true }) });
+  await pending;
+  assert.equal(context.aiChatMessages[0].id, 'ai-welcome');
+  assert.equal(context.aiChatResetVersion, 1);
+  assert.equal(controls['#ai-clear-button'].disabled, false);
+});
+test('failed chat reset keeps the existing conversation and allows retry', async () => {
+  for (const response of [{ ok: false, json: async () => ({ ok: false }) }, { ok: true, json: async () => ({ ok: false }) }]) {
+    const { context, controls } = chatResetContext(async () => response);
+    await context.resetAiChatMessages();
+    assert.equal(context.aiChatMessages[0].id, 'old');
+    assert.equal(context.aiChatResetVersion, 0);
+    assert.match(controls['#ai-guidance-status'].textContent, /not cleared/);
+    assert.equal(controls['#ai-clear-button'].disabled, false);
+  }
+});
+test('AI guidance labels account sync failures without hiding the answer', () => {
+  const status = load('getAiGuidanceStatus');
+  assert.match(status('gemini', 'test', false), /could not fully sync/);
+  assert.match(status('gemini', 'test', true), /Conversation context is active/);
+  assert.match(status('local_fallback', null, false), /could not fully sync/);
+});
+test('failed account history load is shown and can retry', async () => {
+  const status = { textContent: '' };
+  const context = loadAsync('loadServerAiChatMessages', {
+    authToken: 'session',
+    serverDatabaseAvailable: true,
+    aiChatLoadedFromServer: false,
+    aiChatResetVersion: 0,
+    getAuthHeaders: () => ({}),
+    fetch: async () => ({ ok: false, json: async () => ({ detail: 'Storage unavailable' }) }),
+    qs: () => status
+  });
+  await context.loadServerAiChatMessages();
+  assert.equal(context.aiChatLoadedFromServer, false);
+  assert.match(status.textContent, /could not load/);
+});
+test('server reply ID keeps a saved AI answer from appearing twice', () => {
+  const normalizeAiChatMessage = load('normalizeAiChatMessage');
+  const mergeAiChatMessages = load('mergeAiChatMessages', { normalizeAiChatMessage, maxAiChatMessages: 24 });
+  const context = vm.createContext({
+    normalizeAiChatMessage,
+    aiChatMessages: [],
+    maxAiChatMessages: 24,
+    saveAiChatMessages: () => {},
+    renderAiChatMessages: () => {}
+  });
+  const start = source.indexOf('function appendAiChatMessage(');
+  const end = source.indexOf('\n}', start) + 2;
+  vm.runInContext(source.slice(start, end), context);
+  context.appendAiChatMessage('assistant', 'Detailed answer', '<p>Detailed answer</p>', 'server-reply');
+  const combined = mergeAiChatMessages(context.aiChatMessages, [{ id: 'server-reply', role: 'assistant', content: 'Short answer' }]);
+  assert.equal(combined.length, 1);
+  assert.equal(combined[0].html, '<p>Detailed answer</p>');
+});
 const tier = load('getMatchTier', { hasEnteredGradesBelowPass: () => false });
 test('missing requirements cannot claim eligibility despite high inferred scores', () => {
   assert.equal(tier({ academic: 100 }, { total: 5, missing: [], score: 100 }, { requirementEvidenceAvailable: false }, { failures: [] }), 'explore');

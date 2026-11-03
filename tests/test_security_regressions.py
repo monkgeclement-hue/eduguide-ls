@@ -299,6 +299,62 @@ class SecurityRegressionTests(unittest.TestCase):
     self.assertIn('English D or better.', recommendation['evidence'])
     self.assertEqual(recommendation['evidence_source'], 'https://college.example/prospectus')
 
+  def test_supabase_chat_write_failure_preserves_existing_history(self):
+    methods = []
+    def remote(method, path, body=None, **kwargs):
+      methods.append(method)
+      if method == 'POST': raise RuntimeError('storage unavailable')
+      self.fail(f'Unexpected request {method} {path}')
+    message = {'id': 'new-message', 'role': 'user', 'content': 'Hello', 'at': '2026-09-14T00:00:00Z'}
+    with patch.object(server, 'using_supabase', return_value=True), patch.object(server, 'supabase_request', side_effect=remote):
+      saved, synced = server.safe_save_ai_chat_history('a', [message])
+    self.assertFalse(synced)
+    self.assertEqual(saved[0]['content'], 'Hello')
+    self.assertEqual(methods, ['POST'])
+
+  def test_supabase_chat_writes_before_pruning_old_messages(self):
+    calls = []
+    def remote(method, path, body=None, **kwargs):
+      calls.append((method, path, kwargs))
+      if method == 'GET':
+        return [
+          {'id': 'new-message', 'role': 'assistant', 'content': 'Hello', 'created_at': '2026-09-14T00:00:01Z'},
+          {'id': 'old-message', 'role': 'user', 'content': 'Question', 'created_at': '2026-09-14T00:00:00Z'},
+        ]
+      return None
+    message = {'id': 'new-message', 'role': 'assistant', 'content': 'Hello', 'at': '2026-09-14T00:00:01Z'}
+    with patch.object(server, 'using_supabase', return_value=True), patch.object(server, 'supabase_request', side_effect=remote):
+      server.save_ai_chat_history('a', [message])
+    self.assertEqual([method for method, _, _ in calls], ['POST', 'GET', 'DELETE'])
+    self.assertIn('on_conflict=id', calls[0][1])
+    self.assertIn('resolution=ignore-duplicates', calls[0][2]['prefer'])
+    self.assertIn('created_at=lt.', calls[2][1])
+
+  def test_chat_history_and_clear_return_error_when_storage_fails(self):
+    login = self.client.post('/api/auth/login', json={'email': 'a@example.test', 'password': 'TestPassword1'})
+    headers = {'Authorization': f"Bearer {login.json()['token']}"}
+    with patch.object(server, 'list_ai_chat_history', side_effect=RuntimeError('storage unavailable')):
+      response = self.client.get('/api/ai/chat', headers=headers)
+    self.assertEqual(response.status_code, 503)
+    with patch.object(server, 'clear_ai_chat_history', side_effect=RuntimeError('storage unavailable')):
+      response = self.client.delete('/api/ai/chat', headers=headers)
+    self.assertEqual(response.status_code, 503)
+
+  def test_ai_guidance_reports_unsynced_chat_after_save_failure(self):
+    record = {'id': 'real-course', 'name': 'Real Course', 'institution': 'Example College',
+              'review_status': 'approved', 'requirements_summary': 'English D or better.',
+              'source_url': 'https://college.example/prospectus'}
+    login = self.client.post('/api/auth/login', json={'email': 'a@example.test', 'password': 'TestPassword1'})
+    headers = {'Authorization': f"Bearer {login.json()['token']}"}
+    fake_result = {'mode': 'gemini', 'model': 'test', 'guidance': {'summary': 'Review the requirements.'}}
+    with patch.object(server, '_catalogue_programmes_cache', [record]), \
+         patch.object(server, 'call_gemini', return_value=fake_result), \
+         patch.object(server, 'save_ai_chat_history', side_effect=RuntimeError('storage unavailable')):
+      response = self.client.post('/api/ai/guidance', headers=headers, json={'matches': [{'id': 'real-course'}]})
+    self.assertEqual(response.status_code, 200, response.text)
+    self.assertFalse(response.json()['chatSynced'])
+    self.assertEqual(response.json()['chat'][-1]['role'], 'assistant')
+
   def test_ai_guidance_cannot_upgrade_unapproved_or_unevidenced_matches(self):
     server._catalogue_programmes_cache = [
       {'id': 'open', 'name': 'Open Degree', 'institution': 'NUL', 'review_status': 'approved', 'requirements_summary': 'English C'},

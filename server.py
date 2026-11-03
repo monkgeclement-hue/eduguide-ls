@@ -2574,15 +2574,10 @@ def list_ai_chat_history(user_id: str) -> list[dict[str, Any]]:
 def save_ai_chat_history(user_id: str, messages: list[dict[str, Any]]) -> list[dict[str, Any]]:
   normalized = merge_ai_chat_histories(messages)
   if using_supabase():
-    supabase_request(
-      "DELETE",
-      supabase_table_path("runtime_ai_chat_messages", f"user_id=eq.{supabase_filter_value(user_id)}"),
-      prefer="return=minimal",
-    )
     if normalized:
       supabase_request(
         "POST",
-        supabase_table_path("runtime_ai_chat_messages"),
+        supabase_table_path("runtime_ai_chat_messages", "on_conflict=id"),
         [
           {
             "id": message["id"],
@@ -2594,8 +2589,19 @@ def save_ai_chat_history(user_id: str, messages: list[dict[str, Any]]) -> list[d
           }
           for message in normalized
         ],
-        prefer="return=minimal",
+        prefer="resolution=ignore-duplicates,return=minimal",
       )
+      try:
+        recent = list_ai_chat_history(user_id)
+        if recent:
+          cutoff = supabase_filter_value(str(recent[0]["at"]))
+          supabase_request(
+            "DELETE",
+            supabase_table_path("runtime_ai_chat_messages", f"user_id=eq.{supabase_filter_value(user_id)}&created_at=lt.{cutoff}"),
+            prefer="return=minimal",
+          )
+      except Exception:
+        pass
     return normalized
 
   with get_db_connection() as connection:
@@ -2642,18 +2648,11 @@ def safe_list_ai_chat_history(user_id: str) -> list[dict[str, Any]]:
     return []
 
 
-def safe_save_ai_chat_history(user_id: str, messages: list[dict[str, Any]]) -> list[dict[str, Any]]:
+def safe_save_ai_chat_history(user_id: str, messages: list[dict[str, Any]]) -> tuple[list[dict[str, Any]], bool]:
   try:
-    return save_ai_chat_history(user_id, messages)
+    return save_ai_chat_history(user_id, messages), True
   except Exception:
-    return merge_ai_chat_histories(messages)
-
-
-def safe_clear_ai_chat_history(user_id: str) -> None:
-  try:
-    clear_ai_chat_history(user_id)
-  except Exception:
-    pass
+    return merge_ai_chat_histories(messages), False
 
 
 def guidance_to_chat_text(guidance: dict[str, Any]) -> str:
@@ -5427,13 +5426,20 @@ def call_openai(payload: GuidanceRequest, request_payload: dict[str, Any]) -> di
 @app.get("/api/ai/chat")
 def ai_chat_history(authorization: str | None = Header(default=None)) -> dict[str, Any]:
   user = require_current_user(authorization)
-  return {"ok": True, "messages": safe_list_ai_chat_history(user["id"])}
+  try:
+    messages = list_ai_chat_history(user["id"])
+  except Exception as exc:
+    raise HTTPException(status_code=503, detail="Chat history is temporarily unavailable.") from exc
+  return {"ok": True, "messages": messages}
 
 
 @app.delete("/api/ai/chat")
 def ai_chat_clear(authorization: str | None = Header(default=None)) -> dict[str, Any]:
   user = require_current_user(authorization)
-  safe_clear_ai_chat_history(user["id"])
+  try:
+    clear_ai_chat_history(user["id"])
+  except Exception as exc:
+    raise HTTPException(status_code=503, detail="Chat history could not be cleared. Try again.") from exc
   users = get_auth_users_internal()
   stored = next((item for item in users if item["id"] == user["id"]), None)
   if stored:
@@ -5454,7 +5460,12 @@ def ai_guidance(payload: GuidanceRequest, request: Request, authorization: str |
     }
   check_rate_limit(request, "ai_guidance", 40, 3600, current_user["id"])
   incoming_history = merge_ai_chat_histories(safe_payload.conversation)
-  server_history = safe_list_ai_chat_history(current_user["id"])
+  try:
+    server_history = list_ai_chat_history(current_user["id"])
+    history_loaded = True
+  except Exception:
+    server_history = []
+    history_loaded = False
   merged_history = merge_ai_chat_histories(server_history, incoming_history)
   request_payload = build_request_payload(safe_payload, merged_history)
   request_payload["userId"] = current_user["id"]
@@ -5474,13 +5485,14 @@ def ai_guidance(payload: GuidanceRequest, request: Request, authorization: str |
     "content": guidance_to_chat_text(guidance if isinstance(guidance, dict) else {}),
     "at": now_iso(),
   }
-  chat = safe_save_ai_chat_history(current_user["id"], [*merged_history, assistant_message])
+  chat, chat_saved = safe_save_ai_chat_history(current_user["id"], [*merged_history, assistant_message])
   users = get_auth_users_internal()
   stored = next((item for item in users if item["id"] == current_user["id"]), None)
   if stored:
     add_user_activity(stored, "ai_guidance", "Used EduGuide AI", current_user, {"mode": safe_payload.mode})
     save_auth_users_internal(users)
   result["chat"] = chat
+  result["chatSynced"] = history_loaded and chat_saved
   return result
 
 
