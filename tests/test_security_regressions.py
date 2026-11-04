@@ -5,7 +5,7 @@ import tempfile
 import unittest
 from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
-from unittest.mock import patch
+from unittest.mock import Mock, patch
 from copy import deepcopy
 from fastapi import HTTPException
 from fastapi.testclient import TestClient
@@ -272,6 +272,52 @@ class SecurityRegressionTests(unittest.TestCase):
     self.assertEqual(compact['tier'], 'blocked')
     self.assertFalse(compact['hard_gate_passed'])
     self.assertFalse(server.is_recommendable_match(compact))
+
+  def test_no_eligible_matches_get_relevant_follow_up_questions(self):
+    payload = server.GuidanceRequest(
+      question='What can I study?',
+      matches=[{'title': 'Explore Course', 'institution': 'Example College', 'match': {'tier': 'explore'}}],
+      blockedMatches=[{'title': 'Blocked Course', 'institution': 'Example College',
+                       'match': {'tier': 'blocked', 'requirementGaps': ['Mathematics C or better.']}}],
+    )
+    fallback = server.build_fallback(payload)
+    self.assertTrue(any('blocks your closest pathway' in item for item in fallback['next_questions']))
+    self.assertFalse(any('qualified or almost-qualified matches' in item for item in fallback['next_questions']))
+    guidance = server.normalize_ai_guidance({
+      'summary': 'You qualify.',
+      'next_questions': ['Which qualified option will you apply to?'],
+    }, payload)
+    self.assertEqual(guidance['next_questions'], fallback['next_questions'])
+    self.assertIn('Main blocker: Mathematics C or better.', guidance['direct_answer'])
+    self.assertNotIn('better..', guidance['direct_answer'])
+    self.assertEqual(guidance['blockers'], ['Blocked Course at Example College: Mathematics C or better.'])
+
+  def test_fallback_does_not_expose_provider_error_details(self):
+    guidance = server.build_fallback(server.GuidanceRequest(), 'provider-secret-and-request-details')
+    self.assertNotIn('provider-secret-and-request-details', guidance['summary'])
+    self.assertIn('local matcher guidance', guidance['summary'])
+
+  def test_invalid_gemini_response_is_labelled_local_fallback(self):
+    client = Mock()
+    with patch.object(server, 'get_gemini_api_key', return_value='test-key'), \
+         patch('google.genai.Client', return_value=client):
+      for invalid_response in ('not JSON', '[]'):
+        client.models.generate_content.return_value.text = invalid_response
+        result = server.call_gemini(server.GuidanceRequest(), {})
+        self.assertEqual(result['mode'], 'local_fallback')
+        self.assertEqual(result['provider'], 'gemini')
+    self.assertTrue(client.models.generate_content.called)
+
+  def test_invalid_openai_response_is_labelled_local_fallback(self):
+    client = Mock()
+    with patch.object(server, 'get_openai_api_key', return_value='test-key'), \
+         patch.object(server, 'OpenAI', return_value=client):
+      for invalid_response in ('not JSON', '[]'):
+        client.responses.create.return_value.output_text = invalid_response
+        result = server.call_openai(server.GuidanceRequest(), {})
+        self.assertEqual(result['mode'], 'local_fallback')
+        self.assertEqual(result['provider'], 'openai')
+    self.assertTrue(client.responses.create.called)
 
   def test_ai_guidance_endpoint_rejects_forged_catalogue_evidence(self):
     record = {'id': 'real-course', 'name': 'Real Course', 'institution': 'Example College',

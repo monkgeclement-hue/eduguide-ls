@@ -1894,6 +1894,10 @@ def evidence_text(match: dict[str, Any]) -> str:
   return " | ".join(fallback[:3]) or "Evidence is limited; verify this programme with the institution before applying."
 
 
+def guidance_gap_text(gaps: list[Any]) -> str:
+  return "; ".join(str(gap).strip().rstrip(".;") for gap in gaps[:2] if str(gap).strip())
+
+
 def source_review_caution(match: dict[str, Any]) -> str:
   source_review = match.get("source_review") if isinstance(match.get("source_review"), dict) else {}
   if source_review.get("status") in {"missing_source", "unreviewed", "due", "overdue"}:
@@ -1980,14 +1984,16 @@ def normalize_ai_guidance(guidance: dict[str, Any] | None, payload: GuidanceRequ
     response["summary"] = fallback["summary"]
     response["direct_answer"] = fallback["direct_answer"]
     response["study_plan"] = fallback["study_plan"]
+    response["next_questions"] = fallback["next_questions"]
 
   if not recommendable and blocked_matches:
     blocker = blocked_matches[0]
     gaps = blocker.get("requirement_gaps") or blocker.get("cautions") or blocker.get("hard_gate_failures") or []
+    gap_text = guidance_gap_text(gaps)
     response["summary"] = "No qualified or almost-qualified recommendation is strong enough yet from the current captured evidence."
     response["direct_answer"] = (
       f"The closest blocked pathway is {blocker.get('programme')} at {blocker.get('institution')}. "
-      f"Main blocker: {'; '.join(str(item) for item in gaps[:2]) or 'captured requirements are not met yet'}."
+      f"Main blocker: {gap_text or 'captured requirements are not met yet'}."
     )
 
   qualification_reasons = []
@@ -2004,7 +2010,7 @@ def normalize_ai_guidance(guidance: dict[str, Any] | None, payload: GuidanceRequ
   for item in blocked_matches[:4]:
     gaps = item.get("hard_gate_failures") or item.get("requirement_gaps") or item.get("cautions") or []
     if isinstance(gaps, list) and gaps:
-      blockers.append(f"{item.get('programme')} at {item.get('institution')}: {'; '.join(str(gap) for gap in gaps[:2])}")
+      blockers.append(f"{item.get('programme')} at {item.get('institution')}: {guidance_gap_text(gaps)}.")
 
   missing_information = []
   profile = payload.profile if isinstance(payload.profile, dict) else {}
@@ -2052,7 +2058,8 @@ def build_fallback(payload: GuidanceRequest, error: str | None = None) -> dict[s
   if blocked_matches:
     blocked = blocked_matches[0]
     gaps = blocked.get("requirement_gaps") or blocked.get("cautions") or []
-    blocked_summary = f" A blocked example is {blocked.get('programme')} at {blocked.get('institution')}: {'; '.join(gaps[:2])}."
+    gap_text = guidance_gap_text(gaps)
+    blocked_summary = f" A blocked example is {blocked.get('programme')} at {blocked.get('institution')}: {gap_text or 'entry requirements need review'}."
   uploaded_documents = [item for item in payload.documents if item.get("name")]
   extracted_grade_count = sum(len(item.get("extractedGrades") or []) for item in uploaded_documents)
   document_checklist = [
@@ -2072,6 +2079,24 @@ def build_fallback(payload: GuidanceRequest, error: str | None = None) -> dict[s
       "Keep ID/birth certificate, bank confirmation, and admission/application evidence ready.",
       "If applicable, prepare residence/chief/guarantor evidence, prior NMDS documents, CHE evaluation, CV, or study leave letter.",
     ]
+
+  if top_matches:
+    next_questions = [
+      "Which of the qualified or almost-qualified matches feels most realistic for your marks?",
+      "Do you want to compare careers, fees, or requirements first?",
+      "Which missing document can you upload next?",
+    ]
+  else:
+    next_questions = []
+    if not payload.profile.get("grades"):
+      next_questions.append("Which subject grades can you enter or confirm now?")
+    if blocked_matches:
+      next_questions.append("Would you like to review what blocks your closest pathway?")
+    elif explore_matches:
+      next_questions.append("Would you like to inspect the entry requirements for an explore-only pathway?")
+    else:
+      next_questions.append("What subjects or careers interest you most?")
+    next_questions.append("Which document can you prepare or verify next?")
 
   if top_matches:
     direct_answer = (
@@ -2132,18 +2157,14 @@ def build_fallback(payload: GuidanceRequest, error: str | None = None) -> dict[s
     ],
     "document_checklist": document_checklist,
     "scholarship_note": "The scholarship/NMDS-style score is only an estimate. Review academic fit, background/need, priority-programme alignment, and the sponsorship document checklist before treating a pathway as funding-ready. Final sponsorship decisions remain with the official portal and NMDS process.",
-    "next_questions": [
-      "Which of the qualified or almost-qualified matches feels most realistic for your marks?",
-      "Do you want to compare careers, fees, or requirements first?",
-      "Which missing document can you upload next?",
-    ],
+    "next_questions": next_questions,
     "qualification_reasons": [
       f"{item.get('programme')} at {item.get('institution')}: {evidence_text(item)}"
       for item in top_matches[:3]
     ],
     "blockers": [
       f"{item.get('programme')} at {item.get('institution')}: "
-      + "; ".join(str(gap) for gap in (item.get("requirement_gaps") or item.get("hard_gate_failures") or [])[:2])
+      + guidance_gap_text(item.get("requirement_gaps") or item.get("hard_gate_failures") or []) + "."
       for item in blocked_matches[:4]
       if item.get("requirement_gaps") or item.get("hard_gate_failures")
     ],
@@ -2153,7 +2174,7 @@ def build_fallback(payload: GuidanceRequest, error: str | None = None) -> dict[s
     ],
   }
   if error:
-    response["summary"] = f"{response['summary']} AI service note: {error}"
+    response["summary"] = f"{response['summary']} This is local matcher guidance; the AI service did not provide a reliable answer."
   if caution and response["top_recommendations"]:
     response["top_recommendations"][0]["caution"] = caution
   return response
@@ -2165,7 +2186,8 @@ def parse_json_response(text: str) -> dict[str, Any] | None:
   if fenced:
     cleaned = fenced.group(1).strip()
   try:
-    return json.loads(cleaned)
+    parsed = json.loads(cleaned)
+    return parsed if isinstance(parsed, dict) else None
   except json.JSONDecodeError:
     return None
 
@@ -5358,10 +5380,15 @@ def call_gemini(payload: GuidanceRequest, request_payload: dict[str, Any]) -> di
           ),
         )
         text = response.text or ""
-        guidance = normalize_ai_guidance(
-          parse_json_response(text) or build_fallback(payload, "The Gemini response was not valid JSON."),
-          payload,
-        )
+        parsed_guidance = parse_json_response(text)
+        if not parsed_guidance:
+          return {
+            "mode": "local_fallback",
+            "provider": "gemini",
+            "model": candidate_model,
+            "guidance": build_fallback(payload, "The Gemini response was not valid JSON."),
+          }
+        guidance = normalize_ai_guidance(parsed_guidance, payload)
         return {
           "mode": "gemini",
           "provider": "gemini",
@@ -5403,10 +5430,15 @@ def call_openai(payload: GuidanceRequest, request_payload: dict[str, Any]) -> di
       ],
     )
     text = response.output_text
-    guidance = normalize_ai_guidance(
-      parse_json_response(text) or build_fallback(payload, "The OpenAI response was not valid JSON."),
-      payload,
-    )
+    parsed_guidance = parse_json_response(text)
+    if not parsed_guidance:
+      return {
+        "mode": "local_fallback",
+        "provider": "openai",
+        "model": model,
+        "guidance": build_fallback(payload, "The OpenAI response was not valid JSON."),
+      }
+    guidance = normalize_ai_guidance(parsed_guidance, payload)
     return {
       "mode": "openai",
       "provider": "openai",
