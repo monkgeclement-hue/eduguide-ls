@@ -100,6 +100,77 @@ test('server reply ID keeps a saved AI answer from appearing twice', () => {
   assert.equal(combined.length, 1);
   assert.equal(combined[0].html, '<p>Detailed answer</p>');
 });
+function aiRequestContext(fetchImpl) {
+  const controls = Object.fromEntries(['#ai-clear-button', '#ai-guidance-button', '#ai-compare-button', '#ai-guidance-status', '#ai-question'].map((key) => [key, { disabled: false, textContent: '', value: '' }]));
+  controls['#ai-question'].value = 'What can I study?';
+  const context = loadAsync('requestAiGuidance', {
+    qs: (selector) => controls[selector],
+    fetch: fetchImpl,
+    getAuthHeaders: () => ({}),
+    getAiRequestErrorMessage: load('getAiRequestErrorMessage', { navigator: { onLine: true } }),
+    getInitialAiChatMessage: () => ({ id: 'ai-welcome', role: 'assistant', content: 'Welcome' }),
+    renderAiChatMessages: () => {},
+    saveAiChatMessages: () => {},
+    getAiProfilePayload: () => ({}),
+    getNmdsReadiness: () => ({}),
+    getAiMatchPayload: () => [{ id: 'course' }],
+    getAiBlockedPayload: () => [],
+    renderAiGuidance: () => { controls['#ai-guidance-status'].textContent = 'Answer shown'; },
+    recordCurrentUserActivity: () => {},
+    currentUser: { documents: [] },
+    latestMatches: [{ id: 'course' }],
+    aiInterviewState: { active: false },
+    aiChatMessages: [{ id: 'ai-welcome', role: 'assistant', content: 'Welcome' }]
+  });
+  let nextId = 0;
+  context.appendAiChatMessage = (role, content) => {
+    const message = { id: `pending-${++nextId}`, role, content };
+    context.aiChatMessages = [...context.aiChatMessages.filter((item) => item.id !== 'ai-welcome'), message];
+    return message;
+  };
+  context.getAiConversationPayload = () => context.aiChatMessages.filter((item) => item.id !== 'ai-welcome');
+  return { context, controls };
+}
+test('failed AI request keeps the draft and removes the pending chat turn', async () => {
+  const { context, controls } = aiRequestContext(async () => ({ ok: false, status: 429 }));
+  await context.requestAiGuidance();
+  assert.equal(controls['#ai-question'].value, 'What can I study?');
+  assert.equal(controls['#ai-question'].disabled, false);
+  assert.equal(context.aiChatMessages.length, 1);
+  assert.equal(context.aiChatMessages[0].id, 'ai-welcome');
+  assert.match(controls['#ai-guidance-status'].textContent, /Too many AI requests/);
+  assert.equal(controls['#ai-guidance-button'].disabled, false);
+});
+test('retry after an AI failure submits the question only once', async () => {
+  let attempts = 0;
+  const { context, controls } = aiRequestContext(async () => {
+    attempts += 1;
+    return attempts === 1
+      ? { ok: false, status: 503 }
+      : { ok: true, json: async () => ({ mode: 'gemini', model: 'test', guidance: {} }) };
+  });
+  await context.requestAiGuidance();
+  await context.requestAiGuidance();
+  assert.equal(attempts, 2);
+  assert.equal(context.aiChatMessages.filter((item) => item.role === 'user').length, 1);
+  assert.equal(controls['#ai-question'].value, '');
+});
+test('activity logging failure does not discard a delivered AI answer', async () => {
+  const { context, controls } = aiRequestContext(async () => ({ ok: true, json: async () => ({ mode: 'gemini', model: 'test', guidance: {} }) }));
+  context.recordCurrentUserActivity = () => { throw new Error('activity storage unavailable'); };
+  await context.requestAiGuidance();
+  assert.equal(controls['#ai-guidance-status'].textContent, 'Answer shown');
+  assert.equal(controls['#ai-question'].value, '');
+  assert.equal(context.aiChatMessages.filter((item) => item.role === 'user').length, 1);
+});
+test('AI request errors distinguish session, rate limit, service, and offline failures', () => {
+  const online = load('getAiRequestErrorMessage', { navigator: { onLine: true } });
+  const offline = load('getAiRequestErrorMessage', { navigator: { onLine: false } });
+  assert.match(online({ status: 401 }), /Sign in again/);
+  assert.match(online({ status: 429 }), /Too many AI requests/);
+  assert.match(online({ status: 503 }), /temporarily unavailable/);
+  assert.match(offline({}), /offline/);
+});
 const tier = load('getMatchTier', { hasEnteredGradesBelowPass: () => false });
 test('missing requirements cannot claim eligibility despite high inferred scores', () => {
   assert.equal(tier({ academic: 100 }, { total: 5, missing: [], score: 100 }, { requirementEvidenceAvailable: false }, { failures: [] }), 'explore');

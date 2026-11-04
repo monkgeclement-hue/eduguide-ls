@@ -6543,10 +6543,11 @@ function renderAiChatMessages(typingText = "") {
 
 function appendAiChatMessage(role, content, html = "", id = null) {
   const message = normalizeAiChatMessage({ role, content, html, id });
-  if (!message) return;
+  if (!message) return null;
   aiChatMessages = [...aiChatMessages.filter((item) => item.id !== "ai-welcome"), message].slice(-maxAiChatMessages);
   saveAiChatMessages();
   renderAiChatMessages();
+  return message;
 }
 
 async function resetAiChatMessages() {
@@ -6780,6 +6781,15 @@ function getAiGuidanceStatus(mode, model, chatSynced) {
     : `Generated with ${providerLabel} (${model}). Conversation context is active.`;
 }
 
+function getAiRequestErrorMessage(error) {
+  if (error?.status === 401) return "Your session has expired. Sign in again to use AI Guide.";
+  if (error?.status === 429) return "Too many AI requests right now. Please try again later.";
+  if (error?.status === 503 || error?.status >= 500) return "AI Guide is temporarily unavailable. Your question is still here; try again shortly.";
+  if (error?.status >= 400) return "AI Guide could not process this request. Check your matches and try again.";
+  if (typeof navigator !== "undefined" && navigator.onLine === false) return "You are offline. Reconnect and try your question again.";
+  return "Could not reach AI Guide. Check your connection and try again.";
+}
+
 function renderAiGuidance(guidance, mode, model, serverChat = null, chatSynced = true) {
   const recommendations = guidance.top_recommendations || [];
   const comparison = guidance.comparison || [];
@@ -6929,7 +6939,8 @@ async function requestAiGuidance(mode = "guidance") {
   guidanceButton.disabled = true;
   compareButton.disabled = true;
   clearButton.disabled = true;
-  if (questionText) appendAiChatMessage("user", questionText);
+  if (questionInput) questionInput.disabled = true;
+  const pendingUserMessage = questionText ? appendAiChatMessage("user", questionText) : null;
   renderAiChatMessages(
     mode === "compare"
       ? "Comparing your strongest current matches..."
@@ -6961,27 +6972,34 @@ async function requestAiGuidance(mode = "guidance") {
       headers: getAuthHeaders({ "Content-Type": "application/json" }),
       body: JSON.stringify(payload)
     });
-    if (!response.ok) throw new Error(`AI server returned ${response.status}`);
+    if (!response.ok) {
+      const requestError = new Error("AI guidance request failed");
+      requestError.status = response.status;
+      throw requestError;
+    }
     const data = await response.json();
     renderAiGuidance(data.guidance || {}, data.mode, data.model, data.chat, data.chatSynced);
     if (questionInput) questionInput.value = "";
-    recordCurrentUserActivity(mode === "compare" ? "ai_compare" : "ai_guidance", mode === "compare" ? "Compared AI recommendations" : "Requested AI guidance", {
-      question: payload.question.slice(0, 120)
-    });
+    try {
+      recordCurrentUserActivity(mode === "compare" ? "ai_compare" : "ai_guidance", mode === "compare" ? "Compared AI recommendations" : "Requested AI guidance", {
+        question: payload.question.slice(0, 120)
+      });
+    } catch (activityError) {
+      // The answer is already delivered; activity logging must not turn it into a failed chat request.
+    }
   } catch (error) {
-    const errorMarkup = `
-      <article class="ai-answer-card">
-        <h4>Check Gemini API key</h4>
-        <p>The matching engine still works, but AI guidance and OCR need a valid Gemini key and model on the server.</p>
-        <small>${escapeHtml(error.message || "Unable to reach /api/ai/guidance")}</small>
-      </article>
-    `;
-    appendAiChatMessage("assistant", error.message || "AI configuration needs attention.", errorMarkup);
-    qs("#ai-guidance-status").textContent = "AI configuration needs attention.";
+    if (pendingUserMessage) {
+      aiChatMessages = aiChatMessages.filter((message) => message.id !== pendingUserMessage.id);
+      if (!aiChatMessages.length) aiChatMessages = [getInitialAiChatMessage()];
+      saveAiChatMessages();
+    }
+    renderAiChatMessages();
+    qs("#ai-guidance-status").textContent = getAiRequestErrorMessage(error);
   } finally {
     guidanceButton.disabled = false;
     compareButton.disabled = false;
     clearButton.disabled = false;
+    if (questionInput) questionInput.disabled = false;
   }
 }
 function renderSources() {
