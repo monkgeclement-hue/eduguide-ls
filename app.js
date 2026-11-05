@@ -3985,16 +3985,20 @@ function getApplicationFeeSummary(institution, programmes = []) {
     programme.supportingFeeSourcePath ? `Fee evidence captured: ${getEvidenceFileLabel(programme.supportingFeeSourcePath) || programme.supportingFeeSourcePath}` : ""
   ].filter(Boolean)));
   const lines = unique([
-    ...explicitNotes,
-    ...matchedItems.slice(0, 4).map(formatFeeItem)
+    ...matchedItems.slice(0, 4).map(formatFeeItem),
+    ...explicitNotes
   ].filter(Boolean)).slice(0, 5);
   const missing = unique(schedules.flatMap((schedule) => schedule.missingItems || [])).slice(0, 4);
   const source = schedules.find((schedule) => schedule.sourceUrl || schedule.sourcePath);
+  const hasCourseAmount = programmes.some(hasProgrammeFeeEvidence);
+  const hasOtherCharge = matchedItems.some((item) => !item.programmeGroup && hasFeeItemAmount(item));
   return {
-    label: lines.length ? "Fee details captured" : "Fees under review",
-    detail: lines.length
+    label: hasCourseAmount ? "Course fees captured" : hasOtherCharge ? "Other charges captured" : "Fees under review",
+    detail: hasCourseAmount
       ? "Use these as estimates and verify the latest official amount before payment."
-      : "No confirmed fee amount is linked for this matched pack yet.",
+      : hasOtherCharge
+        ? "An institution charge is captured, but course tuition is not confirmed."
+        : "No confirmed course fee amount is linked for this matched pack yet.",
     lines,
     missing,
     sourceLabel: source?.sourceUrl || getEvidenceFileLabel(source?.sourcePath) || "",
@@ -7266,6 +7270,12 @@ function scoreFeeItemForProgramme(item, programme) {
   return score;
 }
 
+function isProgrammeFeeGroupMatch(programme, group) {
+  const normalized = (value) => normalizeFeeText(value).split(" ").filter((token) => token && !["in", "of", "the", "and"].includes(token)).join(" ");
+  const title = normalized(getProgrammeDisplayName(programme));
+  return Boolean(title && title === normalized(group));
+}
+
 function getProgrammeFeeMatches(programme, limit = 6) {
   const scheduleItems = getInstitutionFeeSchedules(programme.institution)
     .flatMap((schedule) => (schedule.items || []).map((item) => ({ ...item, schedule })));
@@ -7273,7 +7283,9 @@ function getProgrammeFeeMatches(programme, limit = 6) {
     .map((item) => ({ item, score: scoreFeeItemForProgramme(item, programme) }))
     .filter((entry) => entry.score > 0)
     .sort((a, b) => b.score - a.score || String(a.item.programmeGroup || "").localeCompare(String(b.item.programmeGroup || "")));
-  const directMatches = scored.filter((entry) => entry.score >= 4).map((entry) => entry.item);
+  const directMatches = scored
+    .filter((entry) => entry.score >= 4 && entry.item.programmeGroup && isProgrammeFeeGroupMatch(programme, entry.item.programmeGroup))
+    .map((entry) => entry.item);
   const chosen = [...directMatches, ...getInstitutionWideFeeItems(programme.institution)].filter((item, index, rows) => {
     const key = item.id || `${item.programmeGroup}-${item.name}-${item.studentCategory}-${item.amount}`;
     return rows.findIndex((row) => (row.id || `${row.programmeGroup}-${row.name}-${row.studentCategory}-${row.amount}`) === key) === index;
@@ -7281,8 +7293,15 @@ function getProgrammeFeeMatches(programme, limit = 6) {
   return chosen.slice(0, limit);
 }
 
+function hasFeeItemAmount(item = {}) {
+  const value = item.amount ?? item.annualEstimate ?? item.localSadcAmount ?? item.local_sadc_amount;
+  return value !== null && value !== undefined && value !== "" && Number.isFinite(Number(value));
+}
+
 function hasProgrammeFeeEvidence(programme) {
-  return Boolean(programme?.feeNote || programme?.supportingFeeSourcePath || getProgrammeFeeMatches(programme || {}, 1).length);
+  const noteHasAmount = /\b(?:LSL|M)\s*\d[\d,]*(?:\.\d{1,2})?\b|\b\d[\d,]*(?:\.\d{1,2})?\s*(?:LSL|maloti)\b/i.test(String(programme?.feeNote || ""));
+  return noteHasAmount || getProgrammeFeeMatches(programme || {}, 20)
+    .some((item) => item.programmeGroup && hasFeeItemAmount(item));
 }
 
 function renderProgrammeFeeSummary(programme, limit = 6) {
@@ -7297,7 +7316,7 @@ function renderProgrammeFeeSummary(programme, limit = 6) {
             const label = item.programmeGroup ? display.label : `Institution-wide - ${display.label}`;
             return `<li><strong>${escapeHtml(label)}</strong><span>${escapeHtml(display.amount)}${display.meta ? ` - ${escapeHtml(display.meta)}` : ""}</span></li>`;
           }).join("")}</ul>`
-        : `<p class="muted-inline">No programme-specific or institution-wide application fee captured yet.</p>`
+        : hasProgrammeFeeEvidence(programme) ? "" : `<p class="muted-inline">No programme-specific or institution-wide application fee captured yet.</p>`
     }
     <p class="muted-inline">Use captured fees as estimates and confirm the latest official amount before payment.</p>
   `;
@@ -7313,7 +7332,7 @@ function getInstitutionProfileMeta(institution) {
   const levels = unique(programmesForInstitution.map((programme) => programme.level).filter(Boolean));
   const careers = unique(programmesForInstitution.flatMap((programme) => [...(programme.careers || []), ...(getDomainProfile(programme).careers || [])])).slice(0, 8);
   const reviewed = programmesForInstitution.filter((programme) => ["approved", "verified"].includes(String(programme.reviewStatus || programme.status || "").toLowerCase())).length;
-  const incomplete = programmesForInstitution.filter((programme) => !programme.requirementsSummary || !programme.duration || (!programme.feeNote && !programme.supportingFeeSourcePath && !feeItems.length)).length;
+  const incomplete = programmesForInstitution.filter((programme) => !programme.requirementsSummary || !programme.duration || !hasProgrammeFeeEvidence(programme)).length;
   return {
     institution,
     programmes: programmesForInstitution,

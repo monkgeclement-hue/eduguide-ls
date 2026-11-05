@@ -205,17 +205,91 @@ test('only upfront unscoped charges are institution-wide fee evidence', () => {
     ['Application fee']
   );
 });
-test('programme fee evidence requires a matched charge or its own supporting note', () => {
-  const withoutMatches = load('hasProgrammeFeeEvidence', { getProgrammeFeeMatches: () => [] });
-  const withMatches = load('hasProgrammeFeeEvidence', { getProgrammeFeeMatches: () => [{ name: 'Tuition' }] });
+test('programme fee evidence requires a course amount, not a source note or an application fee', () => {
+  const hasFeeItemAmount = load('hasFeeItemAmount');
+  const withoutMatches = load('hasProgrammeFeeEvidence', { getProgrammeFeeMatches: () => [], hasFeeItemAmount });
+  const withApplicationFee = load('hasProgrammeFeeEvidence', {
+    getProgrammeFeeMatches: () => [{ name: 'Application fee', amount: 450 }],
+    hasFeeItemAmount
+  });
+  const withTuition = load('hasProgrammeFeeEvidence', {
+    getProgrammeFeeMatches: () => [{ programmeGroup: 'Diploma in Nursing', name: 'Tuition', amount: 12000 }],
+    hasFeeItemAmount
+  });
   assert.equal(withoutMatches({ institution: 'Example University' }), false);
-  assert.equal(withoutMatches({ feeNote: 'Confirm with the institution.' }), true);
-  assert.equal(withMatches({ institution: 'Example University' }), true);
+  assert.equal(withoutMatches({ feeNote: 'Confirm with the institution.' }), false);
+  assert.equal(withoutMatches({ feeNote: 'Fee schedule available: 2024/25. Confirm the amount.' }), false);
+  assert.equal(withoutMatches({ supportingFeeSourcePath: '/fees.pdf' }), false);
+  assert.equal(withoutMatches({ feeNote: 'Tuition is LSL 15,640 per year.' }), true);
+  assert.equal(withoutMatches({ feeNote: 'Tuition is M15,640 per year.' }), true);
+  assert.equal(withApplicationFee({ institution: 'Example University' }), false);
+  assert.equal(withTuition({ institution: 'Example University' }), true);
+});
+test('fee matches do not borrow another course tuition from the same faculty', () => {
+  const normalizeFeeText = load('normalizeFeeText');
+  const hasFeeTextOverlap = load('hasFeeTextOverlap', { normalizeFeeText });
+  const getProgrammeDisplayName = load('getProgrammeDisplayName');
+  const scoreFeeItemForProgramme = load('scoreFeeItemForProgramme', { hasFeeTextOverlap, getProgrammeDisplayName });
+  const isProgrammeFeeGroupMatch = load('isProgrammeFeeGroupMatch', { normalizeFeeText, getProgrammeDisplayName });
+  const getProgrammeFeeMatches = load('getProgrammeFeeMatches', {
+    getInstitutionFeeSchedules: () => [{ items: [
+      { programmeGroup: 'Diploma in Nursing', faculty: 'Health', name: 'Tuition', amount: 12000 },
+      { programmeGroup: 'Diploma in Pharmacy', faculty: 'Health', name: 'Tuition', amount: 18000 },
+      { programmeGroup: 'Diploma in Information Technology', faculty: 'Health', name: 'Tuition', amount: 107036 }
+    ] }],
+    getInstitutionWideFeeItems: () => [{ name: 'Application fee', amount: 450 }],
+    scoreFeeItemForProgramme,
+    getProgrammeDisplayName,
+    hasFeeTextOverlap,
+    isProgrammeFeeGroupMatch
+  });
+  assert.deepEqual(
+    Array.from(getProgrammeFeeMatches({ institution: 'Example University', name: 'Diploma in Nursing', faculty: 'Health' }), (item) => item.programmeGroup || item.name),
+    ['Diploma in Nursing', 'Application fee']
+  );
+  assert.deepEqual(
+    Array.from(getProgrammeFeeMatches({ institution: 'Example University', name: 'BSc in Business Information Technology', faculty: 'Health' }), (item) => item.programmeGroup || item.name),
+    ['Application fee']
+  );
+  assert.equal(isProgrammeFeeGroupMatch({ name: 'BSc in Consumer Science' }, 'BSc Consumer Science'), true);
+});
+test('Limkokwing captured amounts apply only to the three supplied courses', () => {
+  const context = { window: {} };
+  vm.runInNewContext(fs.readFileSync(path.join(__dirname, '..', 'data', 'admin-catalog.js'), 'utf8'), context);
+  const { programmes, fees } = context.window.EDUGUIDE_ADMIN_DATA;
+  const getInstitutionFeeSchedules = load('getInstitutionFeeSchedules', { adminFees: fees });
+  const isUpfrontInstitutionFee = load('isUpfrontInstitutionFee');
+  const getInstitutionWideFeeItems = load('getInstitutionWideFeeItems', { getInstitutionFeeSchedules, isUpfrontInstitutionFee });
+  const normalizeFeeText = load('normalizeFeeText');
+  const hasFeeTextOverlap = load('hasFeeTextOverlap', { normalizeFeeText });
+  const getProgrammeDisplayName = load('getProgrammeDisplayName');
+  const scoreFeeItemForProgramme = load('scoreFeeItemForProgramme', { hasFeeTextOverlap, getProgrammeDisplayName });
+  const isProgrammeFeeGroupMatch = load('isProgrammeFeeGroupMatch', { normalizeFeeText, getProgrammeDisplayName });
+  const getProgrammeFeeMatches = load('getProgrammeFeeMatches', {
+    getInstitutionFeeSchedules, getInstitutionWideFeeItems, scoreFeeItemForProgramme,
+    getProgrammeDisplayName, hasFeeTextOverlap, isProgrammeFeeGroupMatch
+  });
+  const hasFeeItemAmount = load('hasFeeItemAmount');
+  const hasProgrammeFeeEvidence = load('hasProgrammeFeeEvidence', { getProgrammeFeeMatches, hasFeeItemAmount });
+  const limkokwing = programmes.filter((item) => item.institution === 'Limkokwing University Lesotho');
+  assert.deepEqual(
+    Array.from(limkokwing.filter(hasProgrammeFeeEvidence), (item) => item.name).sort(),
+    ['Diploma in Broadcasting Radio & TV', 'Diploma in Events Management', 'Diploma in Information Technology']
+  );
+  assert.equal(getProgrammeFeeMatches(limkokwing.find((item) => item.name === 'Diploma in Information Technology'))[0].amount, 107036);
+  assert.equal(getProgrammeFeeMatches(limkokwing.find((item) => item.name === 'BSc in Information Technology')).length, 0);
 });
 test('application fee summaries do not borrow another course tuition', () => {
+  const hasFeeItemAmount = load('hasFeeItemAmount');
+  const feeMatches = (programme) => programme.id === 'matching'
+    ? [{ id: 'tuition', programmeGroup: 'Matching course', name: 'Tuition', amount: 1234 }]
+    : programme.id === 'application' ? [{ id: 'application', name: 'Application fee', amount: 450 }] : [];
+  const hasProgrammeFeeEvidence = load('hasProgrammeFeeEvidence', { getProgrammeFeeMatches: feeMatches, hasFeeItemAmount });
   const getApplicationFeeSummary = load('getApplicationFeeSummary', {
     getInstitutionFeeSchedules: () => [{ items: [] }],
-    getProgrammeFeeMatches: (programme) => programme.id === 'matching' ? [{ id: 'tuition', programmeGroup: 'Matching course', name: 'Tuition', amount: 1234 }] : [],
+    getProgrammeFeeMatches: feeMatches,
+    hasProgrammeFeeEvidence,
+    hasFeeItemAmount,
     unique: (items) => [...new Set(items)],
     getEvidenceFileLabel: () => '',
     formatFeeItem: (item) => `${item.programmeGroup}: ${item.amount}`,
@@ -223,8 +297,13 @@ test('application fee summaries do not borrow another course tuition', () => {
   });
   const summary = getApplicationFeeSummary('Example University', [{ id: 'unmatched', title: 'Unmatched course' }]);
   const matchedSummary = getApplicationFeeSummary('Example University', [{ id: 'matching', title: 'Matching course' }]);
+  const noteOnly = getApplicationFeeSummary('Example University', [{ id: 'unmatched', feeNote: 'Confirm the current fees.' }]);
+  const applicationOnly = getApplicationFeeSummary('Example University', [{ id: 'application' }]);
   assert.equal(summary.label, 'Fees under review');
   assert.deepEqual(summary.lines, []);
+  assert.equal(noteOnly.label, 'Fees under review');
+  assert.equal(applicationOnly.label, 'Other charges captured');
+  assert.equal(matchedSummary.label, 'Course fees captured');
   assert.deepEqual(matchedSummary.lines, ['Matching course: 1234']);
 });
 test('only captured application routes are presented as application links', () => {
