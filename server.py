@@ -155,6 +155,7 @@ class GuidanceRequest(BaseModel):
   conversation: list[dict[str, Any]] = Field(default_factory=list)
   question: str | None = None
   mode: str = "guidance"
+  language: str = "en"
 
 
 class AuthLoginRequest(BaseModel):
@@ -700,6 +701,7 @@ def validate_and_sanitize_guidance_payload(payload: GuidanceRequest) -> Guidance
     conversation=conversation,
     question=question,
     mode=payload.mode if payload.mode in {"guidance", "compare", "interview"} else "guidance",
+    language="st" if payload.language == "st" else "en",
   )
   if not sanitized.matches and not sanitized.blockedMatches:
     return sanitized
@@ -768,6 +770,16 @@ If the student asks why they are
 blocked, explain the exact blocker from blocked_matches or requirement_gaps and
 give a realistic next step. Ask one or two follow-up questions whenever important
 profile details are missing.
+
+Use task.language as the reply-language setting, regardless of the language used
+in the student's question or earlier chat. "en" means English; "st" means natural
+Sesotho as spoken in Lesotho. Write summary, direct_answer, study_plan,
+document_checklist, scholarship_note, and next_questions in that language.
+Keep institution and programme names, grades, tiers, URLs, requirements,
+source quotations, and other catalogue evidence exactly as supplied; never
+translate, reinterpret, or soften an entry requirement to make it fit.
+If a precise Sesotho term is uncertain, keep the original term rather than
+guessing. A language preference never changes matcher eligibility.
 
 Return concise JSON with exactly these keys:
 - summary: string
@@ -1990,11 +2002,18 @@ def normalize_ai_guidance(guidance: dict[str, Any] | None, payload: GuidanceRequ
     blocker = blocked_matches[0]
     gaps = blocker.get("requirement_gaps") or blocker.get("cautions") or blocker.get("hard_gate_failures") or []
     gap_text = guidance_gap_text(gaps)
-    response["summary"] = "No qualified or almost-qualified recommendation is strong enough yet from the current captured evidence."
-    response["direct_answer"] = (
-      f"The closest blocked pathway is {blocker.get('programme')} at {blocker.get('institution')}. "
-      f"Main blocker: {gap_text or 'captured requirements are not met yet'}."
-    )
+    if payload.language == "st":
+      response["summary"] = "Hajoale ha ho lenaneo le nang le bopaki bo lekaneng ba hore re ka le khothaletsa bakeng sa kopo."
+      response["direct_answer"] = (
+        f"Lenaneo le haufi empa le ntse le thibetsoe ke {blocker.get('programme')} ho {blocker.get('institution')}. "
+        f"Tlhoko e sa fihlelloang: {gap_text or 'litlhoko tsa ho kena ha li so fihlelloe'}."
+      )
+    else:
+      response["summary"] = "No qualified or almost-qualified recommendation is strong enough yet from the current captured evidence."
+      response["direct_answer"] = (
+        f"The closest blocked pathway is {blocker.get('programme')} at {blocker.get('institution')}. "
+        f"Main blocker: {gap_text or 'captured requirements are not met yet'}."
+      )
 
   qualification_reasons = []
   for item in recommendable[:3]:
@@ -2015,13 +2034,13 @@ def normalize_ai_guidance(guidance: dict[str, Any] | None, payload: GuidanceRequ
   missing_information = []
   profile = payload.profile if isinstance(payload.profile, dict) else {}
   if not profile.get("grades"):
-    missing_information.append("Enter or confirm your subject grades.")
+    missing_information.append("Kenya kapa u netefatse limaraka tsa lithuto tsa hao." if payload.language == "st" else "Enter or confirm your subject grades.")
   if not profile.get("stream"):
-    missing_information.append("Add your school stream or qualification route.")
+    missing_information.append("Hlalosa lekala la lithuto kapa tsela ea hao ea thuto." if payload.language == "st" else "Add your school stream or qualification route.")
   if not profile.get("district"):
-    missing_information.append("Add your district if you want more relevant funding and access guidance.")
+    missing_information.append("Kenya setereke sa hao bakeng sa tataiso e nepahetseng haholoanyane." if payload.language == "st" else "Add your district if you want more relevant funding and access guidance.")
   if not payload.documents:
-    missing_information.append("Upload or prepare supporting documents, then confirm any machine-read grades.")
+    missing_information.append("Lokisetsa litokomane tse hlokahalang, 'me u netefatse limaraka tse baliloeng ke mochini." if payload.language == "st" else "Upload or prepare supporting documents, then confirm any machine-read grades.")
 
   response["top_recommendations"] = safe_recommendations[:4]
   response["comparison"] = safe_comparison[:4]
@@ -2029,13 +2048,13 @@ def normalize_ai_guidance(guidance: dict[str, Any] | None, payload: GuidanceRequ
   response["document_checklist"] = [str(item)[:240] for item in (response.get("document_checklist") or [])[:8]]
   follow_ups = [str(item)[:180] for item in (response.get("next_questions") or [])[:3]]
   if not profile.get("grades"):
-    follow_ups.insert(0, "Which subject grades can you enter or confirm now?")
+    follow_ups.insert(0, "Ke limaraka life tsa lithuto tseo u ka li kenyang kapa ua li netefatsa hona joale?" if payload.language == "st" else "Which subject grades can you enter or confirm now?")
   elif not profile.get("stream"):
-    follow_ups.insert(0, "Which school stream or qualification route are you following?")
+    follow_ups.insert(0, "U latela lekala lefe la lithuto?" if payload.language == "st" else "Which school stream or qualification route are you following?")
   response["next_questions"] = list(dict.fromkeys(follow_ups))[:3]
-  response["summary"] = str(response.get("summary") or "Guidance generated from your current matcher evidence.")[:1200]
-  response["direct_answer"] = str(response.get("direct_answer") or "Use qualified and almost-qualified matches first; blocked paths are preparation goals, not current application recommendations.")[:1600]
-  response["scholarship_note"] = str(response.get("scholarship_note") or "Funding readiness is an estimate only; official sponsorship decisions remain with the sponsor/NMDS process.")[:1200]
+  response["summary"] = str(response.get("summary") or ("Tataiso ena e ipapisitse le lintlha tsa hao le bopaki ba mananeo." if payload.language == "st" else "Guidance generated from your current matcher evidence."))[:1200]
+  response["direct_answer"] = str(response.get("direct_answer") or ("Qala ka mananeo ao u fihlellang litlhoko tsa 'ona kapa ao u leng haufi le ho li fihlela; a thibetsoeng ke lipakane tsa hamorao." if payload.language == "st" else "Use qualified and almost-qualified matches first; blocked paths are preparation goals, not current application recommendations."))[:1600]
+  response["scholarship_note"] = str(response.get("scholarship_note") or ("Tekanyetso ea tšehetso ea lichelete ha se qeto ea semmuso; qeto ea ho qetela e etsoa ke mofani oa tšehetso kapa NMDS." if payload.language == "st" else "Funding readiness is an estimate only; official sponsorship decisions remain with the sponsor/NMDS process."))[:1200]
   response["qualification_reasons"] = qualification_reasons[:4]
   response["blockers"] = blockers[:6]
   response["missing_information"] = missing_information[:4]
@@ -2086,6 +2105,10 @@ def build_fallback(payload: GuidanceRequest, error: str | None = None) -> dict[s
       "Do you want to compare careers, fees, or requirements first?",
       "Which missing document can you upload next?",
     ]
+    direct_answer = (
+      f"For your question: {question} Based on the current evidence, use qualified/almost options first. "
+      f"{programme} at {institution} is the best available path to inspect, and blocked paths should only be used as future goals."
+    )
   else:
     next_questions = []
     if not payload.profile.get("grades"):
@@ -2097,21 +2120,11 @@ def build_fallback(payload: GuidanceRequest, error: str | None = None) -> dict[s
     else:
       next_questions.append("What subjects or careers interest you most?")
     next_questions.append("Which document can you prepare or verify next?")
-
-  if top_matches:
-    direct_answer = (
-      f"For your question: {question} Based on the current evidence, use qualified/almost options first. "
-      f"{programme} at {institution} is the best available path to inspect, and blocked paths should only be used as future goals."
-    )
-  elif explore_matches:
     direct_answer = (
       f"For your question: {question} {programme} at {institution} is an explore-only path to research, "
       "not a current application recommendation. Confirm your grades and entry requirements first."
-    )
-  else:
-    direct_answer = (
-      f"For your question: {question} No application recommendation is available yet. "
-      "Confirm your grades and entry requirements first."
+      if explore_matches else
+      f"For your question: {question} No application recommendation is available yet. Confirm your grades and entry requirements first."
     )
 
   response = {
@@ -2146,7 +2159,7 @@ def build_fallback(payload: GuidanceRequest, error: str | None = None) -> dict[s
       }
       for item in top_matches
     ],
-    "study_plan": [
+    "study_plan": ([
       "Keep Mathematics and English strong because many programmes use them for ranking.",
       "Focus revision on subjects connected to your top three matched pathways.",
       "Use blocked-pathway notes to identify missing or weak requirement areas.",
@@ -2154,7 +2167,7 @@ def build_fallback(payload: GuidanceRequest, error: str | None = None) -> dict[s
       "Confirm your subject grades and check the current official entry requirements.",
       "Use explore and blocked pathways as preparation goals, not application choices yet.",
       "Identify the missing or weak subjects before planning an application.",
-    ],
+    ]),
     "document_checklist": document_checklist,
     "scholarship_note": "The scholarship/NMDS-style score is only an estimate. Review academic fit, background/need, priority-programme alignment, and the sponsorship document checklist before treating a pathway as funding-ready. Final sponsorship decisions remain with the official portal and NMDS process.",
     "next_questions": next_questions,
@@ -2177,6 +2190,25 @@ def build_fallback(payload: GuidanceRequest, error: str | None = None) -> dict[s
     response["summary"] = f"{response['summary']} This is local matcher guidance; the AI service did not provide a reliable answer."
   if caution and response["top_recommendations"]:
     response["top_recommendations"][0]["caution"] = caution
+  if payload.language == "st":
+    if top_matches:
+      response["summary"] = f"Khetho e matla eo u ka e hlahlobang ke {programme} ho {institution}. Ena ke tataiso feela, eseng qeto ea kamohelo."
+      response["direct_answer"] = f"Qala ka mananeo ao u fihlellang litlhoko tsa 'ona kapa ao u leng haufi le ho li fihlela. Sheba {programme} ho {institution}; mananeo a thibetsoeng ke lipakane tsa hamorao."
+    else:
+      response["summary"] = "Hajoale ha ho lenaneo le nang le bopaki bo lekaneng ba hore re ka le khothaletsa bakeng sa kopo. Netefatsa limaraka le litlhoko tsa ho kena."
+      response["direct_answer"] = "Ha ho lenaneo leo re ka le khothaletsang bakeng sa kopo hajoale. Netefatsa limaraka le litlhoko tsa ho kena pele."
+    response["study_plan"] = [
+      "Netefatsa limaraka tsa lithuto tsa hao le litlhoko tsa ho kena.",
+      "Hlahloba lithuto tseo u hlokang ho li ntlafatsa pele u etsa kopo.",
+    ]
+    response["document_checklist"] = ["Lokisetsa liphetho tsa sekolo, tokomane ea boitsebiso, le litokomane tse hlokoang ke sekolo."]
+    response["scholarship_note"] = "Tekanyetso ea tšehetso ea lichelete ha se qeto ea semmuso; qeto ea ho qetela e etsoa ke mofani oa tšehetso kapa NMDS."
+    response["next_questions"] = [
+      "Ke limaraka life tsa lithuto tseo u ka li netefatsang?",
+      "U ka rata ho hlahloba litlhoko tsa lenaneo lefe?",
+    ]
+    if error:
+      response["summary"] += " Ena ke tataiso ea lehae hobane tšebeletso ea AI ha ea fana ka karabo e tšepahalang."
   return response
 
 
@@ -2200,6 +2232,7 @@ def build_request_payload(payload: GuidanceRequest, conversation: list[dict[str,
     "task": {
       "mode": mode,
       "question": (payload.question or "").strip(),
+      "language": "st" if payload.language == "st" else "en",
     },
     "profile": payload.profile,
     "readiness": payload.readiness,
@@ -5488,6 +5521,7 @@ def ai_guidance(payload: GuidanceRequest, request: Request, authorization: str |
     return {
       "mode": "local_fallback",
       "model": None,
+      "language": safe_payload.language,
       "guidance": build_fallback(safe_payload, "No matches were sent to the AI endpoint."),
     }
   check_rate_limit(request, "ai_guidance", 40, 3600, current_user["id"])
@@ -5525,6 +5559,7 @@ def ai_guidance(payload: GuidanceRequest, request: Request, authorization: str |
     save_auth_users_internal(users)
   result["chat"] = chat
   result["chatSynced"] = history_loaded and chat_saved
+  result["language"] = safe_payload.language
   return result
 
 

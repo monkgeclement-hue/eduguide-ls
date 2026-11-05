@@ -297,6 +297,26 @@ class SecurityRegressionTests(unittest.TestCase):
     self.assertNotIn('provider-secret-and-request-details', guidance['summary'])
     self.assertIn('local matcher guidance', guidance['summary'])
 
+  def test_sesotho_language_is_allowlisted_and_preserves_blocker_evidence(self):
+    payload = server.validate_and_sanitize_guidance_payload(server.GuidanceRequest(
+      language='st', blockedMatches=[{
+        'title': 'Blocked Course', 'institution': 'Example College',
+        'match': {'tier': 'blocked'}, 'requirementGaps': ['Mathematics C or better'],
+      }],
+    ))
+    self.assertEqual(server.build_request_payload(payload)['task']['language'], 'st')
+    guidance = server.normalize_ai_guidance({'summary': 'You qualify.', 'direct_answer': 'Apply now.'}, payload)
+    self.assertIn('Mathematics C or better', guidance['direct_answer'])
+    self.assertNotIn('Apply now.', guidance['direct_answer'])
+    self.assertEqual(guidance['top_recommendations'], [])
+    self.assertEqual(server.validate_and_sanitize_guidance_payload(server.GuidanceRequest(language='fr')).language, 'en')
+
+  def test_sesotho_local_fallback_keeps_provider_errors_private(self):
+    guidance = server.build_fallback(server.GuidanceRequest(language='st'), 'private-provider-token')
+    self.assertIn('Hajoale', guidance['summary'])
+    self.assertNotIn('private-provider-token', json.dumps(guidance))
+    self.assertEqual(guidance['top_recommendations'], [])
+
   def test_invalid_gemini_response_is_labelled_local_fallback(self):
     client = Mock()
     with patch.object(server, 'get_gemini_api_key', return_value='test-key'), \
@@ -344,6 +364,20 @@ class SecurityRegressionTests(unittest.TestCase):
     recommendation = response.json()['guidance']['top_recommendations'][0]
     self.assertIn('English D or better.', recommendation['evidence'])
     self.assertEqual(recommendation['evidence_source'], 'https://college.example/prospectus')
+
+  def test_ai_guidance_endpoint_passes_sesotho_preference_to_provider(self):
+    record = {'id': 'real-course', 'name': 'Real Course', 'institution': 'Example College',
+              'review_status': 'approved', 'requirements_summary': 'English D or better.'}
+    login = self.client.post('/api/auth/login', json={'email': 'a@example.test', 'password': 'TestPassword1'})
+    headers = {'Authorization': f"Bearer {login.json()['token']}"}
+    result = {'mode': 'gemini', 'model': 'test', 'guidance': {'summary': 'Tataiso ea hao.'}}
+    with patch.object(server, '_catalogue_programmes_cache', [record]), patch.object(server, 'call_gemini', return_value=result) as call_ai:
+      response = self.client.post('/api/ai/guidance', headers=headers, json={
+        'language': 'st', 'matches': [{'id': 'real-course', 'match': {'tier': 'qualified'}}],
+      })
+    self.assertEqual(response.status_code, 200, response.text)
+    self.assertEqual(response.json()['language'], 'st')
+    self.assertEqual(call_ai.call_args.args[1]['task']['language'], 'st')
 
   def test_supabase_chat_write_failure_preserves_existing_history(self):
     methods = []

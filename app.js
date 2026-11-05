@@ -202,6 +202,7 @@ const authTokenKey = "eduguide-auth-token-v1";
 const pendingProfileSyncKey = "eduguide-pending-profile-sync-v1";
 const adminTestSessionKey = "eduguide-admin-test-session-v1";
 const aiChatStoragePrefix = "eduguide-ai-chat-v1";
+const aiLanguageStoragePrefix = "eduguide-ai-language-v1";
 const legacyDemoEmails = new Set();
 const legacyDemoIds = new Set(["demo-student", "demo-admin"]);
 const defaultUsers = [];
@@ -2143,6 +2144,7 @@ function setCurrentUser(user, preferredView = "student") {
   }
   saveAuthSession();
   loadAiChatMessages();
+  loadAiLanguagePreference();
   updateUserShell();
   renderInterviewControls();
   renderAiChatMessages();
@@ -6442,6 +6444,31 @@ function getAiChatStorageKey() {
   return `${aiChatStoragePrefix}:${currentUser?.id || "guest"}`;
 }
 
+function getAiLanguageStorageKey() {
+  return `${aiLanguageStoragePrefix}:${currentUser?.id || "guest"}`;
+}
+
+function getSelectedAiLanguage() {
+  return qs("#ai-language")?.value === "st" ? "st" : "en";
+}
+
+function loadAiLanguagePreference() {
+  try {
+    const language = localStorage.getItem(getAiLanguageStorageKey());
+    if (qs("#ai-language")) qs("#ai-language").value = language === "st" ? "st" : "en";
+  } catch (error) {
+    if (qs("#ai-language")) qs("#ai-language").value = "en";
+  }
+}
+
+function saveAiLanguagePreference() {
+  try {
+    localStorage.setItem(getAiLanguageStorageKey(), getSelectedAiLanguage());
+  } catch (error) {
+    // A blocked browser store should not prevent a language change for this session.
+  }
+}
+
 function getInitialAiChatMessage() {
   return {
     id: "ai-welcome",
@@ -6794,20 +6821,31 @@ function getAiRequestErrorMessage(error) {
   return "Could not reach AI Guide. Check your connection and try again.";
 }
 
-function renderAiGuidance(guidance, mode, model, serverChat = null, chatSynced = true) {
+function renderAiGuidance(guidance, mode, model, serverChat = null, chatSynced = true, language = "en") {
+  const labels = language === "st" ? {
+    summary: "Kakaretso", answer: "Karabo", qualify: "Lebaka leo u fihlellang litlhoko",
+    blockers: "Se u sitisang", missing: "Tse ntseng li hlokahala", recommendations: "Likhetho tse khothalletsoang",
+    comparison: "Papiso", study: "Moralo oa lithuto", documents: "Litokomane",
+    funding: "Tšehetso ea lichelete", next: "Lipotso tse latelang", evidence: "Bopaki", source: "Mohloli"
+  } : {
+    summary: "Summary", answer: "Answer", qualify: "Why you qualify",
+    blockers: "What blocks you", missing: "Still needed", recommendations: "Top recommendations",
+    comparison: "Comparison", study: "Study plan", documents: "Documents",
+    funding: "Funding note", next: "Next questions", evidence: "Evidence", source: "Source"
+  };
   const recommendations = guidance.top_recommendations || [];
   const comparison = guidance.comparison || [];
   const hasPreviousGuidance = aiChatMessages.some((message) => message.role === "assistant" && message.id !== "ai-welcome" && message.content);
   const showRecommendations = !hasPreviousGuidance;
   const answerMarkup = `
     <article class="ai-answer-card">
-      <h4>Summary</h4>
+      <h4>${labels.summary}</h4>
       <p>${escapeHtml(guidance.summary || "Guidance generated from your current matches.")}</p>
     </article>
     ${
       guidance.direct_answer
         ? `<article class="ai-answer-card">
-            <h4>Answer</h4>
+            <h4>${labels.answer}</h4>
             <p>${escapeHtml(guidance.direct_answer)}</p>
           </article>`
         : ""
@@ -6815,7 +6853,7 @@ function renderAiGuidance(guidance, mode, model, serverChat = null, chatSynced =
     ${
       guidance.qualification_reasons?.length
         ? `<article class="ai-answer-card">
-            <h4>Why you qualify</h4>
+            <h4>${labels.qualify}</h4>
             <ul>${guidance.qualification_reasons.map((item) => `<li>${escapeHtml(item)}</li>`).join("")}</ul>
           </article>`
         : ""
@@ -6823,7 +6861,7 @@ function renderAiGuidance(guidance, mode, model, serverChat = null, chatSynced =
     ${
       guidance.blockers?.length
         ? `<article class="ai-answer-card">
-            <h4>What blocks you</h4>
+            <h4>${labels.blockers}</h4>
             <ul>${guidance.blockers.map((item) => `<li>${escapeHtml(item)}</li>`).join("")}</ul>
           </article>`
         : ""
@@ -6831,7 +6869,7 @@ function renderAiGuidance(guidance, mode, model, serverChat = null, chatSynced =
     ${
       guidance.missing_information?.length
         ? `<article class="ai-answer-card">
-            <h4>Still needed</h4>
+            <h4>${labels.missing}</h4>
             <ul>${guidance.missing_information.map((item) => `<li>${escapeHtml(item)}</li>`).join("")}</ul>
           </article>`
         : ""
@@ -6839,7 +6877,7 @@ function renderAiGuidance(guidance, mode, model, serverChat = null, chatSynced =
     ${
       showRecommendations && recommendations.length
         ? `<article class="ai-answer-card">
-            <h4>Top recommendations</h4>
+            <h4>${labels.recommendations}</h4>
             ${recommendations
               .map(
                 (item) => `
@@ -6847,8 +6885,8 @@ function renderAiGuidance(guidance, mode, model, serverChat = null, chatSynced =
                     <strong>${escapeHtml(item.programme || "Programme")} - ${escapeHtml(item.institution || "Institution")}</strong>
                     <em>${escapeHtml(item.tier || "Match")}</em>
                     <p>${escapeHtml(item.why || "This matches your current profile signals.")}</p>
-                    ${item.evidence ? `<b class="ai-evidence">Evidence: ${escapeHtml(item.evidence)}</b>` : ""}
-                    <small class="ai-evidence-source">Source: ${escapeHtml(item.evidence_source || "Captured catalogue record")}</small>
+                    ${item.evidence ? `<b class="ai-evidence">${labels.evidence}: ${escapeHtml(item.evidence)}</b>` : ""}
+                    <small class="ai-evidence-source">${labels.source}: ${escapeHtml(item.evidence_source || "Captured catalogue record")}</small>
                     <span>${escapeHtml(item.caution || "Verify final requirements before applying.")}</span>
                     <small>${escapeHtml(item.action || "Compare this option with your other matches.")}</small>
                   </div>
@@ -6861,7 +6899,7 @@ function renderAiGuidance(guidance, mode, model, serverChat = null, chatSynced =
     ${
       comparison.length
         ? `<article class="ai-answer-card">
-            <h4>Comparison</h4>
+            <h4>${labels.comparison}</h4>
             ${comparison
               .map(
                 (item) => `
@@ -6869,8 +6907,8 @@ function renderAiGuidance(guidance, mode, model, serverChat = null, chatSynced =
                     <strong>${escapeHtml(item.programme || "Programme")} - ${escapeHtml(item.institution || "Institution")}</strong>
                     <em>${escapeHtml(item.tier || "Match")}</em>
                     <p>${escapeHtml(item.strength || "Strong profile alignment.")}</p>
-                    ${item.evidence ? `<b class="ai-evidence">Evidence: ${escapeHtml(item.evidence)}</b>` : ""}
-                    <small class="ai-evidence-source">Source: ${escapeHtml(item.evidence_source || "Captured catalogue record")}</small>
+                    ${item.evidence ? `<b class="ai-evidence">${labels.evidence}: ${escapeHtml(item.evidence)}</b>` : ""}
+                    <small class="ai-evidence-source">${labels.source}: ${escapeHtml(item.evidence_source || "Captured catalogue record")}</small>
                     <span>${escapeHtml(item.concern || "Confirm final requirements before applying.")}</span>
                   </div>
                 `
@@ -6882,7 +6920,7 @@ function renderAiGuidance(guidance, mode, model, serverChat = null, chatSynced =
     ${
       guidance.study_plan?.length
         ? `<article class="ai-answer-card">
-            <h4>Study plan</h4>
+            <h4>${labels.study}</h4>
             <ul>${guidance.study_plan.map((item) => `<li>${escapeHtml(item)}</li>`).join("")}</ul>
           </article>`
         : ""
@@ -6890,7 +6928,7 @@ function renderAiGuidance(guidance, mode, model, serverChat = null, chatSynced =
     ${
       guidance.document_checklist?.length
         ? `<article class="ai-answer-card">
-            <h4>Documents</h4>
+            <h4>${labels.documents}</h4>
             <ul>${guidance.document_checklist.map((item) => `<li>${escapeHtml(item)}</li>`).join("")}</ul>
           </article>`
         : ""
@@ -6898,7 +6936,7 @@ function renderAiGuidance(guidance, mode, model, serverChat = null, chatSynced =
     ${
       guidance.scholarship_note
         ? `<article class="ai-answer-card">
-            <h4>Funding note</h4>
+            <h4>${labels.funding}</h4>
             <p>${escapeHtml(guidance.scholarship_note)}</p>
           </article>`
         : ""
@@ -6906,7 +6944,7 @@ function renderAiGuidance(guidance, mode, model, serverChat = null, chatSynced =
     ${
       guidance.next_questions?.length
         ? `<article class="ai-answer-card">
-            <h4>Next questions</h4>
+            <h4>${labels.next}</h4>
             <ul>${guidance.next_questions.map((item) => `<li>${escapeHtml(item)}</li>`).join("")}</ul>
           </article>`
         : ""
@@ -6929,6 +6967,8 @@ async function requestAiGuidance(mode = "guidance") {
   const compareButton = qs("#ai-compare-button");
   const clearButton = qs("#ai-clear-button");
   const questionInput = qs("#ai-question");
+  const languageInput = qs("#ai-language");
+  const language = getSelectedAiLanguage();
   const questionText = questionInput?.value.trim() || "";
   if (aiInterviewState.active && mode === "guidance") {
     await handleAiInterviewAnswer(questionText);
@@ -6944,6 +6984,7 @@ async function requestAiGuidance(mode = "guidance") {
   compareButton.disabled = true;
   clearButton.disabled = true;
   if (questionInput) questionInput.disabled = true;
+  if (languageInput) languageInput.disabled = true;
   const pendingUserMessage = questionText ? appendAiChatMessage("user", questionText) : null;
   renderAiChatMessages(
     mode === "compare"
@@ -6961,6 +7002,7 @@ async function requestAiGuidance(mode = "guidance") {
 
   const payload = {
     mode,
+    language,
     question: effectiveQuestion,
     conversation: getAiConversationPayload(),
     profile: getAiProfilePayload(),
@@ -6982,7 +7024,7 @@ async function requestAiGuidance(mode = "guidance") {
       throw requestError;
     }
     const data = await response.json();
-    renderAiGuidance(data.guidance || {}, data.mode, data.model, data.chat, data.chatSynced);
+    renderAiGuidance(data.guidance || {}, data.mode, data.model, data.chat, data.chatSynced, data.language || language);
     if (questionInput) questionInput.value = "";
     try {
       recordCurrentUserActivity(mode === "compare" ? "ai_compare" : "ai_guidance", mode === "compare" ? "Compared AI recommendations" : "Requested AI guidance", {
@@ -7004,6 +7046,7 @@ async function requestAiGuidance(mode = "guidance") {
     compareButton.disabled = false;
     clearButton.disabled = false;
     if (questionInput) questionInput.disabled = false;
+    if (languageInput) languageInput.disabled = false;
   }
 }
 function renderSources() {
@@ -11765,6 +11808,7 @@ function bindEvents() {
     })
   );
   qs("#ai-guidance-button")?.addEventListener("click", () => requestAiGuidance("guidance"));
+  qs("#ai-language")?.addEventListener("change", saveAiLanguagePreference);
   qs("#ai-compare-button")?.addEventListener("click", () => requestAiGuidance("compare"));
   qs("#ai-interview-start")?.addEventListener("click", beginAiInterview);
   qs("#ai-interview-finish")?.addEventListener("click", finishAiInterview);
@@ -12553,6 +12597,7 @@ async function init() {
   renderGrades();
   renderInterests();
   loadAiChatMessages();
+  loadAiLanguagePreference();
   renderAiChatMessages();
   renderInterviewControls();
   updateCounts();

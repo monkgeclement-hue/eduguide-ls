@@ -101,10 +101,12 @@ test('server reply ID keeps a saved AI answer from appearing twice', () => {
   assert.equal(combined[0].html, '<p>Detailed answer</p>');
 });
 function aiRequestContext(fetchImpl) {
-  const controls = Object.fromEntries(['#ai-clear-button', '#ai-guidance-button', '#ai-compare-button', '#ai-guidance-status', '#ai-question'].map((key) => [key, { disabled: false, textContent: '', value: '' }]));
+  const controls = Object.fromEntries(['#ai-clear-button', '#ai-guidance-button', '#ai-compare-button', '#ai-guidance-status', '#ai-question', '#ai-language'].map((key) => [key, { disabled: false, textContent: '', value: '' }]));
   controls['#ai-question'].value = 'What can I study?';
+  controls['#ai-language'].value = 'st';
   const context = loadAsync('requestAiGuidance', {
     qs: (selector) => controls[selector],
+    getSelectedAiLanguage: () => controls['#ai-language'].value,
     fetch: fetchImpl,
     getAuthHeaders: () => ({}),
     getAiRequestErrorMessage: load('getAiRequestErrorMessage', { navigator: { onLine: true } }),
@@ -131,6 +133,42 @@ function aiRequestContext(fetchImpl) {
   context.getAiConversationPayload = () => context.aiChatMessages.filter((item) => item.id !== 'ai-welcome');
   return { context, controls };
 }
+test('AI request sends the selected reply language without losing the question', async () => {
+  let sent;
+  const { context, controls } = aiRequestContext(async (_url, options) => {
+    sent = JSON.parse(options.body);
+    return { ok: true, json: async () => ({ guidance: {}, mode: 'gemini', model: 'test', language: 'st' }) };
+  });
+  await context.requestAiGuidance();
+  assert.equal(sent.language, 'st');
+  assert.equal(sent.question, 'What can I study?');
+  assert.equal(controls['#ai-language'].disabled, false);
+});
+test('AI reply preference is scoped to the signed-in user and allowlisted', () => {
+  const storageKey = load('getAiLanguageStorageKey', { aiLanguageStoragePrefix: 'language-v1', currentUser: { id: 'student-a' } });
+  assert.equal(storageKey(), 'language-v1:student-a');
+  const selected = { value: 'st' };
+  const language = load('getSelectedAiLanguage', { qs: () => selected });
+  assert.equal(language(), 'st');
+  selected.value = 'unsupported';
+  assert.equal(language(), 'en');
+});
+test('Sesotho AI headings do not translate captured requirement evidence', () => {
+  let rendered = '';
+  const controls = { '#ai-guidance-status': { textContent: '' } };
+  const render = load('renderAiGuidance', {
+    aiChatMessages: [{ id: 'ai-welcome', role: 'assistant', content: 'Welcome' }],
+    escapeHtml: load('escapeHtml'),
+    guidanceToConversationText: () => 'Answer',
+    appendAiChatMessage: (_role, _content, html) => { rendered = html; },
+    qs: (selector) => controls[selector],
+    getAiGuidanceStatus: () => 'Ready'
+  });
+  render({ summary: 'Tataiso ea hao.', top_recommendations: [{ programme: 'Diploma', institution: 'College', evidence: 'English D or better.', evidence_source: 'Official prospectus' }] }, 'gemini', 'test', null, true, 'st');
+  assert.match(rendered, /Kakaretso/);
+  assert.match(rendered, /Bopaki: English D or better\./);
+  assert.match(rendered, /Mohloli: Official prospectus/);
+});
 test('failed AI request keeps the draft and removes the pending chat turn', async () => {
   const { context, controls } = aiRequestContext(async () => ({ ok: false, status: 429 }));
   await context.requestAiGuidance();

@@ -3716,6 +3716,25 @@ textarea:focus {
   gap: 14px;
 }
 
+.ai-chat-toolbar {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.ai-language-control {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: var(--brand-deep);
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.ai-language-control select {
+  min-width: 130px;
+  min-height: 40px;
+}
+
 .ai-chat-thread {
   display: grid;
   gap: 12px;
@@ -6697,6 +6716,10 @@ textarea:focus {
 
   .ai-chat-panel .ai-action-row {
     grid-template-columns: 1fr;
+  }
+
+  .ai-chat-toolbar {
+    justify-content: flex-start;
   }
 
   .admin-toolbar input,
