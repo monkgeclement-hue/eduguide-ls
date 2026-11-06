@@ -201,6 +201,7 @@ class AuthProfileRequest(BaseModel):
   leavingYear: str | None = None
   incomeBand: str | None = None
   needSignals: list[str] = Field(default_factory=list)
+  interests: list[str] = Field(default_factory=list)
   preferenceText: str | None = None
   grades: dict[str, str] = Field(default_factory=dict)
   documents: list[dict[str, Any]] = Field(default_factory=list)
@@ -584,6 +585,7 @@ def sanitize_profile_payload(payload: AuthProfileRequest) -> AuthProfileRequest:
   safe_leaving_year = sanitize_guidance_text(payload.leavingYear, 20)
   safe_income_band = payload.incomeBand if payload.incomeBand in {"low", "mid", "high"} else "mid"
   safe_need_signals = [sanitize_guidance_text(item, 60) for item in (payload.needSignals or [])[:10] if str(item or "").strip()]
+  safe_interests = list(dict.fromkeys(sanitize_guidance_text(item, 80) for item in (payload.interests or [])[:12] if str(item or "").strip()))
   safe_preference_text = sanitize_guidance_text(payload.preferenceText, 2000)
   safe_grades = {
     sanitize_guidance_text(key, 40): sanitize_guidance_text(value, 10)
@@ -635,6 +637,7 @@ def sanitize_profile_payload(payload: AuthProfileRequest) -> AuthProfileRequest:
     leavingYear=safe_leaving_year,
     incomeBand=safe_income_band,
     needSignals=safe_need_signals,
+    interests=safe_interests,
     preferenceText=safe_preference_text,
     grades=safe_grades,
     documents=safe_documents,
@@ -768,31 +771,29 @@ profile built from the interview answers, state what is still missing, and guide
 the student toward the strongest qualified/almost matches produced by the matcher.
 If the student asks why they are
 blocked, explain the exact blocker from blocked_matches or requirement_gaps and
-give a realistic next step. Ask one or two follow-up questions whenever important
-profile details are missing.
+give a realistic next step. When important profile details are missing, ask one
+brief follow-up question in direct_answer.
+The main reply is direct_answer. Answer only the latest question in at most
+three short sentences (about 70 words). A greeting should receive a greeting
+and one offer of help, not an admissions assessment. If no grades are entered,
+do not describe missing grades as failed requirements or call a student blocked.
+Interests are optional; do not infer a preference from the school stream.
+Do not add document or funding advice unless the student asks for it.
+When naming a programme, include its captured entry evidence and source in
+direct_answer, and never suggest a programme outside qualified/almost matches.
 
 Use task.language as the reply-language setting, regardless of the language used
 in the student's question or earlier chat. "en" means English; "st" means natural
-Sesotho as spoken in Lesotho. Write summary, direct_answer, study_plan,
-document_checklist, scholarship_note, and next_questions in that language.
+Sesotho as spoken in Lesotho. Write direct_answer in that language.
 Keep institution and programme names, grades, tiers, URLs, requirements,
 source quotations, and other catalogue evidence exactly as supplied; never
 translate, reinterpret, or soften an entry requirement to make it fit.
 If a precise Sesotho term is uncertain, keep the original term rather than
 guessing. A language preference never changes matcher eligibility.
 
-Return concise JSON with exactly these keys:
-- summary: string
-- direct_answer: string
-- top_recommendations: array of objects with programme, institution, tier, evidence, why, caution, action
-- comparison: array of objects with programme, institution, tier, evidence, strength, concern
-- study_plan: array of short strings
-- document_checklist: array of short strings
-- scholarship_note: string
-- next_questions: array of short strings
-- qualification_reasons: array of short strings
-- blockers: array of short strings
-- missing_information: array of short strings
+Return JSON with only one key: direct_answer (string). Do not write a report or
+generate summary, blockers, study plan, documents, or funding sections. The
+student can ask for any of those as a separate follow-up.
 
 Be warm, direct, and practical. If data confidence is low or a requirement is marked
 under review, say the student should verify it with the institution/admin.
@@ -1910,6 +1911,60 @@ def guidance_gap_text(gaps: list[Any]) -> str:
   return "; ".join(str(gap).strip().rstrip(".;") for gap in gaps[:2] if str(gap).strip())
 
 
+def guidance_has_grades(payload: GuidanceRequest) -> bool:
+  grades = payload.profile.get("grades") if isinstance(payload.profile, dict) else None
+  if isinstance(grades, list):
+    return any(isinstance(item, dict) and item.get("grade") for item in grades)
+  if isinstance(grades, dict):
+    return any(bool(value) for value in grades.values())
+  return False
+
+
+def guidance_question_type(question: str | None, mode: str = "guidance") -> str:
+  text = (question or "").casefold().strip()
+  greeting = re.sub(r"[^\w\s]", "", text).strip()
+  if greeting in {"hi", "hey", "hello", "hello there", "good morning", "good afternoon", "lumela", "lumelang", "dumela", "khotso"}:
+    return "greeting"
+  if text.startswith("summarize my current programme guidance"):
+    return "summary"
+  if text.startswith("what is the most important answer to my latest question"):
+    return "answer"
+  if text.startswith("what information do you still need from me"):
+    return "missing"
+  if text.startswith("what should i focus on studying next"):
+    return "study_plan"
+  if re.search(r"block|not eligible|not qualify|why can't|requirement gap|nthibel|sitisa|sa fihlell", text):
+    return "blocker"
+  if mode in {"compare", "interview"} or re.search(r"cours|programm|study|studying|qualif|eligib|recommend|match|option|ithuta|lithuto|lenaneo", text):
+    return "recommendation"
+  return "other"
+
+
+def conversational_guidance(payload: GuidanceRequest) -> dict[str, Any] | None:
+  question_type = guidance_question_type(payload.question, payload.mode)
+  if question_type == "greeting":
+    answer = (
+      "Lumela! Ke EduGuide. Nka u thusa ho hlahloba lithuto le litlhoko tsa ho kena. U ka rata ho tseba eng?"
+      if payload.language == "st" else
+      "Hello! I'm EduGuide. I can help you explore courses and entry requirements. What would you like to know?"
+    )
+  elif not guidance_has_grades(payload) and question_type == "blocker":
+    answer = (
+      "Ha ke so bone tlhoko eo u hlolehileng ho e fihlela. Limaraka tse sa kengoang ha li bolele hore u thibetsoe; mpolelle limaraka tsa hao hore ke hlahlobe."
+      if payload.language == "st" else
+      "I cannot confirm any entry requirement you have failed yet. Missing grades do not mean you are blocked; share your grades and I will check."
+    )
+  elif not guidance_has_grades(payload) and question_type in {"recommendation", "missing", "study_plan", "summary"}:
+    answer = (
+      "Nka u thusa ho hlahloba lithuto, empa ke hloka limaraka tsa hao pele nka lekola litlhoko tsa ho kena. Ha ho hlokahale hore u khethe lintho tseo u li ratang pele. Ke limaraka life tseo u nang le tsona?"
+      if payload.language == "st" else
+      "I can help you explore courses, but I need your subject grades before checking eligibility. You do not have to choose interests first. Which grades can you share?"
+    )
+  else:
+    return None
+  return {"summary": answer, "direct_answer": answer, "top_recommendations": [], "comparison": [], "next_questions": []}
+
+
 def source_review_caution(match: dict[str, Any]) -> str:
   source_review = match.get("source_review") if isinstance(match.get("source_review"), dict) else {}
   if source_review.get("status") in {"missing_source", "unreviewed", "due", "overdue"}:
@@ -1935,8 +1990,9 @@ def recommendation_from_match(match: dict[str, Any]) -> dict[str, Any]:
   }
 
 
-def normalize_ai_guidance(guidance: dict[str, Any] | None, payload: GuidanceRequest) -> dict[str, Any]:
+def normalize_ai_guidance(guidance: dict[str, Any] | None, payload: GuidanceRequest, *, preserve_local_answer: bool = False) -> dict[str, Any]:
   response = guidance if isinstance(guidance, dict) else build_fallback(payload, "The AI response was empty.")
+  question_type = guidance_question_type(payload.question, payload.mode)
   compact_matches = [compact_match(item) for item in payload.matches[:8]]
   recommendable = [item for item in compact_matches if is_recommendable_match(item)]
   allowed = {guidance_match_key(item.get("programme"), item.get("institution")): item for item in recommendable}
@@ -1991,14 +2047,26 @@ def normalize_ai_guidance(guidance: dict[str, Any] | None, payload: GuidanceRequ
       for item in safe_recommendations[:3]
     ]
 
-  if not recommendable:
+  unsupported_claim = not recommendable and re.search(
+    r"\b(?:you qualify|you are eligible|qualified for|apply now|o fihlella litlhoko|etsa kopo hona joale)\b",
+    f"{response.get('summary') or ''} {response.get('direct_answer') or ''}",
+    flags=re.IGNORECASE,
+  )
+  if not recommendable and (question_type in {"recommendation", "blocker"} or unsupported_claim) and not preserve_local_answer:
     fallback = build_fallback(payload)
     response["summary"] = fallback["summary"]
     response["direct_answer"] = fallback["direct_answer"]
     response["study_plan"] = fallback["study_plan"]
     response["next_questions"] = fallback["next_questions"]
 
-  if not recommendable and blocked_matches:
+  if not recommendable and question_type == "blocker" and not blocked_matches and not preserve_local_answer:
+    response["direct_answer"] = (
+      "Ha ke bone tlhoko e hlolehileng e netefalitsoeng. Limaraka tse sa kengoang ha se bopaki ba hore u hlolehile; kenya limaraka tse setseng hore re hlahlobe."
+      if payload.language == "st" else
+      "I cannot confirm a failed entry requirement yet. A grade you have not entered is unknown, not a failure. Add the remaining grades so I can check."
+    )
+
+  if not recommendable and blocked_matches and question_type == "blocker" and not preserve_local_answer:
     blocker = blocked_matches[0]
     gaps = blocker.get("requirement_gaps") or blocker.get("cautions") or blocker.get("hard_gate_failures") or []
     gap_text = guidance_gap_text(gaps)
@@ -2039,7 +2107,7 @@ def normalize_ai_guidance(guidance: dict[str, Any] | None, payload: GuidanceRequ
     missing_information.append("Hlalosa lekala la lithuto kapa tsela ea hao ea thuto." if payload.language == "st" else "Add your school stream or qualification route.")
   if not profile.get("district"):
     missing_information.append("Kenya setereke sa hao bakeng sa tataiso e nepahetseng haholoanyane." if payload.language == "st" else "Add your district if you want more relevant funding and access guidance.")
-  if not payload.documents:
+  if not payload.documents and re.search(r"document|upload|transcript|litokomane", (payload.question or "").casefold()):
     missing_information.append("Lokisetsa litokomane tse hlokahalang, 'me u netefatse limaraka tse baliloeng ke mochini." if payload.language == "st" else "Upload or prepare supporting documents, then confirm any machine-read grades.")
 
   response["top_recommendations"] = safe_recommendations[:4]
@@ -2053,7 +2121,7 @@ def normalize_ai_guidance(guidance: dict[str, Any] | None, payload: GuidanceRequ
     follow_ups.insert(0, "U latela lekala lefe la lithuto?" if payload.language == "st" else "Which school stream or qualification route are you following?")
   response["next_questions"] = list(dict.fromkeys(follow_ups))[:3]
   response["summary"] = str(response.get("summary") or ("Tataiso ena e ipapisitse le lintlha tsa hao le bopaki ba mananeo." if payload.language == "st" else "Guidance generated from your current matcher evidence."))[:1200]
-  response["direct_answer"] = str(response.get("direct_answer") or ("Qala ka mananeo ao u fihlellang litlhoko tsa 'ona kapa ao u leng haufi le ho li fihlela; a thibetsoeng ke lipakane tsa hamorao." if payload.language == "st" else "Use qualified and almost-qualified matches first; blocked paths are preparation goals, not current application recommendations."))[:1600]
+  response["direct_answer"] = str(response.get("direct_answer") or ("Mpolelle potso ea hao, 'me ke tla u thusa ho latela lintlha tseo u faneng ka tsona." if payload.language == "st" else "Tell me what you would like to know, and I will use the information you have shared."))[:700]
   response["scholarship_note"] = str(response.get("scholarship_note") or ("Tekanyetso ea tšehetso ea lichelete ha se qeto ea semmuso; qeto ea ho qetela e etsoa ke mofani oa tšehetso kapa NMDS." if payload.language == "st" else "Funding readiness is an estimate only; official sponsorship decisions remain with the sponsor/NMDS process."))[:1200]
   response["qualification_reasons"] = qualification_reasons[:4]
   response["blockers"] = blockers[:6]
@@ -2067,7 +2135,7 @@ def build_fallback(payload: GuidanceRequest, error: str | None = None) -> dict[s
   top_matches = [item for item in compact_matches if is_recommendable_match(item)][:3]
   explore_matches = [item for item in compact_matches if not is_recommendable_match(item)][:3]
   blocked_matches = [compact_match(item) for item in payload.blockedMatches[:5]]
-  best = top_matches[0] if top_matches else (explore_matches[0] if explore_matches else {})
+  best = top_matches[0] if top_matches else {}
   programme = best.get("programme") or "your strongest current match"
   institution = best.get("institution") or "the matched institution"
   cautions = best.get("cautions") or []
@@ -2120,12 +2188,7 @@ def build_fallback(payload: GuidanceRequest, error: str | None = None) -> dict[s
     else:
       next_questions.append("What subjects or careers interest you most?")
     next_questions.append("Which document can you prepare or verify next?")
-    direct_answer = (
-      f"For your question: {question} {programme} at {institution} is an explore-only path to research, "
-      "not a current application recommendation. Confirm your grades and entry requirements first."
-      if explore_matches else
-      f"For your question: {question} No application recommendation is available yet. Confirm your grades and entry requirements first."
-    )
+    direct_answer = "I cannot recommend an application-ready course from the grades entered so far. Add any missing subject grades and check the captured entry requirements."
 
   response = {
     "summary": (
@@ -2711,24 +2774,7 @@ def safe_save_ai_chat_history(user_id: str, messages: list[dict[str, Any]]) -> t
 
 
 def guidance_to_chat_text(guidance: dict[str, Any]) -> str:
-  parts = [guidance.get("summary"), guidance.get("direct_answer"), guidance.get("scholarship_note")]
-  recommendations = guidance.get("top_recommendations")
-  if isinstance(recommendations, list) and recommendations:
-    parts.append(
-      "Top recommendations: "
-      + " | ".join(
-        f"{item.get('programme') or 'Programme'} at {item.get('institution') or 'Institution'}: {item.get('why') or item.get('action') or 'match'}"
-        for item in recommendations[:3]
-        if isinstance(item, dict)
-      )
-    )
-  study_plan = guidance.get("study_plan")
-  if isinstance(study_plan, list) and study_plan:
-    parts.append("Study plan: " + " | ".join(str(item) for item in study_plan[:5]))
-  next_questions = guidance.get("next_questions")
-  if isinstance(next_questions, list) and next_questions:
-    parts.append("Next questions: " + " | ".join(str(item) for item in next_questions[:3]))
-  return "\n".join(str(part) for part in parts if part).strip()[:2400] or "Guidance generated from your current EduGuide profile."
+  return str(guidance.get("direct_answer") or guidance.get("summary") or "I can help when you share your question.").strip()[:900]
 
 
 def now_iso() -> str:
@@ -2892,6 +2938,7 @@ def normalize_auth_user(user: dict[str, Any]) -> dict[str, Any] | None:
     "leavingYear": user.get("leavingYear") or "",
     "incomeBand": user.get("incomeBand") or "mid",
     "needSignals": user.get("needSignals") if isinstance(user.get("needSignals"), list) else [],
+    "interests": user.get("interests") if isinstance(user.get("interests"), list) else [],
     "preferenceText": user.get("preferenceText") or "",
     "grades": user.get("grades") if isinstance(user.get("grades"), dict) else {},
     "documents": user.get("documents") if isinstance(user.get("documents"), list) else [],
@@ -4276,6 +4323,7 @@ def auth_update_me(payload: AuthProfileRequest, authorization: str | None = Head
     if value is not None:
       user[field] = value
   user["needSignals"] = safe_payload.needSignals
+  user["interests"] = safe_payload.interests
   user["grades"] = safe_payload.grades
   user["documents"] = safe_payload.documents
   user["shortlist"] = safe_payload.shortlist
@@ -5517,14 +5565,9 @@ def ai_chat_clear(authorization: str | None = Header(default=None)) -> dict[str,
 def ai_guidance(payload: GuidanceRequest, request: Request, authorization: str | None = Header(default=None)) -> dict[str, Any]:
   current_user = require_current_user(authorization)
   safe_payload = bind_guidance_payload_to_catalogue(validate_and_sanitize_guidance_payload(payload))
-  if not safe_payload.matches and not safe_payload.blockedMatches:
-    return {
-      "mode": "local_fallback",
-      "model": None,
-      "language": safe_payload.language,
-      "guidance": build_fallback(safe_payload, "No matches were sent to the AI endpoint."),
-    }
   check_rate_limit(request, "ai_guidance", 40, 3600, current_user["id"])
+  if not guidance_has_grades(safe_payload):
+    safe_payload = safe_payload.model_copy(update={"matches": [], "blockedMatches": []})
   incoming_history = merge_ai_chat_histories(safe_payload.conversation)
   try:
     server_history = list_ai_chat_history(current_user["id"])
@@ -5535,15 +5578,19 @@ def ai_guidance(payload: GuidanceRequest, request: Request, authorization: str |
   merged_history = merge_ai_chat_histories(server_history, incoming_history)
   request_payload = build_request_payload(safe_payload, merged_history)
   request_payload["userId"] = current_user["id"]
-  save_recommendation_run(safe_payload, request_payload)
-  if get_ai_provider() == "openai":
-    result = call_openai(safe_payload, request_payload)
+  local_reply = conversational_guidance(safe_payload)
+  if local_reply:
+    result = {"mode": "local_conversation", "model": None, "guidance": local_reply}
   else:
-    result = call_gemini(safe_payload, request_payload)
+    save_recommendation_run(safe_payload, request_payload)
+    if get_ai_provider() == "openai":
+      result = call_openai(safe_payload, request_payload)
+    else:
+      result = call_gemini(safe_payload, request_payload)
 
   if not isinstance(result, dict):
     result = {"mode": "local_fallback", "model": None, "guidance": build_fallback(safe_payload, "The AI service returned an invalid response.")}
-  guidance = normalize_ai_guidance(result.get("guidance"), safe_payload)
+  guidance = normalize_ai_guidance(result.get("guidance"), safe_payload, preserve_local_answer=bool(local_reply))
   result["guidance"] = guidance
   assistant_message = {
     "id": f"ai-{uuid.uuid4().hex[:12]}",

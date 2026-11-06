@@ -153,21 +153,63 @@ test('AI reply preference is scoped to the signed-in user and allowlisted', () =
   selected.value = 'unsupported';
   assert.equal(language(), 'en');
 });
-test('Sesotho AI headings do not translate captured requirement evidence', () => {
+test('AI chat renders only the direct answer, not the old report sections', () => {
   let rendered = '';
   const controls = { '#ai-guidance-status': { textContent: '' } };
   const render = load('renderAiGuidance', {
     aiChatMessages: [{ id: 'ai-welcome', role: 'assistant', content: 'Welcome' }],
     escapeHtml: load('escapeHtml'),
-    guidanceToConversationText: () => 'Answer',
+    guidanceToConversationText: load('guidanceToConversationText'),
     appendAiChatMessage: (_role, _content, html) => { rendered = html; },
     qs: (selector) => controls[selector],
     getAiGuidanceStatus: () => 'Ready'
   });
-  render({ summary: 'Tataiso ea hao.', top_recommendations: [{ programme: 'Diploma', institution: 'College', evidence: 'English D or better.', evidence_source: 'Official prospectus' }] }, 'gemini', 'test', null, true, 'st');
-  assert.match(rendered, /Kakaretso/);
-  assert.match(rendered, /Bopaki: English D or better\./);
-  assert.match(rendered, /Mohloli: Official prospectus/);
+  render({ summary: 'Long summary', direct_answer: 'Lumela! Nka u thusa joang?', document_checklist: ['Upload a transcript'], scholarship_note: 'Funding note' }, 'gemini', 'test', null, true, 'st');
+  assert.match(rendered, /lang="st"/);
+  assert.match(rendered, /Lumela! Nka u thusa joang\?/);
+  assert.doesNotMatch(rendered, /Long summary|Upload a transcript|Funding note/);
+});
+test('follow-up actions offer the five requested topics', () => {
+  const suggestions = load('getAiFollowupSuggestions')('st');
+  assert.deepEqual(Array.from(suggestions, (item) => item.key), ['summary', 'answer', 'blockers', 'missing', 'study']);
+  assert.equal(suggestions[0].label, 'Kakaretso');
+});
+test('fresh profile completion credits only information the student entered', () => {
+  const completion = load('calculateProfileCompletion');
+  assert.equal(completion({}), 0);
+  assert.equal(completion({ name: 'Student', district: 'Maseru', grades: {}, interests: [] }), 10);
+  assert.equal(completion({ name: 'Student', district: 'Maseru', leavingYear: '2026', stream: 'General', grades: { ENG: 'C' }, interests: [] }), 27);
+});
+
+test('fresh student dashboard asks for grades before documents', () => {
+  const snapshot = load('getStudentDashboardSnapshot', {
+    getProfileCompletion: () => 5,
+    gradeState: {},
+    interestState: new Set(),
+    latestMatches: [],
+    currentUser: { shortlist: [], documents: [] },
+    qs: (selector) => ({ value: selector === '#full-name' ? 'Fresh Student' : '' })
+  })();
+  assert.equal(snapshot.nextActionLabel, 'Add grades');
+  assert.match(snapshot.nextActions[0], /Add your subject grades/);
+  assert.ok(snapshot.nextActions.every((action) => !/documents|interest/i.test(action)));
+});
+test('General stream is neutral when no interest was selected', () => {
+  const getInterestScore = load('getInterestScore', { interestState: new Set(), getPreferenceScore: () => 0, clamp: (value) => value });
+  assert.equal(getInterestScore({ interests: ['Technology & IT'] }), 50);
+  assert.equal(getInterestScore({ interests: ['Arts & Design'] }), 50);
+});
+test('unentered strict grades are unknown, not failed', () => {
+  const evaluate = load('evaluateStrictGates', {
+    getStrictGateRules: () => [{ codes: ['MATH'], minGrade: 'C' }],
+    gradeMeets: () => false,
+    getGradeForSubject: () => '',
+    getSubjectLabel: (code) => code
+  });
+  const result = evaluate({});
+  assert.equal(result.failures.length, 0);
+  assert.equal(result.unknown.length, 1);
+  assert.equal(result.passed, false);
 });
 test('failed AI request keeps the draft and removes the pending chat turn', async () => {
   const { context, controls } = aiRequestContext(async () => ({ ok: false, status: 429 }));

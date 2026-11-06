@@ -256,7 +256,8 @@ class SecurityRegressionTests(unittest.TestCase):
     }, bound)
     self.assertEqual(guidance['top_recommendations'], [])
     self.assertIn('No qualified or almost-qualified recommendation', guidance['summary'])
-    self.assertIn('explore-only path', guidance['direct_answer'])
+    self.assertIn('cannot recommend an application-ready course', guidance['direct_answer'])
+    self.assertNotIn('Thin Diploma', guidance['direct_answer'])
     self.assertNotIn('Pay the fee now.', guidance['study_plan'])
 
   def test_ai_guidance_hard_gate_failure_overrides_favourable_tier(self):
@@ -275,7 +276,7 @@ class SecurityRegressionTests(unittest.TestCase):
 
   def test_no_eligible_matches_get_relevant_follow_up_questions(self):
     payload = server.GuidanceRequest(
-      question='What can I study?',
+      question='What blocks me?',
       matches=[{'title': 'Explore Course', 'institution': 'Example College', 'match': {'tier': 'explore'}}],
       blockedMatches=[{'title': 'Blocked Course', 'institution': 'Example College',
                        'match': {'tier': 'blocked', 'requirementGaps': ['Mathematics C or better.']}}],
@@ -299,7 +300,7 @@ class SecurityRegressionTests(unittest.TestCase):
 
   def test_sesotho_language_is_allowlisted_and_preserves_blocker_evidence(self):
     payload = server.validate_and_sanitize_guidance_payload(server.GuidanceRequest(
-      language='st', blockedMatches=[{
+      language='st', question='What blocks me?', blockedMatches=[{
         'title': 'Blocked Course', 'institution': 'Example College',
         'match': {'tier': 'blocked'}, 'requirementGaps': ['Mathematics C or better'],
       }],
@@ -316,6 +317,69 @@ class SecurityRegressionTests(unittest.TestCase):
     self.assertIn('Hajoale', guidance['summary'])
     self.assertNotIn('private-provider-token', json.dumps(guidance))
     self.assertEqual(guidance['top_recommendations'], [])
+
+  def test_fresh_greeting_is_short_and_saved_without_fake_matches(self):
+    login = self.client.post('/api/auth/login', json={'email': 'a@example.test', 'password': 'TestPassword1'})
+    headers = {'Authorization': f"Bearer {login.json()['token']}"}
+    with patch.object(server, 'call_gemini', side_effect=AssertionError('A greeting should not need a model call')):
+      response = self.client.post('/api/ai/guidance', headers=headers, json={
+        'question': 'hey', 'language': 'en',
+        'conversation': [{'id': 'first-hello', 'role': 'user', 'content': 'hey'}],
+        'matches': [{'id': 'untrusted-course', 'match': {'tier': 'qualified'}}],
+      })
+    self.assertEqual(response.status_code, 200, response.text)
+    data = response.json()
+    self.assertEqual(data['mode'], 'local_conversation')
+    self.assertIn('Hello!', data['guidance']['direct_answer'])
+    self.assertEqual(data['guidance']['top_recommendations'], [])
+    self.assertNotIn('blocked', data['guidance']['direct_answer'].lower())
+    history = self.client.get('/api/ai/chat', headers=headers).json()['messages']
+    self.assertEqual([item['role'] for item in history[-2:]], ['user', 'assistant'])
+    self.assertEqual(history[-1]['content'], data['guidance']['direct_answer'])
+
+  def test_fresh_course_question_asks_for_grades_without_requiring_interests(self):
+    login = self.client.post('/api/auth/login', json={'email': 'a@example.test', 'password': 'TestPassword1'})
+    headers = {'Authorization': f"Bearer {login.json()['token']}"}
+    response = self.client.post('/api/ai/guidance', headers=headers, json={
+      'question': 'What can I study?', 'matches': [{'id': 'untrusted-course', 'match': {'tier': 'qualified'}}],
+    })
+    self.assertEqual(response.status_code, 200, response.text)
+    answer = response.json()['guidance']['direct_answer']
+    self.assertIn('subject grades', answer)
+    self.assertIn('do not have to choose interests', answer)
+    self.assertNotIn('blocked', answer.lower())
+
+  def test_follow_up_topics_ask_for_one_relevant_answer(self):
+    self.assertEqual(server.guidance_question_type('What should I focus on studying next based on my confirmed grades?'), 'study_plan')
+    self.assertEqual(server.guidance_question_type('What information do you still need from me before recommending courses?'), 'missing')
+    self.assertEqual(server.guidance_question_type('Summarize my current programme guidance in two short sentences.'), 'summary')
+    self.assertIn('only one key: direct_answer', server.DEVELOPER_PROMPT)
+    no_grades = server.GuidanceRequest(question='What confirmed grade or entry requirement blocks my current options?')
+    answer = server.conversational_guidance(no_grades)['direct_answer']
+    self.assertIn('Missing grades do not mean you are blocked', answer)
+    self.assertEqual(server.guidance_question_type('How do I apply?'), 'other')
+    self.assertIsNone(server.conversational_guidance(server.GuidanceRequest(question='How do I apply?')))
+
+  def test_general_question_without_grades_can_use_the_model(self):
+    login = self.client.post('/api/auth/login', json={'email': 'a@example.test', 'password': 'TestPassword1'})
+    headers = {'Authorization': f"Bearer {login.json()['token']}"}
+    result = {'mode': 'gemini', 'model': 'test', 'guidance': {'direct_answer': 'EduGuide helps you explore school programmes.'}}
+    with patch.object(server, 'call_gemini', return_value=result) as call_ai:
+      response = self.client.post('/api/ai/guidance', headers=headers, json={'question': 'How does EduGuide work?'})
+    self.assertEqual(response.status_code, 200, response.text)
+    self.assertTrue(call_ai.called)
+    self.assertEqual(response.json()['guidance']['direct_answer'], 'EduGuide helps you explore school programmes.')
+
+  def test_profile_interests_are_saved_per_account(self):
+    login = self.client.post('/api/auth/login', json={'email': 'a@example.test', 'password': 'TestPassword1'})
+    headers = {'Authorization': f"Bearer {login.json()['token']}"}
+    response = self.client.put('/api/auth/me', headers=headers, json={
+      'name': 'a', 'district': '', 'stream': '', 'leavingYear': '',
+      'interests': ['Technology & IT'], 'grades': {},
+    })
+    self.assertEqual(response.status_code, 200, response.text)
+    self.assertEqual(self.client.get('/api/auth/me', headers=headers).json()['user']['interests'], ['Technology & IT'])
+    self.assertEqual(next(user for user in server.get_auth_users_internal() if user['id'] == 'b')['interests'], [])
 
   def test_invalid_gemini_response_is_labelled_local_fallback(self):
     client = Mock()
@@ -351,7 +415,7 @@ class SecurityRegressionTests(unittest.TestCase):
       'top_recommendations': [{'programme': 'Real Course', 'institution': 'Example College'}],
     }}
     with patch.object(server, '_catalogue_programmes_cache', [record]), patch.object(server, 'call_gemini', return_value=fake_result) as call_ai:
-      response = self.client.post('/api/ai/guidance', headers=headers, json={'matches': [{
+      response = self.client.post('/api/ai/guidance', headers=headers, json={'profile': {'grades': [{'subject': 'English', 'grade': 'D'}]}, 'matches': [{
         'id': 'real-course', 'requirements': ['No grades required'],
         'source': 'https://fake.example/prospectus',
         'match': {'tier': 'qualified', 'tierLabel': 'Qualified'},
@@ -373,7 +437,8 @@ class SecurityRegressionTests(unittest.TestCase):
     result = {'mode': 'gemini', 'model': 'test', 'guidance': {'summary': 'Tataiso ea hao.'}}
     with patch.object(server, '_catalogue_programmes_cache', [record]), patch.object(server, 'call_gemini', return_value=result) as call_ai:
       response = self.client.post('/api/ai/guidance', headers=headers, json={
-        'language': 'st', 'matches': [{'id': 'real-course', 'match': {'tier': 'qualified'}}],
+        'language': 'st', 'profile': {'grades': [{'subject': 'English', 'grade': 'D'}]},
+        'matches': [{'id': 'real-course', 'match': {'tier': 'qualified'}}],
       })
     self.assertEqual(response.status_code, 200, response.text)
     self.assertEqual(response.json()['language'], 'st')

@@ -119,7 +119,7 @@ function renderMatchScoreBreakdown(programme) {
   `;
 }
 const gradeState = {};
-const interestState = new Set(["Technology & IT", "Natural Sciences"]);
+const interestState = new Set();
 let latestMatches = [];
 let latestBlockedMatches = [];
 let comparisonProgrammeIds = [];
@@ -700,6 +700,7 @@ function normalizeUser(user = {}) {
     leavingYear: user.leavingYear || "",
     incomeBand: user.incomeBand || "mid",
     needSignals: Array.isArray(user.needSignals) ? user.needSignals : [],
+    interests: Array.isArray(user.interests) ? user.interests.filter((interest) => interests.includes(interest)) : [],
     preferenceText: user.preferenceText || "",
     grades: user.grades || {},
     documents: Array.isArray(user.documents) ? user.documents : [],
@@ -791,6 +792,7 @@ function getCurrentUserPayload() {
     leavingYear: currentUser.leavingYear || "",
     incomeBand: currentUser.incomeBand || "mid",
     needSignals: currentUser.needSignals || [],
+    interests: currentUser.interests || [],
     preferenceText: currentUser.preferenceText || "",
     grades: currentUser.grades || {},
     documents: currentUser.documents || [],
@@ -2067,9 +2069,9 @@ function updateUserShell() {
   qs("#profile-avatar").textContent = initials;
   qs("#user-chip-name").textContent = `${currentUser.name} - ${getUserRoleLabel(currentUser)}`;
   qs("#full-name").value = currentUser.name || "";
-  if (currentUser.district) qs("#district").value = currentUser.district;
-  if (currentUser.stream) qs("#stream").value = currentUser.stream;
-  if (currentUser.leavingYear) qs("#leaving-year").value = currentUser.leavingYear;
+  qs("#district").value = currentUser.district || "";
+  qs("#stream").value = currentUser.stream || "";
+  qs("#leaving-year").value = currentUser.leavingYear || "";
   if (currentUser.incomeBand) qs("#income-band").value = currentUser.incomeBand;
   setNeedSignalInputs(currentUser.needSignals || []);
   if (qs("#preference-text")) qs("#preference-text").value = currentUser.preferenceText || "";
@@ -2127,6 +2129,8 @@ function setCurrentUser(user, preferredView = "student") {
   studentSourceReports = { reports: [], loading: false, loaded: false, error: "" };
   aiChatLoadedFromServer = false;
   aiInterviewState = { active: false, step: 0, answers: [] };
+  Object.keys(gradeState).forEach((key) => delete gradeState[key]);
+  interestState.clear();
   if (currentUser) {
     currentUser.documents ||= [];
     currentUser.shortlist ||= [];
@@ -2134,14 +2138,12 @@ function setCurrentUser(user, preferredView = "student") {
     currentUser.needSignals ||= [];
     currentUser.applicationNotes ||= {};
     currentUser.incomeBand ||= qs("#income-band")?.value || "mid";
-    if (Object.keys(currentUser.grades).length) {
-      Object.keys(gradeState).forEach((key) => delete gradeState[key]);
-      Object.assign(gradeState, currentUser.grades);
-      renderGrades();
-    } else {
-      currentUser.grades = { ...gradeState };
-    }
+    currentUser.interests ||= [];
+    Object.assign(gradeState, currentUser.grades);
+    currentUser.interests.filter((interest) => interests.includes(interest)).forEach((interest) => interestState.add(interest));
   }
+  renderGrades();
+  renderInterests();
   saveAuthSession();
   loadAiChatMessages();
   loadAiLanguagePreference();
@@ -2219,6 +2221,8 @@ function signOut() {
   clearNetworkRecoveryNotice();
   clearPendingProfileSync(signingOutUserId);
   currentUser = null;
+  Object.keys(gradeState).forEach((key) => delete gradeState[key]);
+  interestState.clear();
   studentCounsellorAccess = { assignments: [], followups: [], loading: false, loaded: false, error: "" };
   studentSourceReports = { reports: [], loading: false, loaded: false, error: "" };
   authToken = null;
@@ -3654,7 +3658,7 @@ function getStrictGateRules(programme) {
 
 function evaluateStrictGates(programme) {
   const rules = getStrictGateRules(programme);
-  const failures = rules
+  const evaluated = rules
     .map((rule) => {
       const passingCode = rule.codes.find((code) => gradeMeets(getGradeForSubject(code), rule.minGrade));
       if (passingCode) {
@@ -3667,14 +3671,16 @@ function evaluateStrictGates(programme) {
         studentGrade: getGradeForSubject(bestCode) || "missing",
         subjectLabel: rule.codes.map(getSubjectLabel).join(" or ")
       };
-    })
-    .filter((rule) => !rule.met);
+    });
+  const failures = evaluated.filter((rule) => !rule.met && rule.studentGrade !== "missing");
+  const unknown = evaluated.filter((rule) => !rule.met && rule.studentGrade === "missing");
 
   return {
     total: rules.length,
-    passed: failures.length === 0,
+    passed: failures.length === 0 && unknown.length === 0,
     rules,
-    failures
+    failures,
+    unknown
   };
 }
 
@@ -3717,16 +3723,8 @@ function getPreferenceScore(programme) {
 function getInterestScore(programme) {
   const programmeInterests = programme.interests || [];
   const overlap = programmeInterests.filter((interest) => interestState.has(interest)).length;
-  const stream = qs("#stream")?.value || "";
-  const streamBonus =
-    (stream === "Science" && programmeInterests.some((interest) => ["Technology & IT", "Health & Medicine", "Engineering", "Natural Sciences", "Agriculture"].includes(interest))) ||
-    (stream === "Commercial" && programmeInterests.includes("Business & Finance")) ||
-    (stream === "Agriculture" && programmeInterests.includes("Agriculture")) ||
-    (stream === "General" && programmeInterests.some((interest) => ["Education & Teaching", "Law & Government", "Social Work", "Arts & Design"].includes(interest)))
-      ? 12
-      : 0;
-  const base = interestState.size ? 42 : 46;
-  return clamp(base + overlap * 24 + streamBonus + getPreferenceScore(programme));
+  const base = interestState.size ? 42 : 50;
+  return clamp(base + overlap * 24 + getPreferenceScore(programme));
 }
 
 function getSelectedNeedSignals() {
@@ -4471,8 +4469,10 @@ function formatRequirementGap(detail) {
 
 function getMatchTier(scores, evaluation, programme, strictGateEvaluation) {
   if (programme.requirementEvidenceAvailable === false) return "explore";
+  if (evaluation.selectedCount === 0) return "explore";
   if (hasEnteredGradesBelowPass()) return "blocked";
   if (strictGateEvaluation?.failures?.length) return "blocked";
+  if (strictGateEvaluation?.unknown?.length) return "explore";
   if (!evaluation.total) return programme.dataConfidence >= 75 && scores.academic >= 65 ? "almost" : "explore";
   if (evaluation.missing.some((detail) => detail.type === "prior-qualification")) return "explore";
   if (evaluation.missing.length === 0 && scores.academic >= 52) return "qualified";
@@ -4562,11 +4562,11 @@ function getRequirementEvidence(evaluation, strictGateEvaluation) {
     const subjectLabel = (rule.codes || []).map(getSubjectLabel).join(" or ");
     const met = Boolean(passingCode);
     evidence.push({
-      status: met ? "met" : "blocked",
+      status: met ? "met" : studentGrade ? "blocked" : "warning",
       type: "hard-gate",
       title: met
         ? `${subjectLabel} hard requirement met`
-        : `${subjectLabel} hard requirement not met`,
+        : studentGrade ? `${subjectLabel} hard requirement not met` : `${subjectLabel} grade not entered`,
       detail: studentGrade
         ? `Your grade: ${studentGrade} | Required: ${rule.minGrade} or better`
         : `No grade entered | Required: ${rule.minGrade} or better`,
@@ -4582,7 +4582,7 @@ function getRequirementEvidence(evaluation, strictGateEvaluation) {
           (detail.codes || []).some((code) => rule.codes.includes(code))
       );
     if (duplicatesHardGate) return;
-    const status = detail.met || detail.passed ? "met" : detail.type === "subject" ? "blocked" : "warning";
+    const status = detail.met || detail.passed ? "met" : detail.type === "subject" && detail.studentGrade !== "missing" ? "blocked" : "warning";
     const title = detail.type === "subject"
       ? `${(detail.codes || []).map(getSubjectLabel).join(" or ")} requirement ${status === "met" ? "met" : "not met"}`
       : detail.title || detail.type;
@@ -4647,7 +4647,7 @@ function getProgrammeMatch(programme) {
     overall,
     tier,
     tierLabel: tierMeta[tier]?.label || "Explore",
-    hardGatePassed: strictGateEvaluation.passed,
+    hardGatePassed: strictGateEvaluation.unknown.length ? null : strictGateEvaluation.passed,
     hardGateFailures: strictGateFailures,
     requirementGaps: unique([...strictGateFailures, ...evaluation.missing.map(formatRequirementGap)]),
     requirementDetails: evaluation.details,
@@ -4657,7 +4657,9 @@ function getProgrammeMatch(programme) {
   };
 }
 function getNmdsReadiness() {
-  const matches = getMatchingCatalogue().map((programme) => ({ ...programme, match: getProgrammeMatch(programme) }));
+  const matches = Object.keys(gradeState).length
+    ? getMatchingCatalogue().map((programme) => ({ ...programme, match: getProgrammeMatch(programme) }))
+    : [];
   const rankedMatches = matches
     .filter((programme) => programme.match.tier !== "blocked")
     .sort((a, b) => getTierRank(a.match.tier) - getTierRank(b.match.tier) || b.match.overall - a.match.overall)
@@ -4749,6 +4751,7 @@ function syncCurrentUserProfile() {
   currentUser.leavingYear = qs("#leaving-year").value;
   currentUser.incomeBand = qs("#income-band")?.value || "mid";
   currentUser.needSignals = getSelectedNeedSignals();
+  currentUser.interests = Array.from(interestState);
   currentUser.preferenceText = qs("#preference-text")?.value.trim() || "";
   currentUser.grades = { ...gradeState };
   const activityRecorded = addActivityToUser(currentUser, "profile_updated", "Updated student profile", {
@@ -4765,14 +4768,26 @@ function syncCurrentUserProfile() {
   updateUserShell();
 }
 
+function calculateProfileCompletion(profile = {}) {
+  const filledCore = [profile.name, profile.district, profile.leavingYear, profile.stream].filter(Boolean).length;
+  const gradeCount = Object.values(profile.grades || {}).filter(Boolean).length;
+  const interestCount = (profile.interests || []).length;
+  const documentCount = (profile.documents || []).length;
+  const preferenceBonus = String(profile.preferenceText || "").trim().length > 20 ? 8 : 0;
+  return Math.min(100, filledCore * 5 + Math.min(gradeCount, 6) * 7 + Math.min(interestCount, 3) * 6 + Math.min(documentCount, 2) * 6 + preferenceBonus);
+}
+
 function getProfileCompletion() {
-  const filledCore = [qs("#full-name").value, qs("#district").value, qs("#leaving-year").value, qs("#stream").value].filter(Boolean).length;
-  const gradeCount = Object.keys(gradeState).length;
-  const interestCount = interestState.size;
-  const documentCount = currentUser?.documents?.length || 0;
-  const preferenceBonus = getPreferenceText().trim().length > 20 ? 8 : 0;
-  const score = filledCore * 12 + Math.min(gradeCount, 6) * 5 + Math.min(interestCount, 4) * 6 + Math.min(documentCount, 2) * 8 + preferenceBonus;
-  return Math.min(100, score);
+  return calculateProfileCompletion({
+    name: qs("#full-name")?.value,
+    district: qs("#district")?.value,
+    leavingYear: qs("#leaving-year")?.value,
+    stream: qs("#stream")?.value,
+    grades: gradeState,
+    interests: Array.from(interestState),
+    documents: currentUser?.documents || [],
+    preferenceText: qs("#preference-text")?.value || ""
+  });
 }
 
 function formatFileSize(size) {
@@ -4923,6 +4938,7 @@ function renderDocumentList() {
 
 function getStudentDashboardSnapshot() {
   const completion = getProfileCompletion();
+  const gradeCount = Object.keys(gradeState).length;
   const qualifiedCount = latestMatches.filter((programme) => programme.match?.tier === "qualified").length;
   const almostCount = latestMatches.filter((programme) => programme.match?.tier === "almost").length;
   const shortlistCount = currentUser?.shortlist?.length || 0;
@@ -4933,23 +4949,26 @@ function getStudentDashboardSnapshot() {
   if (!qs("#district")?.value) missingSignals.push("district");
   if (!qs("#stream")?.value) missingSignals.push("stream");
   if (!qs("#leaving-year")?.value) missingSignals.push("year");
-  if (!Object.keys(gradeState).length) missingSignals.push("grades");
-  if (!interestState.size) missingSignals.push("interests");
+  if (!gradeCount) missingSignals.push("grades");
   const nextActions = [];
-  if (documentCount < 2) {
-    nextActions.push("Upload at least two supporting documents to improve funding and application readiness.");
-  } else if (documentReadyCount < 2) {
-    nextActions.push("Confirm both uploaded documents are processed and ready for review.");
+  if (gradeCount < 4) {
+    nextActions.push(gradeCount
+      ? "Add the remaining subject grades you know to check more entry requirements."
+      : "Add your subject grades to begin checking programme eligibility.");
   }
-  if (Object.keys(gradeState).length < 4) {
-    nextActions.push("Add your strongest subjects and grades so the eligibility score becomes more accurate.");
-  }
-  if (qualifiedCount + almostCount === 0) {
+  if (gradeCount && qualifiedCount + almostCount === 0) {
     nextActions.push("Run your programme match check to see which institutions fit your current profile.");
   } else if (shortlistCount === 0) {
-    nextActions.push("Save your strongest matches and compare them side by side before applying.");
-  } else {
+    if (qualifiedCount + almostCount) nextActions.push("Save your strongest matches and compare them side by side before applying.");
+  } else if (shortlistCount) {
     nextActions.push("Compare your shortlisted programmes and prepare the application route for each one.");
+  }
+  if (qualifiedCount + almostCount || shortlistCount) {
+    if (documentCount < 2) {
+      nextActions.push("Upload supporting documents when you are ready to prepare an application.");
+    } else if (documentReadyCount < 2) {
+      nextActions.push("Confirm both uploaded documents are processed and ready for review.");
+    }
   }
   if (!nextActions.length) {
     nextActions.push("Your profile is in good shape. Review the best matches and prepare your application pack.");
@@ -4959,7 +4978,7 @@ function getStudentDashboardSnapshot() {
     : missingSignals.length >= 2
       ? "You are close. A few more details will sharpen the recommendations."
       : "Your profile is looking strong; keep refining your final choices.";
-  const nextActionLabel = documentCount < 2 ? "Add documents" : shortlistCount ? "Compare saved" : qualifiedCount + almostCount ? "Save matches" : "Review matches";
+  const nextActionLabel = !gradeCount ? "Add grades" : shortlistCount ? "Compare saved" : qualifiedCount + almostCount ? "Save matches" : "Review matches";
 
   return {
     completion,
@@ -5006,7 +5025,7 @@ function renderStudentDashboard() {
     const matches = latestMatches.filter((programme) => programme.match?.tier !== "blocked").slice(0, 3);
     topMatches.innerHTML = matches.length
       ? `<div class="student-top-matches-head"><strong>Top three matches</strong><span>Based on your current profile</span></div><div class="student-top-match-list">${matches.map((programme) => `<button type="button" data-view-target="results"><span><strong>${escapeHtml(programme.title)}</strong><small>${escapeHtml(programme.institution)} · ${escapeHtml(programme.match.tierLabel || "Explore")}</small></span><b>${programme.match.overall}%</b></button>`).join("")}</div>`
-      : `<div class="student-top-matches-empty"><strong>Add grades to see your top matches.</strong><span>EduGuide will compare your subjects, interests, and programme requirements.</span></div>`;
+      : `<div class="student-top-matches-empty"><strong>Add grades to see your top matches.</strong><span>EduGuide checks your grades against programme requirements. Interests are optional.</span></div>`;
   }
   renderDocumentList();
   if (window.lucide) window.lucide.createIcons();
@@ -5445,6 +5464,14 @@ function renderMyPathways() {
 function calculateMatches() {
   selectedResultInstitution = null;
   comparisonProgrammeIds = [];
+  if (!Object.keys(gradeState).length) {
+    latestMatches = [];
+    latestBlockedMatches = [];
+    updateReadiness();
+    renderResults();
+    renderStudentDashboard();
+    return;
+  }
   const evaluatedMatches = getMatchingCatalogue()
     .map((programme) => ({ ...programme, match: getProgrammeMatch(programme) }))
     .sort((a, b) => getTierRank(a.match.tier) - getTierRank(b.match.tier) || b.match.overall - a.match.overall || b.match.eligibility - a.match.eligibility);
@@ -5903,7 +5930,7 @@ function renderInstitutionMatches() {
     <div class="institution-match-summary">
       <div>
         <strong>${groups.length} institution${groups.length === 1 ? "" : "s"} found</strong>
-        <span>${latestMatches.length} programme matches processed from your marks and preferences.</span>
+        <span>${latestMatches.length} programme matches processed from your marks${interestState.size ? " and chosen interests" : ""}.</span>
       </div>
       <div class="tier-summary">
         <span class="badge green">${tierCounts.qualified} qualified</span>
@@ -6257,11 +6284,16 @@ function renderResults() {
   const blockedPanel = qs("#tab-blocked");
   if (blockedPanel) blockedPanel.innerHTML = renderBlockedMatches();
   if (!latestMatches.length) {
+    const hasGrades = Object.keys(gradeState).length > 0;
+    qs("#results-heading").textContent = hasGrades ? "No matches yet" : "Add grades to begin matching";
+    qs("#profile-match").textContent = "0%";
+    qs(".ring-score").style.background = "";
+    qs("#score-list").innerHTML = "";
     qs("#tab-programmes").innerHTML = `
-      ${renderStrictGateNotice()}
+      ${hasGrades ? renderStrictGateNotice() : ""}
       ${getPublicProgrammeCount() ? `<article class="admin-empty">
-        <h4>No eligible programme matches yet.</h4>
-        <p>Enter the subjects required for your target pathway. Technology usually needs Mathematics; engineering, architecture, and many science programmes need Mathematics plus Physical Science or a recognised science subject.</p>
+        <h4>${hasGrades ? "No eligible programme matches yet." : "Add your grades to begin."}</h4>
+        <p>${hasGrades ? "Enter the subjects required for your target pathway. Technology usually needs Mathematics; engineering, architecture, and many science programmes need Mathematics plus Physical Science or a recognised science subject." : "You can explore programmes without choosing an interest. Enter the grades you know to check eligibility."}</p>
       </article>` : getPublicProgrammeEmptyState("catalogue")}
     `;
     renderApplicationAssistantTab();
@@ -6473,8 +6505,8 @@ function getInitialAiChatMessage() {
   return {
     id: "ai-welcome",
     role: "assistant",
-    content: "Hi, I am EduGuide AI. Enter grades, ask a question, or start interview mode if you do not know what to enter yet.",
-    html: "<strong>Hi, I am EduGuide AI.</strong><p>Enter grades, ask a question, or start interview mode if you do not know what to enter yet.</p>"
+    content: "Hi, I am EduGuide AI. Ask me about courses, or share your grades when you are ready to check matches.",
+    html: "<strong>Hi, I am EduGuide AI.</strong><p>Ask me about courses, or share your grades when you are ready to check matches.</p>"
   };
 }
 
@@ -6569,7 +6601,30 @@ function renderAiChatMessages(typingText = "") {
       : ""}
   `;
   output.scrollTop = output.scrollHeight;
+  renderAiFollowups();
   if (window.lucide) window.lucide.createIcons();
+}
+
+function getAiFollowupSuggestions(language = getSelectedAiLanguage()) {
+  const questions = [
+    { key: "summary", question: "Summarize my current programme guidance in two short sentences.", en: "Summary", st: "Kakaretso" },
+    { key: "answer", question: "What is the most important answer to my latest question based on my current profile?", en: "Answer", st: "Karabo" },
+    { key: "blockers", question: "What confirmed grade or entry requirement blocks my current options? Separate missing grades from failed requirements.", en: "What blocks me", st: "Se nthibelang" },
+    { key: "missing", question: "What information do you still need from me before recommending courses?", en: "Still needed", st: "Tse hlokahalang" },
+    { key: "study", question: "What should I focus on studying next based on my confirmed grades?", en: "Study plan", st: "Moralo oa lithuto" }
+  ];
+  return questions.map((item) => ({ key: item.key, question: item.question, label: item[language] || item.en }));
+}
+
+function renderAiFollowups() {
+  const root = qs("#ai-followups");
+  if (!root) return;
+  const last = aiChatMessages.at(-1);
+  root.hidden = !last || last.role !== "assistant" || last.id === "ai-welcome";
+  if (root.hidden) return;
+  root.innerHTML = getAiFollowupSuggestions().map((item) =>
+    `<button type="button" data-ai-followup="${item.key}">${escapeHtml(item.label)}</button>`
+  ).join("");
 }
 
 function appendAiChatMessage(role, content, html = "", id = null) {
@@ -6775,23 +6830,8 @@ async function handleAiInterviewAnswer(answer) {
   await finishAiInterview();
 }
 
-function guidanceToConversationText(guidance = {}, { includeRecommendations = true } = {}) {
-  const parts = [guidance.summary, guidance.direct_answer, guidance.scholarship_note].filter(Boolean);
-  if (Array.isArray(guidance.qualification_reasons) && guidance.qualification_reasons.length) {
-    parts.push(`Why you qualify: ${guidance.qualification_reasons.join(" | ")}`);
-  }
-  if (Array.isArray(guidance.blockers) && guidance.blockers.length) {
-    parts.push(`What blocks you: ${guidance.blockers.join(" | ")}`);
-  }
-  if (Array.isArray(guidance.missing_information) && guidance.missing_information.length) {
-    parts.push(`Missing information: ${guidance.missing_information.join(" | ")}`);
-  }
-  if (includeRecommendations && Array.isArray(guidance.top_recommendations) && guidance.top_recommendations.length) {
-    parts.push(`Top recommendations: ${guidance.top_recommendations.map((item) => `${item.programme || "Programme"} at ${item.institution || "Institution"}: ${item.why || item.action || "match"} Evidence: ${item.evidence || "matcher evidence"}`).join(" | ")}`);
-  }
-  if (Array.isArray(guidance.study_plan) && guidance.study_plan.length) parts.push(`Study plan: ${guidance.study_plan.join(" | ")}`);
-  if (Array.isArray(guidance.next_questions) && guidance.next_questions.length) parts.push(`Next questions: ${guidance.next_questions.join(" | ")}`);
-  return parts.join("\n").slice(0, 2400) || "Guidance generated from your current EduGuide profile.";
+function guidanceToConversationText(guidance = {}) {
+  return String(guidance.direct_answer || guidance.summary || "I can help when you share your question.").slice(0, 900);
 }
 
 function getAiConversationPayload() {
@@ -6801,6 +6841,7 @@ function getAiConversationPayload() {
     .map((message) => ({ id: message.id, role: message.role, content: message.content, at: message.at }));
 }
 function getAiGuidanceStatus(mode, model, chatSynced) {
+  if (mode === "local_conversation") return chatSynced === false ? "Reply ready. Account chat could not fully sync." : "Reply ready.";
   if (mode !== "gemini" && mode !== "openai") {
     return chatSynced === false
       ? "Local fallback guidance shown. Chat could not fully sync to your account; this device has a copy."
@@ -6822,137 +6863,11 @@ function getAiRequestErrorMessage(error) {
 }
 
 function renderAiGuidance(guidance, mode, model, serverChat = null, chatSynced = true, language = "en") {
-  const labels = language === "st" ? {
-    summary: "Kakaretso", answer: "Karabo", qualify: "Lebaka leo u fihlellang litlhoko",
-    blockers: "Se u sitisang", missing: "Tse ntseng li hlokahala", recommendations: "Likhetho tse khothalletsoang",
-    comparison: "Papiso", study: "Moralo oa lithuto", documents: "Litokomane",
-    funding: "Tšehetso ea lichelete", next: "Lipotso tse latelang", evidence: "Bopaki", source: "Mohloli"
-  } : {
-    summary: "Summary", answer: "Answer", qualify: "Why you qualify",
-    blockers: "What blocks you", missing: "Still needed", recommendations: "Top recommendations",
-    comparison: "Comparison", study: "Study plan", documents: "Documents",
-    funding: "Funding note", next: "Next questions", evidence: "Evidence", source: "Source"
-  };
-  const recommendations = guidance.top_recommendations || [];
-  const comparison = guidance.comparison || [];
-  const hasPreviousGuidance = aiChatMessages.some((message) => message.role === "assistant" && message.id !== "ai-welcome" && message.content);
-  const showRecommendations = !hasPreviousGuidance;
-  const answerMarkup = `
-    <article class="ai-answer-card">
-      <h4>${labels.summary}</h4>
-      <p>${escapeHtml(guidance.summary || "Guidance generated from your current matches.")}</p>
-    </article>
-    ${
-      guidance.direct_answer
-        ? `<article class="ai-answer-card">
-            <h4>${labels.answer}</h4>
-            <p>${escapeHtml(guidance.direct_answer)}</p>
-          </article>`
-        : ""
-    }
-    ${
-      guidance.qualification_reasons?.length
-        ? `<article class="ai-answer-card">
-            <h4>${labels.qualify}</h4>
-            <ul>${guidance.qualification_reasons.map((item) => `<li>${escapeHtml(item)}</li>`).join("")}</ul>
-          </article>`
-        : ""
-    }
-    ${
-      guidance.blockers?.length
-        ? `<article class="ai-answer-card">
-            <h4>${labels.blockers}</h4>
-            <ul>${guidance.blockers.map((item) => `<li>${escapeHtml(item)}</li>`).join("")}</ul>
-          </article>`
-        : ""
-    }
-    ${
-      guidance.missing_information?.length
-        ? `<article class="ai-answer-card">
-            <h4>${labels.missing}</h4>
-            <ul>${guidance.missing_information.map((item) => `<li>${escapeHtml(item)}</li>`).join("")}</ul>
-          </article>`
-        : ""
-    }
-    ${
-      showRecommendations && recommendations.length
-        ? `<article class="ai-answer-card">
-            <h4>${labels.recommendations}</h4>
-            ${recommendations
-              .map(
-                (item) => `
-                  <div class="ai-rec">
-                    <strong>${escapeHtml(item.programme || "Programme")} - ${escapeHtml(item.institution || "Institution")}</strong>
-                    <em>${escapeHtml(item.tier || "Match")}</em>
-                    <p>${escapeHtml(item.why || "This matches your current profile signals.")}</p>
-                    ${item.evidence ? `<b class="ai-evidence">${labels.evidence}: ${escapeHtml(item.evidence)}</b>` : ""}
-                    <small class="ai-evidence-source">${labels.source}: ${escapeHtml(item.evidence_source || "Captured catalogue record")}</small>
-                    <span>${escapeHtml(item.caution || "Verify final requirements before applying.")}</span>
-                    <small>${escapeHtml(item.action || "Compare this option with your other matches.")}</small>
-                  </div>
-                `
-              )
-              .join("")}
-          </article>`
-        : ""
-    }
-    ${
-      comparison.length
-        ? `<article class="ai-answer-card">
-            <h4>${labels.comparison}</h4>
-            ${comparison
-              .map(
-                (item) => `
-                  <div class="ai-rec">
-                    <strong>${escapeHtml(item.programme || "Programme")} - ${escapeHtml(item.institution || "Institution")}</strong>
-                    <em>${escapeHtml(item.tier || "Match")}</em>
-                    <p>${escapeHtml(item.strength || "Strong profile alignment.")}</p>
-                    ${item.evidence ? `<b class="ai-evidence">${labels.evidence}: ${escapeHtml(item.evidence)}</b>` : ""}
-                    <small class="ai-evidence-source">${labels.source}: ${escapeHtml(item.evidence_source || "Captured catalogue record")}</small>
-                    <span>${escapeHtml(item.concern || "Confirm final requirements before applying.")}</span>
-                  </div>
-                `
-              )
-              .join("")}
-          </article>`
-        : ""
-    }
-    ${
-      guidance.study_plan?.length
-        ? `<article class="ai-answer-card">
-            <h4>${labels.study}</h4>
-            <ul>${guidance.study_plan.map((item) => `<li>${escapeHtml(item)}</li>`).join("")}</ul>
-          </article>`
-        : ""
-    }
-    ${
-      guidance.document_checklist?.length
-        ? `<article class="ai-answer-card">
-            <h4>${labels.documents}</h4>
-            <ul>${guidance.document_checklist.map((item) => `<li>${escapeHtml(item)}</li>`).join("")}</ul>
-          </article>`
-        : ""
-    }
-    ${
-      guidance.scholarship_note
-        ? `<article class="ai-answer-card">
-            <h4>${labels.funding}</h4>
-            <p>${escapeHtml(guidance.scholarship_note)}</p>
-          </article>`
-        : ""
-    }
-    ${
-      guidance.next_questions?.length
-        ? `<article class="ai-answer-card">
-            <h4>${labels.next}</h4>
-            <ul>${guidance.next_questions.map((item) => `<li>${escapeHtml(item)}</li>`).join("")}</ul>
-          </article>`
-        : ""
-    }
-  `;
+  const answer = guidanceToConversationText(guidance);
+  const answerMarkup = `<p lang="${language === "st" ? "st" : "en"}">${escapeHtml(answer)}</p>`;
   const savedReply = Array.isArray(serverChat) ? serverChat.at(-1) : null;
   const replyId = savedReply?.role === "assistant" ? savedReply.id : null;
-  appendAiChatMessage("assistant", guidanceToConversationText(guidance, { includeRecommendations: showRecommendations }), answerMarkup, replyId);
+  appendAiChatMessage("assistant", answer, answerMarkup, replyId);
   if (Array.isArray(serverChat) && serverChat.length) {
     aiChatMessages = mergeAiChatMessages(aiChatMessages, serverChat);
     saveAiChatMessages();
@@ -10595,7 +10510,7 @@ function printStudentReport(userId) {
   }
   reportWindow.opener = null;
   const pathwayGroups = Object.keys(pathwayLabels).map((key) => `${pathwayLabels[key]}: ${(user.shortlist || []).filter((id) => (user.shortlistPathways?.[id] || "considering") === key).length}`).join(" | ");
-  const profileCompletion = Math.min(100, [user.name, user.district, user.leavingYear, user.stream].filter(Boolean).length * 12 + Math.min(Object.keys(user.grades || {}).length, 6) * 5 + Math.min((user.documents || []).length, 2) * 8 + (user.preferenceText?.length > 20 ? 8 : 0));
+  const profileCompletion = calculateProfileCompletion(user);
   const usableGrades = Object.values(user.grades || {}).filter((grade) => gradePoints[grade] > 0);
   const academicReadiness = usableGrades.length ? Math.round(usableGrades.reduce((total, grade) => total + gradePoints[grade], 0) / (usableGrades.length * 8) * 100) : 0;
   const topSaved = (user.shortlist || []).slice(0, 5).map((id, index) => {
@@ -11808,7 +11723,18 @@ function bindEvents() {
     })
   );
   qs("#ai-guidance-button")?.addEventListener("click", () => requestAiGuidance("guidance"));
-  qs("#ai-language")?.addEventListener("change", saveAiLanguagePreference);
+  qs("#ai-language")?.addEventListener("change", () => {
+    saveAiLanguagePreference();
+    renderAiFollowups();
+  });
+  qs("#ai-followups")?.addEventListener("click", (event) => {
+    const button = event.target.closest("[data-ai-followup]");
+    if (!button || qs("#ai-guidance-button")?.disabled) return;
+    const selected = getAiFollowupSuggestions().find((item) => item.key === button.dataset.aiFollowup);
+    if (!selected) return;
+    qs("#ai-question").value = selected.question;
+    requestAiGuidance("guidance");
+  });
   qs("#ai-compare-button")?.addEventListener("click", () => requestAiGuidance("compare"));
   qs("#ai-interview-start")?.addEventListener("click", beginAiInterview);
   qs("#ai-interview-finish")?.addEventListener("click", finishAiInterview);

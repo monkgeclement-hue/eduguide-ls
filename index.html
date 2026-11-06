@@ -13,7 +13,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Playfair+Display:wght@600;700&display=swap" />
-    <link rel="stylesheet" href="/styles.css?v=69" />
+    <link rel="stylesheet" href="/styles.css?v=70" />
   </head>
   <body>
     <a href="/privacy" class="privacy-link" style="display:block;text-align:center;padding:8px">Privacy and data use</a>
@@ -94,6 +94,7 @@
             <label>
               <span>District</span>
               <select id="register-district">
+                <option value="">Select district (optional)</option>
                 <option>Maseru</option>
                 <option>Berea</option>
                 <option>Leribe</option>
@@ -330,7 +331,7 @@
               <div class="action-icon"><i data-lucide="clipboard-check"></i></div>
               <div>
                 <span>Profile completion</span>
-                <strong id="profile-completion">68%</strong>
+                <strong id="profile-completion">0%</strong>
               </div>
             </article>
             <article class="student-action-card">
@@ -434,6 +435,7 @@
                 <label>
                   <span>District</span>
                   <select id="district">
+                    <option value="">Select district</option>
                     <option>Maseru</option>
                     <option>Berea</option>
                     <option>Leribe</option>
@@ -449,6 +451,7 @@
                 <label>
                   <span>School leaving year</span>
                   <select id="leaving-year">
+                    <option value="">Select year</option>
                     <option>2026</option>
                     <option>2025</option>
                     <option>2024</option>
@@ -461,6 +464,7 @@
                 <label>
                   <span>Stream</span>
                   <select id="stream">
+                    <option value="">Select stream</option>
                     <option>Science</option>
                     <option>Commercial</option>
                     <option>General</option>
@@ -498,7 +502,7 @@
               <div class="profile-match-action">
                 <div>
                   <strong>Ready to see what fits?</strong>
-                  <span>Use your grades, interests, and profile to find suitable programmes.</span>
+                  <span>Use your grades to check eligibility. Interests are optional.</span>
                 </div>
                 <button class="primary-button" type="button" id="profile-view-matches">
                   <i data-lucide="sparkles"></i>
@@ -842,7 +846,7 @@
                   <h3>Ask in your own words</h3>
                 </div>
               </div>
-              <p>EduGuide AI uses your captured grades, interests, documents, funding readiness, and current programme matches. It is a Gemini API call through our backend, guided by strict matching rules and Lesotho catalogue evidence, with recent chat turns saved as context.</p>
+              <p>Ask about courses and entry requirements. Add grades when you are ready for personal matches.</p>
               <div class="ai-prompt-strip" aria-label="Quick AI prompts">
                 <button type="button" data-ai-prompt="What programmes do I qualify for right now, and why?">What can I study?</button>
                 <button type="button" data-ai-prompt="Which subjects should I improve if I want technology, nursing, or science programmes?">What should I improve?</button>
@@ -876,10 +880,11 @@
                   <div class="ai-message-avatar">AI</div>
                   <div class="ai-message-body">
                     <strong>Hi, I am EduGuide AI.</strong>
-                    <p>Enter your grades first, run matches, then ask me what you qualify for, what is blocked, and what subjects to improve.</p>
+                    <p>Ask me about courses, or share your grades when you are ready to check matches.</p>
                   </div>
                 </div>
               </div>
+              <div class="ai-followups" id="ai-followups" aria-label="Ask a follow-up" hidden></div>
               <div class="ai-chat-toolbar">
                 <label class="ai-language-control" for="ai-language">
                   <span>AI reply language</span>
@@ -1311,6 +1316,6 @@
     <script src="/vendor/lucide.min.js" defer></script>
     <script src="/data/catalog.js" defer></script>
     <script src="/data/admin-catalog.js" defer></script>
-    <script src="/app.js?v=119" defer></script>
+    <script src="/app.js?v=120" defer></script>
   </body>
 </html>

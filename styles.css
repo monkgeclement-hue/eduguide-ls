@@ -3716,6 +3716,33 @@ textarea:focus {
   gap: 14px;
 }
 
+.ai-followups {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.ai-followups[hidden] {
+  display: none;
+}
+
+.ai-followups button {
+  min-height: 36px;
+  padding: 7px 10px;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  background: #fff;
+  color: var(--brand-deep);
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.ai-followups button:hover,
+.ai-followups button:focus-visible {
+  border-color: var(--brand);
+  background: var(--brand-soft);
+}
+
 .ai-chat-toolbar {
   display: flex;
   justify-content: flex-end;
@@ -6710,7 +6737,7 @@ textarea:focus {
   }
 
   .ai-chat-thread {
-    min-height: 300px;
+    min-height: 180px;
     padding: 10px;
   }
 
