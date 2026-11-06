@@ -389,6 +389,58 @@ class SecurityRegressionTests(unittest.TestCase):
     self.assertEqual(server.captured_grade_gaps(summary, grades), [])
     self.assertTrue(any('English: grade not entered' in gap for gap in server.captured_grade_gaps('Five passes including English and Mathematics.', {'MATH': 'C', 'BIO': 'C'})))
 
+  def test_captured_subject_rules_require_the_grades_named_by_the_source(self):
+    summary = 'COSC/LGCSE with credit in Mathematics and Physical Science, and pass in English Language.'
+    grades = {'MATH': 'C', 'ENG': 'D', 'BIO': 'C'}
+    gaps, checked = server.captured_grade_check(summary, grades)
+    self.assertTrue(checked)
+    self.assertTrue(any('Physical Science or Physics' in gap and 'C or better' in gap for gap in gaps))
+    self.assertEqual(server.captured_grade_gaps(summary, {**grades, 'PSCI': 'C'}), [])
+    nul = 'Sat for a minimum of six (6) subjects. Obtained a B grade or better in Mathematics.'
+    self.assertTrue(any('Mathematics: entered C; B or better' in gap for gap in server.captured_grade_gaps(nul, {**grades, 'PSCI': 'C', 'SES': 'C', 'ACC': 'C'})))
+    self.assertIn('At least 6 subjects required', server.captured_grade_gaps(nul, grades)[-1])
+
+  def test_captured_alternative_subjects_and_nursing_grades(self):
+    accounting = 'LGCSE/COSC with minimum 6 subjects, 4 credits including Mathematics or English or Accounting.'
+    grades = {code: 'C' for code in ('MATH', 'SES', 'BIO', 'PSCI', 'AGR', 'CSK')}
+    self.assertEqual(server.captured_grade_gaps(accounting, grades), [])
+    without_options = {code: 'C' for code in ('SES', 'BIO', 'PSCI', 'AGR', 'CSK', 'FNU')}
+    self.assertTrue(any('Mathematics, English, or Accounting' in gap for gap in server.captured_grade_gaps(accounting, without_options)))
+    nursing = ('Minimum of six subjects, including D or better in Mathematics, D or better in English Language, '
+               'C or better in Physics/Chemistry, C or better in Biology, and C or better in any other two subjects.')
+    with_weak_biology = {'MATH': 'C', 'ENG': 'C', 'PSCI': 'C', 'BIO': 'D', 'SES': 'C', 'ACC': 'C'}
+    self.assertTrue(any('Biology: entered D; C or better' in gap for gap in server.captured_grade_gaps(nursing, with_weak_biology)))
+    self.assertEqual(server.captured_grade_gaps(nursing, {**with_weak_biology, 'BIO': 'C'}), [])
+    self.assertFalse(server.captured_grade_check(nursing, {**with_weak_biology, 'BIO': 'C'})[1])
+    self.assertFalse(server.captured_grade_check(accounting + ' Aggregate not exceeding 36.', grades)[1])
+    ambiguous = 'IGCSE with 5 Passes including Credit in English, Mathematics/Statistics and Science (Biology or Chemistry).'
+    self.assertFalse(server.captured_grade_check(ambiguous, {**grades, 'ENG': 'C'})[1])
+
+  def test_ai_does_not_upgrade_unparsed_catalogue_prose(self):
+    record = {
+      'id': 'unparsed', 'name': 'Commercial Diploma', 'institution': 'Example College',
+      'review_status': 'approved',
+      'requirements_summary': 'Commercial diploma pathway; prospectus lists commerce-related subject requirements.',
+    }
+    login = self.client.post('/api/auth/login', json={'email': 'a@example.test', 'password': 'TestPassword1'})
+    headers = {'Authorization': f"Bearer {login.json()['token']}"}
+    result = {'mode': 'gemini', 'model': 'test', 'guidance': {'direct_answer': 'You qualify. Apply now.'}}
+    with patch.object(server, '_catalogue_programmes_cache', [record]), patch.object(server, 'call_gemini', return_value=result) as call_ai:
+      response = self.client.post('/api/ai/guidance', headers=headers, json={
+        'question': 'Can I apply?', 'profile': {'grades': [{'code': 'MATH', 'grade': 'C'}]},
+        'matches': [{'id': 'unparsed', 'match': {'tier': 'qualified'}}],
+      })
+    self.assertEqual(response.status_code, 200, response.text)
+    self.assertEqual(call_ai.call_args.args[1]['recommendable_matches'], [])
+    self.assertEqual(call_ai.call_args.args[1]['explore_matches'][0]['tier'], 'explore')
+    self.assertNotIn('You qualify', response.json()['guidance']['direct_answer'])
+
+  def test_guidance_grade_map_accepts_known_subject_labels(self):
+    self.assertEqual(server.guidance_grade_map({'grades': [
+      {'subject': 'English Language', 'grade': 'D'}, {'subject': 'Mathematics', 'grade': 'C'},
+      {'subject': 'Invented subject', 'grade': 'A'},
+    ]}), {'ENG': 'D', 'MATH': 'C'})
+
   def test_follow_up_topics_ask_for_one_relevant_answer(self):
     self.assertEqual(server.guidance_question_type('What should I focus on studying next based on my confirmed grades?'), 'study_plan')
     self.assertEqual(server.guidance_question_type('What information do you still need from me before recommending courses?'), 'missing')

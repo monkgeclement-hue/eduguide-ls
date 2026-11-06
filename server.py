@@ -1923,7 +1923,8 @@ def guidance_has_grades(payload: GuidanceRequest) -> bool:
 def guidance_grade_map(profile: dict[str, Any]) -> dict[str, str]:
   raw = profile.get("grades")
   if isinstance(raw, list):
-    entries = ((item.get("code"), item.get("grade")) for item in raw if isinstance(item, dict))
+    aliases = {"ENGLISH": "ENG", "ENGLISH LANGUAGE": "ENG", "MATHEMATICS": "MATH", "MATHS": "MATH", "PHYSICAL SCIENCE": "PSCI", "BIOLOGY": "BIO", "SESOTHO": "SES"}
+    entries = ((item.get("code") or aliases.get(str(item.get("subject") or "").upper()), item.get("grade")) for item in raw if isinstance(item, dict))
   elif isinstance(raw, dict):
     entries = raw.items()
   else:
@@ -1936,14 +1937,21 @@ def guidance_grade_map(profile: dict[str, Any]) -> dict[str, str]:
   }
 
 
-def captured_grade_gaps(summary: str, grades: dict[str, str]) -> list[str]:
+def captured_grade_check(summary: str, grades: dict[str, str]) -> tuple[list[str], bool]:
   if not summary or not grades:
-    return []
+    return [], False
   # Check only explicit grade thresholds; other admission routes still need catalogue review.
   numbers = {word: number for number, word in enumerate(("", "one", "two", "three", "four", "five", "six", "seven", "eight", "nine", "ten")) if word}
   number = r"(?:\d+|one|two|three|four|five|six|seven|eight|nine|ten)"
   points = {"A*": 8, "A": 7, "B": 6, "C": 5, "D": 4, "E": 3, "F": 2, "G": 1, "X": 0, "Z": 0}
   minimums: set[tuple[int, str]] = set()
+  subject_minimums: dict[tuple[str, ...], tuple[str, str]] = {}
+  subject_counts: set[int] = set()
+
+  def require_subject(codes: tuple[str, ...], label: str, grade: str) -> None:
+    current = subject_minimums.get(codes)
+    if not current or points[grade] > points[current[1]]:
+      subject_minimums[codes] = (label, grade)
 
   def count_value(value: str) -> int:
     return int(value) if value.isdigit() else numbers.get(value.lower(), 0)
@@ -1965,25 +1973,83 @@ def captured_grade_gaps(summary: str, grades: dict[str, str]) -> list[str]:
   for match in re.finditer(rf"({number})\s*(?:\(\d+\))?\s+subjects?\s+with\s+(?:a\s+)?(?:grade\s+of\s+)?(A\*|[A-G])\s+or\s+better", summary, flags=re.IGNORECASE):
     minimums.add((count_value(match[1]), match[2].upper()))
 
+  for match in re.finditer(rf"\b(?:at\s+least|minimum(?:\s+of)?)\s+({number})\s*(?:\(\d+\))?\s+subjects?\b", summary, flags=re.IGNORECASE):
+    subject_counts.add(count_value(match[1]))
+  for match in re.finditer(rf"\b(A\*|[A-G])\s+grade\s+or\s+better\s+in\s+(?:at\s+least\s+)?({number})\s*(?:\(\d+\))?\s+subjects?\b", summary, flags=re.IGNORECASE):
+    minimums.add((count_value(match[2]), match[1].upper()))
+
+  subject_names = {
+    "english": (("ENG",), "English"), "mathematics": (("MATH",), "Mathematics"),
+    "maths": (("MATH",), "Mathematics"), "sesotho": (("SES",), "Sesotho"),
+    "biology": (("BIO",), "Biology"), "physical science": (("PSCI", "PHY", "CHEM"), "Physical Science or Physics"),
+  }
+  for match in re.finditer(r"\b(English(?:\s+Language)?|Mathematics|Maths|Sesotho|Biology|Physical Science)\s+(A\*|[A-G])\s+or\s+better\b", summary, flags=re.IGNORECASE):
+    codes, label = subject_names[re.sub(r"\s+language$", "", match[1].lower())]
+    require_subject(codes, label, match[2].upper())
+  for match in re.finditer(r"\b(A\*|[A-G])\s+(?:grade\s+)?or\s+better\s+in\s+([^,.;]+)", summary, flags=re.IGNORECASE):
+    phrase = match[2].lower()
+    grade = match[1].upper()
+    if "mathematics" in phrase or "maths" in phrase:
+      require_subject(("MATH",), "Mathematics", grade)
+    if "english" in phrase:
+      require_subject(("ENG",), "English", grade)
+    science_mentioned = any(term in phrase for term in ("physical science", "double science", "physics", "chemistry"))
+    if "biology" in phrase and science_mentioned and (" or " in phrase or "/" in phrase):
+      require_subject(("BIO", "PSCI", "PHY", "CHEM"), "Biology or Physical Science", grade)
+    elif "biology" in phrase:
+      require_subject(("BIO",), "Biology", grade)
+    elif science_mentioned:
+      require_subject(("PSCI", "PHY", "CHEM"), "Physical Science or Physics", grade)
+
+  if re.search(r"\bcredit\s+in\s+mathematics\b", summary, flags=re.IGNORECASE):
+    require_subject(("MATH",), "Mathematics", "C")
+  if re.search(r"\bcredit\s+in\s+(?:mathematics\s+and\s+)?physical science\b", summary, flags=re.IGNORECASE):
+    require_subject(("PSCI", "PHY", "CHEM"), "Physical Science or Physics", "C")
+  if re.search(r"\bcredit\s+in\s+english\b", summary, flags=re.IGNORECASE):
+    require_subject(("ENG",), "English", "C")
+  if re.search(r"\bpass\s+in\s+english\b", summary, flags=re.IGNORECASE):
+    require_subject(("ENG",), "English", "D")
+
+  included = re.search(r"\bincluding\s+([^.;]+)", summary, flags=re.IGNORECASE)
+  included_text = included[1].lower() if included else ""
+  known_subject_alternative = bool(re.search(r"\bmathematics\s+or\s+english\s+or\s+accounting\b", included_text))
+  if known_subject_alternative:
+    require_subject(("MATH", "ENG", "ACC"), "Mathematics, English, or Accounting", "C" if "credits including" in summary.lower() else "D")
+  else:
+    if re.search(r"\benglish\b", included_text):
+      require_subject(("ENG",), "English", "C" if re.search(r"credit\s+in\s+english", included_text) else "D")
+    if re.search(r"\bmathematics|\bmaths", included_text):
+      require_subject(("MATH",), "Mathematics", "C" if re.search(r"credit\s+in\s+mathematics", included_text) else "D")
+  if re.search(r"physics|double sciences|physical science", included_text) and not re.search(r"\b(?:A\*|[A-G])\s+or\s+better\s+in\s+[^,.;]*(?:physics|physical science|double science)", included_text, flags=re.IGNORECASE):
+    require_subject(("PSCI", "PHY", "CHEM"), "Physical Science or Physics", "D")
+
+  has_unchecked_condition = bool(re.search(
+    rf"\b(?:APS|aggregate|related\s+subjects?|additional\s+subjects?|any\s+other\s+{number}\s+subjects?)\b",
+    summary, flags=re.IGNORECASE,
+  ))
+  inclusion_options = re.sub(r"\bor\s+better\b", "", included_text)
+  if "/" in inclusion_options or (not known_subject_alternative and re.search(r"\bor\b", inclusion_options)):
+    has_unchecked_condition = True
+  checked = bool(minimums or subject_counts or subject_minimums) and not has_unchecked_condition
   gaps = []
+  for codes, (label, required) in subject_minimums.items():
+    actual = max((points.get(grades.get(code, ""), 0) for code in codes), default=0)
+    if actual < points[required]:
+      entered = next((grades[code] for code in codes if code in grades), None)
+      gaps.append(f"{label}: {'entered ' + entered if entered else 'grade not entered'}; {required} or better required.")
   for minimum, grade in sorted(minimums, key=lambda item: (points[item[1]], item[0]), reverse=True):
     actual = sum(points.get(value, 0) >= points[grade] for value in grades.values())
     if minimum > actual:
       gaps.append(f"At least {minimum} subjects at {grade} or better required; {actual} entered at that level.")
+  usable = sum(points.get(value, 0) > 0 for value in grades.values())
+  for minimum in sorted(subject_counts, reverse=True):
+    if usable < minimum:
+      gaps.append(f"At least {minimum} subjects required; {usable} entered with a usable grade.")
+  return gaps[:4], checked
 
-  included = re.search(r"\bincluding\s+([^.;]+)", summary, flags=re.IGNORECASE)
-  included_text = included[1].lower() if included else ""
-  for code, label, pattern in (("ENG", "English", r"english(?:\s+language)?"), ("MATH", "Mathematics", r"mathematics|maths")):
-    explicit = re.search(rf"\b(?:{pattern})\b\s+(A\*|[A-G])\s+or\s+better", summary, flags=re.IGNORECASE)
-    required = explicit[1].upper() if explicit else ("D" if re.search(pattern, included_text) else "")
-    if required and points.get(grades.get(code, ""), 0) < points[required]:
-      entered = grades.get(code)
-      gaps.append(f"{label}: {'entered ' + entered if entered else 'grade not entered'}; {required} or better required.")
-  if re.search(r"physics|double sciences|physical science", included_text):
-    science = max((points.get(grades.get(code, ""), 0) for code in ("PSCI", "PHY", "CHEM")), default=0)
-    if science < points["D"]:
-      gaps.append("Physical Science or Physics: D or better required; no matching grade entered at that level.")
-  return gaps[:4]
+
+def captured_grade_gaps(summary: str, grades: dict[str, str]) -> list[str]:
+  return captured_grade_check(summary, grades)[0]
 
 
 def verify_guidance_grade_evidence(payload: GuidanceRequest) -> GuidanceRequest:
@@ -1993,18 +2059,18 @@ def verify_guidance_grade_evidence(payload: GuidanceRequest) -> GuidanceRequest:
   for item in [*payload.matches, *payload.blockedMatches]:
     match = dict(item)
     details = dict(match.get("match") or {})
-    gaps = captured_grade_gaps(str(match.get("requirementsSummary") or ""), grades)
+    gaps, checked = captured_grade_check(str(match.get("requirementsSummary") or ""), grades)
     original_tier = match.get("tier") or details.get("tier") or "explore"
-    tier = "explore" if gaps and original_tier in {"qualified", "almost"} else original_tier
+    tier = "explore" if (gaps or not checked) and original_tier in {"qualified", "almost"} else original_tier
     details.update({
       "tier": tier,
       "tierLabel": {"qualified": "Qualified", "almost": "Almost", "explore": "Explore", "blocked": "Not eligible yet"}.get(tier, "Explore"),
       "reasons": [],
-      "cautions": gaps,
+      "cautions": gaps or (["Captured grade requirements need review before this can be recommended."] if not checked else []),
       "requirementGaps": gaps,
       "hardGateFailures": [],
     })
-    if tier == "explore" and gaps:
+    if tier == "explore" and (gaps or not checked):
       details["hardGatePassed"] = None
     for key in ("reasons", "cautions", "requirementGaps", "hardGateFailures", "requirementEvidence"):
       match.pop(key, None)
