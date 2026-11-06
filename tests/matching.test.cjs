@@ -211,6 +211,22 @@ test('unentered strict grades are unknown, not failed', () => {
   assert.equal(result.unknown.length, 1);
   assert.equal(result.passed, false);
 });
+
+test('unentered subject grades are warnings, and unchosen interests are labelled neutral', () => {
+  const evidence = load('getRequirementEvidence', {
+    getSubjectLabel: (code) => code,
+    gradeMeets: () => false,
+    getGradeForSubject: () => ''
+  })({ details: [{ type: 'subject', codes: ['ENG'], minGrade: 'D', studentGrade: 'missing' }] }, { rules: [] });
+  assert.equal(evidence[0].status, 'warning');
+  assert.match(evidence[0].title, /grade not entered/);
+  const breakdown = load('getMatchScoreBreakdown', {
+    matchScoreWeights: { interest: { label: 'Interest fit', weight: 0.24 } },
+    interestState: new Set(),
+    getPreferenceText: () => ''
+  })({ interest: 50 }, 'explore', 0, 0, 12, 12);
+  assert.equal(breakdown.components[0].label, 'Interest fit (neutral)');
+});
 test('failed AI request keeps the draft and removes the pending chat turn', async () => {
   const { context, controls } = aiRequestContext(async () => ({ ok: false, status: 429 }));
   await context.requestAiGuidance();

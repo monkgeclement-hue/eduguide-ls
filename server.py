@@ -1920,6 +1920,101 @@ def guidance_has_grades(payload: GuidanceRequest) -> bool:
   return False
 
 
+def guidance_grade_map(profile: dict[str, Any]) -> dict[str, str]:
+  raw = profile.get("grades")
+  if isinstance(raw, list):
+    entries = ((item.get("code"), item.get("grade")) for item in raw if isinstance(item, dict))
+  elif isinstance(raw, dict):
+    entries = raw.items()
+  else:
+    return {}
+  return {
+    str(code).upper(): str(grade).upper()
+    for code, grade in entries
+    if str(code or "").upper() in {"MATH", "ENG", "SES", "PSCI", "PHY", "CHEM", "BIO", "AGR", "ACC", "CSK", "FNU", "ECON", "GEO", "HIST", "REL", "LIT"}
+    and str(grade or "").upper() in {"A*", "A", "B", "C", "D", "E", "F", "G", "X", "Z"}
+  }
+
+
+def captured_grade_gaps(summary: str, grades: dict[str, str]) -> list[str]:
+  if not summary or not grades:
+    return []
+  # Check only explicit grade thresholds; other admission routes still need catalogue review.
+  numbers = {word: number for number, word in enumerate(("", "one", "two", "three", "four", "five", "six", "seven", "eight", "nine", "ten")) if word}
+  number = r"(?:\d+|one|two|three|four|five|six|seven|eight|nine|ten)"
+  points = {"A*": 8, "A": 7, "B": 6, "C": 5, "D": 4, "E": 3, "F": 2, "G": 1, "X": 0, "Z": 0}
+  minimums: set[tuple[int, str]] = set()
+
+  def count_value(value: str) -> int:
+    return int(value) if value.isdigit() else numbers.get(value.lower(), 0)
+
+  combo = rf"({number})\s*(?:\(\d+\))?\s+subjects?\s+with\s+(?:a\s+)?(?:grade\s+of\s+)?(A\*|[A-G])\s+or\s+better\s+and\s+({number})\s*(?:\(\d+\))?\s+subjects?\s+with\s+(?:a\s+)?(?:grade\s+of\s+)?(A\*|[A-G])\s+or\s+better"
+  for match in re.finditer(combo, summary, flags=re.IGNORECASE):
+    first, second = count_value(match[1]), count_value(match[3])
+    minimums.add((first, match[2].upper()))
+    minimums.add((first + second, match[4].upper()))
+
+  credit_pass = rf"({number})\s*(?:\(\d+\))?\s+credits?\s+and\s+(?:at\s+least\s+)?({number})\s*(?:\(\d+\))?\s+passes?"
+  for match in re.finditer(credit_pass, summary, flags=re.IGNORECASE):
+    credits, passes = count_value(match[1]), count_value(match[2])
+    minimums.add((credits, "C"))
+    minimums.add((credits + passes, "D"))
+
+  for match in re.finditer(rf"({number})\s*(?:\(\d+\))?\s+(passes?|credits?)\b", summary, flags=re.IGNORECASE):
+    minimums.add((count_value(match[1]), "C" if match[2].lower().startswith("credit") else "D"))
+  for match in re.finditer(rf"({number})\s*(?:\(\d+\))?\s+subjects?\s+with\s+(?:a\s+)?(?:grade\s+of\s+)?(A\*|[A-G])\s+or\s+better", summary, flags=re.IGNORECASE):
+    minimums.add((count_value(match[1]), match[2].upper()))
+
+  gaps = []
+  for minimum, grade in sorted(minimums, key=lambda item: (points[item[1]], item[0]), reverse=True):
+    actual = sum(points.get(value, 0) >= points[grade] for value in grades.values())
+    if minimum > actual:
+      gaps.append(f"At least {minimum} subjects at {grade} or better required; {actual} entered at that level.")
+
+  included = re.search(r"\bincluding\s+([^.;]+)", summary, flags=re.IGNORECASE)
+  included_text = included[1].lower() if included else ""
+  for code, label, pattern in (("ENG", "English", r"english(?:\s+language)?"), ("MATH", "Mathematics", r"mathematics|maths")):
+    explicit = re.search(rf"\b(?:{pattern})\b\s+(A\*|[A-G])\s+or\s+better", summary, flags=re.IGNORECASE)
+    required = explicit[1].upper() if explicit else ("D" if re.search(pattern, included_text) else "")
+    if required and points.get(grades.get(code, ""), 0) < points[required]:
+      entered = grades.get(code)
+      gaps.append(f"{label}: {'entered ' + entered if entered else 'grade not entered'}; {required} or better required.")
+  if re.search(r"physics|double sciences|physical science", included_text):
+    science = max((points.get(grades.get(code, ""), 0) for code in ("PSCI", "PHY", "CHEM")), default=0)
+    if science < points["D"]:
+      gaps.append("Physical Science or Physics: D or better required; no matching grade entered at that level.")
+  return gaps[:4]
+
+
+def verify_guidance_grade_evidence(payload: GuidanceRequest) -> GuidanceRequest:
+  grades = guidance_grade_map(payload.profile if isinstance(payload.profile, dict) else {})
+  verified_matches = []
+  verified_blocked = []
+  for item in [*payload.matches, *payload.blockedMatches]:
+    match = dict(item)
+    details = dict(match.get("match") or {})
+    gaps = captured_grade_gaps(str(match.get("requirementsSummary") or ""), grades)
+    original_tier = match.get("tier") or details.get("tier") or "explore"
+    tier = "explore" if gaps and original_tier in {"qualified", "almost"} else original_tier
+    details.update({
+      "tier": tier,
+      "tierLabel": {"qualified": "Qualified", "almost": "Almost", "explore": "Explore", "blocked": "Not eligible yet"}.get(tier, "Explore"),
+      "reasons": [],
+      "cautions": gaps,
+      "requirementGaps": gaps,
+      "hardGateFailures": [],
+    })
+    if tier == "explore" and gaps:
+      details["hardGatePassed"] = None
+    for key in ("reasons", "cautions", "requirementGaps", "hardGateFailures", "requirementEvidence"):
+      match.pop(key, None)
+    match["match"] = details
+    match["tier"] = tier
+    match["tierLabel"] = details["tierLabel"]
+    (verified_blocked if tier == "blocked" else verified_matches).append(match)
+  return payload.model_copy(update={"matches": verified_matches, "blockedMatches": verified_blocked})
+
+
 def guidance_question_type(question: str | None, mode: str = "guidance") -> str:
   text = (question or "").casefold().strip()
   greeting = re.sub(r"[^\w\s]", "", text).strip()
@@ -5564,7 +5659,7 @@ def ai_chat_clear(authorization: str | None = Header(default=None)) -> dict[str,
 @app.post("/api/ai/guidance")
 def ai_guidance(payload: GuidanceRequest, request: Request, authorization: str | None = Header(default=None)) -> dict[str, Any]:
   current_user = require_current_user(authorization)
-  safe_payload = bind_guidance_payload_to_catalogue(validate_and_sanitize_guidance_payload(payload))
+  safe_payload = verify_guidance_grade_evidence(bind_guidance_payload_to_catalogue(validate_and_sanitize_guidance_payload(payload)))
   check_rate_limit(request, "ai_guidance", 40, 3600, current_user["id"])
   if not guidance_has_grades(safe_payload):
     safe_payload = safe_payload.model_copy(update={"matches": [], "blockedMatches": []})

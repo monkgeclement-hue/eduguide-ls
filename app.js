@@ -1757,6 +1757,7 @@ function updateAuthContext() {
 function setAuthConnectionStatus(message, tone = "checking") {
   const status = qs("#auth-connection");
   if (!status) return;
+  status.hidden = tone === "ready";
   status.dataset.tone = tone;
   const label = status.querySelector("span");
   if (label) label.textContent = message;
@@ -4515,7 +4516,7 @@ function getMatchExplanations(programme, scores, evaluation, tier, strictGateEva
   if (tier !== "qualified" && requirementGaps.length) cautions.push(...requirementGaps.slice(0, 2));
   if (tier === "almost" && !requirementGaps.length) cautions.push("This is close, but final entry rules should be confirmed before applying.");
   if (tier === "explore") cautions.push("Treat this as an exploration path unless more grades or confirmed requirements improve the match.");
-  if (tier === "blocked") cautions.push("This pathway is not shown as a recommendation because a hard subject requirement is missing.");
+  if (tier === "blocked") cautions.push("This pathway is not currently recommended because entered grades do not meet a required threshold.");
   if (fundingPolicy.caution) cautions.push(fundingPolicy.caution);
   if (programme.dataConfidence < 70) cautions.push("Some catalogue fields are still incomplete or awaiting admin review.");
   if (/under review/i.test(programme.duration)) cautions.push("Duration is not confirmed yet.");
@@ -4530,7 +4531,7 @@ function getMatchScoreBreakdown(scores, tier, tierPenalty, policyPenalty, preTie
     const score = Number(scores[key] ?? 0);
     return {
       key,
-      label: config.label,
+      label: key === "interest" && !interestState.size && !getPreferenceText().trim() ? "Interest fit (neutral)" : config.label,
       score,
       weight: Math.round(config.weight * 100),
       contribution: Number((score * config.weight).toFixed(1)),
@@ -4584,7 +4585,7 @@ function getRequirementEvidence(evaluation, strictGateEvaluation) {
     if (duplicatesHardGate) return;
     const status = detail.met || detail.passed ? "met" : detail.type === "subject" && detail.studentGrade !== "missing" ? "blocked" : "warning";
     const title = detail.type === "subject"
-      ? `${(detail.codes || []).map(getSubjectLabel).join(" or ")} requirement ${status === "met" ? "met" : "not met"}`
+      ? `${(detail.codes || []).map(getSubjectLabel).join(" or ")} ${status === "met" ? "requirement met" : status === "warning" ? "grade not entered" : "requirement not met"}`
       : detail.title || detail.type;
     evidence.push({
       status,

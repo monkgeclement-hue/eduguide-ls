@@ -196,15 +196,15 @@ a {
 .auth-screen {
   display: grid;
   place-items: center;
-  min-height: 100vh;
-  padding: 24px;
+  min-height: 100dvh;
+  padding: 16px;
 }
 
 .auth-panel {
   display: grid;
-  gap: 18px;
-  width: min(100%, 760px);
-  padding: 26px;
+  gap: 14px;
+  width: min(100%, 580px);
+  padding: 20px;
   border: 1px solid var(--line);
   border-radius: 8px;
   background: rgba(255, 255, 255, 0.96);
@@ -262,26 +262,13 @@ a {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 14px;
-  padding: 13px;
-  border: 1px solid #c7eadf;
-  border-radius: 8px;
-  background: var(--brand-soft);
-}
-
-.auth-email-help > div {
-  display: grid;
-  gap: 3px;
-}
-
-.auth-email-help strong {
-  color: var(--brand-deep);
-  font-size: 14px;
+  flex-wrap: wrap;
+  gap: 8px 12px;
 }
 
 .auth-email-help span {
   color: var(--muted);
-  font-size: 12px;
+  font-size: 13px;
   line-height: 1.4;
 }
 
@@ -304,6 +291,15 @@ a {
 .auth-email-link svg {
   width: 15px;
   height: 15px;
+}
+
+.auth-device-note {
+  margin: 0;
+  padding-top: 10px;
+  border-top: 1px solid var(--line);
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.4;
 }
 
 .auth-connection {
@@ -6106,15 +6102,6 @@ textarea:focus {
     justify-content: center;
   }
 
-  .auth-email-help {
-    align-items: stretch;
-    flex-direction: column;
-  }
-
-  .auth-email-link {
-    justify-content: center;
-  }
-
   .app-shell {
     display: block;
   }
@@ -6131,7 +6118,7 @@ textarea:focus {
     box-shadow: 0 -12px 30px rgba(8, 80, 65, 0.18);
   }
 
-  .brand,
+  .sidebar .brand,
   .sidebar-panel {
     display: none;
   }

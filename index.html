@@ -13,7 +13,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Playfair+Display:wght@600;700&display=swap" />
-    <link rel="stylesheet" href="/styles.css?v=70" />
+    <link rel="stylesheet" href="/styles.css?v=72" />
   </head>
   <body>
     <a href="/privacy" class="privacy-link" style="display:block;text-align:center;padding:8px">Privacy and data use</a>
@@ -35,25 +35,6 @@
         <div class="auth-tabs" role="tablist" aria-label="Authentication mode">
           <button class="auth-tab active" type="button" data-auth-mode="login">Login</button>
           <button class="auth-tab" type="button" data-auth-mode="register">Register</button>
-        </div>
-
-        <div class="auth-email-help">
-          <div>
-            <strong>Using a shared phone or school computer?</strong>
-            <span>Log out when you finish. Closing the tab does not clear saved profile copies.</span>
-          </div>
-        </div>
-
-        <div class="auth-email-help">
-          <div>
-            <strong>Need an email address?</strong>
-            <span>Create a free Google Account, then return here to register.</span>
-          </div>
-          <a class="auth-email-link" href="https://accounts.google.com/signup" target="_blank" rel="noreferrer">
-            <i data-lucide="mail-plus"></i>
-            Create email
-            <i data-lucide="external-link"></i>
-          </a>
         </div>
 
         <p class="auth-connection" id="auth-connection" role="status" aria-live="polite" data-tone="checking">
@@ -108,6 +89,14 @@
               </select>
             </label>
           </div>
+          <div class="auth-email-help">
+            <span>Need an email address?</span>
+            <a class="auth-email-link" href="https://accounts.google.com/signup" target="_blank" rel="noreferrer">
+              <i data-lucide="mail-plus"></i>
+              Create email
+              <i data-lucide="external-link"></i>
+            </a>
+          </div>
           <div class="email-code-panel" id="register-verification-panel" hidden>
             <div>
               <strong>Verify your email</strong>
@@ -159,6 +148,7 @@
         </form>
 
         <p class="auth-message" id="auth-message" aria-live="polite"></p>
+        <p class="auth-device-note">Using a shared device? Log out when you finish; closing the tab does not clear saved profile copies.</p>
       </div>
     </section>
 
@@ -1316,6 +1306,6 @@
     <script src="/vendor/lucide.min.js" defer></script>
     <script src="/data/catalog.js" defer></script>
     <script src="/data/admin-catalog.js" defer></script>
-    <script src="/app.js?v=120" defer></script>
+    <script src="/app.js?v=122" defer></script>
   </body>
 </html>
