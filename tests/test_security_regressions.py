@@ -679,6 +679,13 @@ class SecurityRegressionTests(unittest.TestCase):
         'review_status': 'approved',
         'requirements_summary': 'English C',
       },
+      {
+        'id': 'base',
+        'institution': 'Example College',
+        'name': 'Five Passes Certificate',
+        'review_status': 'approved',
+        'requirements_summary': '5 Passes including English.',
+      },
     ]
     review_state = {
       'programmeStatuses': {'flagged': 'flagged'},
@@ -701,7 +708,14 @@ class SecurityRegressionTests(unittest.TestCase):
       self.assertEqual(response.headers['cache-control'], 'no-store')
       programmes = {item['id']: item for item in response.json()['programmes']}
       self.assertEqual(programmes['open']['requirementsSummary'], 'English C or better')
+      self.assertEqual(programmes['open']['entryRuleStatus'], 'parsed')
+      self.assertEqual(programmes['open']['entryRules'], [{
+        'type': 'subject', 'codes': ['ENG'], 'minGrade': 'C',
+        'label': 'English', 'text': 'English C or better',
+      }])
       self.assertEqual(programmes['open']['sourceUrl'], 'https://current.example/programmes')
+      self.assertEqual(programmes['base']['requirementsSummary'], '5 Passes including English.')
+      self.assertEqual(programmes['base']['entryRuleStatus'], 'parsed')
       self.assertIn('reviewedAt', programmes['open'])
       self.assertEqual(programmes['flagged'], {'id': 'flagged', 'reviewStatus': 'flagged'})
       serialized = json.dumps(programmes)

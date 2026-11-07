@@ -280,6 +280,47 @@ test('failing mandatory subject blocks an otherwise high scoring result', () => 
 test('no parsed rules cannot produce qualified status', () => {
   assert.equal(tier({ academic: 90 }, { total: 0 }, { dataConfidence: 90, requirementEvidenceAvailable: true }, { failures: [] }), 'almost');
 });
+test('shared catalogue rules keep Results aligned with server-grade evidence', () => {
+  const sharedRule = { type: 'subject', codes: ['ENG'], minGrade: 'C', text: 'English C or better' };
+  const getProgramme = load('getMatchingProgrammeFromAdmin', {
+    getDomainProfile: () => ({ subjects: [], interests: [], key: 'other', careers: [], skills: [], sector: 'other', priority: 60 }),
+    unique: (items) => [...new Set(items)],
+    findSubjectCodes: () => [],
+    getProgrammeText: () => '',
+    getRequirementsForProgramme: () => [],
+    parseListText: () => [],
+    parseRequirementRules: () => [{ type: 'count', minimum: 1 }],
+    requiresPriorQualification: () => false,
+    getInstitutionShortName: () => 'Test',
+    getDataConfidence: () => 90
+  });
+  const base = { id: 'course', name: 'Test Course', institution: 'Test College', requirementsSummary: 'English C or better', reviewStatus: 'approved' };
+  const parsed = getProgramme({ ...base, entryRuleStatus: 'parsed', entryRules: [sharedRule] });
+  assert.equal(parsed.requirementRules[0].minGrade, 'C');
+  assert.equal(parsed.requirementEvidenceAvailable, true);
+  assert.equal(tier({ academic: 90 }, { total: 1, missing: [{ type: 'subject' }], score: 60 }, parsed, { failures: [], unknown: [] }), 'explore');
+  const review = getProgramme({ ...base, entryRuleStatus: 'needs_review', entryRules: [] });
+  assert.equal(review.requirementEvidenceAvailable, false);
+  assert.equal(tier({ academic: 90 }, { total: 1, missing: [], score: 100 }, review, { failures: [], unknown: [] }), 'explore');
+  const offline = getProgramme(base);
+  assert.equal(offline.requirementEvidenceAvailable, false);
+  assert.equal(tier({ academic: 90 }, { total: 1, missing: [], score: 100 }, offline, { failures: [], unknown: [] }), 'explore');
+});
+test('captured but unverified requirements have a distinct caution', () => {
+  const explain = load('getMatchExplanations', {
+    interestState: new Set(),
+    tierMeta: { explore: { label: 'Explore' } },
+    formatStrictGateFailure: () => '',
+    formatRequirementGap: () => '',
+    getFundingPolicy: () => ({}),
+    unique: (items) => [...new Set(items)],
+    gradeMeets: () => true,
+    getGradeForSubject: () => 'C'
+  });
+  const result = explain({ entryRuleStatus: 'needs_review', requirementsSummary: 'A prior qualification is required.', requirementEvidenceAvailable: false, interests: [], dataConfidence: 80, duration: '3 years', institution: 'Test College' },
+    { academic: 50, funding: 50, priority: 50, fundingBreakdown: { policy: {} } }, { missing: [] }, 'explore', { failures: [] });
+  assert.match(result.cautions[0], /Captured entry requirements need review/);
+});
 test('document percentage measures checklist coverage, with zero for an empty checklist', () => {
   assert.equal(load('getDocumentReadinessScore', { getFundingDocumentChecklist: () => [{complete:true},{complete:false}] })(), 50);
   assert.equal(load('getDocumentReadinessScore', { getFundingDocumentChecklist: () => [] })(), 0);

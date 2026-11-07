@@ -1586,9 +1586,12 @@ def public_catalogue_runtime_record(record: dict[str, Any]) -> dict[str, Any] | 
     return public_record
 
   for field, limit in PUBLIC_CATALOGUE_TEXT_FIELDS.items():
-    value = public_catalogue_text(record.get(field), limit)
+    value = public_catalogue_text(catalogue_requirement_summary(record) if field == "requirementsSummary" else record.get(field), limit)
     if value is not None:
       public_record[field] = value
+  rule_set = captured_grade_rule_set(public_record.get("requirementsSummary") or "")
+  public_record["entryRuleStatus"] = rule_set["status"]
+  public_record["entryRules"] = rule_set["rules"] if rule_set["status"] == "parsed" else []
   for field in PUBLIC_CATALOGUE_LIST_FIELDS:
     value = public_catalogue_list(record.get(field))
     if value:
@@ -1937,9 +1940,9 @@ def guidance_grade_map(profile: dict[str, Any]) -> dict[str, str]:
   }
 
 
-def captured_grade_check(summary: str, grades: dict[str, str]) -> tuple[list[str], bool]:
-  if not summary or not grades:
-    return [], False
+def captured_grade_rule_set(summary: str) -> dict[str, Any]:
+  if not summary:
+    return {"status": "needs_review", "rules": []}
   # Check only explicit grade thresholds; other admission routes still need catalogue review.
   numbers = {word: number for number, word in enumerate(("", "one", "two", "three", "four", "five", "six", "seven", "eight", "nine", "ten")) if word}
   number = r"(?:\d+|one|two|three|four|five|six|seven|eight|nine|ten)"
@@ -2031,21 +2034,37 @@ def captured_grade_check(summary: str, grades: dict[str, str]) -> tuple[list[str
   if "/" in inclusion_options or (not known_subject_alternative and re.search(r"\bor\b", inclusion_options)):
     has_unchecked_condition = True
   checked = bool(minimums or subject_counts or subject_minimums) and not has_unchecked_condition
-  gaps = []
+  rules = []
   for codes, (label, required) in subject_minimums.items():
-    actual = max((points.get(grades.get(code, ""), 0) for code in codes), default=0)
-    if actual < points[required]:
-      entered = next((grades[code] for code in codes if code in grades), None)
-      gaps.append(f"{label}: {'entered ' + entered if entered else 'grade not entered'}; {required} or better required.")
+    rules.append({"type": "subject", "codes": list(codes), "minGrade": required, "label": label, "text": f"{label} {required} or better"})
   for minimum, grade in sorted(minimums, key=lambda item: (points[item[1]], item[0]), reverse=True):
-    actual = sum(points.get(value, 0) >= points[grade] for value in grades.values())
-    if minimum > actual:
-      gaps.append(f"At least {minimum} subjects at {grade} or better required; {actual} entered at that level.")
-  usable = sum(points.get(value, 0) > 0 for value in grades.values())
+    rules.append({"type": "grade-count", "minimum": minimum, "minGrade": grade, "text": f"At least {minimum} subjects at {grade} or better"})
   for minimum in sorted(subject_counts, reverse=True):
-    if usable < minimum:
-      gaps.append(f"At least {minimum} subjects required; {usable} entered with a usable grade.")
-  return gaps[:4], checked
+    rules.append({"type": "count", "minimum": minimum, "text": f"At least {minimum} subjects"})
+  return {"status": "parsed" if checked else "needs_review", "rules": rules}
+
+
+def captured_grade_check(summary: str, grades: dict[str, str]) -> tuple[list[str], bool]:
+  rule_set = captured_grade_rule_set(summary)
+  if not grades:
+    return [], False
+  points = {"A*": 8, "A": 7, "B": 6, "C": 5, "D": 4, "E": 3, "F": 2, "G": 1, "X": 0, "Z": 0}
+  gaps = []
+  for rule in rule_set["rules"]:
+    if rule["type"] == "subject":
+      actual = max((points.get(grades.get(code, ""), 0) for code in rule["codes"]), default=0)
+      if actual < points[rule["minGrade"]]:
+        entered = next((grades[code] for code in rule["codes"] if code in grades), None)
+        gaps.append(f"{rule['label']}: {'entered ' + entered if entered else 'grade not entered'}; {rule['minGrade']} or better required.")
+    elif rule["type"] == "grade-count":
+      actual = sum(points.get(value, 0) >= points[rule["minGrade"]] for value in grades.values())
+      if actual < rule["minimum"]:
+        gaps.append(f"At least {rule['minimum']} subjects at {rule['minGrade']} or better required; {actual} entered at that level.")
+    elif rule["type"] == "count":
+      actual = sum(points.get(value, 0) > 0 for value in grades.values())
+      if actual < rule["minimum"]:
+        gaps.append(f"At least {rule['minimum']} subjects required; {actual} entered with a usable grade.")
+  return gaps[:4], rule_set["status"] == "parsed"
 
 
 def captured_grade_gaps(summary: str, grades: dict[str, str]) -> list[str]:

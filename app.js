@@ -4386,7 +4386,9 @@ function getMatchingProgrammeFromAdmin(programme) {
   const profile = getDomainProfile(programme);
   const inferredSubjects = unique([...profile.subjects, ...findSubjectCodes(programme.requirementsSummary), ...findSubjectCodes(getProgrammeText(programme))]).slice(0, 5);
   const requirements = getRequirementsForProgramme(programme, inferredSubjects);
-  const requirementRules = parseRequirementRules(programme.requirementsSummary || "");
+  const requirementRules = programme.entryRuleStatus === "parsed" && Array.isArray(programme.entryRules)
+    ? programme.entryRules.map((rule) => ({ ...rule }))
+    : parseRequirementRules(programme.requirementsSummary || "");
   if (requiresPriorQualification(programme)) {
     requirementRules.push({ type: "prior-qualification", text: "Prior tertiary qualification required" });
   }
@@ -4406,7 +4408,8 @@ function getMatchingProgrammeFromAdmin(programme) {
     interests: unique(profile.interests),
     requirements,
     requirementsSummary: programme.requirementsSummary || "",
-    requirementEvidenceAvailable: Boolean(String(programme.requirementsSummary || "").trim()),
+    requirementEvidenceAvailable: Boolean(String(programme.requirementsSummary || "").trim()) && programme.entryRuleStatus === "parsed",
+    entryRuleStatus: programme.entryRuleStatus || "local",
     requirementRules,
     careers: programme.careers?.length ? programme.careers : profile.careers,
     skills: programme.skills?.length ? programme.skills : profile.skills,
@@ -4475,6 +4478,7 @@ function getMatchTier(scores, evaluation, programme, strictGateEvaluation) {
   if (strictGateEvaluation?.failures?.length) return "blocked";
   if (strictGateEvaluation?.unknown?.length) return "explore";
   if (!evaluation.total) return programme.dataConfidence >= 75 && scores.academic >= 65 ? "almost" : "explore";
+  if (programme.entryRuleStatus === "parsed" && evaluation.missing.length) return "explore";
   if (evaluation.missing.some((detail) => detail.type === "prior-qualification")) return "explore";
   if (evaluation.missing.length === 0 && scores.academic >= 52) return "qualified";
   if (evaluation.score >= 62 || (evaluation.nearMisses.length && evaluation.score >= 55) || (scores.academic >= 66 && evaluation.score >= 45)) return "almost";
@@ -4499,7 +4503,10 @@ function getMatchTierCounts(matches = latestMatches) {
 function getMatchExplanations(programme, scores, evaluation, tier, strictGateEvaluation) {
   const reasons = [];
   const cautions = [];
-  if (programme.requirementEvidenceAvailable === false) cautions.push("Entry requirements are not captured. Eligibility cannot be assessed; confirm with the institution.");
+  if (programme.entryRuleStatus === "needs_review" && programme.requirementsSummary) cautions.push("Captured entry requirements need review before eligibility can be assessed; confirm with the institution.");
+  else if (programme.entryRuleStatus === "needs_review") cautions.push("Entry requirements are not captured. Eligibility cannot be assessed; confirm with the institution.");
+  else if (programme.entryRuleStatus === "local") cautions.push("Entry rules could not be checked with the server. Explore this pathway and reconnect before relying on a match.");
+  else if (programme.requirementEvidenceAvailable === false) cautions.push("Entry requirements are not captured. Eligibility cannot be assessed; confirm with the institution.");
   const matchingInterests = (programme.interests || []).filter((interest) => interestState.has(interest));
   const tierLabel = tierMeta[tier]?.label || "Explore";
   reasons.push(`${tierLabel} pathway based on current marks and captured requirements.`);
