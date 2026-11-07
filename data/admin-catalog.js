@@ -2,7 +2,7 @@ window.EDUGUIDE_ADMIN_DATA = {
   "summary": {
     "programmeCount": 230,
     "institutionCount": 10,
-    "sourceCount": 30,
+    "sourceCount": 32,
     "feeScheduleCount": 9,
     "feeItemCount": 306,
     "openGapCount": 90
@@ -12158,6 +12158,37 @@ window.EDUGUIDE_ADMIN_DATA = {
         "All programme details require direct college confirmation before publication."
       ],
       "sourceFile": "st-elizabeth-college-subject-prospectus-supplied.pdf"
+    },
+    {
+      "institution": "Bernarda Home Economics School",
+      "source_url": "https://www.facebook.com/permalink.php?story_fbid=pfbid02bjhaGpxRSn1WkTW1aLsPHE1QZAhQzGGgPd1p3TVet17CosBc6tW8NR17vvZJ48RWl&id=61556281797357",
+      "status": "private_admin_candidate_extract",
+      "records_extracted": 2,
+      "data_found": [
+        "two programme routes",
+        "historical entry requirements",
+        "first- and second-year subject lists",
+        "2024/25 application form"
+      ],
+      "shortage": [
+        "Post is dated 4 February 2024 and the attached form is for 2024/25; none of its details establish current admissions.",
+        "The form mentions an M200 application-processing amount for 2024/25, not tuition. No current application fee or tuition schedule was found.",
+        "Confirm current programme availability, entry rules, duration, fees, and accreditation directly with the school before publication."
+      ]
+    },
+    {
+      "institution": "Bernarda Home Economics School",
+      "source_url": "https://www.education.gov.ls/education/tvet-institutions",
+      "status": "institution_identity_reference",
+      "records_extracted": 0,
+      "data_found": [
+        "Bernarda Home Economics listed as TVET institution",
+        "Mekaling, Mohale's Hoek",
+        "registration number 436002"
+      ],
+      "shortage": [
+        "The ministry listing does not establish current programme offerings, requirements, fees, or accreditation for a specific course."
+      ]
     }
   ]
 };

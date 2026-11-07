@@ -1,0 +1,49 @@
+[
+  {
+    "id": "bernarda-certificate-consumer-science-intermediate-2024",
+    "institution": "Bernarda Home Economics School",
+    "name": "Certificate in Consumer Science Intermediate",
+    "category": "Consumer Science & Hospitality",
+    "faculty": null,
+    "level": "Certificate",
+    "duration": "2 years (first- and second-year subjects shown)",
+    "requirements_summary": "JC/Grade 10 with at least five passes, or a COSC/LGCSE/Grade 11 holder. Confirm the current route with the school.",
+    "source_url": "https://www.facebook.com/permalink.php?story_fbid=pfbid02bjhaGpxRSn1WkTW1aLsPHE1QZAhQzGGgPd1p3TVet17CosBc6tW8NR17vvZJ48RWl&id=61556281797357",
+    "source_type": "historical_institution_facebook_post",
+    "extraction_method": "manual_photo_transcription",
+    "review_status": "needs_admin_review",
+    "career_options": [],
+    "skill_options": [
+      "Food and nutrition",
+      "Clothing and textiles",
+      "Hospitality management",
+      "Horticulture and animal husbandry",
+      "Computer skills",
+      "Entrepreneurship"
+    ],
+    "source_note": "Transcribed from Bernarda's public Facebook post dated 4 February 2024. The attached application form is for 2024/25. This is a private admin-review candidate; confirm the current offering, entry rules, duration, fees, and application process directly with the school."
+  },
+  {
+    "id": "bernarda-operational-skill-2024",
+    "institution": "Bernarda Home Economics School",
+    "name": "Operational Skill",
+    "category": "Consumer Science & Hospitality",
+    "faculty": null,
+    "level": "Operational Skill",
+    "duration": "First- and second-year subjects shown; duration to confirm",
+    "requirements_summary": "The 2024 sheet lists Standard 7 leavers with or without a certificate, and candidates who did not pass JC/Grade 10. Confirm the current route with the school.",
+    "source_url": "https://www.facebook.com/permalink.php?story_fbid=pfbid02bjhaGpxRSn1WkTW1aLsPHE1QZAhQzGGgPd1p3TVet17CosBc6tW8NR17vvZJ48RWl&id=61556281797357",
+    "source_type": "historical_institution_facebook_post",
+    "extraction_method": "manual_photo_transcription",
+    "review_status": "needs_admin_review",
+    "career_options": [],
+    "skill_options": [
+      "Food and nutrition",
+      "Clothing and textiles",
+      "Hospitality management",
+      "Horticulture and animal husbandry",
+      "Computer skills"
+    ],
+    "source_note": "Transcribed from Bernarda's public Facebook post dated 4 February 2024. The attached application form is for 2024/25. This is a private admin-review candidate; confirm the current offering, entry rules, duration, fees, and application process directly with the school."
+  }
+]

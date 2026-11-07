@@ -100,9 +100,11 @@ CURRENT_EVIDENCE_CANDIDATE_SOURCE_TYPES = {
   "official_regulator_historical_pdf",
   "supplied_institution_prospectus_pdf",
   "manual_user_confirmation_prospectus_pdf",
+  "historical_institution_facebook_post",
 }
 CURRENT_EVIDENCE_CANDIDATE_FILE = ROOT / "data" / "real" / "programmes.flat.json"
 CURRENT_EVIDENCE_CANDIDATE_IDS: set[str] | None = None
+CURRENT_EVIDENCE_CANDIDATE_SOURCE_URLS: dict[str, str] = {}
 mimetypes.add_type("application/manifest+json", ".webmanifest")
 mimetypes.add_type("image/svg+xml", ".svg")
 CSP_POLICY = (
@@ -3946,26 +3948,32 @@ def get_current_evidence_candidate_ids() -> set[str]:
   leads, but neither alone can establish a current offering, fee, or
   accreditation decision.
   """
-  global CURRENT_EVIDENCE_CANDIDATE_IDS
+  global CURRENT_EVIDENCE_CANDIDATE_IDS, CURRENT_EVIDENCE_CANDIDATE_SOURCE_URLS
   if CURRENT_EVIDENCE_CANDIDATE_IDS is not None:
     return CURRENT_EVIDENCE_CANDIDATE_IDS
   try:
     records = json.loads(CURRENT_EVIDENCE_CANDIDATE_FILE.read_text(encoding="utf-8"))
   except (OSError, json.JSONDecodeError):
     records = []
-  CURRENT_EVIDENCE_CANDIDATE_IDS = {
-    str(record.get("id"))
-    for record in records
+  candidates = [
+    record for record in records
     if isinstance(record, dict)
     and record.get("source_type") in CURRENT_EVIDENCE_CANDIDATE_SOURCE_TYPES
     and record.get("id")
+  ]
+  CURRENT_EVIDENCE_CANDIDATE_IDS = {str(record["id"]) for record in candidates}
+  CURRENT_EVIDENCE_CANDIDATE_SOURCE_URLS = {
+    str(record["id"]): str(record["source_url"]).strip()
+    for record in candidates if record.get("source_url")
   }
   return CURRENT_EVIDENCE_CANDIDATE_IDS
 
 
-def has_current_candidate_evidence(programme: dict[str, Any]) -> bool:
+def has_current_candidate_evidence(programme: dict[str, Any], original_source_url: str = "") -> bool:
   source_url = str(programme.get("sourceUrl") or "").strip()
   has_current_url = bool(re.fullmatch(r"https?://[^\s]{1,2000}", source_url, flags=re.IGNORECASE))
+  if original_source_url and source_url == original_source_url:
+    return False
   current_detail_fields = ("duration", "requirementsSummary", "overview", "applicationUrl", "applicationDeadline", "intakeStatus")
   has_current_detail = any(str(programme.get(field) or "").strip() for field in current_detail_fields)
   source_checked_on = parse_iso_datetime(str(programme.get("sourceCheckedAt") or "").strip())
@@ -3985,7 +3993,9 @@ def validate_current_evidence_catalogue_review_state(payload: dict[str, Any]) ->
   for programme_id in candidate_ids:
     edit = edits.get(programme_id) if isinstance(edits.get(programme_id), dict) else {}
     intended_status = str(edit.get("reviewStatus") or statuses.get(programme_id) or "").lower()
-    if intended_status == "approved" and not has_current_candidate_evidence(edit):
+    if intended_status == "approved" and not has_current_candidate_evidence(
+      edit, CURRENT_EVIDENCE_CANDIDATE_SOURCE_URLS.get(programme_id, "")
+    ):
       blocked_names.append(programme_id)
   if blocked_names:
     raise HTTPException(

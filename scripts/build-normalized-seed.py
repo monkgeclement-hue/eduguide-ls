@@ -32,6 +32,7 @@ INSTITUTION_META = {
     "Lesotho Boston Health Alliance (LeBoHA)": {"short_name": "LeBoHA", "type": "health_training", "district": "Maseru and Leribe", "verification_status": "needs_review"},
     "St Mary's Integrative Applied College (SIAC)": {"short_name": "SIAC", "type": "technical_and_vocational_college", "verification_status": "needs_review"},
     "St Elizabeth College": {"short_name": "St Elizabeth", "type": "college", "verification_status": "needs_review"},
+    "Bernarda Home Economics School": {"short_name": "Bernarda", "type": "technical_and_vocational_college", "district": "Mohale's Hoek", "verification_status": "needs_review", "government_listing_url": "https://www.education.gov.ls/education/tvet-institutions"},
 }
 
 SUBJECTS = [

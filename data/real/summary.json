@@ -1,8 +1,9 @@
 {
   "generated_at": "2026-06-09T18:03:08Z",
-  "programme_count": 273,
-  "institution_count": 19,
+  "programme_count": 275,
+  "institution_count": 20,
   "institutions": {
+    "Bernarda Home Economics School": 2,
     "Botho University Lesotho": 20,
     "Centre for Accounting Studies": 8,
     "Imperial Business College": 2,
@@ -25,7 +26,7 @@
   },
   "review_status_counts": {
     "approved": 232,
-    "needs_admin_review": 41
+    "needs_admin_review": 43
   },
-  "update_note": "CHE historical candidates and supplied SIAC/St Elizabeth prospectus candidates remain private until current official verification and admin approval."
+  "update_note": "Historical CHE, supplied SIAC/St Elizabeth, and Bernarda 2024 Facebook candidates remain private until current official verification and admin approval."
 }

@@ -25,3 +25,4 @@ Important:
 - These records are real source-derived data, not career/skill AI guesses.
 - All records are marked `needs_admin_review` before they should become public canonical data.
 - Some source pages are easier to parse than others. LUCT, Botho, CAS, CHE, and Lerotholi are clearer; NUL pages are richer but may contain duplicate or context-heavy programme headings that need admin review.
+- After a scraper refresh, run `scripts/import-bernarda-candidates.py` to restore the two private Bernarda leads from its dated 2024 Facebook post. The post's M200 amount is a 2024/25 application-processing amount, not current tuition; no current fee schedule has been verified.

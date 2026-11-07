@@ -120,5 +120,21 @@
     "coverage_type": "supplied_college_prospectus_document",
     "status": "private_admin_candidates_only",
     "note": "Six programme candidates were captured from undated supplied material. Confirm all current details directly with St Elizabeth College before publishing."
+  },
+  {
+    "name": "Bernarda Home Economics School Facebook post (4 February 2024)",
+    "url": "https://www.facebook.com/permalink.php?story_fbid=pfbid02bjhaGpxRSn1WkTW1aLsPHE1QZAhQzGGgPd1p3TVet17CosBc6tW8NR17vvZJ48RWl&id=61556281797357",
+    "institution": "Bernarda Home Economics School",
+    "coverage_type": "historical_institution_social_post",
+    "status": "private_admin_candidates_only",
+    "note": "Two programme leads and a 2024/25 application form were captured. No current tuition or fee schedule was verified; confirm with the school before publishing."
+  },
+  {
+    "name": "Lesotho Ministry of Education TVET institutions listing",
+    "url": "https://www.education.gov.ls/education/tvet-institutions",
+    "institution": "Bernarda Home Economics School",
+    "coverage_type": "government_institution_listing",
+    "status": "institution_identity_reference",
+    "note": "Supports the school's name, registration number, and Mekaling location, not current programme or fee details."
   }
 ]
