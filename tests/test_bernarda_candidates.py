@@ -51,6 +51,7 @@ class BernardaCandidateTests(unittest.TestCase):
 
     def test_original_2024_link_cannot_be_rechecked_into_current_evidence(self):
         import server
+        from fastapi import HTTPException
 
         module = load_import_module()
         candidate_id = module.CANDIDATES[0]["id"]
@@ -61,6 +62,12 @@ class BernardaCandidateTests(unittest.TestCase):
             "requirementsSummary": module.CANDIDATES[0]["requirements_summary"],
         }
         self.assertFalse(server.has_current_candidate_evidence(edit, server.CURRENT_EVIDENCE_CANDIDATE_SOURCE_URLS[candidate_id]))
+        with self.assertRaises(HTTPException) as error:
+            server.validate_current_evidence_catalogue_review_state({
+                "programmeStatuses": {candidate_id: "approved"},
+                "programmeEdits": {candidate_id: {**edit, "reviewStatus": "approved"}},
+            })
+        self.assertEqual(error.exception.status_code, 400)
 
 
 if __name__ == "__main__":

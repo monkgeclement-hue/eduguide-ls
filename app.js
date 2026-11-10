@@ -233,8 +233,10 @@ const catalogueDataVersion = "2026-08-enrichment-1";
 const currentEvidenceCandidateSourceTypes = new Set([
   "official_regulator_historical_pdf",
   "supplied_institution_prospectus_pdf",
-  "manual_user_confirmation_prospectus_pdf"
+  "manual_user_confirmation_prospectus_pdf",
+  "historical_institution_facebook_post"
 ]);
+const currentEvidenceCandidateOriginalSourceUrls = new Map();
 const maxAiChatMessages = 24;
 const calibrationProfiles = {
   arts: {
@@ -2478,6 +2480,9 @@ function loadStaffCatalogue() {
       const byId = new Map(adminProgrammes.map((programme) => [programme.id, programme]));
       incoming.forEach((programme) => {
         if (!programme?.id) return;
+        if (requiresCurrentCandidateEvidence(programme) && programme.sourceUrl) {
+          currentEvidenceCandidateOriginalSourceUrls.set(programme.id, programme.sourceUrl);
+        }
         const existing = byId.get(programme.id);
         if (existing) Object.assign(existing, programme);
         else {
@@ -7010,7 +7015,9 @@ function requiresCurrentCandidateEvidence(programme = {}) {
 function getCandidateEvidenceStatus(programme = {}) {
   const sourceType = String(programme.sourceType || "").trim();
   const requiresCurrentEvidence = requiresCurrentCandidateEvidence(programme);
-  const hasCurrentSource = Boolean(getSafeExternalUrl(programme.sourceUrl));
+  const safeSourceUrl = getSafeExternalUrl(programme.sourceUrl);
+  const originalSourceUrl = currentEvidenceCandidateOriginalSourceUrls.get(programme.id);
+  const hasCurrentSource = Boolean(safeSourceUrl && safeSourceUrl !== originalSourceUrl);
   const currentDetailFields = ["duration", "requirementsSummary", "overview", "applicationUrl", "applicationDeadline", "intakeStatus"];
   const hasCurrentDetail = currentDetailFields.some((field) => String(programme[field] || "").trim());
   const sourceCheckedAt = new Date(programme.sourceCheckedAt || "").getTime();
@@ -7020,7 +7027,11 @@ function getCandidateEvidenceStatus(programme = {}) {
     && Math.floor(sourceCheckAgeMs / 86400000) <= programmeFreshnessThresholds.currentDays;
   return {
     requiresCurrentEvidence,
-    candidateLabel: sourceType === "official_regulator_historical_pdf" ? "Historical CHE candidate" : "Supplied prospectus candidate",
+    candidateLabel: sourceType === "official_regulator_historical_pdf"
+      ? "Historical CHE candidate"
+      : sourceType === "historical_institution_facebook_post"
+        ? "Historical social-post candidate"
+        : "Supplied prospectus candidate",
     hasCurrentSource,
     hasCurrentDetail,
     hasCurrentSourceCheck,

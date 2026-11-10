@@ -697,12 +697,16 @@ test('supplied prospectuses need a current official URL before they can be appro
     currentEvidenceCandidateSourceTypes: new Set([
       'official_regulator_historical_pdf',
       'supplied_institution_prospectus_pdf',
-      'manual_user_confirmation_prospectus_pdf'
+      'manual_user_confirmation_prospectus_pdf',
+      'historical_institution_facebook_post'
     ])
   });
   const getCandidateEvidenceStatus = load('getCandidateEvidenceStatus', {
     requiresCurrentCandidateEvidence,
     getSafeExternalUrl: (value) => /^https?:\/\//.test(value || '') ? value : '',
+    currentEvidenceCandidateOriginalSourceUrls: new Map([
+      ['bernarda-certificate', 'https://facebook.com/bernarda/2024-post']
+    ]),
     programmeFreshnessThresholds: { currentDays: 180 }
   });
   const getProgrammeApprovalBlocker = load('getProgrammeApprovalBlocker', { getCandidateEvidenceStatus });
@@ -720,6 +724,40 @@ test('supplied prospectuses need a current official URL before they can be appro
     getProgrammeApprovalBlocker({ ...currentSource, sourceCheckedAt: '2025-01-01T00:00:00Z' }),
     /checked today/
   );
+  const historicalSocialPost = {
+    id: 'bernarda-certificate',
+    sourceType: 'historical_institution_facebook_post',
+    sourceUrl: 'https://facebook.com/bernarda/2024-post',
+    requirementsSummary: 'JC/Grade 10 with five passes',
+    sourceCheckedAt: new Date().toISOString()
+  };
+  assert.equal(getCandidateEvidenceStatus(historicalSocialPost).candidateLabel, 'Historical social-post candidate');
+  assert.match(getProgrammeApprovalBlocker(historicalSocialPost), /current official source URL/);
+  assert.equal(getProgrammeApprovalBlocker({ ...historicalSocialPost, sourceUrl: 'https://bernarda.example/current-prospectus' }), '');
+});
+test('staff catalogue remembers the original historical post before admin edits', async () => {
+  const adminProgrammes = [];
+  const originalUrls = new Map();
+  const loadStaffCatalogue = load('loadStaffCatalogue', {
+    authToken: 'session',
+    isAdmin: () => true,
+    isInstitutionAdmin: () => false,
+    fetch: async () => ({
+      ok: true,
+      json: async () => ({ programmes: [{
+        id: 'bernarda-certificate',
+        sourceType: 'historical_institution_facebook_post',
+        sourceUrl: 'https://facebook.com/bernarda/2024-post'
+      }] })
+    }),
+    getAuthHeaders: () => ({}),
+    requiresCurrentCandidateEvidence: (programme) => programme.sourceType === 'historical_institution_facebook_post',
+    currentEvidenceCandidateOriginalSourceUrls: originalUrls,
+    adminProgrammes
+  });
+  await loadStaffCatalogue();
+  assert.equal(originalUrls.get('bernarda-certificate'), 'https://facebook.com/bernarda/2024-post');
+  assert.equal(adminProgrammes.length, 1);
 });
 test('unclassified application status is never promoted to a verified deadline', () => {
   const normalizeDeadlineStatus = load('normalizeDeadlineStatus');
